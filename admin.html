@@ -2,39 +2,33 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cricket Master Control</title>
+    <title>Cricket Master Control Pro</title>
     <style>
         :root { --primary: #f1c40f; --bg: #121212; --card: #1e1e1e; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 0; }
         
-        /* THE PREVIEW WINDOW */
         .preview-header { background: #222; padding: 10px; font-size: 12px; color: #888; text-align: center; border-bottom: 1px solid #333; }
-        .preview-container { 
-            width: 100%; 
-            height: 180px; 
-            background: #333; /* Represents the 'video' background */
-            position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
+        .preview-container { width: 100%; height: 180px; background: #333; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         iframe { width: 100%; height: 100%; border: none; transform: scale(0.8); transform-origin: top center; }
 
         .content { padding: 15px; display: grid; gap: 15px; }
         .card { background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid #333; }
         
-        /* CONTROLS */
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        button { padding: 15px 5px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button { padding: 12px 5px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         button:active { transform: scale(0.95); }
         .btn-run { background: #27ae60; color: white; }
         .btn-wkt { background: #c0392b; color: white; }
         .btn-extra { background: #e67e22; color: white; }
         .btn-util { background: #34495e; color: white; }
+        .btn-danger { background: #8e44ad; color: white; } /* Purple for swap */
+        .btn-wipe { background: #333; color: #ff4d4d; border: 1px solid #ff4d4d; }
         
         input, textarea, select { 
             width: 100%; padding: 10px; margin: 8px 0; 
             background: #222; border: 1px solid #444; color: white; border-radius: 4px; box-sizing: border-box;
         }
-        h4 { margin-top: 0; color: var(--primary); text-transform: uppercase; font-size: 14px; }
+        h4 { margin-top: 0; color: var(--primary); text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -46,15 +40,16 @@
 
     <div class="content">
         <div class="card">
-            <h4>1. Setup Teams</h4>
-            <input id="teamName" placeholder="Batting Team Name (e.g. INDIA)">
-            <textarea id="squad" rows="4" placeholder="Batting 11 (One name per line)"></textarea>
-            <textarea id="bowlers" rows="4" placeholder="Bowling 11 (One name per line)"></textarea>
+            <h4>1. Team Squads</h4>
+            <input id="teamNameA" placeholder="Team A Name (Batting First)">
+            <textarea id="squadA" rows="3" placeholder="Team A: 11 Names (one per line)"></textarea>
+            <input id="teamNameB" placeholder="Team B Name (Bowling First)">
+            <textarea id="squadB" rows="3" placeholder="Team B: 11 Names (one per line)"></textarea>
             <button class="btn-util" style="width:100%; background: #2980b9;" onclick="initMatch()">Initialize Match</button>
         </div>
 
         <div class="card">
-            <h4>2. Current Players</h4>
+            <h4>2. Field Management</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <div>
                     <label style="font-size:10px">STRIKER</label>
@@ -70,7 +65,7 @@
         </div>
 
         <div class="card">
-            <h4>3. Scoring</h4>
+            <h4>3. Live Scoring</h4>
             <div class="grid-4">
                 <button class="btn-run" onclick="ball(0)">0</button>
                 <button class="btn-run" onclick="ball(1)">1</button>
@@ -86,13 +81,22 @@
                 <button class="btn-util" onclick="swapStrike()">SWAP STRIKE</button>
             </div>
         </div>
+
+        <div class="card">
+            <h4>4. Match Functions</h4>
+            <button class="btn-danger" style="width:100%; margin-bottom:10px;" onclick="swapInnings()">
+                START SECOND INNINGS (Swap Teams)
+            </button>
+            <button class="btn-wipe" style="width:100%;" onclick="fullReset()">
+                CLEAR ALL FIREBASE DATA
+            </button>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // CONFIG (Ensure this matches your index.html exactly)
         const firebaseConfig = {
             apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
             authDomain: "cricket-8e338.firebaseapp.com",
@@ -107,23 +111,24 @@
         const mRef = ref(db, 'cricket');
 
         window.initMatch = async () => {
-            const s = document.getElementById('squad').value.split('\n').filter(n => n.trim() !== "");
-            const b = document.getElementById('bowlers').value.split('\n').filter(n => n.trim() !== "");
+            const sA = document.getElementById('squadA').value.split('\n').filter(n => n.trim() !== "");
+            const sB = document.getElementById('squadB').value.split('\n').filter(n => n.trim() !== "");
             const data = {
-                batTeam: document.getElementById('teamName').value || "TEAM",
+                batTeam: document.getElementById('teamNameA').value || "TEAM A",
+                bowlTeam: document.getElementById('teamNameB').value || "TEAM B",
                 runs:0, wkts:0, balls:0, str:1,
-                p1n:s[0] || "Batsman 1", p1r:0, p1b:0, 
-                p2n:s[1] || "Batsman 2", p2r:0, p2b:0,
-                bwn:b[0] || "Bowler", bwr:0, bww:0, bwb:0
+                p1n:sA[0] || "Batsman 1", p1r:0, p1b:0, 
+                p2n:sA[1] || "Batsman 2", p2r:0, p2b:0,
+                bwn:sB[0] || "Bowler", bwr:0, bww:0, bwb:0
             };
             await set(mRef, data);
-            fillSelects(s, b);
+            fillSelects(sA, sB);
             alert("Match Initialized!");
         };
 
-        function fillSelects(s, b) {
-            const batHtml = s.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
-            const bwlHtml = b.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
+        function fillSelects(battingSquad, bowlingSquad) {
+            const batHtml = battingSquad.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
+            const bwlHtml = bowlingSquad.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
             document.getElementById('selP1').innerHTML = batHtml;
             document.getElementById('selP2').innerHTML = batHtml;
             document.getElementById('selBw').innerHTML = bwlHtml;
@@ -136,7 +141,7 @@
                 d.balls++; d.bwb++;
                 if(d.str === 1) { d.p1r += r; d.p1b++; } else { d.p2r += r; d.p2b++; }
                 if(r % 2 !== 0) swapLocal(d);
-                if(d.balls % 6 === 0) swapLocal(d); // Over end swap
+                if(d.balls % 6 === 0) swapLocal(d);
             }
             update(mRef, d);
         };
@@ -145,6 +150,35 @@
             const snap = await get(mRef); const d = snap.val();
             d.wkts++; d.balls++; d.bww++;
             update(mRef, d);
+        };
+
+        window.swapInnings = async () => {
+            if(confirm("Swap teams for 2nd Innings? Scores will reset.")) {
+                const snap = await get(mRef); const d = snap.val();
+                const sA = document.getElementById('squadA').value.split('\n');
+                const sB = document.getElementById('squadB').value.split('\n');
+                
+                // Swap the team names and squads
+                const newBatTeam = d.bowlTeam;
+                const newBowlTeam = d.batTeam;
+                
+                await set(mRef, {
+                    batTeam: newBatTeam, bowlTeam: newBowlTeam,
+                    runs:0, wkts:0, balls:0, str:1,
+                    p1n:sB[0], p1r:0, p1b:0, p2n:sB[1], p2r:0, p2b:0,
+                    bwn:sA[0], bwr:0, bww:0, bwb:0
+                });
+                fillSelects(sB, sA);
+                alert("Second Innings Started! " + newBatTeam + " is batting.");
+            }
+        };
+
+        window.fullReset = async () => {
+            if(confirm("DELETE EVERYTHING? This wipes the Firebase database.")) {
+                await set(mRef, null);
+                alert("Database wiped. Refreshing page...");
+                location.reload();
+            }
         };
 
         window.changePlayer = (key, val) => update(mRef, { [key]: val });
