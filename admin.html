@@ -1,24 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cricket Admin Pro</title>
+    <title>Cricket Admin Master</title>
     <style>
         :root { --primary: #f1c40f; --bg: #000; --card: #1a1a1a; --text: #eee; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
         
-        /* FORCE MOBILE PREVIEW VIEWPORT */
+        /* THE PREVIEW FIX: Scalable for Mobile & Desktop */
         .preview-container { 
-            width: 100%; height: 110px; background: #222; 
-            position: sticky; top: 0; z-index: 1000; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            overflow: hidden; display: flex; align-items: flex-start;
+            width: 100%; 
+            height: 120px; 
+            background: #222; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
             border-bottom: 2px solid var(--primary);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
         #previewFrame { 
-            width: 1920px; height: 1080px; border: none; 
-            transform-origin: 0 0;
-            transform: scale(calc(100vw / 1920)); 
+            width: 1920px; 
+            height: 1080px; 
+            border: none; 
+            transform-origin: center center;
+            /* This formula scales the 1080p overlay to fit any screen width */
+            transform: scale(calc(window.innerWidth / 1920));
+        }
+
+        @media (max-width: 600px) {
+            #previewFrame { transform: scale(calc(100vw / 1920)); transform-origin: top left; }
+            .preview-container { align-items: flex-start; height: 80px; }
         }
 
         .content { padding: 12px; display: grid; gap: 12px; }
@@ -44,30 +59,28 @@
 
     <div class="content">
         <div class="card">
-            <h4>1. Team & Squad Setup</h4>
+            <h4>1. Match Setup</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div><label>Batting Team</label><input id="teamNameA"></div>
                 <div><label>Bowling Team</label><input id="teamNameB"></div>
             </div>
-            <label>Squads (Names separated by commas or lines)</label>
+            <label>Squads (Names separated by lines)</label>
             <textarea id="squadA" rows="2" placeholder="Batting Squad"></textarea>
-            <textarea id="squadB" rows="2" placeholder="Bowling Squad"></textarea>
             <button class="btn-util" style="width:100%" onclick="initMatch()">INITIALIZE MATCH</button>
         </div>
 
         <div class="card">
-            <h4>2. Field Management</h4>
+            <h4>2. Field Control</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div><label>Striker</label><select id="selP1" onchange="changePlayer('p1n', this.value)"></select></div>
-                <div><label>Non-Striker</label><select id="selP2" onchange="changePlayer('p2n', this.value)"></select></div>
+                <div><label>Striker</label><select id="selP1" onchange="updatePlayer('p1n', this.value)"></select></div>
+                <div><label>Non-Striker</label><select id="selP2" onchange="updatePlayer('p2n', this.value)"></select></div>
             </div>
-            <label>Current Bowler</label>
-            <select id="selBw" onchange="changePlayer('bwn', this.value)"></select>
-            <button class="btn-util" style="background:#6a1b9a; margin-top:10px;" onclick="swapStrike()">SWAP STRIKE</button>
+            <label>Current Bowler (Manual Entry)</label>
+            <input id="bowlerInp" placeholder="Name" onchange="updatePlayer('bwn', this.value)">
         </div>
 
         <div class="card">
-            <h4>3. Live Scoring</h4>
+            <h4>3. Scoring</h4>
             <div class="grid-scoring">
                 <button class="btn-run" onclick="ball(0)">0</button>
                 <button class="btn-run" onclick="ball(1)">1</button>
@@ -85,10 +98,10 @@
         </div>
 
         <div class="card">
-            <h4>4. Quick Correction</h4>
+            <h4>4. Corrections</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <div><label>Runs</label><input type="number" id="fixRuns" onchange="manualFix('runs', this.value)"></div>
-                <div><label>Wkts</label><input type="number" id="fixWkts" onchange="manualFix('wkts', this.value)"></div>
+                <div><label>Total Runs</label><input type="number" id="fixRuns" onchange="manualFix('runs', this.value)"></div>
+                <div><label>Total Wkts</label><input type="number" id="fixWkts" onchange="manualFix('wkts', this.value)"></div>
             </div>
             <label>Target</label>
             <input type="number" id="matchTarget" onchange="manualFix('target', this.value)">
@@ -115,44 +128,38 @@
         const mRef = ref(db, 'cricket');
         let lastState = null;
 
-        // FIXED SYNC: Keeps all dropdowns and values on refresh
+        // DATA SYNC: Prevents disappearing values on refresh
         onValue(mRef, (snap) => {
             const d = snap.val();
             if(!d) return;
-
-            // Update Text Inputs
             document.getElementById('teamNameA').value = d.batTeam || "";
             document.getElementById('teamNameB').value = d.bowlTeam || "";
             document.getElementById('matchTarget').value = d.target || 0;
             document.getElementById('fixRuns').value = d.runs || 0;
             document.getElementById('fixWkts').value = d.wkts || 0;
-
-            // Re-fill Selects if squad exists in Firebase (logic: we use a hidden string to store squad if you wish, or we just rely on the UI textarea)
-            // For now, let's just make sure the preview refreshes
-            document.getElementById('previewFrame').src = document.getElementById('previewFrame').src;
+            document.getElementById('bowlerInp').value = d.bwn || "";
+            
+            // Reload the preview iframe to show live update
+            document.getElementById('previewFrame').contentWindow.location.reload();
         });
 
         window.initMatch = async () => {
-            const sA = document.getElementById('squadA').value.split(/[\n,]+/).filter(n => n.trim() !== "");
-            const sB = document.getElementById('squadB').value.split(/[\n,]+/).filter(n => n.trim() !== "");
-            
+            const sA = document.getElementById('squadA').value.split('\n').filter(n => n.trim() !== "");
             const data = {
                 batTeam: document.getElementById('teamNameA').value || "TEAM A",
                 bowlTeam: document.getElementById('teamNameB').value || "TEAM B",
                 runs:0, wkts:0, balls:0, str:1, target: parseInt(document.getElementById('matchTarget').value) || 0,
                 p1n:sA[0] || "Bat 1", p1r:0, p1b:0, p2n:sA[1] || "Bat 2", p2r:0, p2b:0,
-                bwn:sB[0] || "Bowler", bwr:0, bww:0, bwb:0
+                bwn: "Bowler", bwr:0, bww:0, bwb:0
             };
             await set(mRef, data);
-            fillSelects(sA, sB);
+            fillSelects(sA);
         };
 
-        function fillSelects(batting, bowling) {
-            const bH = batting.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
-            const wH = bowling.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
-            document.getElementById('selP1').innerHTML = bH; 
-            document.getElementById('selP2').innerHTML = bH;
-            document.getElementById('selBw').innerHTML = wH;
+        function fillSelects(squad) {
+            const h = squad.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
+            document.getElementById('selP1').innerHTML = h; 
+            document.getElementById('selP2').innerHTML = h;
         }
 
         window.ball = async (r, ex) => {
@@ -173,15 +180,16 @@
             d.wkts++; d.balls++; d.bww++; update(mRef, d);
         };
 
-        window.swapStrike = async () => {
-            const snap = await get(mRef); const d = snap.val();
-            d.str = d.str === 1 ? 2 : 1; update(mRef, d);
-        };
-
-        window.manualFix = async (f, v) => { if(v!=="") await update(mRef, {[f]: parseInt(v)}); };
-        window.changePlayer = (k, v) => update(mRef, { [k]: v });
+        window.manualFix = async (field, val) => { if(val !== "") await update(mRef, {[field]: parseInt(val)}); };
+        window.updatePlayer = (field, val) => update(mRef, { [field]: val });
         window.undoLast = async () => { if(lastState) { await set(mRef, lastState); lastState = null; } };
-        window.fullReset = async () => { if(confirm("Wipe all data?")) set(mRef, null); };
+        window.fullReset = async () => { if(confirm("Clear match?")) set(mRef, null); };
+
+        // Ensure preview scales correctly on resize
+        window.addEventListener('resize', () => {
+            const frame = document.getElementById('previewFrame');
+            frame.style.transform = `scale(${window.innerWidth / 1920})`;
+        });
     </script>
 </body>
 </html>
