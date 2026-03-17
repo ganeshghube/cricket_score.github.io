@@ -1,67 +1,93 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { background: transparent; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
-        .score-bar {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            display: flex; background: rgba(0, 0, 0, 0.9); border-bottom: 4px solid #f1c40f;
-            padding: 10px 30px; border-radius: 5px; align-items: center; min-width: 800px;
-        }
-        .team-info { font-size: 28px; font-weight: bold; border-right: 2px solid #555; padding-right: 20px; }
-        .batsmen { flex-grow: 1; display: flex; gap: 40px; padding-left: 20px; font-size: 20px; }
-        .active { color: #f1c40f; } /* Striker highlight */
-        .bowler-info { font-size: 20px; color: #ccc; border-left: 2px solid #555; padding-left: 20px; }
-        .crr { font-size: 16px; color: #aaa; margin-left: 10px; }
+        body { font-family: sans-serif; background: #1a1a1a; color: white; padding: 15px; }
+        .btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        button { padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .run { background: #2ecc71; }
+        .wicket { background: #e74c3c; }
+        .extra { background: #f39c12; }
+        .control { background: #3498db; grid-column: span 2; }
+        input { width: 90%; padding: 8px; margin-bottom: 5px; background: #333; color: white; border: 1px solid #555; }
     </style>
 </head>
 <body>
-    <div class="score-bar">
-        <div class="team-info">
-            <span id="teamName">TEAM</span> 
-            <span id="score">0/0</span> 
-            <span style="font-size: 18px;">(<span id="overs">0.0</span>)</span>
-        </div>
-        <div class="batsmen">
-            <div id="p1" class="active">P1* 0(0)</div>
-            <div id="p2">P2 0(0)</div>
-        </div>
-        <div class="bowler-info">
-            BWL: <span id="bowlerName">Bowler</span> <span id="bowlerStats">0-0 (0.0)</span>
-            <span class="crr">CRR: <span id="crr">0.0</span></span>
-        </div>
+    <h3>Match Setup</h3>
+    <input id="teamInp" placeholder="Team Name">
+    <input id="p1Inp" placeholder="Striker Name">
+    <input id="p2Inp" placeholder="Non-Striker Name">
+    <input id="bwlInp" placeholder="Bowler Name">
+    <button class="control" onclick="updateInfo()">Update Lineup</button>
+
+    <div class="btn-grid">
+        <button class="run" onclick="addBall(0)">0</button>
+        <button class="run" onclick="addBall(1)">1</button>
+        <button class="run" onclick="addBall(2)">2</button>
+        <button class="run" onclick="addBall(4)">4</button>
+        <button class="run" onclick="addBall(6)">6</button>
+        <button class="extra" onclick="addBall(1, true)">WD/NB</button>
+        <button class="wicket" onclick="addWicket()">WICKET</button>
+        <button class="control" onclick="swap()">Swap Strike</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        const firebaseConfig = {             
-            apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
-            authDomain: "cricket-8e338.firebaseapp.com",
-            projectId: "cricket-8e338",
-            storageBucket: "cricket-8e338.firebasestorage.app",
-            messagingSenderId: "41064243639",
-            appId: "1:41064243639:web:d99e0d8f64b1bbca20c832" 
-        };
+        const firebaseConfig = { /* YOUR CONFIG */ };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const matchRef = ref(db, 'match/');
 
-        onValue(ref(db, 'match/'), (snapshot) => {
-            const d = snapshot.val();
-            if(!d) return;
-            document.getElementById('teamName').innerText = d.battingTeam;
-            document.getElementById('score').innerText = `${d.runs}/${d.wickets}`;
-            document.getElementById('overs').innerText = `${Math.floor(d.balls/6)}.${d.balls%6}`;
-            document.getElementById('p1').innerText = `${d.p1Name}${d.striker === 1 ? '*' : ''} ${d.p1Runs}(${d.p1Balls})`;
-            document.getElementById('p2').innerText = `${d.p2Name}${d.striker === 2 ? '*' : ''} ${d.p2Runs}(${d.p2Balls})`;
-            document.getElementById('p1').className = d.striker === 1 ? 'active' : '';
-            document.getElementById('p2').className = d.striker === 2 ? 'active' : '';
-            document.getElementById('bowlerName').innerText = d.bwlName;
-            document.getElementById('bowlerStats').innerText = `${d.bwlWkts}-${d.bwlRuns} (${Math.floor(d.bwlBalls/6)}.${d.bwlBalls%6})`;
-            const crr = (d.runs / (d.balls/6 || 1)).toFixed(2);
-            document.getElementById('crr').innerText = crr;
-        });
+        window.updateInfo = async () => {
+            const data = (await get(matchRef)).val() || {};
+            set(matchRef, {
+                ...data,
+                battingTeam: document.getElementById('teamInp').value,
+                p1Name: document.getElementById('p1Inp').value,
+                p2Name: document.getElementById('p2Inp').value,
+                bwlName: document.getElementById('bwlInp').value,
+                runs: data.runs || 0, wickets: data.wickets || 0, balls: data.balls || 0,
+                p1Runs: 0, p1Balls: 0, p2Runs: 0, p2Balls: 0, striker: 1,
+                bwlRuns: 0, bwlWkts: 0, bwlBalls: 0
+            });
+        };
+
+        window.addBall = async (r, isExtra=false) => {
+            const d = (await get(matchRef)).val();
+            d.runs += r;
+            if(!isExtra) {
+                d.balls += 1;
+                d.bwlBalls += 1;
+                if(d.striker === 1) { d.p1Runs += r; d.p1Balls += 1; }
+                else { d.p2Runs += r; d.p2Balls += 1; }
+                // Swap strike on odd runs
+                if(r % 2 !== 0) d.striker = d.striker === 1 ? 2 : 1;
+                // Swap strike on end of over
+                if(d.balls % 6 === 0) d.striker = d.striker === 1 ? 2 : 1;
+            }
+            d.bwlRuns += r;
+            set(matchRef, d);
+        };
+
+        window.addWicket = async () => {
+            const d = (await get(matchRef)).val();
+            d.wickets += 1;
+            d.balls += 1;
+            d.bwlWkts += 1;
+            // In a real app, you'd prompt for a new player name here
+            if(d.striker === 1) { d.p1Name = "New Player"; d.p1Runs = 0; d.p1Balls = 0; }
+            else { d.p2Name = "New Player"; d.p2Runs = 0; d.p2Balls = 0; }
+            set(matchRef, d);
+        };
+
+        window.swap = async () => {
+            const d = (await get(matchRef)).val();
+            d.striker = d.striker === 1 ? 2 : 1;
+            set(matchRef, d);
+        };
     </script>
 </body>
 </html>
