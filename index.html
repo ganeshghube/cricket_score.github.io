@@ -3,163 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Cricket Broadcast Overlay</title>
+    <title>Professional Cricket Overlay</title>
     <style>
-        :root { 
-            --accent: #f1c40f; 
-            --bg-glass: rgba(10, 10, 10, 0.95);
-            --border: rgba(255, 255, 255, 0.1);
-        }
-        
-        body { 
-            background-color: rgba(0, 0, 0, 0); 
-            margin: 0; 
-            font-family: 'Segoe UI', 'Arial Black', sans-serif; 
-            color: white; 
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        /* Main Wrapper - Positioned for Stream Safe Zones */
-        .overlay-wrapper {
-            position: absolute;
-            bottom: 40px; /* Elevated to clear stream UI/seekbars */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 1000px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Target Indicator - Floating above the main bar */
-        .target-ui {
-            background: var(--accent);
-            color: black;
-            padding: 2px 15px;
-            font-size: 14px;
-            font-weight: 800;
-            border-radius: 4px 4px 0 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
-            display: none;
-        }
-
-        /* Main Score Bar */
-        .score-bar {
-            display: flex;
-            flex-wrap: wrap; 
-            background: var(--bg-glass);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border);
-            border-bottom: 5px solid var(--accent);
-            padding: 8px 0;
-            border-radius: 4px;
-            align-items: center;
-            width: 100%;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
-            box-sizing: border-box;
-        }
-
+        :root { --accent: #f1c40f; --bg-glass: rgba(10, 10, 10, 0.95); --border: rgba(255, 255, 255, 0.1); }
+        body { background-color: rgba(0, 0, 0, 0); margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; width: 100vw; }
+        .overlay-wrapper { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 1000px; display: flex; flex-direction: column; align-items: center; }
+        .target-ui { background: var(--accent); color: black; padding: 2px 15px; font-size: 14px; font-weight: 800; border-radius: 4px 4px 0 0; text-transform: uppercase; display: none; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); }
+        .score-bar { display: flex; flex-wrap: wrap; background: var(--bg-glass); backdrop-filter: blur(10px); border-bottom: 5px solid var(--accent); padding: 8px 0; border-radius: 4px; align-items: center; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.8); }
         .section { padding: 5px 20px; box-sizing: border-box; }
-
-        /* Team & Score Section */
-        .team-section {
-            flex: 1 1 100%; 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255,255,255,0.05);
-            margin-bottom: 5px;
-        }
+        .team-section { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); margin-bottom: 5px; }
         .team-name { font-size: 22px; font-weight: 900; color: var(--accent); }
-        .score-main { font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+        .score-main { font-size: 32px; font-weight: 900; }
         .overs { font-size: 16px; color: #ccc; margin-left: 8px; font-weight: 400; }
-
-        /* Batsmen Section */
-        .batsmen-section {
-            flex: 2 1 300px;
-            display: flex;
-            justify-content: space-around;
-            border-right: 1px solid var(--border);
-        }
+        .batsmen-section { flex: 2 1 300px; display: flex; justify-content: space-around; border-right: 1px solid var(--border); }
         .player { font-size: 18px; font-weight: 600; color: #eee; }
         .player.active { color: var(--accent); }
         .player.active::after { content: ' •'; font-size: 24px; vertical-align: middle; }
-        .p-stats { font-size: 14px; color: #aaa; font-weight: 400; display: block; margin-top: -2px;}
-
-        /* Bowler Section */
-        .bowler-section {
-            flex: 1 1 200px;
-            text-align: right;
-        }
+        .p-stats { font-size: 14px; color: #aaa; display: block; margin-top: -2px;}
+        .bowler-section { flex: 1 1 200px; text-align: right; }
         .bowler-name { font-size: 17px; color: #fff; font-weight: 700; display: block; }
         .bowler-stats { font-size: 14px; color: var(--accent); font-weight: 600; }
+        .over-grid { display: flex; gap: 4px; margin-top: 5px; justify-content: flex-end; }
+        .ball { width: 22px; height: 22px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 1px solid var(--border); }
+        .ball-w { background: #c0392b; border-color: #ff4d4d; }
+        .ball-b { background: #27ae60; border-color: #2ecc71; }
+        .ball-e { background: #e67e22; }
 
-        /* Tablet/Desktop Re-layout */
         @media (min-width: 850px) {
-            .score-bar { flex-wrap: nowrap; padding: 0; height: 70px; }
-            .team-section { 
-                flex: 0 0 auto; 
-                flex-direction: column; 
-                height: 100%;
-                justify-content: center;
-                background: none;
-                border-right: 2px solid var(--border);
-                margin-bottom: 0;
-                padding: 0 25px;
-                align-items: flex-start;
-            }
-            .team-name { font-size: 18px; line-height: 1; margin-bottom: 2px; }
+            .score-bar { flex-wrap: nowrap; height: 80px; }
+            .team-section { flex: 0 0 auto; flex-direction: column; height: 100%; border-right: 2px solid var(--border); padding: 0 25px; align-items: flex-start; background: none; }
+            .team-name { font-size: 18px; line-height: 1; }
             .score-main { font-size: 30px; line-height: 1; }
-            .target-ui { align-self: flex-start; margin-left: 10px; }
         }
-
-        /* Animation */
         .update-flash { animation: flash 0.6s ease-out; }
-        @keyframes flash {
-            0% { background: var(--bg-glass); }
-            50% { background: rgba(241, 196, 15, 0.3); }
-            100% { background: var(--bg-glass); }
-        }
+        @keyframes flash { 0% { background: var(--bg-glass); } 50% { background: rgba(241, 196, 15, 0.3); } 100% { background: var(--bg-glass); } }
     </style>
 </head>
 <body>
-
     <div class="overlay-wrapper">
-        <div id="target-ui" class="target-ui">
-            Target: <span id="disp-target">0</span>
-        </div>
-
+        <div id="target-ui" class="target-ui">Target: <span id="disp-target">0</span></div>
         <div class="score-bar" id="scoreBar">
             <div class="team-section section">
                 <span class="team-name" id="disp-team">TEAM</span>
-                <div class="score-main">
-                    <span id="disp-runs">0</span>/<span id="disp-wkts">0</span>
-                    <span class="overs">(<span id="disp-ovs">0.0</span>)</span>
-                </div>
+                <div class="score-main"><span id="disp-runs">0</span>/<span id="disp-wkts">0</span><span class="overs">(<span id="disp-ovs">0.0</span>)</span></div>
             </div>
-
             <div class="batsmen-section section">
-                <div id="p1-box" class="player">
-                    <span id="disp-p1n">Batsman 1</span>
-                    <span class="p-stats"><span id="disp-p1r">0</span> <small>off</small> <span id="disp-p1b">0</span></span>
-                </div>
-                <div id="p2-box" class="player">
-                    <span id="disp-p2n">Batsman 2</span>
-                    <span class="p-stats"><span id="disp-p2r">0</span> <small>off</small> <span id="disp-p2b">0</span></span>
-                </div>
+                <div id="p1-box" class="player"><span id="disp-p1n">Bat 1</span><span class="p-stats"><span id="disp-p1r">0</span>(<span id="disp-p1b">0</span>)</span></div>
+                <div id="p2-box" class="player"><span id="disp-p2n">Bat 2</span><span class="p-stats"><span id="disp-p2r">0</span>(<span id="disp-p2b">0</span>)</span></div>
             </div>
-
             <div class="bowler-section section">
                 <span class="bowler-name" id="disp-bwn">Bowler</span>
-                <span class="bowler-stats">
-                    <span id="disp-bww">0</span>-<span id="disp-bwr">0</span> 
-                    <span style="color:#888; font-weight:normal;">(<span id="disp-bwb">0.0</span>)</span>
-                </span>
+                <span class="bowler-stats"><span id="disp-bww">0</span>-<span id="disp-bwr">0</span> (<span id="disp-bwb">0.0</span>)</span>
+                <div class="over-grid" id="over-grid"></div>
             </div>
         </div>
     </div>
@@ -167,62 +62,38 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
-            authDomain: "cricket-8e338.firebaseapp.com",
-            projectId: "cricket-8e338",
-            storageBucket: "cricket-8e338.firebasestorage.app",
-            messagingSenderId: "41064243639",
-            appId: "1:41064243639:web:d99e0d8f64b1bbca20c832"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU", authDomain: "cricket-8e338.firebaseapp.com", projectId: "cricket-8e338", storageBucket: "cricket-8e338.firebasestorage.app", messagingSenderId: "41064243639", appId: "1:41064243639:web:d99e0d8f64b1bbca20c832" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const cricketRef = ref(db, 'cricket');
 
-        onValue(cricketRef, (snapshot) => {
-            const data = snapshot.val();
-            if (!data) return;
-
-            document.getElementById('disp-team').innerText = data.batTeam || "TEAM";
-            document.getElementById('disp-runs').innerText = data.runs || 0;
-            document.getElementById('disp-wkts').innerText = data.wkts || 0;
+        onValue(cricketRef, (snap) => {
+            const d = snap.val(); if (!d) return;
+            document.getElementById('disp-team').innerText = d.batTeam;
+            document.getElementById('disp-runs').innerText = d.runs;
+            document.getElementById('disp-wkts').innerText = d.wkts;
+            document.getElementById('disp-ovs').innerText = `${Math.floor(d.balls/6)}.${d.balls%6}`;
+            document.getElementById('disp-p1n').innerText = d.p1n; document.getElementById('disp-p1r').innerText = d.p1r; document.getElementById('disp-p1b').innerText = d.p1b;
+            document.getElementById('disp-p2n').innerText = d.p2n; document.getElementById('disp-p2r').innerText = d.p2r; document.getElementById('disp-p2b').innerText = d.p2b;
+            document.getElementById('p1-box').className = d.str === 1 ? 'player active' : 'player';
+            document.getElementById('p2-box').className = d.str === 2 ? 'player active' : 'player';
+            document.getElementById('disp-bwn').innerText = d.bwn; document.getElementById('disp-bwr').innerText = d.bwr; document.getElementById('disp-bww').innerText = d.bww;
+            document.getElementById('disp-bwb').innerText = `${Math.floor(d.bwb/6)}.${d.bwb%6}`;
             
-            const balls = data.balls || 0;
-            document.getElementById('disp-ovs').innerText = `${Math.floor(balls / 6)}.${balls % 6}`;
-
-            document.getElementById('disp-p1n').innerText = data.p1n || "Batsman 1";
-            document.getElementById('disp-p1r').innerText = data.p1r || 0;
-            document.getElementById('disp-p1b').innerText = data.p1b || 0;
-            
-            document.getElementById('disp-p2n').innerText = data.p2n || "Batsman 2";
-            document.getElementById('disp-p2r').innerText = data.p2r || 0;
-            document.getElementById('disp-p2b').innerText = data.p2b || 0;
-
-            document.getElementById('p1-box').className = data.str === 1 ? 'player active' : 'player';
-            document.getElementById('p2-box').className = data.str === 2 ? 'player active' : 'player';
-
-            document.getElementById('disp-bwn').innerText = data.bwn || "Bowler";
-            document.getElementById('disp-bwr').innerText = data.bwr || 0;
-            document.getElementById('disp-bww').innerText = data.bww || 0;
-            const bwb = data.bwb || 0;
-            document.getElementById('disp-bwb').innerText = `${Math.floor(bwb / 6)}.${bwb % 6}`;
-
-            const target = data.target || 0;
             const targetUI = document.getElementById('target-ui');
-            if (target > 0) {
-                targetUI.style.display = 'inline-block';
-                document.getElementById('disp-target').innerText = target;
-            } else {
-                targetUI.style.display = 'none';
-            }
+            if (d.target > 0) { targetUI.style.display = 'inline-block'; document.getElementById('disp-target').innerText = d.target; } else { targetUI.style.display = 'none'; }
 
-            // High-performance animation trigger
-            const bar = document.getElementById('scoreBar');
-            bar.classList.remove('update-flash');
-            void bar.offsetWidth; 
-            bar.classList.add('update-flash');
+            const grid = document.getElementById('over-grid'); grid.innerHTML = '';
+            const history = d.recentBalls || [];
+            for(let i=0; i<6; i++) {
+                const val = history[i] !== undefined ? history[i] : '-';
+                let cls = 'ball';
+                if(val === 'W') cls += ' ball-w';
+                else if(val === 4 || val === 6) cls += ' ball-b';
+                else if(val === 'WD' || val === 'NB') cls += ' ball-e';
+                grid.innerHTML += `<div class="${cls}">${val}</div>`;
+            }
+            const bar = document.getElementById('scoreBar'); bar.classList.remove('update-flash'); void bar.offsetWidth; bar.classList.add('update-flash');
         });
     </script>
 </body>
