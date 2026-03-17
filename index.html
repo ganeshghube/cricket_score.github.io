@@ -1,36 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <style>
-        body { background: transparent; margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; color: white; overflow: hidden; }
-        .main-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 900px; }
-        .score-bar { background: rgba(15, 15, 15, 0.95); border-left: 8px solid #f1c40f; display: flex; align-items: center; padding: 10px 25px; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .team-score { font-size: 32px; font-weight: 900; min-width: 180px; }
-        .team-score span { font-size: 18px; font-weight: normal; color: #aaa; margin-left: 10px; }
-        .players-box { flex-grow: 1; display: flex; gap: 30px; padding: 0 30px; border-left: 1px solid #444; border-right: 1px solid #444; }
-        .player { font-size: 20px; color: #eee; }
-        .player.active { color: #f1c40f; font-weight: bold; }
-        .player.active::after { content: '*'; }
-        .bowler-box { padding-left: 20px; min-width: 150px; font-size: 18px; color: #ccc; }
-        .stat { font-size: 14px; color: #888; display: block; }
+        body { background: transparent; margin: 0; font-family: 'Arial', sans-serif; color: white; overflow: hidden; }
+        .score-bar {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; background: rgba(0, 0, 0, 0.85); border-bottom: 4px solid #f1c40f;
+            padding: 10px 20px; border-radius: 5px; align-items: center; min-width: 850px;
+        }
+        .team { font-size: 28px; font-weight: bold; padding-right: 15px; border-right: 2px solid #555; }
+        .batsmen { flex-grow: 1; display: flex; gap: 30px; padding: 0 20px; }
+        .active { color: #f1c40f; } .active::after { content: '*'; }
+        .bowler { padding-left: 15px; border-left: 2px solid #555; color: #ccc; }
+        .stat { font-size: 14px; color: #aaa; display: block; }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <div class="score-bar">
-            <div class="team-score">
-                <span id="teamName">TEAM</span> <div id="totalScore">0-0</div>
-                <span id="overCount">OV 0.0</span>
-            </div>
-            <div class="players-box">
-                <div id="bat1" class="player">Batsman 1 <span class="stat" id="b1s">0 (0)</span></div>
-                <div id="bat2" class="player">Batsman 2 <span class="stat" id="b2s">0 (0)</span></div>
-            </div>
-            <div class="bowler-box">
-                <span id="bowlerName">Bowler</span>
-                <span class="stat" id="bowlerStats">0-0 (0.0)</span>
-            </div>
+    <div class="score-bar">
+        <div class="team"><span id="tName">TEAM</span> <span id="total">0-0</span> <small id="ovs">(0.0)</small></div>
+        <div class="batsmen">
+            <div id="b1Box"> <span id="n1">P1</span> <span class="stat" id="s1">0(0)</span> </div>
+            <div id="b2Box"> <span id="n2">P2</span> <span class="stat" id="s2">0(0)</span> </div>
+        </div>
+        <div class="bowler">
+            <span id="bn">Bowler</span> <span class="stat" id="bs">0-0 (0.0)</span>
         </div>
     </div>
 
@@ -46,25 +39,19 @@
             messagingSenderId: "41064243639",
             appId: "1:41064243639:web:d99e0d8f64b1bbca20c832"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        onValue(ref(db, 'matchState'), (snapshot) => {
-            const d = snapshot.val();
-            if (!d) return;
-            document.getElementById('teamName').innerText = d.currentBattingTeam;
-            document.getElementById('totalScore').innerText = `${d.runs}-${d.wickets}`;
-            document.getElementById('overCount').innerText = `OV ${Math.floor(d.balls/6)}.${d.balls%6}`;
-            
-            document.getElementById('bat1').innerHTML = `${d.strikerName} <span class="stat">${d.strikerRuns}(${d.strikerBalls})</span>`;
-            document.getElementById('bat1').className = d.onStrike === 1 ? 'player active' : 'player';
-            
-            document.getElementById('bat2').innerHTML = `${d.nonStrikerName} <span class="stat">${d.nonStrikerRuns}(${d.nonStrikerBalls})</span>`;
-            document.getElementById('bat2').className = d.onStrike === 2 ? 'player active' : 'player';
-
-            document.getElementById('bowlerName').innerText = d.currentBowler;
-            document.getElementById('bowlerStats').innerText = `${d.bwlWkts}-${d.bwlRuns} (${Math.floor(d.bwlBalls/6)}.${d.bwlBalls%6})`;
+        onValue(ref(db, 'cricket'), (snap) => {
+            const d = snap.val(); if(!d) return;
+            document.getElementById('tName').innerText = d.batTeam;
+            document.getElementById('total').innerText = `${d.runs}-${d.wkts}`;
+            document.getElementById('ovs').innerText = `(${Math.floor(d.balls/6)}.${d.balls%6})`;
+            document.getElementById('n1').innerText = d.p1n; document.getElementById('s1').innerText = `${d.p1r}(${d.p1b})`;
+            document.getElementById('n2').innerText = d.p2n; document.getElementById('s2').innerText = `${d.p2r}(${d.p2b})`;
+            document.getElementById('bn').innerText = d.bwn; document.getElementById('bs').innerText = `${d.bww}-${d.bwr} (${Math.floor(d.bwb/6)}.${d.bwb%6})`;
+            document.getElementById('b1Box').className = d.str === 1 ? 'active' : '';
+            document.getElementById('b2Box').className = d.str === 2 ? 'active' : '';
         });
     </script>
 </body>
