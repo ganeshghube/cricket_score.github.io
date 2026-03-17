@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #222; color: white; }
+        button { padding: 20px; font-size: 20px; margin: 10px; cursor: pointer; border-radius: 10px; border: none; width: 120px; }
+        .run-btn { background: #27ae60; color: white; }
+        .out-btn { background: #c0392b; color: white; }
+        .reset-btn { background: #7f8c8d; color: white; width: 100%; }
+        #display { font-size: 40px; margin: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Control Panel</h1>
+    <div id="display">0 / 0</div>
+    
+    <button class="run-btn" id="addRun">+1 Run</button>
+    <button class="out-btn" id="addWicket">OUT</button>
+    <br>
+    <button class="reset-btn" id="reset">Reset Match</button>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
+            authDomain: "cricket-8e338.firebaseapp.com",
+            projectId: "cricket-8e338",
+            storageBucket: "cricket-8e338.firebasestorage.app",
+            messagingSenderId: "41064243639",
+            appId: "1:41064243639:web:d99e0d8f64b1bbca20c832"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const scoreRef = ref(db, 'liveScore');
+
+        async function changeScore(type) {
+            const snapshot = await get(scoreRef);
+            let current = snapshot.val() || { runs: 0, wickets: 0 };
+            
+            if (type === 'run') current.runs += 1;
+            if (type === 'out') current.wickets += 1;
+            if (type === 'reset') { current.runs = 0; current.wickets = 0; }
+            
+            set(scoreRef, current);
+            document.getElementById('display').innerText = `${current.runs} / ${current.wickets}`;
+        }
+
+        document.getElementById('addRun').onclick = () => changeScore('run');
+        document.getElementById('addWicket').onclick = () => changeScore('out');
+        document.getElementById('reset').onclick = () => changeScore('reset');
+    </script>
+</body>
+</html>
