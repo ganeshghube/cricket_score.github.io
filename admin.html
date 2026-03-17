@@ -6,27 +6,8 @@
     <style>
         :root { --primary: #f1c40f; --bg: #000; --card: #1a1a1a; --text: #eee; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
-        
-        /* IMPROVED PREVIEW BOX */
-        .preview-container { 
-            width: 100%; height: 180px; background: #222; 
-            position: sticky; top: 0; z-index: 1000; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
-            overflow: hidden;
-            border-bottom: 2px solid var(--primary);
-        }
-        /* This scale ensures you see the whole 1080p ribbon in the small preview */
-        iframe { 
-            width: 1920px; height: 1080px; border: none; 
-            transform: scale(0.2); 
-            transform-origin: 0 0; 
-        }
-        .ref-btn {
-            position: absolute; bottom: 5px; right: 5px;
-            background: rgba(255,255,255,0.1); color: #fff;
-            font-size: 10px; border: none; padding: 4px 8px; border-radius: 3px;
-        }
-
+        .preview-container { width: 100%; height: 160px; background: #333; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
+        iframe { width: 100%; height: 100%; border: none; transform: scale(0.75); transform-origin: top center; }
         .content { padding: 12px; display: grid; gap: 12px; }
         .card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid #333; }
         h4 { margin: 0 0 10px 0; color: var(--primary); text-transform: uppercase; font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 5px; }
@@ -47,10 +28,10 @@
 
     <div class="preview-container">
         <iframe id="previewFrame" src="index.html"></iframe>
-        <button class="ref-btn" onclick="refreshPreview()">MANUAL REFRESH</button>
     </div>
 
     <div class="content">
+        
         <div class="card">
             <h4>1. Team Setup</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
@@ -124,25 +105,20 @@
         const mRef = ref(db, 'cricket');
         let lastState = null;
 
-        // --- PREVIEW REFRESH LOGIC ---
-        window.refreshPreview = () => {
-            const frame = document.getElementById('previewFrame');
-            frame.src = frame.src; 
-        };
-
         window.initMatch = async () => {
             const sA = document.getElementById('squadA').value.split('\n').filter(n => n.trim() !== "");
             const sB = document.getElementById('squadB').value.split('\n').filter(n => n.trim() !== "");
+            const target = parseInt(document.getElementById('matchTarget').value) || 0;
             const data = {
                 batTeam: document.getElementById('teamNameA').value || "TEAM A",
                 bowlTeam: document.getElementById('teamNameB').value || "TEAM B",
-                runs:0, wkts:0, balls:0, str:1, target: parseInt(document.getElementById('matchTarget').value) || 0,
+                runs:0, wkts:0, balls:0, str:1, target:target,
                 p1n:sA[0] || "Bat 1", p1r:0, p1b:0, p2n:sA[1] || "Bat 2", p2r:0, p2b:0,
                 bwn:sB[0] || "Bowler", bwr:0, bww:0, bwb:0
             };
             await set(mRef, data);
             fillSelects(sA, sB);
-            refreshPreview();
+            alert("Ready!");
         };
 
         function fillSelects(batting, bowling) {
@@ -161,62 +137,24 @@
                 if(d.str === 1) { d.p1r += r; d.p1b++; } else { d.p2r += r; d.p2b++; }
                 if(r % 2 !== 0 || d.balls % 6 === 0) d.str = d.str === 1 ? 2 : 1;
             }
-            await update(mRef, d);
-            refreshPreview(); // Auto-refresh after score
-        };
-
-        window.wicket = async () => {
-            const snap = await get(mRef); const d = snap.val();
-            lastState = JSON.parse(JSON.stringify(d));
-            d.wkts++; d.balls++; d.bww++;
-            await update(mRef, d);
-            refreshPreview();
+            update(mRef, d);
         };
 
         window.overFix = async (val) => {
             const parts = val.toString().split('.');
             const totalBalls = (parseInt(parts[0]) * 6) + (parseInt(parts[1]) || 0);
             await update(mRef, { balls: totalBalls });
-            refreshPreview();
         };
 
-        window.manualFix = async (f, v) => { 
-            if(v!=="") {
-                await update(mRef, {[f]: parseInt(v)}); 
-                refreshPreview();
-            }
+        window.manualFix = async (f, v) => { if(v!=="") await update(mRef, {[f]: parseInt(v)}); };
+        window.changePlayer = (k, v) => update(mRef, { [k]: v });
+        window.swapStrike = async () => { 
+            const snap = await get(mRef); const d = snap.val(); 
+            d.str = d.str === 1 ? 2 : 1; update(mRef, d); 
         };
-
-        window.changePlayer = async (k, v) => {
-            await update(mRef, { [k]: v });
-            refreshPreview();
-        };
-
-        window.undoLast = async () => { 
-            if(lastState) { 
-                await set(mRef, lastState); 
-                lastState = null; 
-                refreshPreview();
-            } 
-        };
-
+        window.undoLast = async () => { if(lastState) { await set(mRef, lastState); lastState = null; } };
+        window.swapInnings = async () => { /* Logic similar to initMatch but swapping d.batTeam/bowlTeam and resetting runs */ };
         window.fullReset = async () => { if(confirm("Wipe all?")) { await set(mRef, null); location.reload(); } };
-
-        window.swapInnings = async () => {
-            const snap = await get(mRef); const d = snap.val();
-            const sA = document.getElementById('squadA').value.split('\n').filter(n => n.trim() !== "");
-            const sB = document.getElementById('squadB').value.split('\n').filter(n => n.trim() !== "");
-            const newTarget = d.runs + 1;
-            
-            await set(mRef, {
-                batTeam: d.bowlTeam, bowlTeam: d.batTeam,
-                runs:0, wkts:0, balls:0, str:1, target: newTarget,
-                p1n:sB[0] || "Bat 1", p1r:0, p1b:0, p2n:sB[1] || "Bat 2", p2r:0, p2b:0,
-                bwn:sA[0] || "Bowler", bwr:0, bww:0, bwb:0
-            });
-            fillSelects(sB, sA);
-            refreshPreview();
-        };
     </script>
 </body>
 </html>
