@@ -1,29 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Live Score Overlay</title>
     <style>
-        body { background: transparent; margin: 0; font-family: 'Arial', sans-serif; color: white; overflow: hidden; }
-        .score-bar {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            display: flex; background: rgba(0, 0, 0, 0.85); border-bottom: 4px solid #f1c40f;
-            padding: 10px 20px; border-radius: 5px; align-items: center; min-width: 850px;
+        /* Transparent background for Streaming Software */
+        body { 
+            background-color: rgba(0, 0, 0, 0); 
+            margin: 0; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            color: white; 
+            overflow: hidden; 
         }
-        .team { font-size: 28px; font-weight: bold; padding-right: 15px; border-right: 2px solid #555; }
-        .batsmen { flex-grow: 1; display: flex; gap: 30px; padding: 0 20px; }
-        .active { color: #f1c40f; } .active::after { content: '*'; }
-        .bowler { padding-left: 15px; border-left: 2px solid #555; color: #ccc; }
-        .stat { font-size: 14px; color: #aaa; display: block; }
+
+        /* Container for the Score Bar */
+        .score-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            background: rgba(10, 10, 10, 0.9);
+            border-bottom: 4px solid #f1c40f; /* Yellow accent */
+            padding: 12px 25px;
+            border-radius: 4px;
+            align-items: center;
+            min-width: 850px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Team & Score Section */
+        .team-section {
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #444;
+            padding-right: 20px;
+            min-width: 220px;
+        }
+        .team-name { font-size: 26px; font-weight: 900; color: #f1c40f; text-transform: uppercase; }
+        .score-main { font-size: 30px; font-weight: 900; }
+        .overs { font-size: 18px; color: #aaa; margin-left: 8px; font-weight: normal; }
+
+        /* Batsmen Section */
+        .batsmen-section {
+            flex-grow: 1;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 20px;
+        }
+        .player { font-size: 20px; font-weight: 500; color: #ddd; }
+        .player.active { color: #f1c40f; } /* Yellow for striker */
+        .player.active::after { content: '*'; margin-left: 4px; }
+        .p-stats { font-size: 14px; color: #888; display: block; margin-top: 2px; }
+
+        /* Bowler & Target Section */
+        .bowler-target-section {
+            border-left: 2px solid #444;
+            padding-left: 20px;
+            min-width: 180px;
+        }
+        .bowler-name { font-size: 19px; color: #eee; font-weight: bold; display: block; }
+        .bowler-stats { font-size: 14px; color: #888; }
+        
+        .target-label {
+            display: block;
+            margin-top: 4px;
+            font-size: 13px;
+            color: #f1c40f;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* Animation for score updates */
+        .update-flash { animation: flash 0.5s ease-in-out; }
+        @keyframes flash {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; color: #f1c40f; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
-    <div class="score-bar">
-        <div class="team"><span id="tName">TEAM</span> <span id="total">0-0</span> <small id="ovs">(0.0)</small></div>
-        <div class="batsmen">
-            <div id="b1Box"> <span id="n1">P1</span> <span class="stat" id="s1">0(0)</span> </div>
-            <div id="b2Box"> <span id="n2">P2</span> <span class="stat" id="s2">0(0)</span> </div>
+
+    <div class="score-bar" id="scoreBar">
+        <div class="team-section">
+            <span class="team-name" id="disp-team">TEAM</span>
+            <div class="score-main">
+                <span id="disp-runs">0</span>-<span id="disp-wkts">0</span>
+                <span class="overs">OV <span id="disp-ovs">0.0</span></span>
+            </div>
         </div>
-        <div class="bowler">
-            <span id="bn">Bowler</span> <span class="stat" id="bs">0-0 (0.0)</span>
+
+        <div class="batsmen-section">
+            <div id="p1-box" class="player">
+                <span id="disp-p1n">Batsman 1</span>
+                <span class="p-stats"><span id="disp-p1r">0</span>(<span id="disp-p1b">0</span>)</span>
+            </div>
+            <div id="p2-box" class="player">
+                <span id="disp-p2n">Batsman 2</span>
+                <span class="p-stats"><span id="disp-p2r">0</span>(<span id="disp-p2b">0</span>)</span>
+            </div>
+        </div>
+
+        <div class="bowler-target-section">
+            <div id="target-ui" style="display: none; margin-bottom: 5px;">
+                <span class="target-label">TARGET: <span id="disp-target">0</span></span>
+            </div>
+            <span class="bowler-name" id="disp-bwn">Bowler</span>
+            <span class="bowler-stats">
+                <span id="disp-bww">0</span>-<span id="disp-bwr">0</span> 
+                (<span id="disp-bwb">0.0</span>)
+            </span>
         </div>
     </div>
 
@@ -31,6 +119,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
+        // Your Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
             authDomain: "cricket-8e338.firebaseapp.com",
@@ -39,19 +128,60 @@
             messagingSenderId: "41064243639",
             appId: "1:41064243639:web:d99e0d8f64b1bbca20c832"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const cricketRef = ref(db, 'cricket');
 
-        onValue(ref(db, 'cricket'), (snap) => {
-            const d = snap.val(); if(!d) return;
-            document.getElementById('tName').innerText = d.batTeam;
-            document.getElementById('total').innerText = `${d.runs}-${d.wkts}`;
-            document.getElementById('ovs').innerText = `(${Math.floor(d.balls/6)}.${d.balls%6})`;
-            document.getElementById('n1').innerText = d.p1n; document.getElementById('s1').innerText = `${d.p1r}(${d.p1b})`;
-            document.getElementById('n2').innerText = d.p2n; document.getElementById('s2').innerText = `${d.p2r}(${d.p2b})`;
-            document.getElementById('bn').innerText = d.bwn; document.getElementById('bs').innerText = `${d.bww}-${d.bwr} (${Math.floor(d.bwb/6)}.${d.bwb%6})`;
-            document.getElementById('b1Box').className = d.str === 1 ? 'active' : '';
-            document.getElementById('b2Box').className = d.str === 2 ? 'active' : '';
+        onValue(cricketRef, (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+
+            // Update Team Score & Name
+            document.getElementById('disp-team').innerText = data.batTeam || "TEAM";
+            document.getElementById('disp-runs').innerText = data.runs || 0;
+            document.getElementById('disp-wkts').innerText = data.wkts || 0;
+            
+            // Calculate Overs (Balls to 0.0 format)
+            const balls = data.balls || 0;
+            const overNum = Math.floor(balls / 6);
+            const ballNum = balls % 6;
+            document.getElementById('disp-ovs').innerText = `${overNum}.${ballNum}`;
+
+            // Update Batsmen
+            document.getElementById('disp-p1n').innerText = data.p1n || "Batsman 1";
+            document.getElementById('disp-p1r').innerText = data.p1r || 0;
+            document.getElementById('disp-p1b').innerText = data.p1b || 0;
+            
+            document.getElementById('disp-p2n').innerText = data.p2n || "Batsman 2";
+            document.getElementById('disp-p2r').innerText = data.p2r || 0;
+            document.getElementById('disp-p2b').innerText = data.p2b || 0;
+
+            // Striker Highlight (Star)
+            document.getElementById('p1-box').className = data.str === 1 ? 'player active' : 'player';
+            document.getElementById('p2-box').className = data.str === 2 ? 'player active' : 'player';
+
+            // Update Bowler
+            document.getElementById('disp-bwn').innerText = data.bwn || "Bowler";
+            document.getElementById('disp-bwr').innerText = data.bwr || 0;
+            document.getElementById('disp-bww').innerText = data.bww || 0;
+            const bwb = data.bwb || 0;
+            document.getElementById('disp-bwb').innerText = `${Math.floor(bwb / 6)}.${bwb % 6}`;
+
+            // Show/Hide Target
+            const target = data.target || 0;
+            if (target > 0) {
+                document.getElementById('target-ui').style.display = 'block';
+                document.getElementById('disp-target').innerText = target;
+            } else {
+                document.getElementById('target-ui').style.display = 'none';
+            }
+
+            // Flash effect on score change
+            const bar = document.getElementById('scoreBar');
+            bar.classList.remove('update-flash');
+            void bar.offsetWidth; // Trigger reflow to restart animation
+            bar.classList.add('update-flash');
         });
     </script>
 </body>
