@@ -3,80 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket Live Score Overlay</title>
+    <title>Cricket Live Score Responsive Overlay</title>
     <style>
-        /* Transparent background for Streaming Software */
+        :root { --accent: #f1c40f; --bg-glass: rgba(10, 10, 10, 0.9); }
+        
         body { 
             background-color: rgba(0, 0, 0, 0); 
             margin: 0; 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
             color: white; 
-            overflow: hidden; 
         }
 
-        /* Container for the Score Bar */
+        /* Responsive Container */
         .score-bar {
-            position: absolute;
-            bottom: 30px;
+            position: fixed;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            background: rgba(10, 10, 10, 0.9);
-            border-bottom: 4px solid #f1c40f; /* Yellow accent */
-            padding: 12px 25px;
-            border-radius: 4px;
+            flex-wrap: wrap; /* Allows stacking on mobile */
+            background: var(--bg-glass);
+            border-bottom: 4px solid var(--accent);
+            padding: 10px 15px;
+            border-radius: 8px;
             align-items: center;
-            min-width: 850px;
+            width: 95%;      /* Mobile width */
+            max-width: 900px; /* Desktop max width */
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            box-sizing: border-box;
         }
+
+        /* Sections common styles */
+        .section { padding: 5px 10px; box-sizing: border-box; }
 
         /* Team & Score Section */
         .team-section {
+            flex: 1 1 100%; /* Full width on mobile by default */
             display: flex;
-            flex-direction: column;
-            border-right: 2px solid #444;
-            padding-right: 20px;
-            min-width: 220px;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            margin-bottom: 5px;
         }
-        .team-name { font-size: 26px; font-weight: 900; color: #f1c40f; text-transform: uppercase; }
-        .score-main { font-size: 30px; font-weight: 900; }
-        .overs { font-size: 18px; color: #aaa; margin-left: 8px; font-weight: normal; }
+        .team-name { font-size: 20px; font-weight: 900; color: var(--accent); text-transform: uppercase; }
+        .score-main { font-size: 24px; font-weight: 900; }
+        .overs { font-size: 14px; color: #aaa; margin-left: 5px; }
 
         /* Batsmen Section */
         .batsmen-section {
-            flex-grow: 1;
+            flex: 2 1 200px;
             display: flex;
-            justify-content: space-around;
-            padding: 0 20px;
+            justify-content: space-between;
+            gap: 10px;
         }
-        .player { font-size: 20px; font-weight: 500; color: #ddd; }
-        .player.active { color: #f1c40f; } /* Yellow for striker */
-        .player.active::after { content: '*'; margin-left: 4px; }
-        .p-stats { font-size: 14px; color: #888; display: block; margin-top: 2px; }
+        .player { font-size: 15px; font-weight: 500; color: #ddd; white-space: nowrap; }
+        .player.active { color: var(--accent); }
+        .player.active::after { content: '*'; margin-left: 2px; }
+        .p-stats { font-size: 12px; color: #888; display: block; }
 
-        /* Bowler & Target Section */
-        .bowler-target-section {
-            border-left: 2px solid #444;
-            padding-left: 20px;
-            min-width: 180px;
+        /* Bowler Section */
+        .bowler-section {
+            flex: 1 1 150px;
+            border-left: 1px solid #444;
+            text-align: right;
         }
-        .bowler-name { font-size: 19px; color: #eee; font-weight: bold; display: block; }
-        .bowler-stats { font-size: 14px; color: #888; }
+        .bowler-name { font-size: 15px; color: #eee; font-weight: bold; display: block; }
+        .bowler-stats { font-size: 12px; color: #888; }
         
-        .target-label {
-            display: block;
-            margin-top: 4px;
-            font-size: 13px;
-            color: #f1c40f;
+        /* Target Label */
+        .target-ui {
+            width: 100%;
+            text-align: center;
+            font-size: 11px;
+            color: var(--accent);
             font-weight: bold;
             letter-spacing: 1px;
+            order: -1; /* Keep at top */
+            margin-bottom: 4px;
         }
 
-        /* Animation for score updates */
+        /* DESKTOP ADJUSTMENTS (Screens wider than 768px) */
+        @media (min-width: 768px) {
+            .score-bar { flex-wrap: nowrap; padding: 12px 25px; }
+            .team-section { 
+                flex: 0 0 auto; 
+                flex-direction: column; 
+                border-right: 2px solid #444; 
+                border-bottom: none; 
+                margin-bottom: 0; 
+                padding-right: 20px;
+                align-items: flex-start;
+            }
+            .team-name { font-size: 24px; }
+            .score-main { font-size: 28px; }
+            .batsmen-section { padding: 0 30px; }
+            .player { font-size: 18px; }
+            .p-stats { font-size: 14px; }
+            .bowler-section { flex: 0 0 auto; min-width: 160px; padding-left: 20px; }
+            .target-ui { position: absolute; top: -25px; left: 0; text-align: left; font-size: 13px; }
+        }
+
+        /* Animation */
         .update-flash { animation: flash 0.5s ease-in-out; }
         @keyframes flash {
             0% { opacity: 1; }
-            50% { opacity: 0.5; color: #f1c40f; }
+            50% { opacity: 0.5; color: var(--accent); }
             100% { opacity: 1; }
         }
     </style>
@@ -84,7 +116,11 @@
 <body>
 
     <div class="score-bar" id="scoreBar">
-        <div class="team-section">
+        <div id="target-ui" class="target-ui" style="display: none;">
+            TARGET: <span id="disp-target">0</span>
+        </div>
+
+        <div class="team-section section">
             <span class="team-name" id="disp-team">TEAM</span>
             <div class="score-main">
                 <span id="disp-runs">0</span>-<span id="disp-wkts">0</span>
@@ -92,7 +128,7 @@
             </div>
         </div>
 
-        <div class="batsmen-section">
+        <div class="batsmen-section section">
             <div id="p1-box" class="player">
                 <span id="disp-p1n">Batsman 1</span>
                 <span class="p-stats"><span id="disp-p1r">0</span>(<span id="disp-p1b">0</span>)</span>
@@ -103,10 +139,7 @@
             </div>
         </div>
 
-        <div class="bowler-target-section">
-            <div id="target-ui" style="display: none; margin-bottom: 5px;">
-                <span class="target-label">TARGET: <span id="disp-target">0</span></span>
-            </div>
+        <div class="bowler-section section">
             <span class="bowler-name" id="disp-bwn">Bowler</span>
             <span class="bowler-stats">
                 <span id="disp-bww">0</span>-<span id="disp-bwr">0</span> 
@@ -119,7 +152,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // Your Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
             authDomain: "cricket-8e338.firebaseapp.com",
@@ -137,18 +169,13 @@
             const data = snapshot.val();
             if (!data) return;
 
-            // Update Team Score & Name
             document.getElementById('disp-team').innerText = data.batTeam || "TEAM";
             document.getElementById('disp-runs').innerText = data.runs || 0;
             document.getElementById('disp-wkts').innerText = data.wkts || 0;
             
-            // Calculate Overs (Balls to 0.0 format)
             const balls = data.balls || 0;
-            const overNum = Math.floor(balls / 6);
-            const ballNum = balls % 6;
-            document.getElementById('disp-ovs').innerText = `${overNum}.${ballNum}`;
+            document.getElementById('disp-ovs').innerText = `${Math.floor(balls / 6)}.${balls % 6}`;
 
-            // Update Batsmen
             document.getElementById('disp-p1n').innerText = data.p1n || "Batsman 1";
             document.getElementById('disp-p1r').innerText = data.p1r || 0;
             document.getElementById('disp-p1b').innerText = data.p1b || 0;
@@ -157,18 +184,15 @@
             document.getElementById('disp-p2r').innerText = data.p2r || 0;
             document.getElementById('disp-p2b').innerText = data.p2b || 0;
 
-            // Striker Highlight (Star)
             document.getElementById('p1-box').className = data.str === 1 ? 'player active' : 'player';
             document.getElementById('p2-box').className = data.str === 2 ? 'player active' : 'player';
 
-            // Update Bowler
             document.getElementById('disp-bwn').innerText = data.bwn || "Bowler";
             document.getElementById('disp-bwr').innerText = data.bwr || 0;
             document.getElementById('disp-bww').innerText = data.bww || 0;
             const bwb = data.bwb || 0;
             document.getElementById('disp-bwb').innerText = `${Math.floor(bwb / 6)}.${bwb % 6}`;
 
-            // Show/Hide Target
             const target = data.target || 0;
             if (target > 0) {
                 document.getElementById('target-ui').style.display = 'block';
@@ -177,10 +201,9 @@
                 document.getElementById('target-ui').style.display = 'none';
             }
 
-            // Flash effect on score change
             const bar = document.getElementById('scoreBar');
             bar.classList.remove('update-flash');
-            void bar.offsetWidth; // Trigger reflow to restart animation
+            void bar.offsetWidth; 
             bar.classList.add('update-flash');
         });
     </script>
