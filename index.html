@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* This makes the background invisible in Prism Live */
+        body { background-color: rgba(0, 0, 0, 0); margin: 0; font-family: 'Arial', sans-serif; overflow: hidden; }
+        
+        .score-container {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.8); /* Semi-transparent black bar */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border-left: 5px solid #f1c40f; /* Cricket yellow accent */
+        }
+        .team-name { font-weight: bold; margin-right: 10px; color: #f1c40f; }
+        .score-text { font-size: 32px; font-weight: 900; }
+    </style>
+</head>
+<body>
+    <div class="score-container">
+        <span class="team-name">LIVE SCORE</span>
+        <span class="score-text"><span id="runs">0</span> / <span id="wickets">0</span></span>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
+            authDomain: "cricket-8e338.firebaseapp.com",
+            projectId: "cricket-8e338",
+            storageBucket: "cricket-8e338.firebasestorage.app",
+            messagingSenderId: "41064243639",
+            appId: "1:41064243639:web:d99e0d8f64b1bbca20c832"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Reference to our cricket score in the database
+        const scoreRef = ref(db, 'liveScore');
+
+        onValue(scoreRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('runs').innerText = data.runs || 0;
+                document.getElementById('wickets').innerText = data.wickets || 0;
+            }
+        });
+    </script>
+</body>
+</html>
