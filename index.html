@@ -1,34 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <style>
-        body { background: transparent; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
-        .score-bar {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            display: flex; background: rgba(0, 0, 0, 0.9); border-bottom: 4px solid #f1c40f;
-            padding: 10px 30px; border-radius: 5px; align-items: center; min-width: 800px;
-        }
-        .team-info { font-size: 28px; font-weight: bold; border-right: 2px solid #555; padding-right: 20px; }
-        .batsmen { flex-grow: 1; display: flex; gap: 40px; padding-left: 20px; font-size: 20px; }
-        .active { color: #f1c40f; } /* Striker highlight */
-        .bowler-info { font-size: 20px; color: #ccc; border-left: 2px solid #555; padding-left: 20px; }
-        .crr { font-size: 16px; color: #aaa; margin-left: 10px; }
+        body { background: transparent; margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; color: white; overflow: hidden; }
+        .main-container { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 900px; }
+        .score-bar { background: rgba(15, 15, 15, 0.95); border-left: 8px solid #f1c40f; display: flex; align-items: center; padding: 10px 25px; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .team-score { font-size: 32px; font-weight: 900; min-width: 180px; }
+        .team-score span { font-size: 18px; font-weight: normal; color: #aaa; margin-left: 10px; }
+        .players-box { flex-grow: 1; display: flex; gap: 30px; padding: 0 30px; border-left: 1px solid #444; border-right: 1px solid #444; }
+        .player { font-size: 20px; color: #eee; }
+        .player.active { color: #f1c40f; font-weight: bold; }
+        .player.active::after { content: '*'; }
+        .bowler-box { padding-left: 20px; min-width: 150px; font-size: 18px; color: #ccc; }
+        .stat { font-size: 14px; color: #888; display: block; }
     </style>
 </head>
 <body>
-    <div class="score-bar">
-        <div class="team-info">
-            <span id="teamName">TEAM</span> 
-            <span id="score">0/0</span> 
-            <span style="font-size: 18px;">(<span id="overs">0.0</span>)</span>
-        </div>
-        <div class="batsmen">
-            <div id="p1" class="active">P1* 0(0)</div>
-            <div id="p2">P2 0(0)</div>
-        </div>
-        <div class="bowler-info">
-            BWL: <span id="bowlerName">Bowler</span> <span id="bowlerStats">0-0 (0.0)</span>
-            <span class="crr">CRR: <span id="crr">0.0</span></span>
+    <div class="main-container">
+        <div class="score-bar">
+            <div class="team-score">
+                <span id="teamName">TEAM</span> <div id="totalScore">0-0</div>
+                <span id="overCount">OV 0.0</span>
+            </div>
+            <div class="players-box">
+                <div id="bat1" class="player">Batsman 1 <span class="stat" id="b1s">0 (0)</span></div>
+                <div id="bat2" class="player">Batsman 2 <span class="stat" id="b2s">0 (0)</span></div>
+            </div>
+            <div class="bowler-box">
+                <span id="bowlerName">Bowler</span>
+                <span class="stat" id="bowlerStats">0-0 (0.0)</span>
+            </div>
         </div>
     </div>
 
@@ -36,7 +38,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        const firebaseConfig = {             
+        const firebaseConfig = {
             apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
             authDomain: "cricket-8e338.firebaseapp.com",
             projectId: "cricket-8e338",
@@ -44,23 +46,25 @@
             messagingSenderId: "41064243639",
             appId: "1:41064243639:web:d99e0d8f64b1bbca20c832"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        onValue(ref(db, 'match/'), (snapshot) => {
+        onValue(ref(db, 'matchState'), (snapshot) => {
             const d = snapshot.val();
-            if(!d) return;
-            document.getElementById('teamName').innerText = d.battingTeam;
-            document.getElementById('score').innerText = `${d.runs}/${d.wickets}`;
-            document.getElementById('overs').innerText = `${Math.floor(d.balls/6)}.${d.balls%6}`;
-            document.getElementById('p1').innerText = `${d.p1Name}${d.striker === 1 ? '*' : ''} ${d.p1Runs}(${d.p1Balls})`;
-            document.getElementById('p2').innerText = `${d.p2Name}${d.striker === 2 ? '*' : ''} ${d.p2Runs}(${d.p2Balls})`;
-            document.getElementById('p1').className = d.striker === 1 ? 'active' : '';
-            document.getElementById('p2').className = d.striker === 2 ? 'active' : '';
-            document.getElementById('bowlerName').innerText = d.bwlName;
+            if (!d) return;
+            document.getElementById('teamName').innerText = d.currentBattingTeam;
+            document.getElementById('totalScore').innerText = `${d.runs}-${d.wickets}`;
+            document.getElementById('overCount').innerText = `OV ${Math.floor(d.balls/6)}.${d.balls%6}`;
+            
+            document.getElementById('bat1').innerHTML = `${d.strikerName} <span class="stat">${d.strikerRuns}(${d.strikerBalls})</span>`;
+            document.getElementById('bat1').className = d.onStrike === 1 ? 'player active' : 'player';
+            
+            document.getElementById('bat2').innerHTML = `${d.nonStrikerName} <span class="stat">${d.nonStrikerRuns}(${d.nonStrikerBalls})</span>`;
+            document.getElementById('bat2').className = d.onStrike === 2 ? 'player active' : 'player';
+
+            document.getElementById('bowlerName').innerText = d.currentBowler;
             document.getElementById('bowlerStats').innerText = `${d.bwlWkts}-${d.bwlRuns} (${Math.floor(d.bwlBalls/6)}.${d.bwlBalls%6})`;
-            const crr = (d.runs / (d.balls/6 || 1)).toFixed(2);
-            document.getElementById('crr').innerText = crr;
         });
     </script>
 </body>
