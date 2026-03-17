@@ -7,9 +7,12 @@
         :root { --primary: #f1c40f; --bg: #121212; --card: #1e1e1e; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 0; }
         
-        .preview-header { background: #222; padding: 5px; font-size: 11px; color: #888; text-align: center; border-bottom: 1px solid #333; }
+        .preview-header { 
+            background: #222; padding: 5px; font-size: 11px; color: #888; 
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            border-bottom: 1px solid #333; 
+        }
         .preview-container { width: 100%; height: 140px; background: #333; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); overflow: hidden; }
-        /* Zoom fix to see the whole 1920px ribbon */
         iframe { width: 1920px; height: 1080px; border: none; transform: scale(0.2); transform-origin: 0 0; }
 
         .content { padding: 12px; display: grid; gap: 12px; }
@@ -18,7 +21,8 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         
-        button { padding: 12px 5px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        button { padding: 12px 5px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:active { opacity: 0.7; }
         .btn-run { background: #27ae60; color: white; }
         .btn-wkt { background: #c0392b; color: white; }
         .btn-extra { background: #e67e22; color: white; }
@@ -32,11 +36,16 @@
         }
         label { font-size: 10px; color: #888; text-transform: uppercase; display: block; margin-top: 5px; }
         h4 { margin: 0 0 8px 0; color: var(--primary); text-transform: uppercase; font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+        
+        .ref-btn { background: #444; color: #fff; font-size: 9px; padding: 2px 6px; }
     </style>
 </head>
 <body>
 
-    <div class="preview-header">LIVE STREAM OVERLAY PREVIEW</div>
+    <div class="preview-header">
+        LIVE STREAM OVERLAY PREVIEW 
+        <button class="ref-btn" onclick="refreshIframe()">FORCE REFRESH</button>
+    </div>
     <div class="preview-container">
         <iframe id="prevFrame" src="index.html"></iframe>
     </div>
@@ -93,11 +102,11 @@
 
         <div class="card">
             <h4>4. Human Error Correction</h4>
-            <div class="grid-4" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+            <div class="grid-4">
                 <div><label>Runs</label><input type="number" id="fixR" onchange="manualUpdate('runs', this.value)"></div>
                 <div><label>Wkts</label><input type="number" id="fixW" onchange="manualUpdate('wkts', this.value)"></div>
-                <div><label>Balls</label><input type="number" id="fixB" onchange="manualUpdate('balls', this.value)"></div>
-                <div><label>Tgt</label><input type="number" id="fixT" onchange="manualUpdate('target', this.value)"></div>
+                <div><label>Overs (e.g. 5.2)</label><input type="number" step="0.1" id="fixO" onchange="updateOvers(this.value)"></div>
+                <div><label>Target</label><input type="number" id="fixT" onchange="manualUpdate('target', this.value)"></div>
             </div>
         </div>
 
@@ -124,9 +133,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const mRef = ref(db, 'cricket');
-        const sRef = ref(db, 'squads'); // Separate node for squad persistence
+        const sRef = ref(db, 'squads');
 
-        // --- PERSISTENCE: LOAD DATA ON REFRESH ---
+        // Refresh Iframe safely
+        window.refreshIframe = () => {
+            const ifr = document.getElementById('prevFrame');
+            ifr.src = ifr.src;
+        };
+
+        // --- PERSISTENCE: LOADING ---
         onValue(mRef, (snap) => {
             const d = snap.val();
             if(!d) return;
@@ -134,10 +149,11 @@
             document.getElementById('teamNameB').value = d.bowlTeam || "";
             document.getElementById('fixR').value = d.runs;
             document.getElementById('fixW').value = d.wkts;
-            document.getElementById('fixB').value = d.balls;
             document.getElementById('fixT').value = d.target || 0;
-            // Update Preview
-            document.getElementById('prevFrame').src = document.getElementById('prevFrame').src;
+            
+            // Convert balls to Overs display (5.2)
+            const ovs = Math.floor(d.balls/6) + (d.balls%6)/10;
+            document.getElementById('fixO').value = ovs.toFixed(1);
         });
 
         onValue(sRef, (snap) => {
@@ -192,6 +208,15 @@
         window.wicket = async () => {
             const snap = await get(mRef); const d = snap.val();
             d.wkts++; d.balls++; d.bww++; update(mRef, d);
+        };
+
+        // Custom function to handle "5.2" style input and convert back to total balls
+        window.updateOvers = (val) => {
+            const parts = val.toString().split('.');
+            const overs = parseInt(parts[0]) || 0;
+            const balls = parseInt(parts[1]) || 0;
+            const totalBalls = (overs * 6) + balls;
+            update(mRef, { balls: totalBalls });
         };
 
         window.manualUpdate = (field, val) => {
