@@ -235,7 +235,6 @@ const cfg = {
     appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
 };
 const db    = getDatabase(initializeApp(cfg));
-setInterval(() => location.reload(), 30000);
 const uiRef = ref(db, 'ui');
 const $ = id => document.getElementById(id);
 
