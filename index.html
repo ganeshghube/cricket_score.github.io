@@ -3,148 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket Live Score Responsive Overlay</title>
+    <title>Professional Cricket Broadcast Overlay</title>
     <style>
-        :root { --accent: #f1c40f; --bg-glass: rgba(10, 10, 10, 0.9); }
+        :root { 
+            --accent: #f1c40f; 
+            --bg-glass: rgba(10, 10, 10, 0.95);
+            --border: rgba(255, 255, 255, 0.1);
+        }
         
         body { 
             background-color: rgba(0, 0, 0, 0); 
             margin: 0; 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
+            font-family: 'Segoe UI', 'Arial Black', sans-serif; 
             color: white; 
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
         }
 
-        /* Responsive Container */
-        .score-bar {
-            position: fixed;
-            bottom: 20px;
+        /* Main Wrapper - Positioned for Stream Safe Zones */
+        .overlay-wrapper {
+            position: absolute;
+            bottom: 40px; /* Elevated to clear stream UI/seekbars */
             left: 50%;
             transform: translateX(-50%);
+            width: 95%;
+            max-width: 1000px;
             display: flex;
-            flex-wrap: wrap; /* Allows stacking on mobile */
-            background: var(--bg-glass);
-            border-bottom: 4px solid var(--accent);
-            padding: 10px 15px;
-            border-radius: 8px;
+            flex-direction: column;
             align-items: center;
-            width: 95%;      /* Mobile width */
-            max-width: 900px; /* Desktop max width */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
+        }
+
+        /* Target Indicator - Floating above the main bar */
+        .target-ui {
+            background: var(--accent);
+            color: black;
+            padding: 2px 15px;
+            font-size: 14px;
+            font-weight: 800;
+            border-radius: 4px 4px 0 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        /* Main Score Bar */
+        .score-bar {
+            display: flex;
+            flex-wrap: wrap; 
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border);
+            border-bottom: 5px solid var(--accent);
+            padding: 8px 0;
+            border-radius: 4px;
+            align-items: center;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
             box-sizing: border-box;
         }
 
-        /* Sections common styles */
-        .section { padding: 5px 10px; box-sizing: border-box; }
+        .section { padding: 5px 20px; box-sizing: border-box; }
 
         /* Team & Score Section */
         .team-section {
-            flex: 1 1 100%; /* Full width on mobile by default */
+            flex: 1 1 100%; 
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid #333;
+            background: rgba(255,255,255,0.05);
             margin-bottom: 5px;
         }
-        .team-name { font-size: 20px; font-weight: 900; color: var(--accent); text-transform: uppercase; }
-        .score-main { font-size: 24px; font-weight: 900; }
-        .overs { font-size: 14px; color: #aaa; margin-left: 5px; }
+        .team-name { font-size: 22px; font-weight: 900; color: var(--accent); }
+        .score-main { font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+        .overs { font-size: 16px; color: #ccc; margin-left: 8px; font-weight: 400; }
 
         /* Batsmen Section */
         .batsmen-section {
-            flex: 2 1 200px;
+            flex: 2 1 300px;
             display: flex;
-            justify-content: space-between;
-            gap: 10px;
+            justify-content: space-around;
+            border-right: 1px solid var(--border);
         }
-        .player { font-size: 15px; font-weight: 500; color: #ddd; white-space: nowrap; }
+        .player { font-size: 18px; font-weight: 600; color: #eee; }
         .player.active { color: var(--accent); }
-        .player.active::after { content: '*'; margin-left: 2px; }
-        .p-stats { font-size: 12px; color: #888; display: block; }
+        .player.active::after { content: ' •'; font-size: 24px; vertical-align: middle; }
+        .p-stats { font-size: 14px; color: #aaa; font-weight: 400; display: block; margin-top: -2px;}
 
         /* Bowler Section */
         .bowler-section {
-            flex: 1 1 150px;
-            border-left: 1px solid #444;
+            flex: 1 1 200px;
             text-align: right;
         }
-        .bowler-name { font-size: 15px; color: #eee; font-weight: bold; display: block; }
-        .bowler-stats { font-size: 12px; color: #888; }
-        
-        /* Target Label */
-        .target-ui {
-            width: 100%;
-            text-align: center;
-            font-size: 11px;
-            color: var(--accent);
-            font-weight: bold;
-            letter-spacing: 1px;
-            order: -1; /* Keep at top */
-            margin-bottom: 4px;
-        }
+        .bowler-name { font-size: 17px; color: #fff; font-weight: 700; display: block; }
+        .bowler-stats { font-size: 14px; color: var(--accent); font-weight: 600; }
 
-        /* DESKTOP ADJUSTMENTS (Screens wider than 768px) */
-        @media (min-width: 768px) {
-            .score-bar { flex-wrap: nowrap; padding: 12px 25px; }
+        /* Tablet/Desktop Re-layout */
+        @media (min-width: 850px) {
+            .score-bar { flex-wrap: nowrap; padding: 0; height: 70px; }
             .team-section { 
                 flex: 0 0 auto; 
                 flex-direction: column; 
-                border-right: 2px solid #444; 
-                border-bottom: none; 
-                margin-bottom: 0; 
-                padding-right: 20px;
+                height: 100%;
+                justify-content: center;
+                background: none;
+                border-right: 2px solid var(--border);
+                margin-bottom: 0;
+                padding: 0 25px;
                 align-items: flex-start;
             }
-            .team-name { font-size: 24px; }
-            .score-main { font-size: 28px; }
-            .batsmen-section { padding: 0 30px; }
-            .player { font-size: 18px; }
-            .p-stats { font-size: 14px; }
-            .bowler-section { flex: 0 0 auto; min-width: 160px; padding-left: 20px; }
-            .target-ui { position: absolute; top: -25px; left: 0; text-align: left; font-size: 13px; }
+            .team-name { font-size: 18px; line-height: 1; margin-bottom: 2px; }
+            .score-main { font-size: 30px; line-height: 1; }
+            .target-ui { align-self: flex-start; margin-left: 10px; }
         }
 
         /* Animation */
-        .update-flash { animation: flash 0.5s ease-in-out; }
+        .update-flash { animation: flash 0.6s ease-out; }
         @keyframes flash {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; color: var(--accent); }
-            100% { opacity: 1; }
+            0% { background: var(--bg-glass); }
+            50% { background: rgba(241, 196, 15, 0.3); }
+            100% { background: var(--bg-glass); }
         }
     </style>
 </head>
 <body>
 
-    <div class="score-bar" id="scoreBar">
-        <div id="target-ui" class="target-ui" style="display: none;">
-            TARGET: <span id="disp-target">0</span>
+    <div class="overlay-wrapper">
+        <div id="target-ui" class="target-ui">
+            Target: <span id="disp-target">0</span>
         </div>
 
-        <div class="team-section section">
-            <span class="team-name" id="disp-team">TEAM</span>
-            <div class="score-main">
-                <span id="disp-runs">0</span>-<span id="disp-wkts">0</span>
-                <span class="overs">OV <span id="disp-ovs">0.0</span></span>
+        <div class="score-bar" id="scoreBar">
+            <div class="team-section section">
+                <span class="team-name" id="disp-team">TEAM</span>
+                <div class="score-main">
+                    <span id="disp-runs">0</span>/<span id="disp-wkts">0</span>
+                    <span class="overs">(<span id="disp-ovs">0.0</span>)</span>
+                </div>
             </div>
-        </div>
 
-        <div class="batsmen-section section">
-            <div id="p1-box" class="player">
-                <span id="disp-p1n">Batsman 1</span>
-                <span class="p-stats"><span id="disp-p1r">0</span>(<span id="disp-p1b">0</span>)</span>
+            <div class="batsmen-section section">
+                <div id="p1-box" class="player">
+                    <span id="disp-p1n">Batsman 1</span>
+                    <span class="p-stats"><span id="disp-p1r">0</span> <small>off</small> <span id="disp-p1b">0</span></span>
+                </div>
+                <div id="p2-box" class="player">
+                    <span id="disp-p2n">Batsman 2</span>
+                    <span class="p-stats"><span id="disp-p2r">0</span> <small>off</small> <span id="disp-p2b">0</span></span>
+                </div>
             </div>
-            <div id="p2-box" class="player">
-                <span id="disp-p2n">Batsman 2</span>
-                <span class="p-stats"><span id="disp-p2r">0</span>(<span id="disp-p2b">0</span>)</span>
-            </div>
-        </div>
 
-        <div class="bowler-section section">
-            <span class="bowler-name" id="disp-bwn">Bowler</span>
-            <span class="bowler-stats">
-                <span id="disp-bww">0</span>-<span id="disp-bwr">0</span> 
-                (<span id="disp-bwb">0.0</span>)
-            </span>
+            <div class="bowler-section section">
+                <span class="bowler-name" id="disp-bwn">Bowler</span>
+                <span class="bowler-stats">
+                    <span id="disp-bww">0</span>-<span id="disp-bwr">0</span> 
+                    <span style="color:#888; font-weight:normal;">(<span id="disp-bwb">0.0</span>)</span>
+                </span>
+            </div>
         </div>
     </div>
 
@@ -194,13 +210,15 @@
             document.getElementById('disp-bwb').innerText = `${Math.floor(bwb / 6)}.${bwb % 6}`;
 
             const target = data.target || 0;
+            const targetUI = document.getElementById('target-ui');
             if (target > 0) {
-                document.getElementById('target-ui').style.display = 'block';
+                targetUI.style.display = 'inline-block';
                 document.getElementById('disp-target').innerText = target;
             } else {
-                document.getElementById('target-ui').style.display = 'none';
+                targetUI.style.display = 'none';
             }
 
+            // High-performance animation trigger
             const bar = document.getElementById('scoreBar');
             bar.classList.remove('update-flash');
             void bar.offsetWidth; 
