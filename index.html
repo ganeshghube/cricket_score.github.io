@@ -209,7 +209,7 @@
     <div class="sc-tbls">
         <div class="sc-tbl">
             <div class="th">🏏 Batting — <span id="scBtTm"></span><span id="scExt" style="color:#666;font-weight:400"></span></div>
-            <table><thead><tr><th>Batsman</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody id="scBat"></tbody></table>
+            <table><thead><tr><th>Batsman</th><th style="text-align:left;color:#444;font-size:8px;max-width:100px">How Out</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody id="scBat"></tbody></table>
         </div>
         <div class="sc-tbl">
             <div class="th">⚾ Bowling — <span id="scBwTm"></span></div>
@@ -244,7 +244,7 @@ const $ = id => document.getElementById(id);
 const connRef = ref(db, '.info/connected');
 onValue(connRef, snap => {
     if (snap.val() === false) {
-
+        setTimeout(() => location.reload(), 3000);
     }
 });
 // Also hard-reload every 5 minutes as a safety net
@@ -379,8 +379,10 @@ onValue(ref(db,'cricket'), snap => {
         const isCr =d.p1n===row.name||d.p2n===row.name;
         const sr   =row.balls>0 ? ((row.runs/row.balls)*100).toFixed(0) : '—';
         const cls  =row.out?'dis':(isStr?'strk':(isCr?'crease':''));
+        const howOut = row.out ? (row.howOut||'out') : (isStr ? '* batting' : (isCr ? 'not out' : ''));
+        const howOutColor = row.out ? '#555' : (isStr ? 'var(--accent)' : '#666');
         const tr=document.createElement('tr'); tr.className=cls;
-        tr.innerHTML=`<td>${row.name}</td><td><b>${row.runs}</b></td><td>${row.balls}</td><td>${row.fours||0}</td><td>${row.sixes||0}</td><td style="font-size:11px;color:#666">${sr}</td>`;
+        tr.innerHTML=`<td>${row.name}</td><td style="text-align:left;font-size:10px;color:${howOutColor};max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400">${howOut}</td><td><b>${row.runs}</b></td><td>${row.balls}</td><td>${row.fours||0}</td><td>${row.sixes||0}</td><td style="font-size:11px;color:#666">${sr}</td>`;
         batTb.appendChild(tr);
     });
 
