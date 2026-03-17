@@ -327,13 +327,13 @@ const sRef = ref(db,'squads');
 const uRef = ref(db,'ui');
 const $    = id => document.getElementById(id);
 
-// ── Shared state: we need both match + squad data to set selects correctly ──
+// ── Shared state ──
 let _squads = { bat:[], bowl:[] };
 let _match  = null;
 
 // ══════════════════════════════════════════════════
-// BUG FIX: fillSel now accepts current p1n/p2n/bwn
-// to restore the correct selected values after refresh
+// fillSel: rebuild dropdowns from provided bat/bowl arrays
+// and restore correct selected values
 // ══════════════════════════════════════════════════
 function fillSel(bat, bowl, p1n, p2n, bwn) {
     const bH = bat.map(n=>`<option value="${n}">${n}</option>`).join('');
@@ -341,7 +341,6 @@ function fillSel(bat, bowl, p1n, p2n, bwn) {
     $('selP1').innerHTML = bH;
     $('selP2').innerHTML = bH;
     $('selBw').innerHTML = wH;
-    // Restore current values from Firebase (fixes the refresh bug)
     if (p1n) $('selP1').value = p1n;
     else if (bat.length>0) $('selP1').value = bat[0];
     if (p2n) $('selP2').value = p2n;
@@ -351,8 +350,8 @@ function fillSel(bat, bowl, p1n, p2n, bwn) {
 }
 
 // ══════════════════════════════════════════════════
-// BUG FIX: onValue(mRef) now also restores team name
-// inputs, format label, and select dropdowns
+// onValue(mRef): sync info bar, correction fields,
+// team inputs, format label, and dropdowns
 // ══════════════════════════════════════════════════
 onValue(mRef, snap => {
     const d = snap.val();
@@ -375,39 +374,51 @@ onValue(mRef, snap => {
     $('fxP1R').value=d.p1r||0; $('fxP1B').value=d.p1b||0;
     $('fxBwR').value=d.bwr||0; $('fxBwW').value=d.bww||0;
 
-    // BUG FIX: restore team name inputs from Firebase on refresh
+    // restore team name inputs
     if (d.batTeam)  $('tNA').value = d.batTeam;
     if (d.bowlTeam) $('tNB').value = d.bowlTeam;
 
-    // BUG FIX: restore format label from Firebase on refresh
+    // restore format label
     const fmt = d.maxOvers||20;
     $('fmtLbl').textContent = fmt===50?'ODI · 50 OVERS':fmt===0?'CUSTOM':`T${fmt} · ${fmt} OVERS`;
-    // Also set the format select to match
     const fmtEl = $('fmtSel');
     if ([10,20,40,50,0].includes(fmt)) fmtEl.value = String(fmt);
 
-    // BUG FIX: restore dropdowns with current p1n/p2n/bwn
-    // Only rebuild if we already have squads loaded
-    if (_squads.bat.length>0 || _squads.bowl.length>0) {
+    // ════════════════════════════════════════════════
+    // FIX: When innings changes, _squads may reflect the
+    // OLD squad data. We rebuild from d.batRows / d.bowlRows
+    // (which are always set correctly by swapInnings) so
+    // dropdowns always match the CURRENT innings' players.
+    // ════════════════════════════════════════════════
+    if (d.batRows && d.bowlRows) {
+        const currentBat  = d.batRows.map(r => r.name);
+        const currentBowl = d.bowlRows.map(r => r.name);
+        // Update _squads to match current innings
+        _squads.bat  = currentBat;
+        _squads.bowl = currentBowl;
+        fillSel(currentBat, currentBowl, d.p1n, d.p2n, d.bwn);
+    } else if (_squads.bat.length>0 || _squads.bowl.length>0) {
         fillSel(_squads.bat, _squads.bowl, d.p1n, d.p2n, d.bwn);
     }
 });
 
 // ══════════════════════════════════════════════════
-// BUG FIX: onValue(sRef) now also restores squad
-// textarea content, and syncs selects using match data
+// onValue(sRef): restore squad textareas
 // ══════════════════════════════════════════════════
 onValue(sRef, snap => {
     const s = snap.val(); if (!s) return;
     $('sqA').value = s.sqA||'';
     $('sqB').value = s.sqB||'';
-    _squads.bat  = (s.sqA||'').split('\n').map(n=>n.trim()).filter(Boolean);
-    _squads.bowl = (s.sqB||'').split('\n').map(n=>n.trim()).filter(Boolean);
-    // Sync selects — use current match p1n/p2n/bwn if available
-    const p1n = _match?.p1n||null;
-    const p2n = _match?.p2n||null;
-    const bwn = _match?.bwn||null;
-    fillSel(_squads.bat, _squads.bowl, p1n, p2n, bwn);
+    // Only update _squads from sRef if match data doesn't already
+    // have batRows (i.e. before first init or after reset)
+    if (!_match || !_match.batRows) {
+        _squads.bat  = (s.sqA||'').split('\n').map(n=>n.trim()).filter(Boolean);
+        _squads.bowl = (s.sqB||'').split('\n').map(n=>n.trim()).filter(Boolean);
+        const p1n = _match?.p1n||null;
+        const p2n = _match?.p2n||null;
+        const bwn = _match?.bwn||null;
+        fillSel(_squads.bat, _squads.bowl, p1n, p2n, bwn);
+    }
 });
 
 // ══ INIT MATCH ══════════════════════════════════════
@@ -438,7 +449,6 @@ window.initMatch = async () => {
     await set(sRef,{sqA:sAr,sqB:sBr});
     await update(uRef,{scorebar:true,scorecard:false});
     alert('✅ Match Initialized!');
-    // onValue listeners will fire automatically and restore everything
 };
 
 // ══ BALL LOGIC ════════════════════════════════════
@@ -453,13 +463,11 @@ window.ball = async (r, type) => {
     d.runs += r;
 
     if (isWD) {
-        // Wide: illegal, +run, NO strike change, NO over count, shown as Wd in grid
         d.bwr += r;
         updBowl(d,d.bwn,{runs:r,wides:1});
         d.recentBalls.push(r>1?`Wd${r}`:'Wd');
     }
     else if (isNB) {
-        // No Ball: illegal, +run to bowler, batsman scores, FREE HIT next
         d.bwr += r;
         updBowl(d,d.bwn,{runs:r,noballs:1});
         if(d.str===1){d.p1r+=r;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}
@@ -470,7 +478,6 @@ window.ball = async (r, type) => {
         d.recentBalls.push(r>1?`Nb${r}`:'Nb');
     }
     else if (isBY) {
-        // Bye: legal, ball counts, extras only
         d.freeHit=false; d.balls++; d.bwb++;
         updBowl(d,d.bwn,{balls:1,byes:r});
         if(r%2!==0) d.str=d.str===1?2:1;
@@ -478,7 +485,6 @@ window.ball = async (r, type) => {
         if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
     }
     else if (isLB) {
-        // Leg bye: legal, ball counts, extras only
         d.freeHit=false; d.balls++; d.bwb++;
         updBowl(d,d.bwn,{balls:1,legbyes:r});
         if(r%2!==0) d.str=d.str===1?2:1;
@@ -486,7 +492,6 @@ window.ball = async (r, type) => {
         if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
     }
     else {
-        // Normal legal delivery
         d.freeHit=false; d.balls++; d.bwb++; d.bwr+=r;
         updBowl(d,d.bwn,{runs:r,balls:1});
         if(d.str===1){d.p1r+=r;d.p1b++;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}
@@ -516,7 +521,6 @@ window.openWicket = async () => {
     $('wktModal').classList.add('open');
 };
 
-// BUG FIX: pass the button element explicitly instead of relying on global event.target
 window.selDis = (btn, t) => {
     _dt=t;
     document.querySelectorAll('.dm').forEach(b=>b.classList.remove('sel'));
@@ -592,33 +596,51 @@ function updBowl(d,name,{runs=0,balls=0,wkts=0,wides=0,noballs=0,byes=0,legbyes=
 }
 
 // ── Swap Innings ─────────────────────────────────
+// FIX: After swapInnings, the new batting team is the old bowling team
+// (sqB side when innings=1, sqA side when innings=2).
+// We rebuild batRows/bowlRows from the squads and set p1n/p2n/bwn
+// to the first players of the new teams. onValue(mRef) will then
+// call fillSel with the correct players from d.batRows/d.bowlRows.
 window.swapInnings = async () => {
     if(!confirm('Start 2nd Innings?')) return;
     const d=(await get(mRef)).val();
     const s=(await get(sRef)).val();
     const sA=(s?.sqA||'').split('\n').map(n=>n.trim()).filter(Boolean);
     const sB=(s?.sqB||'').split('\n').map(n=>n.trim()).filter(Boolean);
-    const nb=d.innings===1?sB:sA, nw=d.innings===1?sA:sB;
+    // innings 1: batTeam was toss winner. For innings 2, swap.
+    const nb=d.innings===1?sB:sA;   // new batting squad
+    const nw=d.innings===1?sA:sB;   // new bowling squad
+
+    const newBatTeam  = d.bowlTeam;
+    const newBowlTeam = d.batTeam;
+
+    const batRows  = nb.map(n=>({name:n,runs:0,balls:0,fours:0,sixes:0,out:false,howOut:''}));
+    const bowlRows = nw.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0}));
+
+    // First two batsmen of new batting team, first bowler of new bowling team
+    const newP1 = nb[0]||'Bat 1';
+    const newP2 = nb[1]||nb[0]||'Bat 2';
+    const newBw = nw[0]||'Bowler';
+
     await set(mRef,{
-        batTeam:d.bowlTeam, bowlTeam:d.batTeam,
+        batTeam:newBatTeam, bowlTeam:newBowlTeam,
         runs:0, wkts:0, balls:0, str:1, target:d.runs+1,
-        p1n:nb[0]||'Bat 1', p1r:0, p1b:0, p1fours:0, p1sixes:0,
-        p2n:nb[1]||nb[0]||'Bat 2', p2r:0, p2b:0, p2fours:0, p2sixes:0,
-        bwn:nw[0]||'Bowler', bwr:0, bww:0, bwb:0,
+        p1n:newP1, p1r:0, p1b:0, p1fours:0, p1sixes:0,
+        p2n:newP2, p2r:0, p2b:0, p2fours:0, p2sixes:0,
+        bwn:newBw, bwr:0, bww:0, bwb:0,
         recentBalls:[], nextBatIdx:2, freeHit:false,
         innings:2, maxOvers:d.maxOvers,
-        batRows:nb.map(n=>({name:n,runs:0,balls:0,fours:0,sixes:0,out:false,howOut:''})),
-        bowlRows:nw.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0})),
+        batRows, bowlRows,
         inn1Score:`${d.runs}/${d.wkts} (${Math.floor(d.balls/6)}.${d.balls%6} ovs)`,
         inn1Bat:d.batTeam,
     });
+    // onValue(mRef) fires → reads d.batRows/d.bowlRows → calls fillSel with correct players
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
 window.chg=(k,v)=>update(mRef,{[k]:v});
 window.swapStrike=async()=>{const d=(await get(mRef)).val();d.str=d.str===1?2:1;update(mRef,d);};
 
-// BUG FIX: mu() now correctly handles integer fields
 window.mu=(f,v)=>{
     const n=parseInt(v);
     if(!isNaN(n)) update(mRef,{[f]:n});

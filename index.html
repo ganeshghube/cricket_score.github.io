@@ -31,41 +31,81 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 
 .score-bar{ display:flex; width:100%; height:76px; background:var(--dark); border-top:3px solid var(--ta); border-radius:3px 3px 0 0; overflow:hidden; box-shadow:0 0 0 1px rgba(255,255,255,.06); }
 
+/* ── Team / Score panel (left) ── */
 .sb-team{ flex:0 0 220px; min-width:220px; background:linear-gradient(135deg,var(--ta) 0%,rgba(0,0,0,0) 100%); border-right:1px solid var(--brd); padding:0 18px; display:flex; flex-direction:column; justify-content:center; position:relative; }
 .sb-team::after{ content:''; position:absolute; right:-1px; top:0; bottom:0; width:40px; background:linear-gradient(90deg,transparent,var(--dark)); }
 .sb-tm-name{ font-size:13px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:2px; line-height:1; text-shadow:0 1px 8px rgba(0,0,0,.6); }
 .sb-score{ font-size:34px; font-weight:900; line-height:1; margin-top:3px; display:flex; align-items:baseline; gap:1px; text-shadow:0 2px 12px rgba(0,0,0,.8); }
-.sb-score-wkts{ font-size:26px; color:rgba(255,255,255,.7); }
-.sb-score-ovs{ font-size:13px; color:rgba(255,255,255,.5); font-weight:500; margin-left:5px; }
+.sb-score-wkts{ font-size:26px; color:rgba(255,255,255,.85); }
+.sb-score-ovs{ font-size:13px; color:rgba(255,255,255,.65); font-weight:500; margin-left:5px; }
 
+/* ── Batsmen panel (centre) ── */
 .sb-bat{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:5px; padding:0 16px; }
 .bat-row{ display:flex; justify-content:space-between; align-items:center; width:210px; }
-.bat-name{ font-size:14px; font-weight:600; color:#ccc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px; letter-spacing:.3px; }
+/* FIX: non-striker was near-invisible — bumped colour to #bbb */
+.bat-name{ font-size:14px; font-weight:600; color:#bbb; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px; letter-spacing:.3px; }
 .bat-row.on .bat-name{ color:var(--gold); font-weight:700; }
 .bat-row.on .bat-name::before{ content:'● '; font-size:7px; vertical-align:middle; color:var(--gold); }
-.bat-stat{ font-size:14px; color:#fff; font-weight:700; white-space:nowrap; }
-.bat-stat .sb{ color:#888; font-size:12px; font-weight:400; }
+/* FIX: bat-stat was pure white only for striker; make non-striker visible too */
+.bat-stat{ font-size:14px; color:#e0e0e0; font-weight:700; white-space:nowrap; }
+.bat-row.on .bat-stat{ color:#fff; }
+.bat-stat .sb{ color:#999; font-size:12px; font-weight:400; }
 
-.sb-bwl{ flex:0 0 260px; background:linear-gradient(225deg,var(--tb) 0%,rgba(0,0,0,0) 100%); border-left:1px solid var(--brd); padding:0 20px 0 18px; display:flex; flex-direction:column; justify-content:center; align-items:flex-end; text-align:right; position:relative; }
-.sb-bwl::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:40px; background:linear-gradient(90deg,var(--dark),transparent); }
-.bwl-name{ font-size:14px; color:#fff; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px; letter-spacing:.3px; }
-.bwl-stat{ font-size:13px; color:var(--gold); font-weight:700; margin:2px 0; }
+/* ── Bowler panel (right) ── */
+/* FIX: removed gradient that was blending text into the dark background.
+   Now uses a solid dark base with just a subtle left-side colour hint. */
+.sb-bwl{
+    flex:0 0 260px;
+    background:linear-gradient(225deg,rgba(0,80,55,0.55) 0%,rgba(6,6,18,0.98) 55%);
+    border-left:3px solid rgba(0,103,71,0.9);
+    padding:0 20px 0 18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-end;
+    text-align:right;
+    position:relative;
+}
+.sb-bwl::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:30px; background:linear-gradient(90deg,rgba(6,6,18,0.6),transparent); }
+/* FIX: bowler name now bright white — was blending into dark background */
+.bwl-name{ font-size:14px; color:#ffffff; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px; letter-spacing:.3px; text-shadow:0 1px 6px rgba(0,0,0,.9); }
+/* FIX: bowler figures now gold and clearly visible */
+.bwl-stat{ font-size:14px; color:var(--gold); font-weight:800; margin:2px 0; letter-spacing:.5px; }
+.bwl-stat .bwl-ov{ color:#aaa; font-size:12px; font-weight:400; }
 
+/* ── Ball grid ── */
 .og{ display:flex; gap:4px; justify-content:flex-end; margin-top:4px; }
 .ball{ min-width:22px; height:22px; padding:0 3px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; border:1px solid rgba(255,255,255,.1); color:#888; background:rgba(255,255,255,.05); }
 .bW{ background:#7b1e1e; border-color:#e63946; color:#ff8080; }
 .b4{ background:#0a3d2e; border-color:#06d6a0; color:#06d6a0; }
 .b6{ background:#2a1560; border-color:#9b72cf; color:#c4a0ff; }
-.b0{ background:rgba(255,255,255,.02); color:#2a2a2a; border-color:rgba(255,255,255,.04); }
+/* FIX: dot balls were nearly invisible — improved contrast */
+.b0{ background:rgba(255,255,255,.06); color:#888; border-color:rgba(255,255,255,.15); }
 .bWd{ background:#3d2200; border-color:var(--gold); color:var(--gold); }
 .bNb{ background:#3d1400; border-color:#e67e22; color:#e67e22; }
 .bBy{ background:#00233d; border-color:#118ab2; color:#6ec6e8; }
 .bLb{ background:#0a2e0a; border-color:#2ecc71; color:#7fff7f; }
 
-.rates{ background:rgba(0,0,0,.85); display:flex; width:100%; font-size:11px; letter-spacing:.5px; border-radius:0 0 3px 3px; border:1px solid rgba(255,255,255,.05); border-top:none; }
-.ri{ padding:4px 16px; color:#555; border-right:1px solid rgba(255,255,255,.04); }
-.ri b{ color:var(--gold); }
-.ri-rrr b{ color:#e63946; }
+/* ── Rates bar ── */
+/* FIX: rates bar text was very dim (#555). Now properly readable. */
+.rates{
+    background:rgba(0,0,0,.9);
+    display:flex;
+    width:100%;
+    font-size:11px;
+    letter-spacing:.5px;
+    border-radius:0 0 3px 3px;
+    border:1px solid rgba(255,255,255,.08);
+    border-top:none;
+}
+.ri{ padding:4px 16px; color:#aaa; border-right:1px solid rgba(255,255,255,.07); }
+.ri b{ color:var(--gold); font-weight:700; }
+/* FIX: RRR label was same dim colour — make it stand out */
+.ri-rrr{ color:#ddd; }
+.ri-rrr b{ color:#e63946; font-weight:700; }
+/* FIX: inn1 score text was very faint */
+.ri-inn b{ color:#c8c8d8; font-weight:600; }
+
 .uf{ animation:sbflash .5s ease-out; }
 @keyframes sbflash{ 0%{opacity:.6}100%{opacity:1} }
 
@@ -78,16 +118,17 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-hdr-main{ flex:1; background:linear-gradient(90deg,var(--ta) 0%,rgba(12,12,28,.98) 55%,rgba(12,12,28,.98) 100%); display:flex; align-items:center; gap:14px; padding:0 20px; position:relative; overflow:hidden; }
 .sc-hdr-main::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(255,255,255,.04) 0%,transparent 60%); }
 .sc-team-name{ font-size:26px; font-weight:900; color:#fff; text-transform:uppercase; letter-spacing:3px; text-shadow:0 2px 12px rgba(0,0,0,.8); z-index:1; }
-.sc-tournament{ font-size:10px; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:2px; font-family:'Barlow',sans-serif; font-weight:500; z-index:1; }
+.sc-tournament{ font-size:10px; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:2px; font-family:'Barlow',sans-serif; font-weight:500; z-index:1; }
 .sc-hdr-right{ display:flex; align-items:center; gap:10px; padding:0 20px; background:rgba(10,10,22,.98); border-left:1px solid var(--brd); min-width:200px; }
-.sc-total-lbl{ font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; }
+.sc-total-lbl{ font-size:9px; color:#888; text-transform:uppercase; letter-spacing:2px; }
 .sc-total-val{ font-size:28px; font-weight:900; color:var(--gold); letter-spacing:1px; line-height:1; }
-.sc-total-detail{ font-size:11px; color:var(--muted); margin-top:1px; }
+.sc-total-detail{ font-size:11px; color:#aaa; margin-top:1px; }
 
 .sc-body{ background:var(--panel); border:1px solid var(--brd); border-top:none; }
 
 .sc-col-hdr{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; background:rgba(0,0,0,.5); border-bottom:1px solid rgba(255,255,255,.1); padding:5px 14px; }
-.sc-col-hdr span{ font-size:9px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:2px; text-align:right; }
+/* FIX: column header labels were very dim #444 — now #777 */
+.sc-col-hdr span{ font-size:9px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:2px; text-align:right; }
 .sc-col-hdr span:first-child{ text-align:left; }
 .sc-col-hdr.bat-hdr{ grid-template-columns:1fr 160px 60px 60px 50px 50px 60px; }
 
@@ -97,34 +138,39 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-row.alt{ background:var(--row); }
 .sc-row.hlt{ background:rgba(240,180,41,.06); }
 .sc-row.dis-row{ opacity:.65; }
-.sc-row.dis-row > span:first-child{ color:#444; text-decoration:line-through; }
-.sc-row.dnb-row{ opacity:.3; }
+.sc-row.dis-row > span:first-child{ color:#555; text-decoration:line-through; }
+.sc-row.dnb-row{ opacity:.35; }
 
-.sc-cell{ font-size:13px; color:var(--text); text-align:right; }
+/* FIX: cell text colours bumped up for readability */
+.sc-cell{ font-size:13px; color:#ccc; text-align:right; }
 .sc-cell.left{ text-align:left; font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.sc-cell.how{ text-align:left; font-size:10px; color:var(--muted); font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sc-cell.how{ text-align:left; font-size:10px; color:#888; font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sc-cell.gold{ color:var(--gold); font-weight:700; }
 .sc-cell.green{ color:#06d6a0; font-weight:600; }
 .sc-cell.red{ color:#e63946; font-weight:600; }
 .sc-cell.strike{ color:var(--gold); font-weight:700; }
 
 .sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.4); border-top:1px solid rgba(255,255,255,.08); padding:5px 14px; flex-wrap:wrap; gap:4px; }
-.sc-fow-lbl{ font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-right:8px; white-space:nowrap; }
-.sc-fow-item{ font-size:11px; color:#888; padding:1px 8px; border-right:1px solid rgba(255,255,255,.08); }
+/* FIX: FOW label was #muted (#888899); raised to #999 for clarity */
+.sc-fow-lbl{ font-size:9px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:8px; white-space:nowrap; }
+/* FIX: FOW items were #888 on dark bg; raised to #aaa */
+.sc-fow-item{ font-size:11px; color:#aaa; padding:1px 8px; border-right:1px solid rgba(255,255,255,.08); }
 .sc-fow-item:last-child{ border-right:none; }
 .sc-fow-item b{ color:var(--gold); }
 
 .sc-footer{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; background:rgba(0,0,0,.55); border-top:1px solid rgba(255,255,255,.1); border-radius:0 0 4px 4px; overflow:hidden; }
 .sc-footer-cell{ padding:7px 14px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:1px; }
 .sc-footer-cell:last-child{ border-right:none; }
-.sc-footer-lbl{ font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; }
-.sc-footer-val{ font-size:18px; font-weight:900; color:#fff; letter-spacing:1px; }
+/* FIX: footer labels were #muted; raised */
+.sc-footer-lbl{ font-size:9px; color:#888; text-transform:uppercase; letter-spacing:2px; }
+.sc-footer-val{ font-size:18px; font-weight:900; color:#e8e8f0; letter-spacing:1px; }
 .sc-footer-val.gold{ color:var(--gold); }
 
 .sc-tabs{ display:flex; background:rgba(0,0,0,.4); border-bottom:1px solid var(--brd); }
-.sc-tab{ flex:1; padding:6px 14px; cursor:pointer; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--muted); text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
+.sc-tab{ flex:1; padding:6px 14px; cursor:pointer; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
 .sc-tab.active{ color:var(--gold); border-bottom-color:var(--gold); background:rgba(240,180,41,.05); }
 
+/* FIX: bowling header uses bowl team colour (--tb) */
 .sc-bowl-hdr .sc-hdr-color{ background:var(--tb); }
 .sc-bowl-hdr .sc-hdr-main{ background:linear-gradient(90deg,var(--tb) 0%,rgba(12,12,28,.98) 55%,rgba(12,12,28,.98) 100%); }
 
@@ -134,8 +180,8 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .live-badge{ background:#e63946; color:#fff; padding:2px 8px; border-radius:2px; font-size:9px; font-weight:800; letter-spacing:2px; animation:lpulse 1.5s infinite; white-space:nowrap; }
 @keyframes lpulse{ 0%,100%{opacity:1}50%{opacity:.55} }
 
-.kbd-hint{ text-align:center; font-size:9px; color:#222; letter-spacing:1px; padding:3px; background:rgba(0,0,0,.3); border-radius:0 0 4px 4px; }
-.kbd-hint span{ background:#111; border:1px solid #222; border-radius:2px; padding:1px 5px; color:#444; font-size:9px; }
+.kbd-hint{ text-align:center; font-size:9px; color:#333; letter-spacing:1px; padding:3px; background:rgba(0,0,0,.3); border-radius:0 0 4px 4px; }
+.kbd-hint span{ background:#111; border:1px solid #2a2a2a; border-radius:2px; padding:1px 5px; color:#555; font-size:9px; }
 </style>
 </head>
 <body>
@@ -157,14 +203,14 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
         </div>
         <div class="sb-bwl">
             <div class="bwl-name" id="dBwn">Bowler</div>
-            <div class="bwl-stat"><span id="dBww">0</span>-<span id="dBwr">0</span> <span style="color:#555;font-weight:400">(<span id="dBwb">0.0</span>)</span></div>
+            <div class="bwl-stat"><span id="dBww">0</span>-<span id="dBwr">0</span> <span class="bwl-ov">(<span id="dBwb">0.0</span>)</span></div>
             <div class="og" id="og"></div>
         </div>
     </div>
     <div class="rates">
         <div class="ri">CRR <b id="dCRR">0.00</b></div>
         <div class="ri ri-rrr" id="rrrWrap" style="display:none">RRR <b id="dRRR">0.00</b></div>
-        <div class="ri" id="inn1Wrap" style="display:none"><b id="dInn1"></b></div>
+        <div class="ri ri-inn" id="inn1Wrap" style="display:none"><b id="dInn1"></b></div>
     </div>
 </div>
 
@@ -181,7 +227,7 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
             </div>
             <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
                 <div class="live-badge">● LIVE</div>
-                <span style="font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px" id="scInnLbl">1ST INNINGS</span>
+                <span style="font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1px" id="scInnLbl">1ST INNINGS</span>
             </div>
         </div>
         <div class="sc-hdr-right">
@@ -208,7 +254,7 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
         <div id="scBatRows"></div>
         <div class="sc-fow" id="scFow">
             <span class="sc-fow-lbl">Fall of Wickets</span>
-            <span style="color:#333;font-style:italic;font-size:11px">—</span>
+            <span style="color:#555;font-style:italic;font-size:11px">—</span>
         </div>
         <div class="sc-footer">
             <div class="sc-footer-cell"><span class="sc-footer-lbl">Extras</span><span class="sc-footer-val" id="scExtVal">0</span></div>
@@ -332,7 +378,7 @@ onValue(ref(db,'cricket'),snap=>{
     document.documentElement.style.setProperty('--ta',batColor);
     document.documentElement.style.setProperty('--tb',bowlColor);
 
-    /* SCORE BAR */
+    /* ── SCORE BAR ── */
     $('dTeam').textContent=d.batTeam||'TEAM';
     $('dRuns').textContent=d.runs; $('dWkts').textContent=d.wkts;
     const oStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
@@ -344,6 +390,7 @@ onValue(ref(db,'cricket'),snap=>{
     $('dBwn').textContent=d.bwn; $('dBwr').textContent=d.bwr; $('dBww').textContent=d.bww;
     $('dBwb').textContent=`${Math.floor(d.bwb/6)}.${d.bwb%6}`;
 
+    // Target badge
     if(d.target>0){
         $('tgtBadge').className='tgt-badge on';
         $('dTgt').textContent=d.target;
@@ -353,6 +400,7 @@ onValue(ref(db,'cricket'),snap=>{
     } else { $('tgtBadge').className='tgt-badge'; }
     $('fhBadge').className=d.freeHit?'fh-badge on':'fh-badge';
 
+    // Rates
     const ovDec=d.balls/6;
     const crr=ovDec>0?(d.runs/ovDec).toFixed(2):'0.00';
     $('dCRR').textContent=crr;
@@ -364,17 +412,18 @@ onValue(ref(db,'cricket'),snap=>{
     if(d.inn1Score){ $('inn1Wrap').style.display=''; $('dInn1').textContent=`${d.inn1Bat} ${d.inn1Score}`; }
     else $('inn1Wrap').style.display='none';
 
-    // ball grid
+    // Ball grid
     const og=$('og'); og.innerHTML='';
     const hist=d.recentBalls||[];
     const slots=Math.max(6,hist.length);
     for(let i=0;i<slots;i++){
         const v=i<hist.length?hist[i]:'';
-        og.innerHTML+=`<div class="ball ${ballCls(v)}">${v===''?'·':v}</div>`;
+        const cls=v===''?'':''+ballCls(v);
+        og.innerHTML+=`<div class="ball ${cls}">${v===''?'·':v}</div>`;
     }
     const bar=$('scoreBar'); bar.classList.remove('uf'); void bar.offsetWidth; bar.classList.add('uf');
 
-    /* SCORECARD */
+    /* ── SCORECARD ── */
     $('scTeamName').textContent=d.batTeam||'TEAM';
     $('scTournament').textContent=d.inn1Score?`After ${d.inn1Bat}: ${d.inn1Score}`:(d.maxOvers?`${d.maxOvers} OVERS MATCH`:'T20 MATCH');
     $('scInnLbl').textContent=d.innings===2?'2ND INNINGS':'1ST INNINGS';
@@ -401,7 +450,7 @@ onValue(ref(db,'cricket'),snap=>{
     $('scBwlExt').textContent=(d.bowlRows||[]).reduce((s,r)=>s+(r.wides||0)+(r.noballs||0),0);
     $('scBwlOv').textContent=oStr; $('scBwlTotal').textContent=`${d.runs}/${d.wkts}`;
 
-    // batting rows
+    // Batting rows
     const batCont=$('scBatRows'); batCont.innerHTML='';
     let fowItems=[], fowCount=0;
     (d.batRows||[]).forEach((row,i)=>{
@@ -409,17 +458,26 @@ onValue(ref(db,'cricket'),snap=>{
         const isCr=d.p1n===row.name||d.p2n===row.name;
         const sr=row.balls>0?((row.runs/row.balls)*100).toFixed(0):'—';
         let howOut='', howStyle='';
-        if(row.out){ howOut=row.howOut||'out'; howStyle='color:var(--muted)'; fowCount++; fowItems.push(`<span class="sc-fow-item"><b>${fowCount}.</b> ${row.name} ${row.runs}</span>`); }
-        else if(isStr){ howOut='★ batting'; howStyle='color:var(--gold,#f5c518)'; }
-        else if(isCr) { howOut='not out'; howStyle='color:#06d6a0'; }
+        if(row.out){
+            howOut=row.howOut||'out';
+            howStyle='color:#888';
+            fowCount++;
+            fowItems.push(`<span class="sc-fow-item"><b>${fowCount}.</b> ${row.name} ${row.runs}</span>`);
+        } else if(isStr){
+            howOut='★ batting';
+            howStyle='color:var(--gold)';
+        } else if(isCr){
+            howOut='not out';
+            howStyle='color:#06d6a0';
+        }
         const div=document.createElement('div');
         div.className=['sc-row bat-row-sc',row.out?'dis-row':'',isStr?'hlt':'',i%2===0?'alt':''].filter(Boolean).join(' ');
-        div.innerHTML=`<span class="sc-cell left ${isStr?'strike':''}">${isStr?'● ':''}${row.name}</span><span class="sc-cell how" style="${howStyle}">${howOut}</span><span class="sc-cell ${isStr?'gold':''}">${row.runs}</span><span class="sc-cell">${row.balls}</span><span class="sc-cell">${row.fours||0}</span><span class="sc-cell">${row.sixes||0}</span><span class="sc-cell" style="font-size:11px;color:var(--muted)">${sr}</span>`;
+        div.innerHTML=`<span class="sc-cell left ${isStr?'strike':''}">${isStr?'● ':''}${row.name}</span><span class="sc-cell how" style="${howStyle}">${howOut}</span><span class="sc-cell ${isStr?'gold':''}">${row.runs}</span><span class="sc-cell">${row.balls}</span><span class="sc-cell">${row.fours||0}</span><span class="sc-cell">${row.sixes||0}</span><span class="sc-cell" style="font-size:11px;color:#888">${sr}</span>`;
         batCont.appendChild(div);
     });
-    $('scFow').innerHTML=`<span class="sc-fow-lbl">Fall of Wickets</span>`+(fowItems.length?fowItems.join(''):`<span style="color:#333;font-style:italic;font-size:11px">—</span>`);
+    $('scFow').innerHTML=`<span class="sc-fow-lbl">Fall of Wickets</span>`+(fowItems.length?fowItems.join(''):`<span style="color:#444;font-style:italic;font-size:11px">—</span>`);
 
-    // bowling rows
+    // Bowling rows
     const bwlCont=$('scBwlRows'); bwlCont.innerHTML='';
     (d.bowlRows||[]).forEach((row,i)=>{
         const hasBowled=row.balls>0||(row.wides||0)>0||(row.noballs||0)>0;
