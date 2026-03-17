@@ -7,28 +7,74 @@
     <style>
         :root { --accent: #f1c40f; --bg-glass: rgba(10, 10, 10, 0.95); --border: rgba(255, 255, 255, 0.1); }
         body { background-color: rgba(0, 0, 0, 0); margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; width: 100vw; }
+        
         .overlay-wrapper { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 1000px; display: flex; flex-direction: column; align-items: center; }
+        
         .target-ui { background: var(--accent); color: black; padding: 2px 15px; font-size: 14px; font-weight: 800; border-radius: 4px 4px 0 0; text-transform: uppercase; display: none; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); z-index: 10; }
-        .score-bar { display: flex; background: var(--bg-glass); backdrop-filter: blur(10px); border-bottom: 5px solid var(--accent); border-radius: 4px; align-items: center; width: 100%; height: 85px; box-shadow: 0 15px 35px rgba(0,0,0,0.8); overflow: hidden; }
+
+        .score-bar { 
+            display: flex; 
+            background: var(--bg-glass); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 5px solid var(--accent); 
+            border-radius: 4px; 
+            align-items: center; 
+            width: 100%; 
+            height: 85px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8); 
+            overflow: hidden;
+        }
+
         .section { padding: 0 20px; height: 100%; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
-        .team-section { flex: 0 0 200px; border-right: 1px solid var(--border); align-items: flex-start; }
+
+        /* Left: Team Section */
+        .team-section { 
+            flex: 0 0 200px; 
+            border-right: 1px solid var(--border); 
+            align-items: flex-start;
+        }
         .team-name { font-size: 18px; font-weight: 900; color: var(--accent); line-height: 1.2; text-transform: uppercase; }
         .score-main { font-size: 32px; font-weight: 900; line-height: 1; margin-top: 2px; }
         .overs { font-size: 16px; color: #ccc; font-weight: 400; margin-left: 5px; }
-        .batsmen-section { flex: 1; flex-direction: column !important; justify-content: center !important; gap: 2px; align-items: center; }
-        .player { display: flex; justify-content: space-between; align-items: center; width: 180px; padding: 2px 0; }
+
+        /* Middle: Batsmen Section - STACKED UP AND DOWN */
+        .batsmen-section { 
+            flex: 1; 
+            flex-direction: column !important; /* Stacked vertically */
+            justify-content: center !important; 
+            gap: 2px; /* Small gap between the two players */
+            align-items: center;
+        }
+        
+        .player { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            width: 180px; /* Control width of the stacked block */
+            padding: 2px 0;
+        }
         .player-name { font-size: 16px; font-weight: 700; color: #eee; }
         .player.active .player-name { color: var(--accent); }
         .player.active .player-name::before { content: '• '; font-size: 18px; }
         .p-stats { font-size: 15px; color: #fff; font-weight: 600; }
-        .bowler-section { flex: 0 0 240px; border-left: 1px solid var(--border); align-items: flex-end; text-align: right; padding-right: 25px; }
+
+        /* Right: Bowler Section */
+        .bowler-section { 
+            flex: 0 0 240px; 
+            border-left: 1px solid var(--border); 
+            align-items: flex-end; 
+            text-align: right;
+            padding-right: 25px;
+        }
         .bowler-name { font-size: 16px; color: #fff; font-weight: 700; line-height: 1.2; }
         .bowler-stats { font-size: 14px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+        
         .over-grid { display: flex; gap: 4px; justify-content: flex-end; }
         .ball { width: 22px; height: 22px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 1px solid var(--border); }
         .ball-w { background: #c0392b; border-color: #ff4d4d; }
         .ball-b { background: #27ae60; border-color: #2ecc71; }
         .ball-e { background: #e67e22; }
+
         .update-flash { animation: flash 0.6s ease-out; }
         @keyframes flash { 0% { background: var(--bg-glass); } 50% { background: rgba(241, 196, 15, 0.3); } 100% { background: var(--bg-glass); } }
     </style>
@@ -37,21 +83,37 @@
     <div class="overlay-wrapper">
         <div id="target-ui" class="target-ui">Target: <span id="disp-target">0</span></div>
         <div class="score-bar" id="scoreBar">
+            
             <div class="team-section section">
                 <span class="team-name" id="disp-team">TEAM</span>
-                <div class="score-main"><span id="disp-runs">0</span>/<span id="disp-wkts">0</span><span class="overs">(<span id="disp-ovs">0.0</span>)</span></div>
+                <div class="score-main">
+                    <span id="disp-runs">0</span>/<span id="disp-wkts">0</span><span class="overs">(<span id="disp-ovs">0.0</span>)</span>
+                </div>
             </div>
+
             <div class="batsmen-section section">
-                <div id="p1-box" class="player"><span class="player-name" id="disp-p1n">Bat 1</span><span class="p-stats"><span id="disp-p1r">0</span>(<span id="disp-p1b">0</span>)</span></div>
-                <div id="p2-box" class="player"><span class="player-name" id="disp-p2n">Bat 2</span><span class="p-stats"><span id="disp-p2r">0</span>(<span id="disp-p2b">0</span>)</span></div>
+                <div id="p1-box" class="player">
+                    <span class="player-name" id="disp-p1n">Bat 1</span>
+                    <span class="p-stats"><span id="disp-p1r">0</span>(<span id="disp-p1b">0</span>)</span>
+                </div>
+                <div id="p2-box" class="player">
+                    <span class="player-name" id="disp-p2n">Bat 2</span>
+                    <span class="p-stats"><span id="disp-p2r">0</span>(<span id="disp-p2b">0</span>)</span>
+                </div>
             </div>
+
             <div class="bowler-section section">
                 <span class="bowler-name" id="disp-bwn">Bowler</span>
-                <span class="bowler-stats"><span id="disp-bww">0</span>-<span id="disp-bwr">0</span> <span style="color:#888; font-weight:normal;">(<span id="disp-bwb">0.0</span>)</span></span>
+                <span class="bowler-stats">
+                    <span id="disp-bww">0</span>-<span id="disp-bwr">0</span> 
+                    <span style="color:#888; font-weight:normal;">(<span id="disp-bwb">0.0</span>)</span>
+                </span>
                 <div class="over-grid" id="over-grid"></div>
             </div>
+
         </div>
     </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
@@ -59,6 +121,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const cricketRef = ref(db, 'cricket');
+
         onValue(cricketRef, (snap) => {
             const d = snap.val(); if (!d) return;
             document.getElementById('disp-team').innerText = d.batTeam;
@@ -71,8 +134,10 @@
             document.getElementById('p2-box').className = d.str === 2 ? 'player active' : 'player';
             document.getElementById('disp-bwn').innerText = d.bwn; document.getElementById('disp-bwr').innerText = d.bwr; document.getElementById('disp-bww').innerText = d.bww;
             document.getElementById('disp-bwb').innerText = `${Math.floor(d.bwb/6)}.${d.bwb%6}`;
+            
             const targetUI = document.getElementById('target-ui');
             if (d.target > 0) { targetUI.style.display = 'inline-block'; document.getElementById('disp-target').innerText = d.target; } else { targetUI.style.display = 'none'; }
+
             const grid = document.getElementById('over-grid'); grid.innerHTML = '';
             const history = d.recentBalls || [];
             for(let i=0; i<6; i++) {
@@ -80,7 +145,7 @@
                 let cls = 'ball';
                 if(val === 'W') cls += ' ball-w';
                 else if(val === 4 || val === 6) cls += ' ball-b';
-                else if(String(val).includes('WD') || String(val).includes('NB') || String(val).includes('B') || String(val).includes('LB')) cls += ' ball-e';
+                else if(val === 'WD' || val === 'NB') cls += ' ball-e';
                 grid.innerHTML += `<div class="${cls}">${val}</div>`;
             }
             const bar = document.getElementById('scoreBar'); bar.classList.remove('update-flash'); void bar.offsetWidth; bar.classList.add('update-flash');
