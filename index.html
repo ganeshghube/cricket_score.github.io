@@ -2,135 +2,84 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Fixed Slim Overlay</title>
+    <title>Cricket Slim Overlay</title>
     <style>
         body { 
-            margin: 0; 
-            padding: 0; 
-            background: transparent; 
+            margin: 0; padding: 0; background: transparent; 
             font-family: 'Segoe UI', Arial, sans-serif;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
+            overflow: hidden; width: 1920px; height: 1080px;
         }
 
-        /* This locks the bar to the bottom and keeps it centered */
         .master-wrapper {
-            position: fixed;
-            bottom: 20px; /* Space from the bottom edge */
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 9999;
+            position: absolute; bottom: 40px; left: 50%;
+            transform: translateX(-50%); width: 100%;
+            display: flex; justify-content: center;
         }
 
         .ribbon {
-            display: flex;
-            flex-direction: row; /* Keeps everything in one line */
-            align-items: center;
-            background: rgba(0, 0, 0, 0.9);
-            height: 50px; /* Short height */
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex; flex-direction: row; align-items: center;
+            background: rgba(0, 0, 0, 0.9); height: 55px;
+            border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-            min-width: 800px;
-            max-width: 95%;
-            overflow: hidden;
+            min-width: 900px; overflow: hidden;
         }
 
-        /* Team & Score Section */
         .main-score {
-            background: #f1c40f;
-            color: #000;
-            height: 100%;
-            padding: 0 15px;
-            display: flex;
-            align-items: center;
-            font-weight: 900;
-            font-size: 22px;
-            white-space: nowrap;
+            background: #f1c40f; color: #000; height: 100%;
+            padding: 0 20px; display: flex; align-items: center;
+            font-weight: 900; font-size: 24px;
         }
 
         .ovs-label {
-            font-size: 14px;
-            margin-left: 8px;
-            background: rgba(0,0,0,0.1);
-            padding: 2px 6px;
-            border-radius: 3px;
+            font-size: 16px; margin-left: 10px;
+            background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 3px;
         }
 
-        /* Batsmen Section */
         .batsmen {
-            flex-grow: 1;
-            display: flex;
-            justify-content: space-around;
-            padding: 0 20px;
-            color: #fff;
-            gap: 20px;
+            flex-grow: 1; display: flex; justify-content: space-around;
+            padding: 0 20px; color: #fff;
         }
 
-        .p-unit { font-size: 16px; white-space: nowrap; }
+        .p-unit { font-size: 18px; }
         .p-unit.active { color: #f1c40f; font-weight: bold; }
         .p-unit.active::after { content: '*'; margin-left: 3px; }
-        .p-runs { font-size: 13px; color: #aaa; margin-left: 5px; }
+        .p-runs { font-size: 14px; color: #aaa; margin-left: 8px; }
 
-        /* Bowler Section */
+        /* Fixed Bowler Section with contrast background */
         .bowler {
-            background: rgba(255, 255, 255, 0.1);
-            height: 100%;
-            padding: 0 15px;
-            display: flex;
-            align-items: center;
-            font-size: 15px;
-            border-left: 1px solid #444;
-            white-space: nowrap;
+            background: #222; height: 100%;
+            padding: 0 20px; display: flex; align-items: center;
+            font-size: 16px; border-left: 2px solid #f1c40f;
         }
 
-        .bwl-n { font-weight: bold; margin-right: 8px; }
-        .bwl-s { color: #f1c40f; font-size: 14px; }
+        .bwl-n { font-weight: bold; color: #f1c40f; margin-right: 10px; text-transform: uppercase; font-size: 14px; }
+        .bwl-s { color: #fff; font-weight: bold; }
 
-        /* Target Indicator */
         .target-box {
-            background: #fff;
-            color: #000;
-            padding: 0 10px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            font-weight: 900;
-            font-size: 14px;
-            border-left: 1px solid #ccc;
+            background: #fff; color: #000; padding: 0 15px;
+            height: 100%; display: flex; align-items: center;
+            font-weight: 900; font-size: 16px; border-left: 1px solid #ccc;
         }
     </style>
 </head>
 <body>
-
     <div class="master-wrapper">
         <div class="ribbon">
             <div class="main-score">
                 <span id="disp-team">TEAM</span>
-                <span style="margin-left:10px;" id="disp-score">0-0</span>
+                <span style="margin-left:15px;" id="disp-score">0-0</span>
                 <span class="ovs-label" id="disp-ovs">0.0</span>
             </div>
-
             <div class="batsmen">
-                <div id="p1-div" class="p-unit">
-                    <span id="p1-n">P1</span><span class="p-runs" id="p1-s">0(0)</span>
-                </div>
-                <div id="p2-div" class="p-unit">
-                    <span id="p2-n">P2</span><span class="p-runs" id="p2-s">0(0)</span>
-                </div>
+                <div id="p1-div" class="p-unit"><span id="p1-n">P1</span><span class="p-runs" id="p1-s">0(0)</span></div>
+                <div id="p2-div" class="p-unit"><span id="p2-n">P2</span><span class="p-runs" id="p2-s">0(0)</span></div>
             </div>
-
             <div class="bowler">
-                <span class="bwl-n" id="disp-bwn">Bowler</span>
+                <span class="bwl-n">BWL</span>
+                <span id="disp-bwn" style="margin-right:10px; color:#eee;">Bowler</span>
                 <span class="bwl-s" id="disp-bw-stats">0-0 (0.0)</span>
             </div>
-
-            <div id="target-ui" class="target-box" style="display:none;">
-                TGT: <span id="disp-target">0</span>
-            </div>
+            <div id="target-ui" class="target-box" style="display:none;">TGT: <span id="disp-target">0</span></div>
         </div>
     </div>
 
@@ -154,32 +103,21 @@
         onValue(cricketRef, (snapshot) => {
             const d = snapshot.val();
             if (!d) return;
-
-            // Scoreboard
             document.getElementById('disp-team').innerText = d.batTeam || "TEAM";
             document.getElementById('disp-score').innerText = `${d.runs}-${d.wkts}`;
             document.getElementById('disp-ovs').innerText = `${Math.floor(d.balls/6)}.${d.balls%6}`;
-
-            // Batsmen
             document.getElementById('p1-n').innerText = d.p1n || "P1";
             document.getElementById('p1-s').innerText = `${d.p1r}(${d.p1b})`;
             document.getElementById('p1-div').className = d.str === 1 ? 'p-unit active' : 'p-unit';
-
             document.getElementById('p2-n').innerText = d.p2n || "P2";
             document.getElementById('p2-s').innerText = `${d.p2r}(${d.p2b})`;
             document.getElementById('p2-div').className = d.str === 2 ? 'p-unit active' : 'p-unit';
-
-            // Bowler
             document.getElementById('disp-bwn').innerText = d.bwn || "Bowler";
             document.getElementById('disp-bw-stats').innerText = `${d.bww}-${d.bwr} (${Math.floor(d.bwb/6)}.${d.bwb%6})`;
-
-            // Target
             if(d.target > 0) {
                 document.getElementById('target-ui').style.display = 'flex';
                 document.getElementById('disp-target').innerText = d.target;
-            } else {
-                document.getElementById('target-ui').style.display = 'none';
-            }
+            } else { document.getElementById('target-ui').style.display = 'none'; }
         });
     </script>
 </body>
