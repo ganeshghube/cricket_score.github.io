@@ -242,7 +242,20 @@
         </div>
     </div>
 
-    <!-- 6. INNINGS / RESET -->
+    <!-- 6. SAVE MATCH SCORECARD -->
+    <div class="card">
+        <h4>6. Save Match Scorecard</h4>
+        <div style="font-size:11px;color:#666;margin-bottom:10px;line-height:1.6">
+            Downloads a full HTML scorecard file with today's date in the filename. Save it after the match ends — before resetting.
+        </div>
+        <div class="g2">
+            <div><label>Match Title (optional)</label><input id="matchTitle" placeholder="e.g. Club Final — Ground Name"></div>
+            <div><label>Venue (optional)</label><input id="matchVenue" placeholder="e.g. Eden Gardens"></div>
+        </div>
+        <button class="b-show" style="margin-top:10px" onclick="saveMatch()">💾 DOWNLOAD SCORECARD FILE</button>
+    </div>
+
+    <!-- 7. INNINGS / RESET -->
     <div class="card">
         <button class="b-inn" style="margin-bottom:10px" onclick="swapInnings()">🔄 START 2ND INNINGS</button>
         <button class="b-rst" onclick="fullReset()">⚠ RESET ALL DATA</button>
@@ -613,6 +626,186 @@ window.fullReset = async () => {
     await set(mRef,null); await set(sRef,null);
     await set(uRef,{scorebar:true,scorecard:false});
     location.reload();
+};
+
+// ── Save Match Scorecard ───────────────────────────
+window.saveMatch = async () => {
+    const snap = await get(mRef); const d = snap.val();
+    if (!d) return alert('No match data to save!');
+
+    const now   = new Date();
+    const dd    = String(now.getDate()).padStart(2,'0');
+    const mm    = String(now.getMonth()+1).padStart(2,'0');
+    const yyyy  = now.getFullYear();
+    const hh    = String(now.getHours()).padStart(2,'0');
+    const min   = String(now.getMinutes()).padStart(2,'0');
+    const dateStr   = `${dd}-${mm}-${yyyy}`;
+    const dateLabel = `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+
+    const title  = $('matchTitle').value.trim() || `${d.batTeam} vs ${d.bowlTeam}`;
+    const venue  = $('matchVenue').value.trim();
+    const fmt    = d.maxOvers ? `${d.maxOvers} Overs` : 'T20';
+
+    // ── helpers ──
+    const ovStr = b => `${Math.floor(b/6)}.${b%6}`;
+    const sr    = (r,b) => b>0 ? ((r/b)*100).toFixed(0) : '—';
+    const eco   = (r,b) => b>0 ? (r/(b/6)).toFixed(2) : '—';
+
+    // ── batting rows HTML ──
+    const batRowsHtml = (rows, teamName) => {
+        if (!rows||!rows.length) return '';
+        let html = `
+        <h3 class="team-hd">🏏 ${teamName} — Batting</h3>
+        <table>
+          <thead><tr><th>Batsman</th><th>How Out</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+          <tbody>`;
+        rows.forEach(row => {
+            const status = row.out ? (row.howOut||'out') : 'not out';
+            const cls    = row.out ? 'out' : 'notout';
+            html += `<tr class="${cls}">
+              <td class="name">${row.name}</td>
+              <td class="howout">${status}</td>
+              <td class="num"><b>${row.runs}</b></td>
+              <td class="num">${row.balls}</td>
+              <td class="num">${row.fours||0}</td>
+              <td class="num">${row.sixes||0}</td>
+              <td class="num small">${sr(row.runs,row.balls)}</td>
+            </tr>`;
+        });
+        // extras + total
+        let ext=0; (d.bowlRows||[]).forEach(r=>{ ext+=(r.wides||0)+(r.noballs||0)+(r.byes||0)+(r.legbyes||0); });
+        html += `
+          <tr class="extras-row"><td colspan="2">Extras</td><td class="num"><b>${ext}</b></td><td colspan="4"></td></tr>
+          <tr class="total-row"><td colspan="2"><b>TOTAL</b></td><td class="num"><b>${d.runs}/${d.wkts}</b></td><td colspan="2" class="num small">(${ovStr(d.balls)} ovs)</td><td colspan="2"></td></tr>
+        </tbody></table>`;
+        return html;
+    };
+
+    // ── bowling rows HTML ──
+    const bowlRowsHtml = (rows, teamName) => {
+        if (!rows||!rows.length) return '';
+        let html = `
+        <h3 class="team-hd">⚾ ${teamName} — Bowling</h3>
+        <table>
+          <thead><tr><th>Bowler</th><th>O</th><th>R</th><th>W</th><th>Wd</th><th>Nb</th><th>Eco</th></tr></thead>
+          <tbody>`;
+        rows.forEach(row => {
+            if (!row.balls && !(row.wides||0) && !(row.noballs||0)) {
+                html += `<tr class="dnb"><td class="name">${row.name}</td><td colspan="6" style="color:#999;font-style:italic">did not bowl</td></tr>`;
+                return;
+            }
+            const ecoVal = parseFloat(eco(row.runs,row.balls));
+            const ecoCls = ecoVal<7?'eco-good':(ecoVal>10?'eco-bad':'');
+            html += `<tr>
+              <td class="name">${row.name}</td>
+              <td class="num">${ovStr(row.balls)}</td>
+              <td class="num">${row.runs}</td>
+              <td class="num"><b>${row.wkts}</b></td>
+              <td class="num small">${row.wides||0}</td>
+              <td class="num small">${row.noballs||0}</td>
+              <td class="num ${ecoCls}">${eco(row.runs,row.balls)}</td>
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+        return html;
+    };
+
+    // ── determine which innings data we have ──
+    // Current innings is always in d.batRows / d.bowlRows
+    // If 2nd innings, inn1 data is stored in inn1Score string only (no full rows saved)
+    // So we show what we have
+    const inn1Block = d.inn1Score ? `
+        <div class="inn-summary">
+            <span class="inn-label">1ST INNINGS</span>
+            <span class="inn-score">${d.inn1Bat} — ${d.inn1Score}</span>
+        </div>` : '';
+
+    const inn2Block = d.innings===2 ? `
+        <div class="inn-summary inn2">
+            <span class="inn-label">2ND INNINGS</span>
+            <span class="inn-score">${d.batTeam} — ${d.runs}/${d.wkts} (${ovStr(d.balls)} ovs)</span>
+            ${d.target>0?`<span class="inn-target">Target: ${d.target} · ${d.runs>=d.target?`WON by ${10-d.wkts} wkts`:(d.runs<d.target&&d.balls>=(d.maxOvers||20)*6)?`LOST by ${d.target-d.runs-1} runs`:''}</span>`:''}
+        </div>` : `
+        <div class="inn-summary">
+            <span class="inn-label">1ST INNINGS</span>
+            <span class="inn-score">${d.batTeam} — ${d.runs}/${d.wkts} (${ovStr(d.balls)} ovs)</span>
+        </div>`;
+
+    // ── full HTML document ──
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${title} — ${dateStr}</title>
+<style>
+  :root { --y:#f1c40f; --bg:#0d0d0d; --card:#161616; --border:#222; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',sans-serif; background:var(--bg); color:#ddd; padding:20px; }
+  .header { background:linear-gradient(135deg,#1c1500,#111); border:1px solid #2a2000; border-radius:10px; padding:20px 24px; margin-bottom:18px; }
+  .match-title { font-size:22px; font-weight:900; color:var(--y); text-transform:uppercase; letter-spacing:1px; }
+  .match-meta  { font-size:12px; color:#666; margin-top:6px; display:flex; gap:18px; flex-wrap:wrap; }
+  .match-meta span b { color:#999; }
+  .inn-summary { background:#111; border-left:4px solid var(--y); padding:10px 16px; margin-bottom:8px; border-radius:0 6px 6px 0; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .inn-summary.inn2 { border-left-color:#27ae60; }
+  .inn-label  { font-size:10px; color:#666; text-transform:uppercase; letter-spacing:1px; }
+  .inn-score  { font-size:18px; font-weight:800; color:#fff; }
+  .inn-target { font-size:12px; color:var(--y); font-weight:700; }
+  .section { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:14px; }
+  .team-hd { font-size:12px; font-weight:800; color:var(--y); text-transform:uppercase; letter-spacing:2px; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+  table { width:100%; border-collapse:collapse; margin-bottom:20px; }
+  th { font-size:10px; color:#555; text-transform:uppercase; letter-spacing:.8px; padding:4px 8px; text-align:right; font-weight:600; border-bottom:1px solid var(--border); }
+  th:first-child,th:nth-child(2) { text-align:left; }
+  td { font-size:13px; padding:7px 8px; text-align:right; border-top:1px solid #1a1a1a; color:#ccc; }
+  td.name   { text-align:left; color:#eee; font-weight:600; }
+  td.howout { text-align:left; font-size:11px; color:#666; font-weight:400; }
+  td.num    { }
+  td.small  { font-size:11px; color:#777; }
+  tr.out td.name  { color:#888; }
+  tr.out td.howout{ color:#555; }
+  tr.notout td.name { color:#fff; }
+  tr.notout td.howout { color:#27ae60; }
+  tr.dnb td { color:#444; font-style:italic; }
+  tr.extras-row td { color:#888; font-size:12px; border-top:1px solid #222; }
+  tr.total-row td  { color:var(--y); font-weight:700; background:#111; font-size:13px; }
+  .eco-good { color:#27ae60 !important; }
+  .eco-bad  { color:#e74c3c !important; }
+  .footer { text-align:center; font-size:10px; color:#333; margin-top:24px; }
+  @media print { body{background:#fff;color:#000} .header{background:#f5f5f5;border-color:#ddd} table{page-break-inside:avoid} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="match-title">${title}</div>
+  <div class="match-meta">
+    <span><b>Date:</b> ${dateLabel}</span>
+    ${venue?`<span><b>Venue:</b> ${venue}</span>`:''}
+    <span><b>Format:</b> ${fmt}</span>
+    <span><b>${d.batTeam}</b> vs <b>${d.bowlTeam}</b></span>
+  </div>
+</div>
+
+${inn1Block}
+${inn2Block}
+
+<div class="section">
+  ${batRowsHtml(d.batRows, d.batTeam)}
+  ${bowlRowsHtml(d.bowlRows, d.bowlTeam)}
+</div>
+
+<div class="footer">Generated by Cricket Overlay Admin · ${dateLabel}</div>
+</body>
+</html>`;
+
+    // ── trigger download ──
+    const safe  = title.replace(/[^a-zA-Z0-9\s]/g,'').replace(/\s+/g,'-').substring(0,40);
+    const fname = `scorecard_${safe}_${dateStr}.html`;
+    const blob  = new Blob([html], {type:'text/html'});
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
+    a.href=url; a.download=fname; a.click();
+    URL.revokeObjectURL(url);
 };
 
 // ensure UI defaults
