@@ -1,34 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <style>
-        /* This makes the background invisible in Prism Live */
-        body { background-color: rgba(0, 0, 0, 0); margin: 0; font-family: 'Arial', sans-serif; overflow: hidden; }
-        
-        .score-container {
-            display: inline-block;
-            background: rgba(0, 0, 0, 0.8); /* Semi-transparent black bar */
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            border-left: 5px solid #f1c40f; /* Cricket yellow accent */
+        body { background: transparent; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
+        .score-bar {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; background: rgba(0, 0, 0, 0.9); border-bottom: 4px solid #f1c40f;
+            padding: 10px 30px; border-radius: 5px; align-items: center; min-width: 800px;
         }
-        .team-name { font-weight: bold; margin-right: 10px; color: #f1c40f; }
-        .score-text { font-size: 32px; font-weight: 900; }
+        .team-info { font-size: 28px; font-weight: bold; border-right: 2px solid #555; padding-right: 20px; }
+        .batsmen { flex-grow: 1; display: flex; gap: 40px; padding-left: 20px; font-size: 20px; }
+        .active { color: #f1c40f; } /* Striker highlight */
+        .bowler-info { font-size: 20px; color: #ccc; border-left: 2px solid #555; padding-left: 20px; }
+        .crr { font-size: 16px; color: #aaa; margin-left: 10px; }
     </style>
 </head>
 <body>
-    <div class="score-container">
-        <span class="team-name">LIVE SCORE</span>
-        <span class="score-text"><span id="runs">0</span> / <span id="wickets">0</span></span>
+    <div class="score-bar">
+        <div class="team-info">
+            <span id="teamName">TEAM</span> 
+            <span id="score">0/0</span> 
+            <span style="font-size: 18px;">(<span id="overs">0.0</span>)</span>
+        </div>
+        <div class="batsmen">
+            <div id="p1" class="active">P1* 0(0)</div>
+            <div id="p2">P2 0(0)</div>
+        </div>
+        <div class="bowler-info">
+            BWL: <span id="bowlerName">Bowler</span> <span id="bowlerStats">0-0 (0.0)</span>
+            <span class="crr">CRR: <span id="crr">0.0</span></span>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        const firebaseConfig = {
+        const firebaseConfig = {             
             apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
             authDomain: "cricket-8e338.firebaseapp.com",
             projectId: "cricket-8e338",
@@ -36,19 +44,23 @@
             messagingSenderId: "41064243639",
             appId: "1:41064243639:web:d99e0d8f64b1bbca20c832"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Reference to our cricket score in the database
-        const scoreRef = ref(db, 'liveScore');
-
-        onValue(scoreRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                document.getElementById('runs').innerText = data.runs || 0;
-                document.getElementById('wickets').innerText = data.wickets || 0;
-            }
+        onValue(ref(db, 'match/'), (snapshot) => {
+            const d = snapshot.val();
+            if(!d) return;
+            document.getElementById('teamName').innerText = d.battingTeam;
+            document.getElementById('score').innerText = `${d.runs}/${d.wickets}`;
+            document.getElementById('overs').innerText = `${Math.floor(d.balls/6)}.${d.balls%6}`;
+            document.getElementById('p1').innerText = `${d.p1Name}${d.striker === 1 ? '*' : ''} ${d.p1Runs}(${d.p1Balls})`;
+            document.getElementById('p2').innerText = `${d.p2Name}${d.striker === 2 ? '*' : ''} ${d.p2Runs}(${d.p2Balls})`;
+            document.getElementById('p1').className = d.striker === 1 ? 'active' : '';
+            document.getElementById('p2').className = d.striker === 2 ? 'active' : '';
+            document.getElementById('bowlerName').innerText = d.bwlName;
+            document.getElementById('bowlerStats').innerText = `${d.bwlWkts}-${d.bwlRuns} (${Math.floor(d.bwlBalls/6)}.${d.bwlBalls%6})`;
+            const crr = (d.runs / (d.balls/6 || 1)).toFixed(2);
+            document.getElementById('crr').innerText = crr;
         });
     </script>
 </body>
