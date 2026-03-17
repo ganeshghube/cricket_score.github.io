@@ -244,7 +244,7 @@ const $ = id => document.getElementById(id);
 const connRef = ref(db, '.info/connected');
 onValue(connRef, snap => {
     if (snap.val() === false) {
-        setTimeout(() => location.reload(), 3000);
+
     }
 });
 // Also hard-reload every 5 minutes as a safety net
