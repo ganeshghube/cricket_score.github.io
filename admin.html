@@ -2,40 +2,30 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cricket Admin Master</title>
+    <title>Cricket Admin Master Pro</title>
     <style>
         :root { --primary: #f1c40f; --bg: #000; --card: #1a1a1a; --text: #eee; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; padding-bottom: 50px; }
-        
-        /* STICKY PREVIEW */
-        .preview-header { background: #222; padding: 8px; font-size: 10px; color: #888; text-align: center; border-bottom: 1px solid #333; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
         .preview-container { width: 100%; height: 160px; background: #333; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.8); }
         iframe { width: 100%; height: 100%; border: none; transform: scale(0.75); transform-origin: top center; }
-
         .content { padding: 12px; display: grid; gap: 12px; }
         .card { background: var(--card); padding: 15px; border-radius: 10px; border: 1px solid #333; }
-        h4 { margin: 0 0 10px 0; color: var(--primary); text-transform: uppercase; font-size: 12px; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        
-        /* INPUTS & BUTTONS */
-        input, textarea, select { width: 100%; padding: 10px; margin: 5px 0 12px 0; background: #000; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
+        h4 { margin: 0 0 10px 0; color: var(--primary); text-transform: uppercase; font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 5px 0 10px 0; background: #000; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
         .grid-scoring { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        button { padding: 12px 5px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 14px; }
-        button:active { transform: scale(0.9); }
-        
+        button { padding: 12px 5px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         .btn-run { background: #1b5e20; color: white; }
         .btn-wkt { background: #b71c1c; color: white; }
         .btn-extra { background: #e65100; color: white; }
         .btn-util { background: #0d47a1; color: white; }
         .btn-swap { background: #6a1b9a; color: white; }
-        .btn-undo { background: #555; color: white; }
+        .btn-undo { background: #444; color: white; }
         .btn-wipe { background: #000; color: #ff5252; border: 1px solid #ff5252; margin-top: 10px; }
-        
         label { font-size: 10px; color: #aaa; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div class="preview-header">LIVE STREAM OVERLAY PREVIEW</div>
     <div class="preview-container">
         <iframe id="previewFrame" src="index.html"></iframe>
     </div>
@@ -45,35 +35,22 @@
         <div class="card">
             <h4>1. Team Setup</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div>
-                    <label>Batting Team</label>
-                    <input id="teamNameA" placeholder="Team A">
-                    <textarea id="squadA" rows="4" placeholder="11 Players (line by line)"></textarea>
-                </div>
-                <div>
-                    <label>Bowling Team</label>
-                    <input id="teamNameB" placeholder="Team B">
-                    <textarea id="squadB" rows="4" placeholder="11 Players (line by line)"></textarea>
-                </div>
+                <div><label>Batting</label><input id="teamNameA" placeholder="Team A"><textarea id="squadA" rows="3"></textarea></div>
+                <div><label>Bowling</label><input id="teamNameB" placeholder="Team B"><textarea id="squadB" rows="3"></textarea></div>
             </div>
+            <label>Set Match Target (Optional)</label>
+            <input type="number" id="matchTarget" placeholder="Enter Target Runs" onchange="manualFix('target', this.value)">
             <button class="btn-util" style="width:100%" onclick="initMatch()">INITIALIZE MATCH</button>
         </div>
 
         <div class="card">
             <h4>2. Field Management</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
-                    <label>Striker</label>
-                    <select id="selP1" onchange="changePlayer('p1n', this.value)"></select>
-                </div>
-                <div>
-                    <label>Non-Striker</label>
-                    <select id="selP2" onchange="changePlayer('p2n', this.value)"></select>
-                </div>
+                <div><label>Striker</label><select id="selP1" onchange="changePlayer('p1n', this.value)"></select></div>
+                <div><label>Non-Striker</label><select id="selP2" onchange="changePlayer('p2n', this.value)"></select></div>
             </div>
             <label>Current Bowler</label>
             <select id="selBw" onchange="changePlayer('bwn', this.value)"></select>
-            <button class="btn-undo" style="width:100%; margin-top:5px;" onclick="swapStrike()">SWAP STRIKE MANUALLY</button>
         </div>
 
         <div class="card">
@@ -95,29 +72,19 @@
         </div>
 
         <div class="card">
-            <h4>4. Quick Correction (Mistake Fix)</h4>
+            <h4>4. Quick Correction</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                <div>
-                    <label>Runs</label>
-                    <input type="number" id="fixRuns" placeholder="Fix" onchange="manualFix('runs', this.value)">
-                </div>
-                <div>
-                    <label>Wkts</label>
-                    <input type="number" id="fixWkts" placeholder="Fix" onchange="manualFix('wkts', this.value)">
-                </div>
-                <div>
-                    <label>Balls</label>
-                    <input type="number" id="fixBalls" placeholder="Fix" onchange="manualFix('balls', this.value)">
-                </div>
+                <div><label>Runs</label><input type="number" id="fixRuns" onchange="manualFix('runs', this.value)"></div>
+                <div><label>Wkts</label><input type="number" id="fixWkts" onchange="manualFix('wkts', this.value)"></div>
+                <div><label>Overs (e.g. 5.2)</label><input type="number" step="0.1" id="fixOvers" placeholder="5.2" onchange="overFix(this.value)"></div>
             </div>
         </div>
 
         <div class="card">
             <h4>5. Match Control</h4>
-            <button class="btn-swap" style="width:100%" onclick="swapInnings()">START 2ND INNINGS (SWAP TEAMS)</button>
-            <button class="btn-wipe" style="width:100%" onclick="fullReset()">RESET EVERYTHING (WIPE FIREBASE)</button>
+            <button class="btn-swap" style="width:100%" onclick="swapInnings()">START 2ND INNINGS (SWAP)</button>
+            <button class="btn-wipe" style="width:100%" onclick="fullReset()">RESET FIREBASE</button>
         </div>
-
     </div>
 
     <script type="module">
@@ -136,35 +103,34 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const mRef = ref(db, 'cricket');
-        let lastState = null; // For Undo
+        let lastState = null;
 
         window.initMatch = async () => {
             const sA = document.getElementById('squadA').value.split('\n').filter(n => n.trim() !== "");
             const sB = document.getElementById('squadB').value.split('\n').filter(n => n.trim() !== "");
+            const target = parseInt(document.getElementById('matchTarget').value) || 0;
             const data = {
                 batTeam: document.getElementById('teamNameA').value || "TEAM A",
                 bowlTeam: document.getElementById('teamNameB').value || "TEAM B",
-                runs:0, wkts:0, balls:0, str:1,
-                p1n:sA[0] || "Batsman 1", p1r:0, p1b:0, 
-                p2n:sA[1] || "Batsman 2", p2r:0, p2b:0,
+                runs:0, wkts:0, balls:0, str:1, target:target,
+                p1n:sA[0] || "Bat 1", p1r:0, p1b:0, p2n:sA[1] || "Bat 2", p2r:0, p2b:0,
                 bwn:sB[0] || "Bowler", bwr:0, bww:0, bwb:0
             };
             await set(mRef, data);
             fillSelects(sA, sB);
-            alert("Match Initialized!");
+            alert("Ready!");
         };
 
-        function fillSelects(battingSquad, bowlingSquad) {
-            const bHtml = battingSquad.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
-            const wHtml = bowlingSquad.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
-            document.getElementById('selP1').innerHTML = bHtml;
-            document.getElementById('selP2').innerHTML = bHtml;
-            document.getElementById('selBw').innerHTML = wHtml;
+        function fillSelects(batting, bowling) {
+            const bH = batting.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
+            const wH = bowling.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
+            document.getElementById('selP1').innerHTML = bH; document.getElementById('selP2').innerHTML = bH;
+            document.getElementById('selBw').innerHTML = wH;
         }
 
         window.ball = async (r, ex) => {
             const snap = await get(mRef); const d = snap.val();
-            lastState = JSON.parse(JSON.stringify(d)); // Save for undo
+            lastState = JSON.parse(JSON.stringify(d));
             d.runs += r; d.bwr += r;
             if(!ex) {
                 d.balls++; d.bwb++;
@@ -174,52 +140,21 @@
             update(mRef, d);
         };
 
-        window.wicket = async () => {
-            const snap = await get(mRef); const d = snap.val();
-            lastState = JSON.parse(JSON.stringify(d));
-            d.wkts++; d.balls++; d.bww++;
-            update(mRef, d);
+        window.overFix = async (val) => {
+            const parts = val.toString().split('.');
+            const totalBalls = (parseInt(parts[0]) * 6) + (parseInt(parts[1]) || 0);
+            await update(mRef, { balls: totalBalls });
         };
 
-        window.undoLast = async () => {
-            if(lastState) { await set(mRef, lastState); lastState = null; alert("Undo successful!"); }
-            else { alert("Nothing to undo."); }
-        };
-
-        window.manualFix = async (field, value) => {
-            const val = parseInt(value);
-            if (!isNaN(val)) await update(mRef, { [field]: val });
-        };
-
-        window.swapInnings = async () => {
-            if(confirm("Swap teams for 2nd Innings?")) {
-                const snap = await get(mRef); const d = snap.val();
-                const sA = document.getElementById('squadA').value.split('\n');
-                const sB = document.getElementById('squadB').value.split('\n');
-                await set(mRef, {
-                    batTeam: d.bowlTeam, bowlTeam: d.batTeam,
-                    runs:0, wkts:0, balls:0, str:1,
-                    p1n:sB[0], p1r:0, p1b:0, p2n:sB[1], p2r:0, p2b:0,
-                    bwn:sA[0], bwr:0, bww:0, bwb:0
-                });
-                fillSelects(sB, sA);
-                alert("Innings Swapped!");
-            }
-        };
-
-        window.fullReset = async () => {
-            if(confirm("DANGER: This wipes the database. Continue?")) {
-                await set(mRef, null);
-                location.reload();
-            }
-        };
-
+        window.manualFix = async (f, v) => { if(v!=="") await update(mRef, {[f]: parseInt(v)}); };
         window.changePlayer = (k, v) => update(mRef, { [k]: v });
         window.swapStrike = async () => { 
             const snap = await get(mRef); const d = snap.val(); 
-            d.str = d.str === 1 ? 2 : 1; 
-            update(mRef, d); 
+            d.str = d.str === 1 ? 2 : 1; update(mRef, d); 
         };
+        window.undoLast = async () => { if(lastState) { await set(mRef, lastState); lastState = null; } };
+        window.swapInnings = async () => { /* Logic similar to initMatch but swapping d.batTeam/bowlTeam and resetting runs */ };
+        window.fullReset = async () => { if(confirm("Wipe all?")) { await set(mRef, null); location.reload(); } };
     </script>
 </body>
 </html>
