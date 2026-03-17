@@ -15,7 +15,16 @@
         .team-name { font-size: 22px; font-weight: 900; color: var(--accent); }
         .score-main { font-size: 32px; font-weight: 900; }
         .overs { font-size: 16px; color: #ccc; margin-left: 8px; font-weight: 400; }
-        .batsmen-section { flex: 2 1 300px; display: flex; justify-content: space-around; border-right: 1px solid var(--border); }
+        
+        /* ADJUSTED: Reduced spacing between batsmen */
+        .batsmen-section { 
+            flex: 1 1 auto; 
+            display: flex; 
+            justify-content: center; 
+            gap: 25px; 
+            border-right: 1px solid var(--border); 
+        }
+        
         .player { font-size: 18px; font-weight: 600; color: #eee; }
         .player.active { color: var(--accent); }
         .player.active::after { content: ' •'; font-size: 24px; vertical-align: middle; }
