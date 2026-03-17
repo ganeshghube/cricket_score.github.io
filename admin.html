@@ -7,60 +7,69 @@
         :root { --primary: #f1c40f; --bg: #121212; --card: #1e1e1e; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 0; }
         
-        .preview-header { background: #222; padding: 10px; font-size: 12px; color: #888; text-align: center; border-bottom: 1px solid #333; }
-        .preview-container { width: 100%; height: 180px; background: #333; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        iframe { width: 100%; height: 100%; border: none; transform: scale(0.8); transform-origin: top center; }
+        .preview-header { background: #222; padding: 5px; font-size: 11px; color: #888; text-align: center; border-bottom: 1px solid #333; }
+        .preview-container { width: 100%; height: 140px; background: #333; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); overflow: hidden; }
+        /* Zoom fix to see the whole 1920px ribbon */
+        iframe { width: 1920px; height: 1080px; border: none; transform: scale(0.2); transform-origin: 0 0; }
 
-        .content { padding: 15px; display: grid; gap: 15px; }
-        .card { background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        .content { padding: 12px; display: grid; gap: 12px; }
+        .card { background: var(--card); padding: 12px; border-radius: 8px; border: 1px solid #333; }
         
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        button { padding: 12px 5px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
+        
+        button { padding: 12px 5px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
         .btn-run { background: #27ae60; color: white; }
         .btn-wkt { background: #c0392b; color: white; }
         .btn-extra { background: #e67e22; color: white; }
         .btn-util { background: #34495e; color: white; }
-        .btn-danger { background: #8e44ad; color: white; } /* Purple for swap */
-        .btn-wipe { background: #333; color: #ff4d4d; border: 1px solid #ff4d4d; }
+        .btn-danger { background: #8e44ad; color: white; }
+        .btn-wipe { background: #000; color: #ff4d4d; border: 1px solid #ff4d4d; margin-top: 10px; }
         
         input, textarea, select { 
-            width: 100%; padding: 10px; margin: 8px 0; 
-            background: #222; border: 1px solid #444; color: white; border-radius: 4px; box-sizing: border-box;
+            width: 100%; padding: 8px; margin: 5px 0; 
+            background: #222; border: 1px solid #444; color: white; border-radius: 4px; box-sizing: border-box; font-size: 13px;
         }
-        h4 { margin-top: 0; color: var(--primary); text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
+        label { font-size: 10px; color: #888; text-transform: uppercase; display: block; margin-top: 5px; }
+        h4 { margin: 0 0 8px 0; color: var(--primary); text-transform: uppercase; font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <div class="preview-header">LIVE STREAM OVERLAY PREVIEW</div>
     <div class="preview-container">
-        <iframe src="index.html"></iframe>
+        <iframe id="prevFrame" src="index.html"></iframe>
     </div>
 
     <div class="content">
         <div class="card">
             <h4>1. Team Squads</h4>
-            <input id="teamNameA" placeholder="Team A Name (Batting First)">
-            <textarea id="squadA" rows="3" placeholder="Team A: 11 Names (one per line)"></textarea>
-            <input id="teamNameB" placeholder="Team B Name (Bowling First)">
-            <textarea id="squadB" rows="3" placeholder="Team B: 11 Names (one per line)"></textarea>
-            <button class="btn-util" style="width:100%; background: #2980b9;" onclick="initMatch()">Initialize Match</button>
+            <div class="grid-2">
+                <div>
+                    <input id="teamNameA" placeholder="Batting Team">
+                    <textarea id="squadA" rows="4" placeholder="Squad (1 per line)" onchange="saveSquads()"></textarea>
+                </div>
+                <div>
+                    <input id="teamNameB" placeholder="Bowling Team">
+                    <textarea id="squadB" rows="4" placeholder="Squad (1 per line)" onchange="saveSquads()"></textarea>
+                </div>
+            </div>
+            <button class="btn-util" style="width:100%; background: #2980b9;" onclick="initMatch()">Initialize New Match</button>
         </div>
 
         <div class="card">
             <h4>2. Field Management</h4>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="grid-2">
                 <div>
-                    <label style="font-size:10px">STRIKER</label>
+                    <label>Striker</label>
                     <select id="selP1" onchange="changePlayer('p1n', this.value)"></select>
                 </div>
                 <div>
-                    <label style="font-size:10px">NON-STRIKER</label>
+                    <label>Non-Striker</label>
                     <select id="selP2" onchange="changePlayer('p2n', this.value)"></select>
                 </div>
             </div>
-            <label style="font-size:10px">CURRENT BOWLER</label>
+            <label>Current Bowler</label>
             <select id="selBw" onchange="changePlayer('bwn', this.value)"></select>
         </div>
 
@@ -83,19 +92,25 @@
         </div>
 
         <div class="card">
-            <h4>4. Match Functions</h4>
-            <button class="btn-danger" style="width:100%; margin-bottom:10px;" onclick="swapInnings()">
-                START SECOND INNINGS (Swap Teams)
-            </button>
-            <button class="btn-wipe" style="width:100%;" onclick="fullReset()">
-                CLEAR ALL FIREBASE DATA
-            </button>
+            <h4>4. Human Error Correction</h4>
+            <div class="grid-4" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                <div><label>Runs</label><input type="number" id="fixR" onchange="manualUpdate('runs', this.value)"></div>
+                <div><label>Wkts</label><input type="number" id="fixW" onchange="manualUpdate('wkts', this.value)"></div>
+                <div><label>Balls</label><input type="number" id="fixB" onchange="manualUpdate('balls', this.value)"></div>
+                <div><label>Tgt</label><input type="number" id="fixT" onchange="manualUpdate('target', this.value)"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4>5. Match Functions</h4>
+            <button class="btn-danger" style="width:100%; margin-bottom:10px;" onclick="swapInnings()">START 2ND INNINGS</button>
+            <button class="btn-wipe" style="width:100%;" onclick="fullReset()">RESET DATABASE</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set, get, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
@@ -109,6 +124,36 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const mRef = ref(db, 'cricket');
+        const sRef = ref(db, 'squads'); // Separate node for squad persistence
+
+        // --- PERSISTENCE: LOAD DATA ON REFRESH ---
+        onValue(mRef, (snap) => {
+            const d = snap.val();
+            if(!d) return;
+            document.getElementById('teamNameA').value = d.batTeam || "";
+            document.getElementById('teamNameB').value = d.bowlTeam || "";
+            document.getElementById('fixR').value = d.runs;
+            document.getElementById('fixW').value = d.wkts;
+            document.getElementById('fixB').value = d.balls;
+            document.getElementById('fixT').value = d.target || 0;
+            // Update Preview
+            document.getElementById('prevFrame').src = document.getElementById('prevFrame').src;
+        });
+
+        onValue(sRef, (snap) => {
+            const s = snap.val();
+            if(!s) return;
+            document.getElementById('squadA').value = s.sqA || "";
+            document.getElementById('squadB').value = s.sqB || "";
+            fillSelects(s.sqA.split('\n'), s.sqB.split('\n'));
+        });
+
+        window.saveSquads = () => {
+            update(sRef, {
+                sqA: document.getElementById('squadA').value,
+                sqB: document.getElementById('squadB').value
+            });
+        };
 
         window.initMatch = async () => {
             const sA = document.getElementById('squadA').value.split('\n').filter(n => n.trim() !== "");
@@ -116,22 +161,21 @@
             const data = {
                 batTeam: document.getElementById('teamNameA').value || "TEAM A",
                 bowlTeam: document.getElementById('teamNameB').value || "TEAM B",
-                runs:0, wkts:0, balls:0, str:1,
-                p1n:sA[0] || "Batsman 1", p1r:0, p1b:0, 
-                p2n:sA[1] || "Batsman 2", p2r:0, p2b:0,
+                runs:0, wkts:0, balls:0, str:1, target:0,
+                p1n:sA[0] || "Batsman 1", p1r:0, p1b:0, p2n:sA[1] || "Batsman 2", p2r:0, p2b:0,
                 bwn:sB[0] || "Bowler", bwr:0, bww:0, bwb:0
             };
             await set(mRef, data);
-            fillSelects(sA, sB);
+            saveSquads();
             alert("Match Initialized!");
         };
 
-        function fillSelects(battingSquad, bowlingSquad) {
-            const batHtml = battingSquad.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
-            const bwlHtml = bowlingSquad.map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
-            document.getElementById('selP1').innerHTML = batHtml;
-            document.getElementById('selP2').innerHTML = batHtml;
-            document.getElementById('selBw').innerHTML = bwlHtml;
+        function fillSelects(batting, bowling) {
+            const bH = batting.filter(n=>n.trim()!=="").map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
+            const wH = bowling.filter(n=>n.trim()!=="").map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
+            document.getElementById('selP1').innerHTML = bH;
+            document.getElementById('selP2').innerHTML = bH;
+            document.getElementById('selBw').innerHTML = wH;
         }
 
         window.ball = async (r, ex) => {
@@ -140,50 +184,48 @@
             if(!ex) {
                 d.balls++; d.bwb++;
                 if(d.str === 1) { d.p1r += r; d.p1b++; } else { d.p2r += r; d.p2b++; }
-                if(r % 2 !== 0) swapLocal(d);
-                if(d.balls % 6 === 0) swapLocal(d);
+                if(r % 2 !== 0 || d.balls % 6 === 0) d.str = d.str === 1 ? 2 : 1;
             }
             update(mRef, d);
         };
 
         window.wicket = async () => {
             const snap = await get(mRef); const d = snap.val();
-            d.wkts++; d.balls++; d.bww++;
-            update(mRef, d);
+            d.wkts++; d.balls++; d.bww++; update(mRef, d);
         };
 
-        window.swapInnings = async () => {
-            if(confirm("Swap teams for 2nd Innings? Scores will reset.")) {
-                const snap = await get(mRef); const d = snap.val();
-                const sA = document.getElementById('squadA').value.split('\n');
-                const sB = document.getElementById('squadB').value.split('\n');
-                
-                // Swap the team names and squads
-                const newBatTeam = d.bowlTeam;
-                const newBowlTeam = d.batTeam;
-                
-                await set(mRef, {
-                    batTeam: newBatTeam, bowlTeam: newBowlTeam,
-                    runs:0, wkts:0, balls:0, str:1,
-                    p1n:sB[0], p1r:0, p1b:0, p2n:sB[1], p2r:0, p2b:0,
-                    bwn:sA[0], bwr:0, bww:0, bwb:0
-                });
-                fillSelects(sB, sA);
-                alert("Second Innings Started! " + newBatTeam + " is batting.");
-            }
-        };
-
-        window.fullReset = async () => {
-            if(confirm("DELETE EVERYTHING? This wipes the Firebase database.")) {
-                await set(mRef, null);
-                alert("Database wiped. Refreshing page...");
-                location.reload();
-            }
+        window.manualUpdate = (field, val) => {
+            update(mRef, { [field]: parseInt(val) });
         };
 
         window.changePlayer = (key, val) => update(mRef, { [key]: val });
-        window.swapStrike = async () => { const snap = await get(mRef); const d = snap.val(); swapLocal(d); update(mRef, d); };
-        function swapLocal(d) { d.str = d.str === 1 ? 2 : 1; }
+        
+        window.swapStrike = async () => { 
+            const snap = await get(mRef); const d = snap.val(); 
+            d.str = d.str === 1 ? 2 : 1; 
+            update(mRef, d); 
+        };
+
+        window.swapInnings = async () => {
+            const snap = await get(mRef); const d = snap.val();
+            const sA = document.getElementById('squadA').value.split('\n');
+            const sB = document.getElementById('squadB').value.split('\n');
+            await set(mRef, {
+                batTeam: d.bowlTeam, bowlTeam: d.batTeam,
+                runs:0, wkts:0, balls:0, str:1, target: d.runs + 1,
+                p1n:sB[0] || "Bat 1", p1r:0, p1b:0, p2n:sB[1] || "Bat 2", p2r:0, p2b:0,
+                bwn:sA[0] || "Bowler", bwr:0, bww:0, bwb:0
+            });
+            alert("2nd Innings Started!");
+        };
+
+        window.fullReset = async () => {
+            if(confirm("Wipe Database?")) { 
+                await set(mRef, null); 
+                await set(sRef, null);
+                location.reload(); 
+            }
+        };
     </script>
 </body>
 </html>
