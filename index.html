@@ -7,43 +7,67 @@
     <style>
         :root { --accent: #f1c40f; --bg-glass: rgba(10, 10, 10, 0.95); --border: rgba(255, 255, 255, 0.1); }
         body { background-color: rgba(0, 0, 0, 0); margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; height: 100vh; width: 100vw; }
-        .overlay-wrapper { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 1000px; display: flex; flex-direction: column; align-items: center; }
-        .target-ui { background: var(--accent); color: black; padding: 2px 15px; font-size: 14px; font-weight: 800; border-radius: 4px 4px 0 0; text-transform: uppercase; display: none; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); }
-        .score-bar { display: flex; flex-wrap: wrap; background: var(--bg-glass); backdrop-filter: blur(10px); border-bottom: 5px solid var(--accent); padding: 8px 0; border-radius: 4px; align-items: center; width: 100%; box-shadow: 0 15px 35px rgba(0,0,0,0.8); }
-        .section { padding: 5px 20px; box-sizing: border-box; }
-        .team-section { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); margin-bottom: 5px; }
-        .team-name { font-size: 22px; font-weight: 900; color: var(--accent); }
-        .score-main { font-size: 32px; font-weight: 900; }
-        .overs { font-size: 16px; color: #ccc; margin-left: 8px; font-weight: 400; }
         
-        /* ADJUSTED: Reduced spacing between batsmen */
-        .batsmen-section { 
-            flex: 1 1 auto; 
+        .overlay-wrapper { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 95%; max-width: 1000px; display: flex; flex-direction: column; align-items: center; }
+        
+        .target-ui { background: var(--accent); color: black; padding: 2px 15px; font-size: 14px; font-weight: 800; border-radius: 4px 4px 0 0; text-transform: uppercase; display: none; box-shadow: 0 -4px 10px rgba(0,0,0,0.3); z-index: 10; }
+
+        .score-bar { 
             display: flex; 
-            justify-content: center; 
-            gap: 25px; 
+            background: var(--bg-glass); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 5px solid var(--accent); 
+            border-radius: 4px; 
+            align-items: center; 
+            width: 100%; 
+            height: 85px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8); 
+            overflow: hidden;
+        }
+
+        .section { padding: 0 20px; height: 100%; display: flex; flex-direction: column; justify-content: center; box-sizing: border-box; }
+
+        /* Left: Team Section */
+        .team-section { 
+            flex: 0 0 200px; 
             border-right: 1px solid var(--border); 
+            align-items: flex-start;
+        }
+        .team-name { font-size: 18px; font-weight: 900; color: var(--accent); line-height: 1.2; text-transform: uppercase; }
+        .score-main { font-size: 32px; font-weight: 900; line-height: 1; margin-top: 2px; }
+        .overs { font-size: 16px; color: #ccc; font-weight: 400; margin-left: 5px; }
+
+        /* Middle: Batsmen Section - Gaps removed here */
+        .batsmen-section { 
+            flex: 1; 
+            flex-direction: row !important; 
+            justify-content: center !important; 
+            gap: 40px; /* This keeps them close in the center */
         }
         
-        .player { font-size: 18px; font-weight: 600; color: #eee; }
-        .player.active { color: var(--accent); }
-        .player.active::after { content: ' •'; font-size: 24px; vertical-align: middle; }
-        .p-stats { font-size: 14px; color: #aaa; display: block; margin-top: -2px;}
-        .bowler-section { flex: 1 1 200px; text-align: right; }
-        .bowler-name { font-size: 17px; color: #fff; font-weight: 700; display: block; }
-        .bowler-stats { font-size: 14px; color: var(--accent); font-weight: 600; }
-        .over-grid { display: flex; gap: 4px; margin-top: 5px; justify-content: flex-end; }
-        .ball { width: 22px; height: 22px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; border: 1px solid var(--border); }
+        .player { text-align: center; min-width: 100px; }
+        .player-name { font-size: 17px; font-weight: 700; color: #eee; display: block; }
+        .player.active .player-name { color: var(--accent); }
+        .player.active .player-name::after { content: ' •'; font-size: 20px; vertical-align: middle; }
+        .p-stats { font-size: 14px; color: #aaa; display: block; font-weight: 400; }
+
+        /* Right: Bowler Section - Gap removed by right-aligning content */
+        .bowler-section { 
+            flex: 0 0 240px; 
+            border-left: 1px solid var(--border); 
+            align-items: flex-end; 
+            text-align: right;
+            padding-right: 25px;
+        }
+        .bowler-name { font-size: 16px; color: #fff; font-weight: 700; line-height: 1.2; }
+        .bowler-stats { font-size: 14px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+        
+        .over-grid { display: flex; gap: 4px; justify-content: flex-end; }
+        .ball { width: 22px; height: 22px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; border: 1px solid var(--border); }
         .ball-w { background: #c0392b; border-color: #ff4d4d; }
         .ball-b { background: #27ae60; border-color: #2ecc71; }
         .ball-e { background: #e67e22; }
 
-        @media (min-width: 850px) {
-            .score-bar { flex-wrap: nowrap; height: 80px; }
-            .team-section { flex: 0 0 auto; flex-direction: column; height: 100%; border-right: 2px solid var(--border); padding: 0 25px; align-items: flex-start; background: none; }
-            .team-name { font-size: 18px; line-height: 1; }
-            .score-main { font-size: 30px; line-height: 1; }
-        }
         .update-flash { animation: flash 0.6s ease-out; }
         @keyframes flash { 0% { background: var(--bg-glass); } 50% { background: rgba(241, 196, 15, 0.3); } 100% { background: var(--bg-glass); } }
     </style>
@@ -52,19 +76,34 @@
     <div class="overlay-wrapper">
         <div id="target-ui" class="target-ui">Target: <span id="disp-target">0</span></div>
         <div class="score-bar" id="scoreBar">
+            
             <div class="team-section section">
                 <span class="team-name" id="disp-team">TEAM</span>
-                <div class="score-main"><span id="disp-runs">0</span>/<span id="disp-wkts">0</span><span class="overs">(<span id="disp-ovs">0.0</span>)</span></div>
+                <div class="score-main">
+                    <span id="disp-runs">0</span>/<span id="disp-wkts">0</span><span class="overs">(<span id="disp-ovs">0.0</span>)</span>
+                </div>
             </div>
+
             <div class="batsmen-section section">
-                <div id="p1-box" class="player"><span id="disp-p1n">Bat 1</span><span class="p-stats"><span id="disp-p1r">0</span>(<span id="disp-p1b">0</span>)</span></div>
-                <div id="p2-box" class="player"><span id="disp-p2n">Bat 2</span><span class="p-stats"><span id="disp-p2r">0</span>(<span id="disp-p2b">0</span>)</span></div>
+                <div id="p1-box" class="player">
+                    <span class="player-name" id="disp-p1n">Bat 1</span>
+                    <span class="p-stats"><span id="disp-p1r">0</span>(<span id="disp-p1b">0</span>)</span>
+                </div>
+                <div id="p2-box" class="player">
+                    <span class="player-name" id="disp-p2n">Bat 2</span>
+                    <span class="p-stats"><span id="disp-p2r">0</span>(<span id="disp-p2b">0</span>)</span>
+                </div>
             </div>
+
             <div class="bowler-section section">
                 <span class="bowler-name" id="disp-bwn">Bowler</span>
-                <span class="bowler-stats"><span id="disp-bww">0</span>-<span id="disp-bwr">0</span> (<span id="disp-bwb">0.0</span>)</span>
+                <span class="bowler-stats">
+                    <span id="disp-bww">0</span>-<span id="disp-bwr">0</span> 
+                    <span style="color:#888; font-weight:normal;">(<span id="disp-bwb">0.0</span>)</span>
+                </span>
                 <div class="over-grid" id="over-grid"></div>
             </div>
+
         </div>
     </div>
 
