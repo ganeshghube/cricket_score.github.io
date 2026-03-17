@@ -56,6 +56,26 @@
         .note  { font-size:10px; color:#444; margin-top:6px; line-height:1.6; }
         .note b { color:#666; }
         .sep   { font-size:10px; color:#444; text-transform:uppercase; letter-spacing:1px; margin:8px 0 4px; }
+
+        /* ── Wicket dismissal modal ── */
+        .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:200; align-items:center; justify-content:center; }
+        .modal-bg.open { display:flex; }
+        .modal { background:#1a1a1a; border:1px solid #333; border-radius:10px; padding:20px; width:92%; max-width:420px; }
+        .modal h3 { color:var(--y); font-size:14px; text-transform:uppercase; letter-spacing:2px; margin:0 0 14px; border-bottom:1px solid #2a2a2a; padding-bottom:8px; }
+        .dismiss-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+        .dm { padding:11px 6px; border:1px solid #333; border-radius:5px; font-size:13px; font-weight:700; cursor:pointer; background:#111; color:#ccc; transition:all .12s; width:100%; }
+        .dm:hover { border-color:var(--y); color:var(--y); }
+        .dm.sel { background:#3b2800; border-color:var(--y); color:var(--y); }
+        .modal-bowler-row { font-size:11px; color:#555; margin-bottom:10px; }
+        .modal-bowler-row b { color:#999; }
+        .modal-extra { margin-bottom:10px; }
+        .modal-extra label { font-size:10px; color:#555; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; display:block; }
+        .modal-extra input { font-size:13px; }
+        .modal-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px; }
+        .modal-confirm { background:#3b0000; color:#ff9999; border:1px solid #c0392b; border-radius:5px; padding:12px; font-size:14px; font-weight:700; cursor:pointer; }
+        .modal-confirm:hover { background:#c0392b; color:#fff; }
+        .modal-cancel  { background:#111; color:#777; border:1px solid #333; border-radius:5px; padding:12px; font-size:14px; font-weight:700; cursor:pointer; }
+        .modal-cancel:hover { background:#222; color:#ccc; }
     </style>
 </head>
 <body>
@@ -98,6 +118,7 @@
                 <select id="fmtSel">
                     <option value="20">T20 (20 overs)</option>
                     <option value="50">ODI (50 overs)</option>
+                    <option value="40">40 Overs</option>
                     <option value="10">T10 (10 overs)</option>
                     <option value="0">Custom / Club</option>
                 </select>
@@ -173,7 +194,7 @@
 
         <!-- Wicket + Swap -->
         <div class="g2" style="margin-top:10px">
-            <button class="b-wkt" onclick="wicket()">🏏 WICKET</button>
+            <button class="b-wkt" onclick="openWicket()">🏏 WICKET</button>
             <button class="b-swp" onclick="swapStrike()">⇄ SWAP STRIKE</button>
         </div>
 
@@ -439,28 +460,95 @@ window.ball = async (r, type) => {
 };
 
 // ─────────────────────────────────────────────────
-// WICKET
-//   Legal delivery (counts in over)
-//   Bowler gets wicket credit
-//   EXCEPT: run-outs do NOT credit bowler (use Error Correction)
-//   Free hit: only run-out counts — this button assumes
-//             it's a bowled/caught/lbw (normal wicket)
-//             If it was a FH and batsman got out by run-out,
-//             admin should use Error Correction to fix.
+// WICKET MODAL
 // ─────────────────────────────────────────────────
-window.wicket = async () => {
+let _dismissType = 'b';  // default: bowled
+
+window.openWicket = async () => {
+    const snap=await get(mRef); const d=snap.val(); if(!d) return alert('Initialize match first!');
+    // show batsman & bowler
+    $('mBatsman').textContent = d.str===1 ? d.p1n : d.p2n;
+    $('mBowler').textContent  = d.bwn;
+    $('mRuns').value = 0;
+    $('mCredit').checked = true;
+    _dismissType = 'b';
+    // reset button highlights
+    document.querySelectorAll('.dm').forEach(b=>b.classList.remove('sel'));
+    document.querySelectorAll('.dm')[0].classList.add('sel');  // bowled default
+    // fill fielder select from bowl squad
+    const bowlNames = (d.bowlRows||[]).map(r=>r.name);
+    $('mFielder').innerHTML = bowlNames.map(n=>`<option value="${n}">${n}</option>`).join('');
+    updateFielderRow();
+    $('wktModal').classList.add('open');
+};
+
+window.selDismiss = (type) => {
+    _dismissType = type;
+    document.querySelectorAll('.dm').forEach(b=>b.classList.remove('sel'));
+    event.target.classList.add('sel');
+    // Run-out: uncheck bowler credit automatically
+    $('mCredit').checked = (type !== 'ro');
+    updateFielderRow();
+};
+
+function updateFielderRow() {
+    const show = ['c','ro','st'].includes(_dismissType);
+    $('mFielderRow').style.display = show ? '' : 'none';
+    const labels = { c:'Caught by', ro:'Run Out by', st:'Stumped by' };
+    $('mFielderLbl').textContent = labels[_dismissType] || 'Fielder';
+}
+
+window.closeWicket = () => $('wktModal').classList.remove('open');
+
+window.confirmWicket = async () => {
     const snap=await get(mRef); const d=snap.val(); if(!d) return;
     if(!d.recentBalls) d.recentBalls=[];
 
-    d.wkts++; d.balls++; d.bwb++; d.bww++;
-    d.freeHit=false;
-    updBowl(d, d.bwn, {balls:1, wkts:1});
-    markOut(d, d.str===1?d.p1n:d.p2n);
-    d.recentBalls.push('W');
+    const runs       = parseInt($('mRuns').value)||0;
+    const creditBowler = $('mCredit').checked;
+    const fielder    = $('mFielder').value || '';
+    const dismissType = _dismissType;
 
+    // Build howOut string
+    const dismissLabels = { b:'b', c:'c', lbw:'lbw', ro:'run out', st:'st', hb:'hit wkt', mo:'mankad', ob:'out' };
+    let howOut = '';
+    if (dismissType === 'b')   howOut = `b ${d.bwn}`;
+    else if (dismissType === 'c')   howOut = `c ${fielder} b ${d.bwn}`;
+    else if (dismissType === 'lbw') howOut = `lbw b ${d.bwn}`;
+    else if (dismissType === 'ro')  howOut = fielder ? `run out (${fielder})` : 'run out';
+    else if (dismissType === 'st')  howOut = `st ${fielder} b ${d.bwn}`;
+    else if (dismissType === 'hb')  howOut = `hit wkt b ${d.bwn}`;
+    else if (dismissType === 'mo')  howOut = `mankad b ${d.bwn}`;
+    else howOut = 'out';
+
+    d.runs += runs;
+    d.wkts++;
+    d.balls++;
+    d.bwb++;
+    d.freeHit = false;
+
+    if (creditBowler) { d.bww++; updBowl(d, d.bwn, {balls:1, wkts:1, runs}); }
+    else              { updBowl(d, d.bwn, {balls:1, runs}); }
+
+    // runs to batsman if any scored before out
+    if (runs > 0) {
+        if(d.str===1){ d.p1r+=runs; d.p1b++; }
+        else          { d.p2r+=runs; d.p2b++; }
+        updBat(d, d.str===1?d.p1n:d.p2n, {runs, balls:1});
+    } else {
+        // still count the ball faced
+        if(d.str===1) d.p1b++;
+        else           d.p2b++;
+        updBat(d, d.str===1?d.p1n:d.p2n, {balls:1});
+    }
+
+    // mark dismissal in batRows
+    markOut(d, d.str===1?d.p1n:d.p2n, howOut);
+
+    d.recentBalls.push('W');
     if(d.balls%6===0){ d.str=d.str===1?2:1; d.recentBalls=[]; }
 
-    // Next batsman
+    // bring in next batsman
     const idx=d.nextBatIdx||2;
     const nxt=(d.batRows&&d.batRows[idx])?d.batRows[idx].name:`Bat ${idx+1}`;
     if(d.str===1){ d.p1n=nxt; d.p1r=0; d.p1b=0; d.p1fours=0; d.p1sixes=0; }
@@ -468,6 +556,7 @@ window.wicket = async () => {
     d.nextBatIdx=idx+1;
 
     await update(mRef, d);
+    closeWicket();
 };
 
 // ── Helpers ────────────────────────────────────────
@@ -475,8 +564,8 @@ function updBat(d, name, {runs=0,balls=0,fours=0,sixes=0}={}) {
     const r=(d.batRows||[]).find(x=>x.name===name);
     if(r){ r.runs+=runs; r.balls+=balls; r.fours+=fours; r.sixes+=sixes; }
 }
-function markOut(d, name) {
-    const r=(d.batRows||[]).find(x=>x.name===name); if(r) r.out=true;
+function markOut(d, name, howOut='out') {
+    const r=(d.batRows||[]).find(x=>x.name===name); if(r){ r.out=true; r.howOut=howOut; }
 }
 function updBowl(d, name, {runs=0,balls=0,wkts=0,wides=0,noballs=0,byes=0,legbyes=0}={}) {
     const r=(d.bowlRows||[]).find(x=>x.name===name);
@@ -530,5 +619,48 @@ window.fullReset = async () => {
 const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false});
 </script>
+<!-- ══ WICKET DISMISSAL MODAL ══ -->
+<div class="modal-bg" id="wktModal">
+    <div class="modal">
+        <h3>🏏 Dismissal Details</h3>
+        <div class="modal-bowler-row">Bowler: <b id="mBowler">—</b> &nbsp;·&nbsp; Batsman: <b id="mBatsman">—</b></div>
+
+        <div style="font-size:10px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">How Out</div>
+        <div class="dismiss-grid">
+            <button class="dm" onclick="selDismiss('b')">Bowled</button>
+            <button class="dm" onclick="selDismiss('c')">Caught</button>
+            <button class="dm" onclick="selDismiss('lbw')">LBW</button>
+            <button class="dm" onclick="selDismiss('ro')">Run Out</button>
+            <button class="dm" onclick="selDismiss('st')">Stumped</button>
+            <button class="dm" onclick="selDismiss('hb')">Hit Wicket</button>
+            <button class="dm" onclick="selDismiss('mo')">Mankad</button>
+            <button class="dm" onclick="selDismiss('ob')">Other</button>
+        </div>
+
+        <!-- Fielder name — shown for caught/run-out/stumped -->
+        <div class="modal-extra" id="mFielderRow" style="display:none">
+            <label id="mFielderLbl">Fielder</label>
+            <select id="mFielder"></select>
+        </div>
+
+        <!-- Runs scored before dismissal on this ball (e.g. run-out with runs) -->
+        <div class="modal-extra">
+            <label>Runs scored on this ball (0 if none)</label>
+            <input type="number" id="mRuns" value="0" min="0" max="6">
+        </div>
+
+        <!-- Credit wicket to bowler checkbox — unchecked for run-out -->
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <input type="checkbox" id="mCredit" checked style="width:auto;margin:0">
+            <label style="font-size:12px;color:#888;margin:0;text-transform:none;letter-spacing:0">Credit wicket to bowler</label>
+        </div>
+
+        <div class="modal-btns">
+            <button class="modal-confirm" onclick="confirmWicket()">✓ CONFIRM WICKET</button>
+            <button class="modal-cancel"  onclick="closeWicket()">✕ CANCEL</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
