@@ -37,21 +37,28 @@
         .score-main { font-size: 32px; font-weight: 900; line-height: 1; margin-top: 2px; }
         .overs { font-size: 16px; color: #ccc; font-weight: 400; margin-left: 5px; }
 
-        /* Middle: Batsmen Section - Gaps removed here */
+        /* Middle: Batsmen Section - STACKED UP AND DOWN */
         .batsmen-section { 
             flex: 1; 
-            flex-direction: row !important; 
+            flex-direction: column !important; /* Stacked vertically */
             justify-content: center !important; 
-            gap: 40px; /* This keeps them close in the center */
+            gap: 2px; /* Small gap between the two players */
+            align-items: center;
         }
         
-        .player { text-align: center; min-width: 100px; }
-        .player-name { font-size: 17px; font-weight: 700; color: #eee; display: block; }
+        .player { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            width: 180px; /* Control width of the stacked block */
+            padding: 2px 0;
+        }
+        .player-name { font-size: 16px; font-weight: 700; color: #eee; }
         .player.active .player-name { color: var(--accent); }
-        .player.active .player-name::after { content: ' •'; font-size: 20px; vertical-align: middle; }
-        .p-stats { font-size: 14px; color: #aaa; display: block; font-weight: 400; }
+        .player.active .player-name::before { content: '• '; font-size: 18px; }
+        .p-stats { font-size: 15px; color: #fff; font-weight: 600; }
 
-        /* Right: Bowler Section - Gap removed by right-aligning content */
+        /* Right: Bowler Section */
         .bowler-section { 
             flex: 0 0 240px; 
             border-left: 1px solid var(--border); 
