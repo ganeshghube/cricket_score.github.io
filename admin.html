@@ -36,7 +36,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        const firebaseConfig = { /* YOUR CONFIG */ };
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
+            authDomain: "cricket-8e338.firebaseapp.com",
+            projectId: "cricket-8e338",
+            storageBucket: "cricket-8e338.firebasestorage.app",
+            messagingSenderId: "41064243639",
+            appId: "1:41064243639:web:d99e0d8f64b1bbca20c832"
+        };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const matchRef = ref(db, 'match/');
