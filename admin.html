@@ -124,17 +124,39 @@
         window.ball = async (r, type) => {
             const snap = await get(mRef); const d = snap.val();
             if(!d.recentBalls) d.recentBalls = [];
-            d.runs += r; d.bwr += r;
+            
+            // Runs are always added to total team score and bowler's runs
+            d.runs += r; 
+            d.bwr += r;
             
             if(type === 'WD' || type === 'NB') {
+                // EXTRAS LOGIC:
+                // 1. Add label to history
                 d.recentBalls.push(type);
+                // 2. DO NOT increment 'd.balls' (over doesn't progress)
+                // 3. DO NOT increment 'd.bwb' (bowler's legal ball count doesn't progress)
+                // 4. On No Balls (NB), if runs are scored, they go to batsman. On Wide, they don't.
+                if(type === 'NB' && r > 1) { 
+                    // Subtract the 1 extra run to find what batsman hit
+                    let batRuns = r - 1; 
+                    if(d.str === 1) { d.p1r += batRuns; } else { d.p2r += batRuns; }
+                    // Swap strike if batsman ran odd number of runs
+                    if(batRuns % 2 !== 0) d.str = d.str === 1 ? 2 : 1;
+                }
             } else {
+                // LEGAL BALL LOGIC:
                 d.recentBalls.push(r);
-                d.balls++; d.bwb++;
+                d.balls++; 
+                d.bwb++;
+                // Add runs to batsman stats
                 if(d.str === 1) { d.p1r += r; d.p1b++; } else { d.p2r += r; d.p2b++; }
+                // Swap strike on odd runs or end of over
                 if(r % 2 !== 0 || d.balls % 6 === 0) d.str = d.str === 1 ? 2 : 1;
+                // Clear over history if over is finished
                 if(d.balls % 6 === 0) d.recentBalls = []; 
             }
+            
+            // Keep history length at 6 for display
             if(d.recentBalls.length > 6) d.recentBalls.shift();
             update(mRef, d);
         };
@@ -142,8 +164,14 @@
         window.wicket = async () => {
             const snap = await get(mRef); const d = snap.val();
             if(!d.recentBalls) d.recentBalls = [];
-            d.recentBalls.push('W'); d.wkts++; d.balls++; d.bww++; 
-            if(d.balls % 6 === 0) d.recentBalls = [];
+            d.recentBalls.push('W'); 
+            d.wkts++; 
+            d.balls++; 
+            d.bww++; 
+            if(d.balls % 6 === 0) {
+                d.recentBalls = [];
+                d.str = d.str === 1 ? 2 : 1;
+            }
             update(mRef, d);
         };
 
