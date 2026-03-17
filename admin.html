@@ -7,22 +7,45 @@
         :root { --primary: #f1c40f; --bg: #121212; --card: #1e1e1e; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 0; }
         
+        /* RESPONSIVE PREVIEW SYSTEM */
         .preview-header { 
-            background: #222; padding: 5px; font-size: 11px; color: #888; 
+            background: #222; padding: 8px; font-size: 11px; color: #888; 
             display: flex; justify-content: center; align-items: center; gap: 10px;
             border-bottom: 1px solid #333; 
         }
-        .preview-container { width: 100%; height: 140px; background: #333; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); overflow: hidden; }
-        iframe { width: 1920px; height: 1080px; border: none; transform: scale(0.2); transform-origin: 0 0; }
+        .preview-container { 
+            width: 100%; 
+            height: 180px; 
+            background: #000; 
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid #333;
+        }
+        iframe { 
+            width: 1000px; 
+            height: 400px; 
+            border: none; 
+            position: absolute;
+            top: 10px; left: 50%;
+            transform: translateX(-50%) scale(0.35);
+            transform-origin: top center;
+        }
 
-        .content { padding: 12px; display: grid; gap: 12px; }
-        .card { background: var(--card); padding: 12px; border-radius: 8px; border: 1px solid #333; }
+        .content { padding: 12px; display: grid; gap: 12px; max-width: 900px; margin: auto; }
+        .card { background: var(--card); padding: 15px; border-radius: 8px; border: 1px solid #333; }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         
-        button { padding: 12px 5px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:active { opacity: 0.7; }
+        /* Desktop Scaling */
+        @media (min-width: 700px) {
+            .grid-4 { grid-template-columns: repeat(4, 1fr); }
+            iframe { transform: translateX(-50%) scale(0.7); }
+            .preview-container { height: 320px; }
+        }
+        
+        button { padding: 12px 5px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.15s; font-size: 14px; }
+        button:active { opacity: 0.7; transform: scale(0.96); }
         .btn-run { background: #27ae60; color: white; }
         .btn-wkt { background: #c0392b; color: white; }
         .btn-extra { background: #e67e22; color: white; }
@@ -31,20 +54,19 @@
         .btn-wipe { background: #000; color: #ff4d4d; border: 1px solid #ff4d4d; margin-top: 10px; }
         
         input, textarea, select { 
-            width: 100%; padding: 8px; margin: 5px 0; 
-            background: #222; border: 1px solid #444; color: white; border-radius: 4px; box-sizing: border-box; font-size: 13px;
+            width: 100%; padding: 10px; margin: 5px 0; 
+            background: #222; border: 1px solid #444; color: white; border-radius: 4px; box-sizing: border-box; font-size: 14px;
         }
         label { font-size: 10px; color: #888; text-transform: uppercase; display: block; margin-top: 5px; }
-        h4 { margin: 0 0 8px 0; color: var(--primary); text-transform: uppercase; font-size: 12px; border-bottom: 1px solid #333; padding-bottom: 4px; }
-        
-        .ref-btn { background: #444; color: #fff; font-size: 9px; padding: 2px 6px; }
+        h4 { margin: 0 0 10px 0; color: var(--primary); text-transform: uppercase; font-size: 13px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .ref-btn { background: #444; color: #fff; font-size: 10px; padding: 4px 8px; }
     </style>
 </head>
 <body>
 
     <div class="preview-header">
-        LIVE STREAM OVERLAY PREVIEW 
-        <button class="ref-btn" onclick="refreshIframe()">FORCE REFRESH</button>
+        LIVE OVERLAY PREVIEW
+        <button class="ref-btn" onclick="refreshIframe()">REFRESH FRAME</button>
     </div>
     <div class="preview-container">
         <iframe id="prevFrame" src="index.html"></iframe>
@@ -55,22 +77,24 @@
             <h4>1. Team Squads</h4>
             <div class="grid-2">
                 <div>
-                    <input id="teamNameA" placeholder="Batting Team">
-                    <textarea id="squadA" rows="4" placeholder="Squad (1 per line)" onchange="saveSquads()"></textarea>
+                    <label>Batting Team</label>
+                    <input id="teamNameA" placeholder="India">
+                    <textarea id="squadA" rows="4" placeholder="Players (1 per line)"></textarea>
                 </div>
                 <div>
-                    <input id="teamNameB" placeholder="Bowling Team">
-                    <textarea id="squadB" rows="4" placeholder="Squad (1 per line)" onchange="saveSquads()"></textarea>
+                    <label>Bowling Team</label>
+                    <input id="teamNameB" placeholder="Australia">
+                    <textarea id="squadB" rows="4" placeholder="Players (1 per line)"></textarea>
                 </div>
             </div>
-            <button class="btn-util" style="width:100%; background: #2980b9;" onclick="initMatch()">Initialize New Match</button>
+            <button class="btn-util" style="width:100%; background: #2980b9; margin-top:10px;" onclick="initMatch()">INITIALIZE MATCH</button>
         </div>
 
         <div class="card">
             <h4>2. Field Management</h4>
             <div class="grid-2">
                 <div>
-                    <label>Striker</label>
+                    <label>Striker (*)</label>
                     <select id="selP1" onchange="changePlayer('p1n', this.value)"></select>
                 </div>
                 <div>
@@ -105,7 +129,7 @@
             <div class="grid-4">
                 <div><label>Runs</label><input type="number" id="fixR" onchange="manualUpdate('runs', this.value)"></div>
                 <div><label>Wkts</label><input type="number" id="fixW" onchange="manualUpdate('wkts', this.value)"></div>
-                <div><label>Overs (e.g. 5.2)</label><input type="number" step="0.1" id="fixO" onchange="updateOvers(this.value)"></div>
+                <div><label>Overs (5.2)</label><input type="number" step="0.1" id="fixO" onchange="updateOvers(this.value)"></div>
                 <div><label>Target</label><input type="number" id="fixT" onchange="manualUpdate('target', this.value)"></div>
             </div>
         </div>
@@ -113,7 +137,7 @@
         <div class="card">
             <h4>5. Match Functions</h4>
             <button class="btn-danger" style="width:100%; margin-bottom:10px;" onclick="swapInnings()">START 2ND INNINGS</button>
-            <button class="btn-wipe" style="width:100%;" onclick="fullReset()">RESET DATABASE</button>
+            <button class="btn-wipe" style="width:100%;" onclick="fullReset()">RESET ALL DATA</button>
         </div>
     </div>
 
@@ -135,62 +159,45 @@
         const mRef = ref(db, 'cricket');
         const sRef = ref(db, 'squads');
 
-        // Refresh Iframe safely
-        window.refreshIframe = () => {
-            const ifr = document.getElementById('prevFrame');
-            ifr.src = ifr.src;
-        };
+        window.refreshIframe = () => { document.getElementById('prevFrame').src = "index.html"; };
 
-        // --- PERSISTENCE: LOADING ---
         onValue(mRef, (snap) => {
-            const d = snap.val();
-            if(!d) return;
+            const d = snap.val(); if(!d) return;
             document.getElementById('teamNameA').value = d.batTeam || "";
             document.getElementById('teamNameB').value = d.bowlTeam || "";
             document.getElementById('fixR').value = d.runs;
             document.getElementById('fixW').value = d.wkts;
             document.getElementById('fixT').value = d.target || 0;
-            
-            // Convert balls to Overs display (5.2)
-            const ovs = Math.floor(d.balls/6) + (d.balls%6)/10;
-            document.getElementById('fixO').value = ovs.toFixed(1);
+            const balls = d.balls || 0;
+            document.getElementById('fixO').value = (Math.floor(balls/6) + (balls%6)/10).toFixed(1);
         });
 
         onValue(sRef, (snap) => {
-            const s = snap.val();
-            if(!s) return;
+            const s = snap.val(); if(!s) return;
             document.getElementById('squadA').value = s.sqA || "";
             document.getElementById('squadB').value = s.sqB || "";
             fillSelects(s.sqA.split('\n'), s.sqB.split('\n'));
         });
 
-        window.saveSquads = () => {
-            update(sRef, {
-                sqA: document.getElementById('squadA').value,
-                sqB: document.getElementById('squadB').value
-            });
-        };
-
         window.initMatch = async () => {
             const sA = document.getElementById('squadA').value.split('\n').filter(n => n.trim() !== "");
             const sB = document.getElementById('squadB').value.split('\n').filter(n => n.trim() !== "");
             const data = {
-                batTeam: document.getElementById('teamNameA').value || "TEAM A",
-                bowlTeam: document.getElementById('teamNameB').value || "TEAM B",
+                batTeam: document.getElementById('teamNameA').value.toUpperCase() || "TEAM A",
+                bowlTeam: document.getElementById('teamNameB').value.toUpperCase() || "TEAM B",
                 runs:0, wkts:0, balls:0, str:1, target:0,
                 p1n:sA[0] || "Batsman 1", p1r:0, p1b:0, p2n:sA[1] || "Batsman 2", p2r:0, p2b:0,
                 bwn:sB[0] || "Bowler", bwr:0, bww:0, bwb:0
             };
             await set(mRef, data);
-            saveSquads();
+            await set(sRef, { sqA: document.getElementById('squadA').value, sqB: document.getElementById('squadB').value });
             alert("Match Initialized!");
         };
 
-        function fillSelects(batting, bowling) {
-            const bH = batting.filter(n=>n.trim()!=="").map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
-            const wH = bowling.filter(n=>n.trim()!=="").map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
-            document.getElementById('selP1').innerHTML = bH;
-            document.getElementById('selP2').innerHTML = bH;
+        function fillSelects(bat, bowl) {
+            const bH = bat.filter(n=>n.trim()!=="").map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
+            const wH = bowl.filter(n=>n.trim()!=="").map(n => `<option value="${n.trim()}">${n.trim()}</option>`).join('');
+            document.getElementById('selP1').innerHTML = bH; document.getElementById('selP2').innerHTML = bH;
             document.getElementById('selBw').innerHTML = wH;
         }
 
@@ -210,25 +217,17 @@
             d.wkts++; d.balls++; d.bww++; update(mRef, d);
         };
 
-        // Custom function to handle "5.2" style input and convert back to total balls
         window.updateOvers = (val) => {
-            const parts = val.toString().split('.');
-            const overs = parseInt(parts[0]) || 0;
-            const balls = parseInt(parts[1]) || 0;
-            const totalBalls = (overs * 6) + balls;
+            const num = parseFloat(val);
+            const totalBalls = (Math.floor(num) * 6) + Math.round((num % 1) * 10);
             update(mRef, { balls: totalBalls });
         };
 
-        window.manualUpdate = (field, val) => {
-            update(mRef, { [field]: parseInt(val) });
-        };
-
+        window.manualUpdate = (field, val) => update(mRef, { [field]: parseInt(val) });
         window.changePlayer = (key, val) => update(mRef, { [key]: val });
-        
         window.swapStrike = async () => { 
             const snap = await get(mRef); const d = snap.val(); 
-            d.str = d.str === 1 ? 2 : 1; 
-            update(mRef, d); 
+            d.str = d.str === 1 ? 2 : 1; update(mRef, d); 
         };
 
         window.swapInnings = async () => {
@@ -245,11 +244,7 @@
         };
 
         window.fullReset = async () => {
-            if(confirm("Wipe Database?")) { 
-                await set(mRef, null); 
-                await set(sRef, null);
-                location.reload(); 
-            }
+            if(confirm("Clear ALL data?")) { await set(mRef, null); await set(sRef, null); location.reload(); }
         };
     </script>
 </body>
