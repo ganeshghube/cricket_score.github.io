@@ -1,57 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background: #222; color: white; }
-        button { padding: 20px; font-size: 20px; margin: 10px; cursor: pointer; border-radius: 10px; border: none; width: 120px; }
-        .run-btn { background: #27ae60; color: white; }
-        .out-btn { background: #c0392b; color: white; }
-        .reset-btn { background: #7f8c8d; color: white; width: 100%; }
-        #display { font-size: 40px; margin: 20px; font-weight: bold; }
+        body { background: transparent; margin: 0; font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
+        .score-bar {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; background: rgba(0, 0, 0, 0.9); border-bottom: 4px solid #f1c40f;
+            padding: 10px 30px; border-radius: 5px; align-items: center; min-width: 800px;
+        }
+        .team-info { font-size: 28px; font-weight: bold; border-right: 2px solid #555; padding-right: 20px; }
+        .batsmen { flex-grow: 1; display: flex; gap: 40px; padding-left: 20px; font-size: 20px; }
+        .active { color: #f1c40f; } /* Striker highlight */
+        .bowler-info { font-size: 20px; color: #ccc; border-left: 2px solid #555; padding-left: 20px; }
+        .crr { font-size: 16px; color: #aaa; margin-left: 10px; }
     </style>
 </head>
 <body>
-    <h1>Control Panel</h1>
-    <div id="display">0 / 0</div>
-    
-    <button class="run-btn" id="addRun">+1 Run</button>
-    <button class="out-btn" id="addWicket">OUT</button>
-    <br>
-    <button class="reset-btn" id="reset">Reset Match</button>
+    <div class="score-bar">
+        <div class="team-info">
+            <span id="teamName">TEAM</span> 
+            <span id="score">0/0</span> 
+            <span style="font-size: 18px;">(<span id="overs">0.0</span>)</span>
+        </div>
+        <div class="batsmen">
+            <div id="p1" class="active">P1* 0(0)</div>
+            <div id="p2">P2 0(0)</div>
+        </div>
+        <div class="bowler-info">
+            BWL: <span id="bowlerName">Bowler</span> <span id="bowlerStats">0-0 (0.0)</span>
+            <span class="crr">CRR: <span id="crr">0.0</span></span>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        const firebaseConfig = {
+        const firebaseConfig = {             
             apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
             authDomain: "cricket-8e338.firebaseapp.com",
             projectId: "cricket-8e338",
             storageBucket: "cricket-8e338.firebasestorage.app",
             messagingSenderId: "41064243639",
-            appId: "1:41064243639:web:d99e0d8f64b1bbca20c832"
+            appId: "1:41064243639:web:d99e0d8f64b1bbca20c832" 
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const scoreRef = ref(db, 'liveScore');
 
-        async function changeScore(type) {
-            const snapshot = await get(scoreRef);
-            let current = snapshot.val() || { runs: 0, wickets: 0 };
-            
-            if (type === 'run') current.runs += 1;
-            if (type === 'out') current.wickets += 1;
-            if (type === 'reset') { current.runs = 0; current.wickets = 0; }
-            
-            set(scoreRef, current);
-            document.getElementById('display').innerText = `${current.runs} / ${current.wickets}`;
-        }
-
-        document.getElementById('addRun').onclick = () => changeScore('run');
-        document.getElementById('addWicket').onclick = () => changeScore('out');
-        document.getElementById('reset').onclick = () => changeScore('reset');
+        onValue(ref(db, 'match/'), (snapshot) => {
+            const d = snapshot.val();
+            if(!d) return;
+            document.getElementById('teamName').innerText = d.battingTeam;
+            document.getElementById('score').innerText = `${d.runs}/${d.wickets}`;
+            document.getElementById('overs').innerText = `${Math.floor(d.balls/6)}.${d.balls%6}`;
+            document.getElementById('p1').innerText = `${d.p1Name}${d.striker === 1 ? '*' : ''} ${d.p1Runs}(${d.p1Balls})`;
+            document.getElementById('p2').innerText = `${d.p2Name}${d.striker === 2 ? '*' : ''} ${d.p2Runs}(${d.p2Balls})`;
+            document.getElementById('p1').className = d.striker === 1 ? 'active' : '';
+            document.getElementById('p2').className = d.striker === 2 ? 'active' : '';
+            document.getElementById('bowlerName').innerText = d.bwlName;
+            document.getElementById('bowlerStats').innerText = `${d.bwlWkts}-${d.bwlRuns} (${Math.floor(d.bwlBalls/6)}.${d.bwlBalls%6})`;
+            const crr = (d.runs / (d.balls/6 || 1)).toFixed(2);
+            document.getElementById('crr').innerText = crr;
+        });
     </script>
 </body>
 </html>
