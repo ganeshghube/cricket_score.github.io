@@ -238,6 +238,18 @@ const db    = getDatabase(initializeApp(cfg));
 const uiRef = ref(db, 'ui');
 const $ = id => document.getElementById(id);
 
+// ── Firebase reconnection watchdog ───────────────
+// If Firebase disconnects (common in Prism Live / local file environments)
+// wait 3 seconds then reload to force reconnect
+const connRef = ref(db, '.info/connected');
+onValue(connRef, snap => {
+    if (snap.val() === false) {
+        setTimeout(() => location.reload(), 3000);
+    }
+});
+// Also hard-reload every 5 minutes as a safety net
+setTimeout(() => location.reload(), 5 * 60 * 1000);
+
 // ── keyboard shortcuts ────────────────────────────
 let uiSt = { scorebar:true, scorecard:false };
 onValue(uiRef, s => { uiSt = s.val() || { scorebar:true, scorecard:false }; });
