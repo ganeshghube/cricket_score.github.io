@@ -14,3 +14,19 @@ opencv-python>=4.8.0
 numpy>=1.24.0
 
 streamlink
+# Cricket AI Tracker — Python dependencies
+# Install with:  pip install -r requirements.txt
+
+# ── Core vision & ML ─────────────────────────────────────────────
+ultralytics>=8.0.0          # YOLOv8 (downloads weights on first run)
+opencv-python>=4.8.0        # frame capture, optical flow, preview window
+
+# ── Firebase ─────────────────────────────────────────────────────
+firebase-admin>=6.2.0       # Firebase Realtime DB push
+
+# ── YouTube URL resolution ───────────────────────────────────────
+yt-dlp>=2024.1.0             # resolves YouTube watch/live URLs to direct stream
+                             # keep updated:  pip install -U yt-dlp
+
+# ── Utilities ────────────────────────────────────────────────────
+numpy>=1.24.0                # array ops (pulled in by ultralytics, listed for clarity)
