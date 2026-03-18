@@ -64,6 +64,16 @@ button:active{ opacity:.65; transform:scale(.95); }
 .b-inn { background:#100828; color:#c4a0ff; border:1px solid #281050; }
 .b-rst { background:#0a0008; color:#ff4d4d; border:1px solid #400010; }
 
+/* ── UNDO BUTTON ── */
+.b-undo{ background:#0d0820; color:#9090ff; border:1px solid #1a1a40; }
+.b-undo:hover{ background:#7c3aed; color:#fff; border-color:#7c3aed; }
+.b-undo:disabled{ opacity:.3; cursor:not-allowed; }
+.undo-badge{
+    display:inline-block; background:#1a1a40; color:#9090ff;
+    border-radius:3px; padding:1px 6px; font-size:11px;
+    margin-left:4px; font-family:'Barlow Condensed',sans-serif;
+}
+
 .sep{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin:10px 0 5px; display:flex; align-items:center; gap:8px; }
 .sep::after{ content:''; flex:1; height:1px; background:var(--brd); }
 .note{ font-size:10px; color:#333344; margin-top:10px; line-height:1.7; border-top:1px solid var(--brd); padding-top:8px; }
@@ -205,14 +215,19 @@ button:active{ opacity:.65; transform:scale(.95); }
         <button class="b-lb" onclick="ball(2,'LB')">LB +2</button>
         <button class="b-lb" onclick="ball(3,'LB')">LB +3</button>
     </div>
-    <div class="g2" style="margin-top:12px">
+    <!-- WICKET + SWAP + UNDO row -->
+    <div class="g3" style="margin-top:12px">
         <button class="b-wkt" onclick="openWicket()">🏏 WICKET</button>
         <button class="b-swp" onclick="swapStrike()">⇄ SWAP STRIKE</button>
+        <button class="b-undo" id="undoBtn" onclick="undoLast()" disabled>
+            ↩ UNDO <span class="undo-badge" id="undoCount">0</span>
+        </button>
     </div>
     <div class="note">
         <b>Rules:</b> Wide/No-Ball = illegal — over count unchanged, bowler redels.
         No-Ball → FREE HIT overlay. Byes/Leg-Byes = legal, extras only.
         Odd runs → striker rotates. End of 6 legal balls → auto strike swap + grid resets.
+        <b>Undo</b> reverts last ball/wicket (up to 5 times).
     </div>
 </div>
 
@@ -311,7 +326,8 @@ button:active{ opacity:.65; transform:scale(.95); }
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getDatabase, ref, set, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+import { getDatabase, ref, set, get, update, onValue, push, remove }
+    from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
 const cfg = {
     apiKey:"AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
@@ -325,6 +341,7 @@ const db   = getDatabase(initializeApp(cfg));
 const mRef = ref(db,'cricket');
 const sRef = ref(db,'squads');
 const uRef = ref(db,'ui');
+const hRef = ref(db,'undoStack');   // ← NEW: undo snapshots node
 const $    = id => document.getElementById(id);
 
 // ── Shared state ──
@@ -332,8 +349,52 @@ let _squads = { bat:[], bowl:[] };
 let _match  = null;
 
 // ══════════════════════════════════════════════════
-// fillSel: rebuild dropdowns from provided bat/bowl arrays
-// and restore correct selected values
+// UNDO SYSTEM — saves last 5 full match snapshots
+// ══════════════════════════════════════════════════
+async function saveSnapshot(d) {
+    // Push a full deep-copy of match state before every ball/wicket
+    await push(hRef, {
+        state:   JSON.parse(JSON.stringify(d)),
+        savedAt: Date.now(),
+        label:   `${d.runs}/${d.wkts} (${Math.floor(d.balls/6)}.${d.balls%6})`
+    });
+    // Keep only last 5 — delete anything older
+    const all = await get(hRef);
+    const val = all.val();
+    if (val) {
+        const keys = Object.keys(val).sort();   // oldest first
+        if (keys.length > 5) {
+            for (const k of keys.slice(0, keys.length - 5)) {
+                await remove(ref(db, `undoStack/${k}`));
+            }
+        }
+    }
+}
+
+window.undoLast = async () => {
+    const all = await get(hRef);
+    const val = all.val();
+    if (!val) return alert('Nothing to undo!');
+    const keys = Object.keys(val).sort();
+    if (!keys.length) return alert('Nothing to undo!');
+    const lastKey  = keys[keys.length - 1];
+    const lastSnap = val[lastKey];
+    await set(mRef, lastSnap.state);              // restore state
+    await remove(ref(db, `undoStack/${lastKey}`)); // consume snapshot
+};
+
+// Watch undo stack → update button badge
+onValue(hRef, snap => {
+    const val   = snap.val();
+    const count = val ? Object.keys(val).length : 0;
+    const btn   = $('undoBtn');
+    $('undoCount').textContent = count;
+    btn.disabled = count === 0;
+    btn.title    = count > 0 ? `Undo last action (${count} available)` : 'Nothing to undo';
+});
+
+// ══════════════════════════════════════════════════
+// fillSel — restore dropdowns after refresh
 // ══════════════════════════════════════════════════
 function fillSel(bat, bowl, p1n, p2n, bwn) {
     const bH = bat.map(n=>`<option value="${n}">${n}</option>`).join('');
@@ -349,10 +410,6 @@ function fillSel(bat, bowl, p1n, p2n, bwn) {
     else if (bowl.length>0) $('selBw').value = bowl[0];
 }
 
-// ══════════════════════════════════════════════════
-// onValue(mRef): sync info bar, correction fields,
-// team inputs, format label, and dropdowns
-// ══════════════════════════════════════════════════
 onValue(mRef, snap => {
     const d = snap.val();
     _match = d;
@@ -374,26 +431,20 @@ onValue(mRef, snap => {
     $('fxP1R').value=d.p1r||0; $('fxP1B').value=d.p1b||0;
     $('fxBwR').value=d.bwr||0; $('fxBwW').value=d.bww||0;
 
-    // restore team name inputs
+    // restore team name inputs from Firebase on refresh
     if (d.batTeam)  $('tNA').value = d.batTeam;
     if (d.bowlTeam) $('tNB').value = d.bowlTeam;
 
-    // restore format label
+    // restore format label from Firebase on refresh
     const fmt = d.maxOvers||20;
     $('fmtLbl').textContent = fmt===50?'ODI · 50 OVERS':fmt===0?'CUSTOM':`T${fmt} · ${fmt} OVERS`;
     const fmtEl = $('fmtSel');
     if ([10,20,40,50,0].includes(fmt)) fmtEl.value = String(fmt);
 
-    // ════════════════════════════════════════════════
-    // FIX: When innings changes, _squads may reflect the
-    // OLD squad data. We rebuild from d.batRows / d.bowlRows
-    // (which are always set correctly by swapInnings) so
-    // dropdowns always match the CURRENT innings' players.
-    // ════════════════════════════════════════════════
+    // rebuild dropdowns from batRows/bowlRows (fixes 2nd innings bug)
     if (d.batRows && d.bowlRows) {
         const currentBat  = d.batRows.map(r => r.name);
         const currentBowl = d.bowlRows.map(r => r.name);
-        // Update _squads to match current innings
         _squads.bat  = currentBat;
         _squads.bowl = currentBowl;
         fillSel(currentBat, currentBowl, d.p1n, d.p2n, d.bwn);
@@ -402,15 +453,10 @@ onValue(mRef, snap => {
     }
 });
 
-// ══════════════════════════════════════════════════
-// onValue(sRef): restore squad textareas
-// ══════════════════════════════════════════════════
 onValue(sRef, snap => {
     const s = snap.val(); if (!s) return;
     $('sqA').value = s.sqA||'';
     $('sqB').value = s.sqB||'';
-    // Only update _squads from sRef if match data doesn't already
-    // have batRows (i.e. before first init or after reset)
     if (!_match || !_match.batRows) {
         _squads.bat  = (s.sqA||'').split('\n').map(n=>n.trim()).filter(Boolean);
         _squads.bowl = (s.sqB||'').split('\n').map(n=>n.trim()).filter(Boolean);
@@ -437,6 +483,7 @@ window.initMatch = async () => {
     const batRows  = batSq.map(n=>({name:n,runs:0,balls:0,fours:0,sixes:0,out:false,howOut:''}));
     const bowlRows = bowlSq.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0}));
 
+    await set(hRef, null);   // clear undo stack on new match
     await set(mRef,{
         batTeam:batNm, bowlTeam:bowlNm,
         runs:0, wkts:0, balls:0, str:1, target:0,
@@ -458,6 +505,8 @@ window.ball = async (r, type) => {
     if(!d.recentBalls) d.recentBalls=[];
     if(!d.batRows)     d.batRows=[];
     if(!d.bowlRows)    d.bowlRows=[];
+
+    await saveSnapshot(d);   // ← save before applying
 
     const isWD=type==='WD', isNB=type==='NB', isBY=type==='BY', isLB=type==='LB';
     d.runs += r;
@@ -539,6 +588,9 @@ window.closeWicket=()=>$('wktModal').classList.remove('open');
 window.confirmWicket = async () => {
     const snap=await get(mRef); const d=snap.val(); if(!d) return;
     if(!d.recentBalls) d.recentBalls=[];
+
+    await saveSnapshot(d);   // ← save before applying wicket
+
     const runs=parseInt($('mRuns').value)||0;
     const credit=$('mCredit').checked;
     const fielder=$('mFielder').value||'';
@@ -596,32 +648,22 @@ function updBowl(d,name,{runs=0,balls=0,wkts=0,wides=0,noballs=0,byes=0,legbyes=
 }
 
 // ── Swap Innings ─────────────────────────────────
-// FIX: After swapInnings, the new batting team is the old bowling team
-// (sqB side when innings=1, sqA side when innings=2).
-// We rebuild batRows/bowlRows from the squads and set p1n/p2n/bwn
-// to the first players of the new teams. onValue(mRef) will then
-// call fillSel with the correct players from d.batRows/d.bowlRows.
 window.swapInnings = async () => {
     if(!confirm('Start 2nd Innings?')) return;
     const d=(await get(mRef)).val();
     const s=(await get(sRef)).val();
     const sA=(s?.sqA||'').split('\n').map(n=>n.trim()).filter(Boolean);
     const sB=(s?.sqB||'').split('\n').map(n=>n.trim()).filter(Boolean);
-    // innings 1: batTeam was toss winner. For innings 2, swap.
-    const nb=d.innings===1?sB:sA;   // new batting squad
-    const nw=d.innings===1?sA:sB;   // new bowling squad
-
+    const nb=d.innings===1?sB:sA;
+    const nw=d.innings===1?sA:sB;
     const newBatTeam  = d.bowlTeam;
     const newBowlTeam = d.batTeam;
-
     const batRows  = nb.map(n=>({name:n,runs:0,balls:0,fours:0,sixes:0,out:false,howOut:''}));
     const bowlRows = nw.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0}));
-
-    // First two batsmen of new batting team, first bowler of new bowling team
     const newP1 = nb[0]||'Bat 1';
     const newP2 = nb[1]||nb[0]||'Bat 2';
     const newBw = nw[0]||'Bowler';
-
+    await set(hRef, null);   // clear undo stack on innings change
     await set(mRef,{
         batTeam:newBatTeam, bowlTeam:newBowlTeam,
         runs:0, wkts:0, balls:0, str:1, target:d.runs+1,
@@ -634,7 +676,6 @@ window.swapInnings = async () => {
         inn1Score:`${d.runs}/${d.wkts} (${Math.floor(d.balls/6)}.${d.balls%6} ovs)`,
         inn1Bat:d.batTeam,
     });
-    // onValue(mRef) fires → reads d.batRows/d.bowlRows → calls fillSel with correct players
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
@@ -649,7 +690,7 @@ window.mu=(f,v)=>{
 window.setV=(k,v)=>update(uRef,{[k]:v});
 window.fullReset=async()=>{
     if(!confirm('⚠ Clear ALL match data?')) return;
-    await set(mRef,null);await set(sRef,null);
+    await set(mRef,null); await set(sRef,null); await set(hRef,null);
     await set(uRef,{scorebar:true,scorecard:false});
     location.reload();
 };
