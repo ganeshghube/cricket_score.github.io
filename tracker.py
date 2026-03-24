@@ -596,6 +596,8 @@ def process_stream(source, model, show_preview: bool = True) -> None:
 # CLI ENTRY POINT
 # ════════════════════════════════════════════════════════════════════════════
 def main():
+    global CONFIDENCE_THRESHOLD   # must be declared before parser uses it as a default
+
     parser = argparse.ArgumentParser(
         description="Cricket AI Ball Tracker",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -625,7 +627,6 @@ Examples:
                         help="Max video quality for YouTube (default: 720 → 720p)")
     args = parser.parse_args()
 
-    global CONFIDENCE_THRESHOLD
     CONFIDENCE_THRESHOLD = args.conf
 
     print("=" * 62)
