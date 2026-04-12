@@ -284,30 +284,42 @@ button:active{ opacity:.65; transform:scale(.95); }
     </div>
 
     <div class="sep">Custom message</div>
-    <div style="display:flex;gap:8px;align-items:flex-end">
-        <div style="flex:1">
+    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:0 0 70px">
             <label>Emoji(s)</label>
             <input id="annEmoji" placeholder="🎉" value="🎉" style="font-size:18px;text-align:center">
         </div>
-        <div style="flex:4">
+        <div style="flex:4;min-width:160px">
             <label>Message text</label>
             <input id="annMsg" placeholder="Enter custom announcement..." oninput="updateAnnPreview()">
         </div>
-        <div style="flex:0 0 100px">
-            <label>Duration (s)</label>
+        <div style="flex:0 0 90px">
+            <label>Duration</label>
             <select id="annDur">
+                <option value="5">5s</option>
                 <option value="10">10s</option>
                 <option value="15">15s</option>
                 <option value="20" selected>20s</option>
                 <option value="30">30s</option>
             </select>
         </div>
+        <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:2px">
+            <label style="margin-bottom:6px">Emoji Rain</label>
+            <div style="display:flex;align-items:center;gap:6px;height:36px">
+                <input type="checkbox" id="annRainToggle" checked
+                    style="width:auto;margin:0;accent-color:var(--y);width:16px;height:16px;cursor:pointer">
+                <label for="annRainToggle"
+                    style="font-size:11px;color:#888;margin:0;text-transform:none;letter-spacing:0;cursor:pointer;white-space:nowrap">
+                    Enable 🌧️
+                </label>
+            </div>
+        </div>
     </div>
     <div class="ann-preview" id="annPreview">Preview will appear here…</div>
     <button class="b-ann-custom" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND ANNOUNCEMENT TO OVERLAY</button>
 
     <div class="note">
-        <b>How it works:</b> Announcements appear above the score bar on the overlay for 20 seconds with emoji rain and particle effects, then auto-dismiss. Quick-fire buttons use the current striker's name (or bowler for wicket). Overlay must be visible for announcements to show.
+        <b>How it works:</b> Announcements appear above the score bar for the chosen duration (5–30s). Toggle <b>Emoji Rain</b> on/off — quick-fire buttons always send rain on. Quick-fire buttons auto-fill the current striker's name (bowler for wicket).
     </div>
 </div>
 <!-- ═══ END ANNOUNCEMENTS CARD ═══ -->
@@ -506,13 +518,15 @@ window.sendCustomAnn = async () => {
     const emoji = $('annEmoji').value.trim() || '📣';
     const msg   = $('annMsg').value.trim();
     if (!msg) return alert('Enter a message to send!');
-    const dur = parseInt($('annDur').value) || 6;
+    const dur  = parseInt($('annDur').value) || 20;
+    const rain = $('annRainToggle').checked;
     await set(aRef, {
         emoji,
         text:   msg,
         sub:    '',
         style:  'custom',
         dur,
+        rain,
         sentAt: Date.now(),
         id:     Math.random().toString(36).slice(2)
     });
