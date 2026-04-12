@@ -74,6 +74,22 @@ button:active{ opacity:.65; transform:scale(.95); }
     margin-left:4px; font-family:'Barlow Condensed',sans-serif;
 }
 
+/* ── ANNOUNCEMENT BUTTONS ── */
+.b-ann-century { background:linear-gradient(135deg,#2a1e00,#1e1400); color:#ffd700; border:1px solid #8a6000; font-size:15px; }
+.b-ann-fifty   { background:linear-gradient(135deg,#1a1a00,#141400); color:#e0c040; border:1px solid #6a5a00; }
+.b-ann-wkt     { background:linear-gradient(135deg,#1a0000,#200000); color:#ff7070; border:1px solid #600000; }
+.b-ann-six     { background:linear-gradient(135deg,#120a28,#180838); color:#c4a0ff; border:1px solid #3e1868; }
+.b-ann-four    { background:linear-gradient(135deg,#001428,#001e38); color:#7ec8ff; border:1px solid #0a3060; }
+.b-ann-custom  { background:linear-gradient(135deg,#081818,#0a2020); color:#06d6a0; border:1px solid #0a4030; }
+.ann-preview{
+    background:#06060f; border:1px solid var(--brd2); border-radius:5px;
+    padding:10px 14px; margin-top:10px; min-height:40px;
+    font-family:'Barlow Condensed',sans-serif; font-size:14px;
+    color:#555; letter-spacing:.5px; text-align:center;
+    transition: color .2s;
+}
+.ann-preview.has-msg{ color:#ddd; }
+
 .sep{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin:10px 0 5px; display:flex; align-items:center; gap:8px; }
 .sep::after{ content:''; flex:1; height:1px; background:var(--brd); }
 .note{ font-size:10px; color:#333344; margin-top:10px; line-height:1.7; border-top:1px solid var(--brd); padding-top:8px; }
@@ -251,6 +267,51 @@ button:active{ opacity:.65; transform:scale(.95); }
     </div>
 </div>
 
+<!-- ═══ NEW: ANNOUNCEMENTS CARD ═══ -->
+<div class="card">
+    <h4><span class="hico">📣</span> Announcements &amp; Celebrations</h4>
+
+    <div class="sep">Quick fire — auto-fills player name from current striker</div>
+    <div class="g3">
+        <button class="b-ann-century" onclick="sendQuickAnn('century')">🏆 CENTURY</button>
+        <button class="b-ann-fifty"   onclick="sendQuickAnn('fifty')">⭐ HALF CENTURY</button>
+        <button class="b-ann-wkt"     onclick="sendQuickAnn('wicket')">💥 WICKET TAKEN</button>
+    </div>
+    <div class="g3" style="margin-top:8px">
+        <button class="b-ann-six"     onclick="sendQuickAnn('six')">🚀 MAXIMUM SIX</button>
+        <button class="b-ann-four"    onclick="sendQuickAnn('four')">🔥 BOUNDARY FOUR</button>
+        <button class="b-ann-custom"  onclick="sendQuickAnn('hattrick')">🎩 HAT TRICK!</button>
+    </div>
+
+    <div class="sep">Custom message</div>
+    <div style="display:flex;gap:8px;align-items:flex-end">
+        <div style="flex:1">
+            <label>Emoji(s)</label>
+            <input id="annEmoji" placeholder="🎉" value="🎉" style="font-size:18px;text-align:center">
+        </div>
+        <div style="flex:4">
+            <label>Message text</label>
+            <input id="annMsg" placeholder="Enter custom announcement..." oninput="updateAnnPreview()">
+        </div>
+        <div style="flex:0 0 100px">
+            <label>Duration (s)</label>
+            <select id="annDur">
+                <option value="4">4s</option>
+                <option value="6" selected>6s</option>
+                <option value="8">8s</option>
+                <option value="12">12s</option>
+            </select>
+        </div>
+    </div>
+    <div class="ann-preview" id="annPreview">Preview will appear here…</div>
+    <button class="b-ann-custom" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND ANNOUNCEMENT TO OVERLAY</button>
+
+    <div class="note">
+        <b>How it works:</b> Announcements appear above the score bar on the overlay for the selected duration, then auto-dismiss. Quick-fire buttons use the current striker's name. Overlay must be visible for announcements to show.
+    </div>
+</div>
+<!-- ═══ END ANNOUNCEMENTS CARD ═══ -->
+
 <!-- 5. ERROR CORRECTION -->
 <div class="card">
     <h4><span class="hico">🔧</span> Error Correction</h4>
@@ -341,7 +402,8 @@ const db   = getDatabase(initializeApp(cfg));
 const mRef = ref(db,'cricket');
 const sRef = ref(db,'squads');
 const uRef = ref(db,'ui');
-const hRef = ref(db,'undoStack');   // ← NEW: undo snapshots node
+const hRef = ref(db,'undoStack');
+const aRef = ref(db,'announcement');   // ← NEW: announcement node
 const $    = id => document.getElementById(id);
 
 // ── Shared state ──
@@ -349,20 +411,18 @@ let _squads = { bat:[], bowl:[] };
 let _match  = null;
 
 // ══════════════════════════════════════════════════
-// UNDO SYSTEM — saves last 5 full match snapshots
+// UNDO SYSTEM
 // ══════════════════════════════════════════════════
 async function saveSnapshot(d) {
-    // Push a full deep-copy of match state before every ball/wicket
     await push(hRef, {
         state:   JSON.parse(JSON.stringify(d)),
         savedAt: Date.now(),
         label:   `${d.runs}/${d.wkts} (${Math.floor(d.balls/6)}.${d.balls%6})`
     });
-    // Keep only last 5 — delete anything older
     const all = await get(hRef);
     const val = all.val();
     if (val) {
-        const keys = Object.keys(val).sort();   // oldest first
+        const keys = Object.keys(val).sort();
         if (keys.length > 5) {
             for (const k of keys.slice(0, keys.length - 5)) {
                 await remove(ref(db, `undoStack/${k}`));
@@ -379,11 +439,10 @@ window.undoLast = async () => {
     if (!keys.length) return alert('Nothing to undo!');
     const lastKey  = keys[keys.length - 1];
     const lastSnap = val[lastKey];
-    await set(mRef, lastSnap.state);              // restore state
-    await remove(ref(db, `undoStack/${lastKey}`)); // consume snapshot
+    await set(mRef, lastSnap.state);
+    await remove(ref(db, `undoStack/${lastKey}`));
 };
 
-// Watch undo stack → update button badge
 onValue(hRef, snap => {
     const val   = snap.val();
     const count = val ? Object.keys(val).length : 0;
@@ -394,7 +453,75 @@ onValue(hRef, snap => {
 });
 
 // ══════════════════════════════════════════════════
-// fillSel — restore dropdowns after refresh
+// ANNOUNCEMENT SYSTEM — NEW
+// ══════════════════════════════════════════════════
+const QUICK_ANN = {
+    century:  { emoji:'🏆', text:'CENTURY!',          sub:'100 runs off the bat!',     dur:8, style:'gold' },
+    fifty:    { emoji:'⭐', text:'HALF CENTURY!',      sub:'50 runs milestone!',         dur:6, style:'gold' },
+    wicket:   { emoji:'💥', text:'WICKET!',            sub:'A big breakthrough!',        dur:5, style:'red'  },
+    six:      { emoji:'🚀', text:'MAXIMUM!',           sub:'Six runs over the boundary!',dur:4, style:'purple'},
+    four:     { emoji:'🔥', text:'BOUNDARY!',          sub:'Four runs to the fence!',    dur:4, style:'blue' },
+    hattrick: { emoji:'🎩', text:'HAT TRICK!',         sub:'Three in three!',            dur:8, style:'gold' },
+};
+
+// Preview updater
+window.updateAnnPreview = () => {
+    const emoji = $('annEmoji').value.trim() || '📣';
+    const msg   = $('annMsg').value.trim();
+    const prev  = $('annPreview');
+    if (msg) {
+        prev.textContent = `${emoji}  ${msg}`;
+        prev.classList.add('has-msg');
+    } else {
+        prev.textContent = 'Preview will appear here…';
+        prev.classList.remove('has-msg');
+    }
+};
+
+window.sendQuickAnn = async (type) => {
+    const cfg = QUICK_ANN[type];
+    if (!cfg) return;
+    // Try to auto-fill player name from current striker
+    const snap = await get(mRef);
+    const d    = snap.val();
+    let playerName = '';
+    if (d) {
+        playerName = d.str === 1 ? (d.p1n || '') : (d.p2n || '');
+        // For wicket, use bowler name instead
+        if (type === 'wicket') playerName = d.bwn || '';
+    }
+    const text = playerName ? `${playerName} — ${cfg.text}` : cfg.text;
+    await set(aRef, {
+        emoji:   cfg.emoji,
+        text,
+        sub:     playerName ? cfg.sub : cfg.sub,
+        style:   cfg.style,
+        dur:     cfg.dur,
+        sentAt:  Date.now(),
+        id:      Math.random().toString(36).slice(2)   // forces re-trigger even if same text
+    });
+};
+
+window.sendCustomAnn = async () => {
+    const emoji = $('annEmoji').value.trim() || '📣';
+    const msg   = $('annMsg').value.trim();
+    if (!msg) return alert('Enter a message to send!');
+    const dur = parseInt($('annDur').value) || 6;
+    await set(aRef, {
+        emoji,
+        text:   msg,
+        sub:    '',
+        style:  'custom',
+        dur,
+        sentAt: Date.now(),
+        id:     Math.random().toString(36).slice(2)
+    });
+    $('annMsg').value = '';
+    updateAnnPreview();
+};
+
+// ══════════════════════════════════════════════════
+// fillSel
 // ══════════════════════════════════════════════════
 function fillSel(bat, bowl, p1n, p2n, bwn) {
     const bH = bat.map(n=>`<option value="${n}">${n}</option>`).join('');
@@ -415,7 +542,6 @@ onValue(mRef, snap => {
     _match = d;
     if (!d) return;
 
-    // info bar
     $('iBat').textContent  = d.batTeam||'—';
     $('iSc').textContent   = `${d.runs}/${d.wkts}`;
     $('iOv').textContent   = `${Math.floor(d.balls/6)}.${d.balls%6}`;
@@ -425,23 +551,19 @@ onValue(mRef, snap => {
     const h = d.recentBalls||[];
     $('iOvB').textContent  = h.length?h.join(' · '):'—';
 
-    // error correction fields
     $('fxR').value=d.runs;    $('fxW').value=d.wkts;
     $('fxB').value=d.balls;   $('fxT').value=d.target||0;
     $('fxP1R').value=d.p1r||0; $('fxP1B').value=d.p1b||0;
     $('fxBwR').value=d.bwr||0; $('fxBwW').value=d.bww||0;
 
-    // restore team name inputs from Firebase on refresh
     if (d.batTeam)  $('tNA').value = d.batTeam;
     if (d.bowlTeam) $('tNB').value = d.bowlTeam;
 
-    // restore format label from Firebase on refresh
     const fmt = d.maxOvers||20;
     $('fmtLbl').textContent = fmt===50?'ODI · 50 OVERS':fmt===0?'CUSTOM':`T${fmt} · ${fmt} OVERS`;
     const fmtEl = $('fmtSel');
     if ([10,20,40,50,0].includes(fmt)) fmtEl.value = String(fmt);
 
-    // rebuild dropdowns from batRows/bowlRows (fixes 2nd innings bug)
     if (d.batRows && d.bowlRows) {
         const currentBat  = d.batRows.map(r => r.name);
         const currentBowl = d.bowlRows.map(r => r.name);
@@ -483,7 +605,7 @@ window.initMatch = async () => {
     const batRows  = batSq.map(n=>({name:n,runs:0,balls:0,fours:0,sixes:0,out:false,howOut:''}));
     const bowlRows = bowlSq.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0}));
 
-    await set(hRef, null);   // clear undo stack on new match
+    await set(hRef, null);
     await set(mRef,{
         batTeam:batNm, bowlTeam:bowlNm,
         runs:0, wkts:0, balls:0, str:1, target:0,
@@ -506,7 +628,7 @@ window.ball = async (r, type) => {
     if(!d.batRows)     d.batRows=[];
     if(!d.bowlRows)    d.bowlRows=[];
 
-    await saveSnapshot(d);   // ← save before applying
+    await saveSnapshot(d);
 
     const isWD=type==='WD', isNB=type==='NB', isBY=type==='BY', isLB=type==='LB';
     d.runs += r;
@@ -589,7 +711,7 @@ window.confirmWicket = async () => {
     const snap=await get(mRef); const d=snap.val(); if(!d) return;
     if(!d.recentBalls) d.recentBalls=[];
 
-    await saveSnapshot(d);   // ← save before applying wicket
+    await saveSnapshot(d);
 
     const runs=parseInt($('mRuns').value)||0;
     const credit=$('mCredit').checked;
@@ -663,7 +785,7 @@ window.swapInnings = async () => {
     const newP1 = nb[0]||'Bat 1';
     const newP2 = nb[1]||nb[0]||'Bat 2';
     const newBw = nw[0]||'Bowler';
-    await set(hRef, null);   // clear undo stack on innings change
+    await set(hRef, null);
     await set(mRef,{
         batTeam:newBatTeam, bowlTeam:newBowlTeam,
         runs:0, wkts:0, balls:0, str:1, target:d.runs+1,
