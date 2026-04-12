@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cricket Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--y:#f0b429; --y2:#ffd166;
+--bg:#080810; --card:#0e0e1a; --card2:#13131f;
+--brd:#1e1e2e; --brd2:#252535;
+--green:#06d6a0; --red:#e63946; --blue:#118ab2;
+--text:#c8c8d8; --muted:#555566;
+}
+*{ box-sizing:border-box; }
+body{ font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text); margin:0; min-height:100vh; }
+.topbar{ background:linear-gradient(90deg,#0c0c18,#111120); padding:10px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid var(--y); position:sticky; top:0; z-index:99; box-shadow:0 4px 20px rgba(0,0,0,.8); }
+.topbar h1{ margin:0; font-family:'Barlow Condensed',sans-serif; font-size:16px; color:var(--y); letter-spacing:3px; text-transform:uppercase; }
+.live-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; margin-right:8px; box-shadow:0 0 8px var(--green); animation:ldot 1.5s infinite; }
+@keyframes ldot{ 0%,100%{opacity:1}50%{opacity:.3} }
+.fmt-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--muted); letter-spacing:1px; }
+.infobar{ background:#0a0a16; padding:7px 16px; display:flex; gap:16px; flex-wrap:wrap; align-items:center; font-family:'Barlow Condensed',sans-serif; font-size:12px; color:var(--muted); letter-spacing:.5px; border-bottom:1px solid var(--brd); }
+.infobar b{ color:var(--y); }
+.fh-pill{ background:linear-gradient(90deg,#d35400,#e67e22); color:#000; padding:1px 9px; border-radius:3px; font-size:10px; font-weight:800; letter-spacing:2px; display:none; }
+.fh-pill.on{ display:inline-block; animation:fhp .8s infinite; }
+@keyframes fhp{ 0%,100%{opacity:1}50%{opacity:.4} }
+.pv-lbl{ background:#070710; padding:5px 16px; font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#2a2a3a; text-align:center; letter-spacing:2px; }
+.pv{ width:100%; height:155px; background:#000; position:relative; overflow:hidden; border-bottom:2px solid var(--brd); }
+iframe{ width:1100px; height:360px; border:none; position:absolute; top:0; left:50%; transform:translateX(-50%) scale(0.3); transform-origin:top center; pointer-events:none; }
+@media(min-width:700px){ iframe{ transform:translateX(-50%) scale(.62); } .pv{ height:255px; } }
+.body{ padding:14px; display:grid; gap:14px; max-width:980px; margin:auto; }
+.card{ background:var(--card); padding:16px; border-radius:8px; border:1px solid var(--brd); box-shadow:0 4px 20px rgba(0,0,0,.4); }
+.g2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.g3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.g4{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+@media(min-width:540px){ .g4{ grid-template-columns:repeat(4,1fr); } .g3{ grid-template-columns:repeat(3,1fr); } }
+h4{ margin:0 0 12px; font-family:'Barlow Condensed',sans-serif; color:var(--y); text-transform:uppercase; font-size:11px; font-weight:800; letter-spacing:3px; border-bottom:1px solid var(--brd2); padding-bottom:8px; display:flex; align-items:center; gap:8px; }
+h4 .hico{ font-size:14px; }
+label{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-top:8px; margin-bottom:3px; }
+input,textarea,select{ width:100%; padding:9px 12px; background:#0a0a18; border:1px solid var(--brd2); color:#ddd; border-radius:5px; font-size:13px; font-family:'Barlow',sans-serif; transition:border-color .2s; }
+input:focus,textarea:focus,select:focus{ outline:none; border-color:var(--y); box-shadow:0 0 0 2px rgba(240,180,41,.1); }
+select option{ background:#111; }
+button{ padding:13px 8px; border:none; border-radius:5px; font-family:'Barlow Condensed',sans-serif; font-weight:700; cursor:pointer; transition:all .12s; font-size:14px; letter-spacing:.5px; width:100%; }
+button:active{ opacity:.65; transform:scale(.95); }
+.b-dot { background:#0d0d1a; color:#888; border:1px solid #252535; }
+.b-run { background:#052212; color:#7fff7f; border:1px solid #0a4a2a; }
+.b-4 { background:#051428; color:#7ec8ff; border:1px solid #0a2a50; }
+.b-6 { background:#180838; color:#c4a0ff; border:1px solid #2e1060; }
+.b-wd { background:#2a1400; color:#ffd680; border:1px solid #5a3000; }
+.b-nb { background:#280800; color:#ffb060; border:1px solid #5a1a00; }
+.b-by { background:#00101e; color:#7ec8ff; border:1px solid #00284a; }
+.b-lb { background:#041404; color:#a0ffa0; border:1px solid #0a300a; }
+.b-wkt { background:#200000; color:#ff8080; border:1px solid #500000; font-size:15px; }
+.b-swp { background:#080820; color:#9090ff; border:1px solid #1a1a40; }
+.b-gold{ background:linear-gradient(135deg,#3a2800,#2a1e00); color:var(--y); border:1px solid #5a3c00; }
+.b-show{ background:#032212; color:#06d6a0; border:1px solid #0a4030; }
+.b-hide{ background:#200008; color:#ff8080; border:1px solid #500015; }
+.b-inn { background:#100828; color:#c4a0ff; border:1px solid #281050; }
+.b-rst { background:#0a0008; color:#ff4d4d; border:1px solid #400010; }
+.b-undo{ background:#0d0820; color:#9090ff; border:1px solid #1a1a40; }
+.b-undo:hover{ background:#7c3aed; color:#fff; border-color:#7c3aed; }
+.b-undo:disabled{ opacity:.3; cursor:not-allowed; }
+.undo-badge{ display:inline-block; background:#1a1a40; color:#9090ff; border-radius:3px; padding:1px 6px; font-size:11px; margin-left:4px; font-family:'Barlow Condensed',sans-serif; }
+.sep{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin:10px 0 5px; display:flex; align-items:center; gap:8px; }
+.sep::after{ content:''; flex:1; height:1px; background:var(--brd); }
+.note{ font-size:10px; color:#333344; margin-top:10px; line-height:1.7; border-top:1px solid var(--brd); padding-top:8px; }
+.note b{ color:#555566; }
+/* modal */
+.modal-bg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.modal-bg.open{ display:flex; }
+.modal{ background:var(--card); border:1px solid var(--brd2); border-radius:10px; padding:22px; width:94%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,.9),0 0 0 1px rgba(240,180,41,.1); }
+.modal h3{ font-family:'Barlow Condensed',sans-serif; color:var(--y); font-size:15px; text-transform:uppercase; letter-spacing:3px; margin:0 0 14px; border-bottom:1px solid var(--brd2); padding-bottom:10px; }
+.modal-meta{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--muted); margin-bottom:12px; letter-spacing:.5px; }
+.modal-meta b{ color:#aaa; }
+.dis-grid{ display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:14px; }
+.dm{ padding:10px 8px; border:1px solid var(--brd2); border-radius:5px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; background:#0a0a18; color:#777; transition:all .12s; width:100%; letter-spacing:.5px; }
+.dm:hover{ border-color:var(--y); color:var(--y); }
+.dm.sel{ background:#2a1e00; border-color:var(--y); color:var(--y); }
+.modal-field{ margin-bottom:12px; }
+.modal-field label{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:4px; display:block; }
+.modal-btns{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
+.m-confirm{ background:#200000; color:#ff8080; border:1px solid #500000; border-radius:5px; padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:1px; }
+.m-confirm:hover{ background:var(--red); color:#fff; }
+.m-cancel{ background:#0a0a18; color:#555; border:1px solid var(--brd2); border-radius:5px; padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+.m-cancel:hover{ background:#111; color:#aaa; }
+.ov-panel{ display:flex; flex-direction:column; gap:6px; background:var(--card2); padding:10px; border-radius:6px; border:1px solid var(--brd); }
+.ov-panel .panel-label{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:2px; }
+
+/* ── ANNOUNCEMENT CARD ── */
+.ann-card{ border-color:#2a1a00; }
+.ann-card h4{ color:#ffb347; }
+.ann-input-row{ display:flex; gap:8px; align-items:stretch; margin-bottom:12px; }
+.ann-input-row input{ flex:1; font-size:14px; padding:10px 14px; border-color:#3a2800; }
+.ann-input-row input:focus{ border-color:#ffb347; box-shadow:0 0 0 2px rgba(255,179,71,.1); }
+.b-ann-send{
+  flex:0 0 auto; width:auto; padding:10px 20px;
+  background:linear-gradient(135deg,#3a1a00,#5a2800);
+  color:#ffb347; border:1px solid #7a3800;
+  font-size:13px; letter-spacing:1px;
+  border-radius:5px; white-space:nowrap;
+  transition:all .15s;
+}
+.b-ann-send:hover{ background:linear-gradient(135deg,#c26a00,#e07800); color:#fff; border-color:#f0a030; }
+.ann-emoji-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; }
+.emoji-grid{ display:flex; flex-wrap:wrap; gap:7px; }
+.b-emoji{
+  width:auto; padding:9px 13px;
+  background:#0d0d1a; border:1px solid #252535;
+  border-radius:6px; font-size:20px;
+  cursor:pointer; transition:all .15s;
+  line-height:1;
+}
+.b-emoji:hover{ background:#1a1a30; border-color:#4a3a60; transform:scale(1.1); box-shadow:0 4px 20px rgba(0,0,0,.6); }
+.b-emoji:active{ transform:scale(.9); }
+.ann-preview{
+  margin-top:12px; padding:8px 14px;
+  background:#0a0614; border:1px solid #1a1030;
+  border-radius:5px; border-left:3px solid #ffb347;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px; color:#555566; letter-spacing:1px;
+  min-height:32px; display:flex; align-items:center; gap:8px;
+}
+.ann-preview .ann-prev-dot{ width:6px; height:6px; border-radius:50%; background:#ffb347; flex-shrink:0; animation:ldot 1.5s infinite; }
+.ann-prev-text{ color:#aaa; font-size:13px; }
+.ann-clear-btn{
+  margin-left:auto; width:auto; padding:4px 10px;
+  background:transparent; border:1px solid #2a2030;
+  color:#444; font-size:10px; border-radius:3px;
+  cursor:pointer; letter-spacing:1px;
+}
+.ann-clear-btn:hover{ border-color:#553030; color:#ff6060; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1><span class="live-dot"></span>Cricket Admin</h1>
+  <span class="fmt-lbl" id="fmtLbl">T20 · 20 OVERS</span>
+</div>
+<div class="infobar">
+  <span>INN <b id="iInn">1ST</b></span>
+  <span>BAT <b id="iBat">—</b></span>
+  <span>SCORE <b id="iSc">0/0</b></span>
+  <span>OV <b id="iOv">0.0</b></span>
+  <span>CRR <b id="iCRR">0.00</b></span>
+  <span>THIS OVER <b id="iOvB">—</b></span>
+  <span class="fh-pill" id="iFH">FREE HIT</span>
+</div>
+<div class="pv-lbl">▶ LIVE PREVIEW · index.html</div>
+<div class="pv"><iframe src="index.html"></iframe></div>
+
+<div class="body">
+
+  <!-- 1. SQUADS -->
+  <div class="card">
+    <h4><span class="hico">🏟</span> Team Squads &amp; Match Setup</h4>
+    <div class="g2">
+      <div>
+        <label>Batting Team Name</label>
+        <input id="tNA" placeholder="India" value="India">
+        <label>Batting XI — one name per line</label>
+        <textarea id="sqA" rows="7" placeholder="Player 1&#10;Player 2&#10;Player 3&#10;..."></textarea>
+      </div>
+      <div>
+        <label>Bowling Team Name</label>
+        <input id="tNB" placeholder="Australia" value="Australia">
+        <label>Bowling XI — one name per line</label>
+        <textarea id="sqB" rows="7" placeholder="Player 1&#10;Player 2&#10;Player 3&#10;..."></textarea>
+      </div>
+    </div>
+    <div class="g2" style="margin-top:10px">
+      <div>
+        <label>Format</label>
+        <select id="fmtSel">
+          <option value="20">T20 (20 overs)</option>
+          <option value="50">ODI (50 overs)</option>
+          <option value="40">40 Overs</option>
+          <option value="10">T10 (10 overs)</option>
+          <option value="0">Custom / Club</option>
+        </select>
+      </div>
+      <div>
+        <label>Batting First</label>
+        <select id="tossSel">
+          <option value="A">Team A (top squad)</option>
+          <option value="B">Team B (bottom squad)</option>
+        </select>
+      </div>
+    </div>
+    <button class="b-gold" style="margin-top:12px" onclick="initMatch()">⚡ INITIALIZE MATCH</button>
+  </div>
+
+  <!-- 2. FIELD -->
+  <div class="card">
+    <h4><span class="hico">🏏</span> Field Management</h4>
+    <div class="g2">
+      <div><label>Striker ●</label><select id="selP1" onchange="chg('p1n',this.value)"></select></div>
+      <div><label>Non-Striker</label><select id="selP2" onchange="chg('p2n',this.value)"></select></div>
+    </div>
+    <label>Current Bowler</label>
+    <select id="selBw" onchange="chg('bwn',this.value)"></select>
+  </div>
+
+  <!-- 3. SCORING -->
+  <div class="card">
+    <h4><span class="hico">📊</span> Live Scoring</h4>
+    <div class="sep">Legal deliveries</div>
+    <div class="g4">
+      <button class="b-dot" onclick="ball(0)">● DOT</button>
+      <button class="b-run" onclick="ball(1)">1 RUN</button>
+      <button class="b-run" onclick="ball(2)">2 RUNS</button>
+      <button class="b-run" onclick="ball(3)">3 RUNS</button>
+    </div>
+    <div class="g2" style="margin-top:8px">
+      <button class="b-4" onclick="ball(4)" style="font-size:16px">FOUR ▪ 4</button>
+      <button class="b-6" onclick="ball(6)" style="font-size:16px">SIX ▪ 6</button>
+    </div>
+    <div class="sep">Wide — illegal · bowler redels · +run · NO strike change</div>
+    <div class="g4">
+      <button class="b-wd" onclick="ball(1,'WD')">WIDE +1</button>
+      <button class="b-wd" onclick="ball(2,'WD')">WIDE +2</button>
+      <button class="b-wd" onclick="ball(3,'WD')">WIDE +3</button>
+      <button class="b-wd" onclick="ball(4,'WD')">WIDE +4</button>
+    </div>
+    <div class="sep">No Ball — illegal · bowler redels · batsman scores · FREE HIT next</div>
+    <div class="g4">
+      <button class="b-nb" onclick="ball(1,'NB')">NB +1</button>
+      <button class="b-nb" onclick="ball(2,'NB')">NB +2</button>
+      <button class="b-nb" onclick="ball(4,'NB')">NB +4</button>
+      <button class="b-nb" onclick="ball(6,'NB')">NB +6</button>
+    </div>
+    <div class="sep">Byes — legal · extras only · no batsman or bowler credit</div>
+    <div class="g4">
+      <button class="b-by" onclick="ball(1,'BY')">BYE +1</button>
+      <button class="b-by" onclick="ball(2,'BY')">BYE +2</button>
+      <button class="b-by" onclick="ball(3,'BY')">BYE +3</button>
+      <button class="b-by" onclick="ball(4,'BY')">BYE +4</button>
+    </div>
+    <div class="sep">Leg Byes — legal · extras only</div>
+    <div class="g3">
+      <button class="b-lb" onclick="ball(1,'LB')">LB +1</button>
+      <button class="b-lb" onclick="ball(2,'LB')">LB +2</button>
+      <button class="b-lb" onclick="ball(3,'LB')">LB +3</button>
+    </div>
+    <div class="g3" style="margin-top:12px">
+      <button class="b-wkt" onclick="openWicket()">🏏 WICKET</button>
+      <button class="b-swp" onclick="swapStrike()">⇄ SWAP STRIKE</button>
+      <button class="b-undo" id="undoBtn" onclick="undoLast()" disabled>
+        ↩ UNDO <span class="undo-badge" id="undoCount">0</span>
+      </button>
+    </div>
+    <div class="note">
+      <b>Rules:</b> Wide/No-Ball = illegal — over count unchanged, bowler redels.
+      No-Ball → FREE HIT overlay. Byes/Leg-Byes = legal, extras only.
+      Odd runs → striker rotates. End of 6 legal balls → auto strike swap + grid resets.
+      <b>Undo</b> reverts last ball/wicket (up to 5 times).
+    </div>
+  </div>
+
+  <!-- 4. OVERLAY CONTROLS -->
+  <div class="card">
+    <h4><span class="hico">📺</span> Overlay Controls</h4>
+    <div class="g2">
+      <div class="ov-panel">
+        <div class="panel-label">Score Bar</div>
+        <button class="b-show" onclick="setV('scorebar',true)">SHOW</button>
+        <button class="b-hide" onclick="setV('scorebar',false)">HIDE</button>
+      </div>
+      <div class="ov-panel">
+        <div class="panel-label">Full Scorecard</div>
+        <button class="b-show" onclick="setV('scorecard',true)">SHOW</button>
+        <button class="b-hide" onclick="setV('scorecard',false)">HIDE</button>
+      </div>
+    </div>
+    <div style="font-size:10px;color:#2a2a3a;text-align:center;margin-top:8px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">
+      KEYBOARD ON OVERLAY — S = SCORECARD · B = SCORE BAR · 1 = BATTING · 2 = BOWLING
+    </div>
+  </div>
+
+  <!-- 5. ANNOUNCEMENTS ← NEW -->
+  <div class="card ann-card">
+    <h4><span class="hico">📢</span> Announcements &amp; Reactions</h4>
+
+    <div class="ann-emoji-lbl">Quick Emoji Burst — tap to send instantly to overlay</div>
+    <div class="emoji-grid">
+      <button class="b-emoji" onclick="sendEmoji('🏏')" title="Cricket">🏏</button>
+      <button class="b-emoji" onclick="sendEmoji('🎉')" title="Celebrate">🎉</button>
+      <button class="b-emoji" onclick="sendEmoji('🔥')" title="Fire">🔥</button>
+      <button class="b-emoji" onclick="sendEmoji('💥')" title="Explosion">💥</button>
+      <button class="b-emoji" onclick="sendEmoji('⚡')" title="Lightning">⚡</button>
+      <button class="b-emoji" onclick="sendEmoji('👏')" title="Applause">👏</button>
+      <button class="b-emoji" onclick="sendEmoji('🎯')" title="Target">🎯</button>
+      <button class="b-emoji" onclick="sendEmoji('🏆')" title="Trophy">🏆</button>
+      <button class="b-emoji" onclick="sendEmoji('😱')" title="Shocked">😱</button>
+      <button class="b-emoji" onclick="sendEmoji('🚀')" title="Rocket">🚀</button>
+      <button class="b-emoji" onclick="sendEmoji('💯')" title="100">💯</button>
+      <button class="b-emoji" onclick="sendEmoji('🙌')" title="Hands up">🙌</button>
+      <button class="b-emoji" onclick="sendEmoji('⭐')" title="Star">⭐</button>
+      <button class="b-emoji" onclick="sendEmoji('🎊')" title="Confetti">🎊</button>
+      <button class="b-emoji" onclick="sendEmoji('😤')" title="Fierce">😤</button>
+      <button class="b-emoji" onclick="sendEmoji('🫡')" title="Salute">🫡</button>
+    </div>
+
+    <div class="sep" style="margin-top:14px">Custom Message — shown animated on overlay for 4 seconds</div>
+    <div class="ann-input-row">
+      <input type="text" id="annMsg" placeholder="e.g. FIFTY UP! 🎉  or  RAIN DELAY  or  DRINKS BREAK" maxlength="80"
+        onkeydown="if(event.key==='Enter') sendAnnouncement()">
+      <button class="b-ann-send" onclick="sendAnnouncement()">📢 SEND</button>
+    </div>
+
+    <div class="ann-preview" id="annPreview">
+      <div style="font-size:9px;color:#333344;letter-spacing:2px;text-transform:uppercase">Last sent →</div>
+      <span class="ann-prev-text" id="annPrevText" style="color:#333344;font-style:italic">Nothing sent yet</span>
+      <button class="ann-clear-btn" onclick="clearAnnouncement()">✕ CLEAR</button>
+    </div>
+  </div>
+
+  <!-- 6. ERROR CORRECTION -->
+  <div class="card">
+    <h4><span class="hico">🔧</span> Error Correction</h4>
+    <div class="g4">
+      <div><label>Total Runs</label> <input type="number" id="fxR" onchange="mu('runs',this.value)"></div>
+      <div><label>Wickets</label> <input type="number" id="fxW" onchange="mu('wkts',this.value)"></div>
+      <div><label>Legal Balls</label> <input type="number" id="fxB" onchange="mu('balls',this.value)"></div>
+      <div><label>Target</label> <input type="number" id="fxT" onchange="mu('target',this.value)"></div>
+    </div>
+    <div class="g4" style="margin-top:8px">
+      <div><label>Striker R</label> <input type="number" id="fxP1R" onchange="mu('p1r',this.value)"></div>
+      <div><label>Striker B</label> <input type="number" id="fxP1B" onchange="mu('p1b',this.value)"></div>
+      <div><label>Bowler R</label> <input type="number" id="fxBwR" onchange="mu('bwr',this.value)"></div>
+ 
