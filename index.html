@@ -596,91 +596,138 @@ onValue(uiRef,snap=>{
 });
 
 // ══════════════════════════════════════════════
-// ANNOUNCEMENT SYSTEM — NEW
+// ANNOUNCEMENT SYSTEM
 // ══════════════════════════════════════════════
 let annTimer=null;
 let lastAnnId=null;
 
 const PARTICLE_COLORS={
-    gold:   ['#f5c518','#ffd54f','#fff176','#ffe082'],
-    red:    ['#e63946','#ff6b6b','#ff8080','#ffadad'],
-    purple: ['#9b72cf','#c4a0ff','#d4b0ff','#e8d5ff'],
-    blue:   ['#118ab2','#7ec8ff','#90d5ff','#a8dfff'],
-    custom: ['#06d6a0','#40e0b0','#70edc0','#a0f5d5'],
+    gold:   ['#f5c518','#ffd54f','#fff176','#ffe082','#ffca28'],
+    red:    ['#e63946','#ff6b6b','#ff8080','#ffadad','#ff4d6d'],
+    purple: ['#9b72cf','#c4a0ff','#d4b0ff','#e8d5ff','#b392f0'],
+    blue:   ['#118ab2','#7ec8ff','#90d5ff','#a8dfff','#48cae4'],
+    custom: ['#06d6a0','#40e0b0','#70edc0','#a0f5d5','#23e5a0'],
+};
+
+// per-event emoji sets for rain & floater row
+const EVENT_EMOJIS={
+    gold:   ['🏆','⭐','✨','🌟','💛','🥇','🎊','🎉','🏅','💫'],
+    red:    ['💥','🔴','😱','🎯','🔥','💢','⚡','😤','🏏','❌'],
+    purple: ['🚀','💜','🌌','⚡','🔮','🌠','💥','🎆','🌊','✨'],
+    blue:   ['🔥','💙','4️⃣','🎯','💦','⚡','🏏','🌀','💨','🎊'],
+    custom: ['🎉','🎊','🎈','🥳','🎆','🌈','🎁','🪄','✨','🎀'],
 };
 
 function spawnParticles(style){
     const container=$('annParticles');
     container.innerHTML='';
     const colors=PARTICLE_COLORS[style]||PARTICLE_COLORS.gold;
-    const count=18;
-    for(let i=0;i<count;i++){
+    for(let i=0;i<28;i++){
         const p=document.createElement('div');
         p.className='ann-p';
-        const angle=(Math.random()*360);
-        const dist=50+Math.random()*80;
+        const angle=Math.random()*360;
+        const dist=60+Math.random()*120;
         const tx=Math.cos(angle*Math.PI/180)*dist;
-        const ty=Math.sin(angle*Math.PI/180)*dist - 30;
+        const ty=Math.sin(angle*Math.PI/180)*dist - 40;
         const color=colors[Math.floor(Math.random()*colors.length)];
-        const delay=Math.random()*0.3;
-        const size=3+Math.random()*5;
+        const delay=Math.random()*0.5;
+        const size=3+Math.random()*7;
         p.style.cssText=`
-            left:${20+Math.random()*60}%;
-            top:${20+Math.random()*60}%;
+            left:${10+Math.random()*80}%;
+            top:${10+Math.random()*80}%;
             width:${size}px; height:${size}px;
             background:${color};
             --tx:${tx}px; --ty:${ty}px;
             animation-delay:${delay}s;
-            animation-duration:${0.8+Math.random()*0.6}s;
+            animation-duration:${1+Math.random()*0.8}s;
         `;
         container.appendChild(p);
     }
 }
 
+function spawnRain(style, dur){
+    const rain=$('annRain');
+    rain.innerHTML='';
+    const emojis=EVENT_EMOJIS[style]||EVENT_EMOJIS.custom;
+    const count=22;
+    const vhFall=110; // % of viewport
+    for(let i=0;i<count;i++){
+        const el=document.createElement('div');
+        el.className='rain-emoji';
+        const emoji=emojis[Math.floor(Math.random()*emojis.length)];
+        el.textContent=emoji;
+        const left=2+Math.random()*96;
+        const delay=Math.random()*4;          // stagger over first 4s
+        const fallDur=4+Math.random()*6;      // each drop takes 4-10s
+        const spin=(Math.random()>0.5?1:-1)*(180+Math.random()*360);
+        const size=22+Math.random()*28;
+        el.style.cssText=`
+            left:${left}%;
+            font-size:${size}px;
+            --fall-dist:${vhFall}vh;
+            --spin:${spin}deg;
+            animation-delay:${delay}s;
+            animation-duration:${fallDur}s;
+        `;
+        rain.appendChild(el);
+    }
+    // clear rain a second before toast leaves
+    setTimeout(()=>{ rain.innerHTML=''; }, Math.max(0,(dur-1)*1000));
+}
+
+function buildFloaters(style){
+    const emojis=EVENT_EMOJIS[style]||EVENT_EMOJIS.custom;
+    const pick=emojis.slice(0,5);
+    const cont=$('annFloaters');
+    cont.innerHTML='';
+    pick.forEach((em,i)=>{
+        const d=document.createElement('span');
+        d.className='ann-floater';
+        d.textContent=em;
+        d.style.cssText=`
+            animation-duration:${1.4+Math.random()*0.8}s;
+            animation-delay:${i*0.15}s;
+        `;
+        cont.appendChild(d);
+    });
+}
+
 function showAnn(data){
     const toast=$('annToast');
     const prog=$('annProgress');
+    const DUR = data.dur || 20;   // ← default 20 seconds
 
-    // clear any running timer
     if(annTimer){ clearTimeout(annTimer); annTimer=null; }
 
-    // reset to invisible first (force reflow)
     toast.classList.remove('visible','leaving');
     void toast.offsetWidth;
 
-    // populate
     $('annEmoji').textContent = data.emoji || '📣';
     $('annText').textContent  = data.text  || '';
     $('annSub').textContent   = data.sub   || '';
     toast.className = `ann-toast style-${data.style||'custom'}`;
 
-    // restart progress bar animation
+    // progress bar — 20s
     prog.style.animation='none';
     void prog.offsetWidth;
-    prog.style.animation=`annProgress ${data.dur||6}s linear forwards`;
+    prog.style.animation=`annProgress ${DUR}s linear forwards`;
 
-    // spawn particles
     spawnParticles(data.style||'custom');
+    buildFloaters(data.style||'custom');
+    spawnRain(data.style||'custom', DUR);
 
-    // fly in
-    requestAnimationFrame(()=>{
-        toast.classList.add('visible');
-    });
+    requestAnimationFrame(()=>{ toast.classList.add('visible'); });
 
-    // auto-dismiss
     annTimer=setTimeout(()=>{
         toast.classList.add('leaving');
-        setTimeout(()=>{
-            toast.classList.remove('visible','leaving');
-        }, 450);
-    }, (data.dur||6)*1000);
+        $('annRain').innerHTML='';
+        setTimeout(()=>{ toast.classList.remove('visible','leaving'); }, 520);
+    }, DUR*1000);
 }
 
-// listen for new announcements
 onValue(annRef, snap=>{
     const data=snap.val();
     if(!data) return;
-    // only trigger if this is a NEW announcement (different id)
     if(data.id === lastAnnId) return;
     lastAnnId = data.id;
     showAnn(data);
