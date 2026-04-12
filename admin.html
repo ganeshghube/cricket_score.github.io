@@ -296,10 +296,10 @@ button:active{ opacity:.65; transform:scale(.95); }
         <div style="flex:0 0 100px">
             <label>Duration (s)</label>
             <select id="annDur">
-                <option value="4">4s</option>
-                <option value="6" selected>6s</option>
-                <option value="8">8s</option>
-                <option value="12">12s</option>
+                <option value="10">10s</option>
+                <option value="15">15s</option>
+                <option value="20" selected>20s</option>
+                <option value="30">30s</option>
             </select>
         </div>
     </div>
@@ -307,7 +307,7 @@ button:active{ opacity:.65; transform:scale(.95); }
     <button class="b-ann-custom" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND ANNOUNCEMENT TO OVERLAY</button>
 
     <div class="note">
-        <b>How it works:</b> Announcements appear above the score bar on the overlay for the selected duration, then auto-dismiss. Quick-fire buttons use the current striker's name. Overlay must be visible for announcements to show.
+        <b>How it works:</b> Announcements appear above the score bar on the overlay for 20 seconds with emoji rain and particle effects, then auto-dismiss. Quick-fire buttons use the current striker's name (or bowler for wicket). Overlay must be visible for announcements to show.
     </div>
 </div>
 <!-- ═══ END ANNOUNCEMENTS CARD ═══ -->
@@ -456,12 +456,12 @@ onValue(hRef, snap => {
 // ANNOUNCEMENT SYSTEM — NEW
 // ══════════════════════════════════════════════════
 const QUICK_ANN = {
-    century:  { emoji:'🏆', text:'CENTURY!',          sub:'100 runs off the bat!',     dur:8, style:'gold' },
-    fifty:    { emoji:'⭐', text:'HALF CENTURY!',      sub:'50 runs milestone!',         dur:6, style:'gold' },
-    wicket:   { emoji:'💥', text:'WICKET!',            sub:'A big breakthrough!',        dur:5, style:'red'  },
-    six:      { emoji:'🚀', text:'MAXIMUM!',           sub:'Six runs over the boundary!',dur:4, style:'purple'},
-    four:     { emoji:'🔥', text:'BOUNDARY!',          sub:'Four runs to the fence!',    dur:4, style:'blue' },
-    hattrick: { emoji:'🎩', text:'HAT TRICK!',         sub:'Three in three!',            dur:8, style:'gold' },
+    century:  { emoji:'🏆', text:'CENTURY!',          sub:'100 runs off the bat!',     dur:20, style:'gold' },
+    fifty:    { emoji:'⭐', text:'HALF CENTURY!',      sub:'50 runs milestone!',         dur:20, style:'gold' },
+    wicket:   { emoji:'💥', text:'WICKET!',            sub:'A big breakthrough!',        dur:20, style:'red'  },
+    six:      { emoji:'🚀', text:'MAXIMUM!',           sub:'Six runs over the boundary!',dur:20, style:'purple'},
+    four:     { emoji:'🔥', text:'BOUNDARY!',          sub:'Four runs to the fence!',    dur:20, style:'blue' },
+    hattrick: { emoji:'🎩', text:'HAT TRICK!',         sub:'Three in three!',            dur:20, style:'gold' },
 };
 
 // Preview updater
