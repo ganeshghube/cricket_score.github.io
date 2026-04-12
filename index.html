@@ -18,6 +18,260 @@
 *{ box-sizing:border-box; margin:0; padding:0; }
 body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color:var(--text); overflow:hidden; height:100vh; width:100vw; }
 
+/* ═══════════════════════════════════════════════════
+   ANNOUNCEMENT TOAST — sits above score bar
+   ═══════════════════════════════════════════════════ */
+
+/* Full-screen emoji rain layer — behind everything else */
+.ann-rain{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:48;
+    overflow:hidden;
+}
+.rain-emoji{
+    position:absolute;
+    top:-80px;
+    font-size:36px;
+    opacity:0;
+    animation: rainFall linear forwards;
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,.7));
+    user-select:none;
+}
+@keyframes rainFall{
+    0%  { opacity:0;   transform:translateY(0)     rotate(0deg)   scale(0.6); }
+    8%  { opacity:.95; transform:translateY(40px)  rotate(10deg)  scale(1.1); }
+    90% { opacity:.8;  transform:translateY(var(--fall-dist)) rotate(var(--spin)) scale(1); }
+    100%{ opacity:0;   transform:translateY(calc(var(--fall-dist) + 60px)) rotate(var(--spin)) scale(0.8); }
+}
+
+.ann-wrap{
+    position:absolute;
+    bottom:122px;
+    left:50%;
+    transform:translateX(-50%);
+    width:96%;
+    max-width:1080px;
+    pointer-events:none;
+    z-index:50;
+    display:flex;
+    justify-content:center;
+}
+
+.ann-toast{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    padding:18px 40px 18px 28px;
+    border-radius:8px;
+    font-family:'Barlow Condensed',sans-serif;
+    position:relative;
+    overflow:hidden;
+    min-width:360px;
+    max-width:780px;
+    box-shadow:0 12px 60px rgba(0,0,0,.98), 0 0 0 1px rgba(255,255,255,.08),
+               0 0 80px rgba(0,0,0,.6);
+    opacity: 0;
+    transform: translateY(30px) scale(0.93);
+    transition: opacity 0.55s cubic-bezier(.175,.885,.32,1.275),
+                transform 0.55s cubic-bezier(.175,.885,.32,1.275);
+}
+.ann-toast.visible{
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.ann-toast.leaving{
+    opacity: 0;
+    transform: translateY(-20px) scale(0.94);
+    transition: opacity 0.5s ease-in, transform 0.5s ease-in;
+}
+
+/* shimmer sweep — repeating */
+.ann-toast::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(105deg, transparent 25%, rgba(255,255,255,.12) 50%, transparent 75%);
+    animation: annShimmer 3s ease-in-out infinite;
+    pointer-events:none;
+}
+@keyframes annShimmer{
+    0%   { transform: translateX(-120%); }
+    100% { transform: translateX(220%); }
+}
+
+/* top glow line */
+.ann-toast::before{
+    content:'';
+    position:absolute;
+    top:0; left:0; right:0;
+    height:2px;
+    background:linear-gradient(90deg, transparent, var(--ann-accent,#f5c518), transparent);
+    animation: annGlowLine 3s ease-in-out infinite;
+}
+@keyframes annGlowLine{
+    0%,100%{ opacity:.5; }
+    50%    { opacity:1;  }
+}
+
+/* progress bar at bottom — 20s */
+.ann-progress{
+    position:absolute;
+    bottom:0; left:0;
+    height:4px;
+    border-radius:0 0 8px 8px;
+    transform-origin: left center;
+    animation: annProgress linear forwards;
+    box-shadow: 0 0 8px var(--ann-accent,#f5c518);
+}
+@keyframes annProgress{
+    from { width:100%; }
+    to   { width:0%; }
+}
+
+/* style variants */
+.ann-toast.style-gold{
+    --ann-accent:#f5c518;
+    background:linear-gradient(135deg, rgba(35,26,0,.98) 0%, rgba(22,16,0,.98) 60%, rgba(14,10,0,.98) 100%);
+    border:1px solid rgba(240,180,41,.4);
+    border-left:5px solid var(--gold);
+}
+.ann-toast.style-gold .ann-progress{ background:linear-gradient(90deg,var(--gold),#fff176); }
+
+.ann-toast.style-red{
+    --ann-accent:#e63946;
+    background:linear-gradient(135deg, rgba(32,0,0,.98) 0%, rgba(20,0,0,.98) 60%, rgba(10,0,0,.98) 100%);
+    border:1px solid rgba(230,57,70,.4);
+    border-left:5px solid #e63946;
+}
+.ann-toast.style-red .ann-progress{ background:linear-gradient(90deg,#e63946,#ff8080); }
+
+.ann-toast.style-purple{
+    --ann-accent:#9b72cf;
+    background:linear-gradient(135deg, rgba(22,8,44,.98) 0%, rgba(14,4,30,.98) 60%, rgba(8,2,18,.98) 100%);
+    border:1px solid rgba(155,114,207,.4);
+    border-left:5px solid #9b72cf;
+}
+.ann-toast.style-purple .ann-progress{ background:linear-gradient(90deg,#9b72cf,#e8d5ff); }
+
+.ann-toast.style-blue{
+    --ann-accent:#118ab2;
+    background:linear-gradient(135deg, rgba(0,18,38,.98) 0%, rgba(0,12,26,.98) 60%, rgba(0,6,16,.98) 100%);
+    border:1px solid rgba(17,138,178,.4);
+    border-left:5px solid #118ab2;
+}
+.ann-toast.style-blue .ann-progress{ background:linear-gradient(90deg,#118ab2,#a8dfff); }
+
+.ann-toast.style-custom{
+    --ann-accent:#06d6a0;
+    background:linear-gradient(135deg, rgba(0,22,18,.98) 0%, rgba(0,14,12,.98) 60%, rgba(0,8,6,.98) 100%);
+    border:1px solid rgba(6,214,160,.35);
+    border-left:5px solid #06d6a0;
+}
+.ann-toast.style-custom .ann-progress{ background:linear-gradient(90deg,#06d6a0,#a0f5d5); }
+
+/* main emoji — bounces in */
+.ann-emoji{
+    font-size:56px;
+    line-height:1;
+    filter:drop-shadow(0 3px 12px rgba(0,0,0,.9));
+    animation: annEmojiBounce 0.7s cubic-bezier(.36,.07,.19,.97) both;
+    flex-shrink:0;
+}
+@keyframes annEmojiBounce{
+    0%   { transform:scale(0.1) rotate(-20deg); opacity:0; }
+    55%  { transform:scale(1.35) rotate(8deg);  opacity:1; }
+    75%  { transform:scale(0.9)  rotate(-4deg); }
+    90%  { transform:scale(1.06) rotate(2deg);  }
+    100% { transform:scale(1)    rotate(0deg);  }
+}
+
+/* pulsing glow ring around emoji while visible */
+.ann-emoji-ring{
+    position:relative;
+    flex-shrink:0;
+}
+.ann-emoji-ring::after{
+    content:'';
+    position:absolute;
+    inset:-8px;
+    border-radius:50%;
+    border:2px solid var(--ann-accent,#f5c518);
+    opacity:0;
+    animation: annRingPulse 1.8s ease-in-out 0.7s infinite;
+}
+@keyframes annRingPulse{
+    0%   { opacity:.7; transform:scale(0.8); }
+    50%  { opacity:.2; transform:scale(1.2); }
+    100% { opacity:.7; transform:scale(0.8); }
+}
+
+.ann-body{ display:flex; flex-direction:column; gap:5px; flex:1; }
+
+.ann-text{
+    font-size:34px;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:3px;
+    line-height:1;
+    text-shadow:0 2px 16px rgba(0,0,0,.9);
+    animation: annTextSlide 0.55s cubic-bezier(.175,.885,.32,1.275) 0.1s both;
+}
+@keyframes annTextSlide{
+    0%  { opacity:0; transform:translateX(-20px); }
+    100%{ opacity:1; transform:translateX(0); }
+}
+.ann-toast.style-gold   .ann-text{ color:var(--gold); }
+.ann-toast.style-red    .ann-text{ color:#ff8080; }
+.ann-toast.style-purple .ann-text{ color:#c4a0ff; }
+.ann-toast.style-blue   .ann-text{ color:#7ec8ff; }
+.ann-toast.style-custom .ann-text{ color:#06d6a0; }
+
+.ann-sub{
+    font-size:14px;
+    font-weight:600;
+    color:rgba(255,255,255,.65);
+    letter-spacing:1px;
+    text-transform:uppercase;
+    animation: annTextSlide 0.55s cubic-bezier(.175,.885,.32,1.275) 0.2s both;
+}
+
+/* floating emoji row — smaller emojis bobbing inside the toast */
+.ann-floaters{
+    display:flex;
+    gap:8px;
+    margin-top:6px;
+    animation: annTextSlide 0.55s cubic-bezier(.175,.885,.32,1.275) 0.3s both;
+}
+.ann-floater{
+    font-size:20px;
+    animation: annFloat ease-in-out infinite alternate;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));
+}
+@keyframes annFloat{
+    0%  { transform:translateY(0)   rotate(-5deg) scale(1);   }
+    100%{ transform:translateY(-6px) rotate(5deg) scale(1.12); }
+}
+
+/* particle burst */
+.ann-particles{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+}
+.ann-p{
+    position:absolute;
+    border-radius:50%;
+    opacity:0;
+    animation: annParticle ease-out forwards;
+}
+@keyframes annParticle{
+    0%  { opacity:1;  transform:translate(0,0) scale(1); }
+    100%{ opacity:0;  transform:translate(var(--tx),var(--ty)) scale(0); }
+}
+
 /* ═══ SCORE BAR ═══ */
 .sb-wrap{ position:absolute; bottom:36px; left:50%; transform:translateX(-50%); width:96%; max-width:1080px; display:flex; flex-direction:column; align-items:center; filter:drop-shadow(0 8px 40px rgba(0,0,0,.95)); transition:opacity .5s,transform .5s; }
 .sb-wrap.hidden{ opacity:0; transform:translateX(-50%) translateY(24px); pointer-events:none; }
@@ -42,18 +296,14 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 /* ── Batsmen panel (centre) ── */
 .sb-bat{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:5px; padding:0 16px; }
 .bat-row{ display:flex; justify-content:space-between; align-items:center; width:210px; }
-/* FIX: non-striker was near-invisible — bumped colour to #bbb */
 .bat-name{ font-size:14px; font-weight:600; color:#bbb; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px; letter-spacing:.3px; }
 .bat-row.on .bat-name{ color:var(--gold); font-weight:700; }
 .bat-row.on .bat-name::before{ content:'● '; font-size:7px; vertical-align:middle; color:var(--gold); }
-/* FIX: bat-stat was pure white only for striker; make non-striker visible too */
 .bat-stat{ font-size:14px; color:#e0e0e0; font-weight:700; white-space:nowrap; }
 .bat-row.on .bat-stat{ color:#fff; }
 .bat-stat .sb{ color:#999; font-size:12px; font-weight:400; }
 
 /* ── Bowler panel (right) ── */
-/* FIX: removed gradient that was blending text into the dark background.
-   Now uses a solid dark base with just a subtle left-side colour hint. */
 .sb-bwl{
     flex:0 0 260px;
     background:linear-gradient(225deg,rgba(0,80,55,0.55) 0%,rgba(6,6,18,0.98) 55%);
@@ -67,9 +317,7 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
     position:relative;
 }
 .sb-bwl::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:30px; background:linear-gradient(90deg,rgba(6,6,18,0.6),transparent); }
-/* FIX: bowler name now bright white — was blending into dark background */
 .bwl-name{ font-size:14px; color:#ffffff; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px; letter-spacing:.3px; text-shadow:0 1px 6px rgba(0,0,0,.9); }
-/* FIX: bowler figures now gold and clearly visible */
 .bwl-stat{ font-size:14px; color:var(--gold); font-weight:800; margin:2px 0; letter-spacing:.5px; }
 .bwl-stat .bwl-ov{ color:#aaa; font-size:12px; font-weight:400; }
 
@@ -79,7 +327,6 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .bW{ background:#7b1e1e; border-color:#e63946; color:#ff8080; }
 .b4{ background:#0a3d2e; border-color:#06d6a0; color:#06d6a0; }
 .b6{ background:#2a1560; border-color:#9b72cf; color:#c4a0ff; }
-/* FIX: dot balls were nearly invisible — improved contrast */
 .b0{ background:rgba(255,255,255,.06); color:#888; border-color:rgba(255,255,255,.15); }
 .bWd{ background:#3d2200; border-color:var(--gold); color:var(--gold); }
 .bNb{ background:#3d1400; border-color:#e67e22; color:#e67e22; }
@@ -87,7 +334,6 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .bLb{ background:#0a2e0a; border-color:#2ecc71; color:#7fff7f; }
 
 /* ── Rates bar ── */
-/* FIX: rates bar text was very dim (#555). Now properly readable. */
 .rates{
     background:rgba(0,0,0,.9);
     display:flex;
@@ -100,10 +346,8 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 }
 .ri{ padding:4px 16px; color:#aaa; border-right:1px solid rgba(255,255,255,.07); }
 .ri b{ color:var(--gold); font-weight:700; }
-/* FIX: RRR label was same dim colour — make it stand out */
 .ri-rrr{ color:#ddd; }
 .ri-rrr b{ color:#e63946; font-weight:700; }
-/* FIX: inn1 score text was very faint */
 .ri-inn b{ color:#c8c8d8; font-weight:600; }
 
 .uf{ animation:sbflash .5s ease-out; }
@@ -127,7 +371,6 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-body{ background:var(--panel); border:1px solid var(--brd); border-top:none; }
 
 .sc-col-hdr{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; background:rgba(0,0,0,.5); border-bottom:1px solid rgba(255,255,255,.1); padding:5px 14px; }
-/* FIX: column header labels were very dim #444 — now #777 */
 .sc-col-hdr span{ font-size:9px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:2px; text-align:right; }
 .sc-col-hdr span:first-child{ text-align:left; }
 .sc-col-hdr.bat-hdr{ grid-template-columns:1fr 160px 60px 60px 50px 50px 60px; }
@@ -141,7 +384,6 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-row.dis-row > span:first-child{ color:#555; text-decoration:line-through; }
 .sc-row.dnb-row{ opacity:.35; }
 
-/* FIX: cell text colours bumped up for readability */
 .sc-cell{ font-size:13px; color:#ccc; text-align:right; }
 .sc-cell.left{ text-align:left; font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sc-cell.how{ text-align:left; font-size:10px; color:#888; font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -151,9 +393,7 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-cell.strike{ color:var(--gold); font-weight:700; }
 
 .sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.4); border-top:1px solid rgba(255,255,255,.08); padding:5px 14px; flex-wrap:wrap; gap:4px; }
-/* FIX: FOW label was #muted (#888899); raised to #999 for clarity */
 .sc-fow-lbl{ font-size:9px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:8px; white-space:nowrap; }
-/* FIX: FOW items were #888 on dark bg; raised to #aaa */
 .sc-fow-item{ font-size:11px; color:#aaa; padding:1px 8px; border-right:1px solid rgba(255,255,255,.08); }
 .sc-fow-item:last-child{ border-right:none; }
 .sc-fow-item b{ color:var(--gold); }
@@ -161,7 +401,6 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-footer{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; background:rgba(0,0,0,.55); border-top:1px solid rgba(255,255,255,.1); border-radius:0 0 4px 4px; overflow:hidden; }
 .sc-footer-cell{ padding:7px 14px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:1px; }
 .sc-footer-cell:last-child{ border-right:none; }
-/* FIX: footer labels were #muted; raised */
 .sc-footer-lbl{ font-size:9px; color:#888; text-transform:uppercase; letter-spacing:2px; }
 .sc-footer-val{ font-size:18px; font-weight:900; color:#e8e8f0; letter-spacing:1px; }
 .sc-footer-val.gold{ color:var(--gold); }
@@ -170,7 +409,6 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-tab{ flex:1; padding:6px 14px; cursor:pointer; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
 .sc-tab.active{ color:var(--gold); border-bottom-color:var(--gold); background:rgba(240,180,41,.05); }
 
-/* FIX: bowling header uses bowl team colour (--tb) */
 .sc-bowl-hdr .sc-hdr-color{ background:var(--tb); }
 .sc-bowl-hdr .sc-hdr-main{ background:linear-gradient(90deg,var(--tb) 0%,rgba(12,12,28,.98) 55%,rgba(12,12,28,.98) 100%); }
 
@@ -185,6 +423,25 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 </style>
 </head>
 <body>
+
+<!-- ═══ EMOJI RAIN LAYER (full screen, behind toast) ═══ -->
+<div class="ann-rain" id="annRain"></div>
+
+<!-- ═══ ANNOUNCEMENT TOAST ═══ -->
+<div class="ann-wrap" id="annWrap">
+    <div class="ann-toast" id="annToast">
+        <div class="ann-particles" id="annParticles"></div>
+        <div class="ann-emoji-ring">
+            <div class="ann-emoji" id="annEmoji">🏆</div>
+        </div>
+        <div class="ann-body">
+            <div class="ann-text" id="annText">CENTURY!</div>
+            <div class="ann-sub"  id="annSub">100 runs off the bat!</div>
+            <div class="ann-floaters" id="annFloaters"></div>
+        </div>
+        <div class="ann-progress" id="annProgress"></div>
+    </div>
+</div>
 
 <!-- ═══ SCORE BAR ═══ -->
 <div class="sb-wrap" id="sbWrap">
@@ -301,6 +558,7 @@ const cfg = {
 };
 const db=getDatabase(initializeApp(cfg));
 const uiRef=ref(db,'ui');
+const annRef=ref(db,'announcement');
 const $=id=>document.getElementById(id);
 
 // reconnect watchdog
@@ -336,6 +594,98 @@ onValue(uiRef,snap=>{
     $('sbWrap').className=ui.scorebar===false?'sb-wrap hidden':'sb-wrap';
     $('scWrap').className=ui.scorecard?'sc-wrap':'sc-wrap hidden';
 });
+
+// ══════════════════════════════════════════════
+// ANNOUNCEMENT SYSTEM — NEW
+// ══════════════════════════════════════════════
+let annTimer=null;
+let lastAnnId=null;
+
+const PARTICLE_COLORS={
+    gold:   ['#f5c518','#ffd54f','#fff176','#ffe082'],
+    red:    ['#e63946','#ff6b6b','#ff8080','#ffadad'],
+    purple: ['#9b72cf','#c4a0ff','#d4b0ff','#e8d5ff'],
+    blue:   ['#118ab2','#7ec8ff','#90d5ff','#a8dfff'],
+    custom: ['#06d6a0','#40e0b0','#70edc0','#a0f5d5'],
+};
+
+function spawnParticles(style){
+    const container=$('annParticles');
+    container.innerHTML='';
+    const colors=PARTICLE_COLORS[style]||PARTICLE_COLORS.gold;
+    const count=18;
+    for(let i=0;i<count;i++){
+        const p=document.createElement('div');
+        p.className='ann-p';
+        const angle=(Math.random()*360);
+        const dist=50+Math.random()*80;
+        const tx=Math.cos(angle*Math.PI/180)*dist;
+        const ty=Math.sin(angle*Math.PI/180)*dist - 30;
+        const color=colors[Math.floor(Math.random()*colors.length)];
+        const delay=Math.random()*0.3;
+        const size=3+Math.random()*5;
+        p.style.cssText=`
+            left:${20+Math.random()*60}%;
+            top:${20+Math.random()*60}%;
+            width:${size}px; height:${size}px;
+            background:${color};
+            --tx:${tx}px; --ty:${ty}px;
+            animation-delay:${delay}s;
+            animation-duration:${0.8+Math.random()*0.6}s;
+        `;
+        container.appendChild(p);
+    }
+}
+
+function showAnn(data){
+    const toast=$('annToast');
+    const prog=$('annProgress');
+
+    // clear any running timer
+    if(annTimer){ clearTimeout(annTimer); annTimer=null; }
+
+    // reset to invisible first (force reflow)
+    toast.classList.remove('visible','leaving');
+    void toast.offsetWidth;
+
+    // populate
+    $('annEmoji').textContent = data.emoji || '📣';
+    $('annText').textContent  = data.text  || '';
+    $('annSub').textContent   = data.sub   || '';
+    toast.className = `ann-toast style-${data.style||'custom'}`;
+
+    // restart progress bar animation
+    prog.style.animation='none';
+    void prog.offsetWidth;
+    prog.style.animation=`annProgress ${data.dur||6}s linear forwards`;
+
+    // spawn particles
+    spawnParticles(data.style||'custom');
+
+    // fly in
+    requestAnimationFrame(()=>{
+        toast.classList.add('visible');
+    });
+
+    // auto-dismiss
+    annTimer=setTimeout(()=>{
+        toast.classList.add('leaving');
+        setTimeout(()=>{
+            toast.classList.remove('visible','leaving');
+        }, 450);
+    }, (data.dur||6)*1000);
+}
+
+// listen for new announcements
+onValue(annRef, snap=>{
+    const data=snap.val();
+    if(!data) return;
+    // only trigger if this is a NEW announcement (different id)
+    if(data.id === lastAnnId) return;
+    lastAnnId = data.id;
+    showAnn(data);
+});
+// ══════════════════════════════════════════════
 
 function teamColor(name){
     const n=(name||'').toUpperCase();
