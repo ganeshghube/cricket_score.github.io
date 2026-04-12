@@ -7,13 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-    --ta: #1a56b0; --ta-light: #2672d4;
-    --tb: #006747; --tb-light: #008f63;
-    --gold: #f5c518; --gold2: #ffd54f;
-    --dark: rgba(6,6,14,0.96); --dark2: rgba(10,10,22,0.93);
-    --panel: rgba(14,14,28,0.92);
-    --row: rgba(255,255,255,0.04); --rowh: rgba(255,255,255,0.08);
-    --brd: rgba(255,255,255,0.08); --text: #e8e8f0; --muted: #888899;
+  --ta: #1a56b0; --ta-light: #2672d4;
+  --tb: #006747; --tb-light: #008f63;
+  --gold: #f5c518; --gold2: #ffd54f;
+  --dark: rgba(6,6,14,0.96); --dark2: rgba(10,10,22,0.93);
+  --panel: rgba(14,14,28,0.92);
+  --row: rgba(255,255,255,0.04); --rowh: rgba(255,255,255,0.08);
+  --brd: rgba(255,255,255,0.08); --text: #e8e8f0; --muted: #888899;
 }
 *{ box-sizing:border-box; margin:0; padding:0; }
 body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color:var(--text); overflow:hidden; height:100vh; width:100vw; }
@@ -21,98 +21,54 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 /* ═══ SCORE BAR ═══ */
 .sb-wrap{ position:absolute; bottom:36px; left:50%; transform:translateX(-50%); width:96%; max-width:1080px; display:flex; flex-direction:column; align-items:center; filter:drop-shadow(0 8px 40px rgba(0,0,0,.95)); transition:opacity .5s,transform .5s; }
 .sb-wrap.hidden{ opacity:0; transform:translateX(-50%) translateY(24px); pointer-events:none; }
-
 .sb-badges{ display:flex; gap:0; align-items:flex-end; }
 .tgt-badge{ background:linear-gradient(90deg,#b8860b,var(--gold)); color:#000; padding:4px 20px 4px 14px; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; border-radius:5px 5px 0 0; clip-path:polygon(0 0,96% 0,100% 100%,0 100%); display:none; }
 .tgt-badge.on{ display:inline-block; }
 .fh-badge{ background:linear-gradient(90deg,#d35400,#e67e22); color:#fff; padding:4px 20px 4px 14px; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; border-radius:5px 5px 0 0; display:none; }
 .fh-badge.on{ display:inline-block; animation:fhp .9s infinite; }
 @keyframes fhp{ 0%,100%{opacity:1}50%{opacity:.45} }
-
 .score-bar{ display:flex; width:100%; height:76px; background:var(--dark); border-top:3px solid var(--ta); border-radius:3px 3px 0 0; overflow:hidden; box-shadow:0 0 0 1px rgba(255,255,255,.06); }
-
-/* ── Team / Score panel (left) ── */
 .sb-team{ flex:0 0 220px; min-width:220px; background:linear-gradient(135deg,var(--ta) 0%,rgba(0,0,0,0) 100%); border-right:1px solid var(--brd); padding:0 18px; display:flex; flex-direction:column; justify-content:center; position:relative; }
 .sb-team::after{ content:''; position:absolute; right:-1px; top:0; bottom:0; width:40px; background:linear-gradient(90deg,transparent,var(--dark)); }
 .sb-tm-name{ font-size:13px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:2px; line-height:1; text-shadow:0 1px 8px rgba(0,0,0,.6); }
 .sb-score{ font-size:34px; font-weight:900; line-height:1; margin-top:3px; display:flex; align-items:baseline; gap:1px; text-shadow:0 2px 12px rgba(0,0,0,.8); }
 .sb-score-wkts{ font-size:26px; color:rgba(255,255,255,.85); }
 .sb-score-ovs{ font-size:13px; color:rgba(255,255,255,.65); font-weight:500; margin-left:5px; }
-
-/* ── Batsmen panel (centre) ── */
 .sb-bat{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:5px; padding:0 16px; }
 .bat-row{ display:flex; justify-content:space-between; align-items:center; width:210px; }
-/* FIX: non-striker was near-invisible — bumped colour to #bbb */
 .bat-name{ font-size:14px; font-weight:600; color:#bbb; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:130px; letter-spacing:.3px; }
 .bat-row.on .bat-name{ color:var(--gold); font-weight:700; }
 .bat-row.on .bat-name::before{ content:'● '; font-size:7px; vertical-align:middle; color:var(--gold); }
-/* FIX: bat-stat was pure white only for striker; make non-striker visible too */
 .bat-stat{ font-size:14px; color:#e0e0e0; font-weight:700; white-space:nowrap; }
 .bat-row.on .bat-stat{ color:#fff; }
 .bat-stat .sb{ color:#999; font-size:12px; font-weight:400; }
-
-/* ── Bowler panel (right) ── */
-/* FIX: removed gradient that was blending text into the dark background.
-   Now uses a solid dark base with just a subtle left-side colour hint. */
-.sb-bwl{
-    flex:0 0 260px;
-    background:linear-gradient(225deg,rgba(0,80,55,0.55) 0%,rgba(6,6,18,0.98) 55%);
-    border-left:3px solid rgba(0,103,71,0.9);
-    padding:0 20px 0 18px;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:flex-end;
-    text-align:right;
-    position:relative;
-}
+.sb-bwl{ flex:0 0 260px; background:linear-gradient(225deg,rgba(0,80,55,0.55) 0%,rgba(6,6,18,0.98) 55%); border-left:3px solid rgba(0,103,71,0.9); padding:0 20px 0 18px; display:flex; flex-direction:column; justify-content:center; align-items:flex-end; text-align:right; position:relative; }
 .sb-bwl::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:30px; background:linear-gradient(90deg,rgba(6,6,18,0.6),transparent); }
-/* FIX: bowler name now bright white — was blending into dark background */
 .bwl-name{ font-size:14px; color:#ffffff; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:175px; letter-spacing:.3px; text-shadow:0 1px 6px rgba(0,0,0,.9); }
-/* FIX: bowler figures now gold and clearly visible */
 .bwl-stat{ font-size:14px; color:var(--gold); font-weight:800; margin:2px 0; letter-spacing:.5px; }
 .bwl-stat .bwl-ov{ color:#aaa; font-size:12px; font-weight:400; }
-
-/* ── Ball grid ── */
 .og{ display:flex; gap:4px; justify-content:flex-end; margin-top:4px; }
 .ball{ min-width:22px; height:22px; padding:0 3px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; border:1px solid rgba(255,255,255,.1); color:#888; background:rgba(255,255,255,.05); }
 .bW{ background:#7b1e1e; border-color:#e63946; color:#ff8080; }
 .b4{ background:#0a3d2e; border-color:#06d6a0; color:#06d6a0; }
 .b6{ background:#2a1560; border-color:#9b72cf; color:#c4a0ff; }
-/* FIX: dot balls were nearly invisible — improved contrast */
 .b0{ background:rgba(255,255,255,.06); color:#888; border-color:rgba(255,255,255,.15); }
 .bWd{ background:#3d2200; border-color:var(--gold); color:var(--gold); }
 .bNb{ background:#3d1400; border-color:#e67e22; color:#e67e22; }
 .bBy{ background:#00233d; border-color:#118ab2; color:#6ec6e8; }
 .bLb{ background:#0a2e0a; border-color:#2ecc71; color:#7fff7f; }
-
-/* ── Rates bar ── */
-/* FIX: rates bar text was very dim (#555). Now properly readable. */
-.rates{
-    background:rgba(0,0,0,.9);
-    display:flex;
-    width:100%;
-    font-size:11px;
-    letter-spacing:.5px;
-    border-radius:0 0 3px 3px;
-    border:1px solid rgba(255,255,255,.08);
-    border-top:none;
-}
+.rates{ background:rgba(0,0,0,.9); display:flex; width:100%; font-size:11px; letter-spacing:.5px; border-radius:0 0 3px 3px; border:1px solid rgba(255,255,255,.08); border-top:none; }
 .ri{ padding:4px 16px; color:#aaa; border-right:1px solid rgba(255,255,255,.07); }
 .ri b{ color:var(--gold); font-weight:700; }
-/* FIX: RRR label was same dim colour — make it stand out */
 .ri-rrr{ color:#ddd; }
 .ri-rrr b{ color:#e63946; font-weight:700; }
-/* FIX: inn1 score text was very faint */
 .ri-inn b{ color:#c8c8d8; font-weight:600; }
-
 .uf{ animation:sbflash .5s ease-out; }
 @keyframes sbflash{ 0%{opacity:.6}100%{opacity:1} }
 
 /* ═══ ICC SCORECARD ═══ */
 .sc-wrap{ position:absolute; bottom:10px; left:50%; transform:translateX(-50%); width:96%; max-width:1080px; display:flex; flex-direction:column; filter:drop-shadow(0 12px 50px rgba(0,0,0,.98)); transition:opacity .5s cubic-bezier(.4,0,.2,1),transform .5s cubic-bezier(.4,0,.2,1); }
 .sc-wrap.hidden{ opacity:0; transform:translateX(-50%) translateY(30px); pointer-events:none; }
-
 .sc-team-hdr{ display:flex; align-items:stretch; border-radius:4px 4px 0 0; overflow:hidden; height:52px; }
 .sc-hdr-color{ width:8px; background:var(--ta); }
 .sc-hdr-main{ flex:1; background:linear-gradient(90deg,var(--ta) 0%,rgba(12,12,28,.98) 55%,rgba(12,12,28,.98) 100%); display:flex; align-items:center; gap:14px; padding:0 20px; position:relative; overflow:hidden; }
@@ -123,15 +79,11 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-total-lbl{ font-size:9px; color:#888; text-transform:uppercase; letter-spacing:2px; }
 .sc-total-val{ font-size:28px; font-weight:900; color:var(--gold); letter-spacing:1px; line-height:1; }
 .sc-total-detail{ font-size:11px; color:#aaa; margin-top:1px; }
-
 .sc-body{ background:var(--panel); border:1px solid var(--brd); border-top:none; }
-
 .sc-col-hdr{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; background:rgba(0,0,0,.5); border-bottom:1px solid rgba(255,255,255,.1); padding:5px 14px; }
-/* FIX: column header labels were very dim #444 — now #777 */
 .sc-col-hdr span{ font-size:9px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:2px; text-align:right; }
 .sc-col-hdr span:first-child{ text-align:left; }
 .sc-col-hdr.bat-hdr{ grid-template-columns:1fr 160px 60px 60px 50px 50px 60px; }
-
 .sc-row{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; padding:6px 14px; border-bottom:1px solid rgba(255,255,255,.04); align-items:center; transition:background .15s; }
 .sc-row:hover{ background:var(--rowh); }
 .sc-row.bat-row-sc{ grid-template-columns:1fr 160px 60px 60px 50px 50px 60px; }
@@ -140,8 +92,6 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-row.dis-row{ opacity:.65; }
 .sc-row.dis-row > span:first-child{ color:#555; text-decoration:line-through; }
 .sc-row.dnb-row{ opacity:.35; }
-
-/* FIX: cell text colours bumped up for readability */
 .sc-cell{ font-size:13px; color:#ccc; text-align:right; }
 .sc-cell.left{ text-align:left; font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sc-cell.how{ text-align:left; font-size:10px; color:#888; font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -149,144 +99,245 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .sc-cell.green{ color:#06d6a0; font-weight:600; }
 .sc-cell.red{ color:#e63946; font-weight:600; }
 .sc-cell.strike{ color:var(--gold); font-weight:700; }
-
 .sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.4); border-top:1px solid rgba(255,255,255,.08); padding:5px 14px; flex-wrap:wrap; gap:4px; }
-/* FIX: FOW label was #muted (#888899); raised to #999 for clarity */
 .sc-fow-lbl{ font-size:9px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:8px; white-space:nowrap; }
-/* FIX: FOW items were #888 on dark bg; raised to #aaa */
 .sc-fow-item{ font-size:11px; color:#aaa; padding:1px 8px; border-right:1px solid rgba(255,255,255,.08); }
 .sc-fow-item:last-child{ border-right:none; }
 .sc-fow-item b{ color:var(--gold); }
-
 .sc-footer{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; background:rgba(0,0,0,.55); border-top:1px solid rgba(255,255,255,.1); border-radius:0 0 4px 4px; overflow:hidden; }
 .sc-footer-cell{ padding:7px 14px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:1px; }
 .sc-footer-cell:last-child{ border-right:none; }
-/* FIX: footer labels were #muted; raised */
 .sc-footer-lbl{ font-size:9px; color:#888; text-transform:uppercase; letter-spacing:2px; }
 .sc-footer-val{ font-size:18px; font-weight:900; color:#e8e8f0; letter-spacing:1px; }
 .sc-footer-val.gold{ color:var(--gold); }
-
 .sc-tabs{ display:flex; background:rgba(0,0,0,.4); border-bottom:1px solid var(--brd); }
 .sc-tab{ flex:1; padding:6px 14px; cursor:pointer; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
 .sc-tab.active{ color:var(--gold); border-bottom-color:var(--gold); background:rgba(240,180,41,.05); }
-
-/* FIX: bowling header uses bowl team colour (--tb) */
 .sc-bowl-hdr .sc-hdr-color{ background:var(--tb); }
 .sc-bowl-hdr .sc-hdr-main{ background:linear-gradient(90deg,var(--tb) 0%,rgba(12,12,28,.98) 55%,rgba(12,12,28,.98) 100%); }
-
 .need-bar{ display:none; background:linear-gradient(90deg,#4a0000,rgba(0,0,0,0) 80%); padding:4px 20px; border-bottom:1px solid rgba(230,57,70,.2); font-size:11px; color:#e63946; font-weight:700; letter-spacing:1px; }
 .need-bar.on{ display:block; }
-
 .live-badge{ background:#e63946; color:#fff; padding:2px 8px; border-radius:2px; font-size:9px; font-weight:800; letter-spacing:2px; animation:lpulse 1.5s infinite; white-space:nowrap; }
 @keyframes lpulse{ 0%,100%{opacity:1}50%{opacity:.55} }
-
 .kbd-hint{ text-align:center; font-size:9px; color:#333; letter-spacing:1px; padding:3px; background:rgba(0,0,0,.3); border-radius:0 0 4px 4px; }
 .kbd-hint span{ background:#111; border:1px solid #2a2a2a; border-radius:2px; padding:1px 5px; color:#555; font-size:9px; }
+
+/* ═══ ANNOUNCEMENT POPUP ═══ */
+.ann-popup{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0.7);
+  opacity:0;
+  pointer-events:none;
+  z-index:999;
+  text-align:center;
+  transition:none;
+  white-space:nowrap;
+}
+.ann-popup.show-msg{
+  animation: annMsgIn 4s ease forwards;
+}
+.ann-popup.show-emoji{
+  animation: annEmojiIn 2.5s ease forwards;
+}
+
+/* Message popup — bold bar style */
+.ann-msg-inner{
+  display:inline-flex;
+  align-items:center;
+  gap:14px;
+  background:linear-gradient(135deg, rgba(10,6,0,0.97), rgba(30,18,0,0.97));
+  border:2px solid #f0b429;
+  border-radius:8px;
+  padding:18px 40px;
+  box-shadow:
+    0 0 0 1px rgba(240,180,41,.2),
+    0 0 60px rgba(240,180,41,.25),
+    0 20px 60px rgba(0,0,0,.9);
+  position:relative;
+  overflow:hidden;
+}
+.ann-msg-inner::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(240,180,41,.04) 40%,
+    rgba(240,180,41,.08) 50%,
+    rgba(240,180,41,.04) 60%,
+    transparent 100%
+  );
+  animation:shimmer 2s infinite;
+}
+@keyframes shimmer{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(100%)}
+}
+.ann-msg-icon{
+  font-size:28px;
+  line-height:1;
+  filter:drop-shadow(0 0 8px rgba(240,180,41,.6));
+}
+.ann-msg-text{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:36px;
+  font-weight:900;
+  color:#fff;
+  text-transform:uppercase;
+  letter-spacing:4px;
+  text-shadow:
+    0 0 20px rgba(240,180,41,.5),
+    0 2px 8px rgba(0,0,0,.9);
+  line-height:1;
+  position:relative;
+  z-index:1;
+}
+.ann-accent-bar{
+  position:absolute;
+  bottom:0;
+  left:0;
+  height:3px;
+  width:100%;
+  background:linear-gradient(90deg, transparent, #f0b429, #ffd54f, #f0b429, transparent);
+  animation:barScan 1.5s ease infinite;
+}
+@keyframes barScan{
+  0%,100%{opacity:.6} 50%{opacity:1}
+}
+
+/* Emoji popup — big and floaty */
+.ann-emoji-inner{
+  font-size:120px;
+  line-height:1;
+  filter:
+    drop-shadow(0 0 30px rgba(255,255,255,.3))
+    drop-shadow(0 4px 20px rgba(0,0,0,.8));
+}
+
+/* Keyframes */
+@keyframes annMsgIn{
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.6); }
+  8%   { opacity:1; transform:translate(-50%,-50%) scale(1.06); }
+  14%  { transform:translate(-50%,-50%) scale(0.97); }
+  18%  { transform:translate(-50%,-50%) scale(1.0); }
+  75%  { opacity:1; transform:translate(-50%,-50%) scale(1.0); }
+  100% { opacity:0; transform:translate(-50%,-50%) scale(0.95) translateY(-20px); }
+}
+@keyframes annEmojiIn{
+  0%   { opacity:0; transform:translate(-50%,-50%) scale(0.3) rotate(-15deg); }
+  12%  { opacity:1; transform:translate(-50%,-50%) scale(1.2) rotate(5deg); }
+  20%  { transform:translate(-50%,-50%) scale(0.95) rotate(-2deg); }
+  28%  { transform:translate(-50%,-50%) scale(1.0) rotate(0deg); }
+  70%  { opacity:1; transform:translate(-50%,-50%) scale(1.0) rotate(0deg); }
+  100% { opacity:0; transform:translate(-50%,-50%) scale(0.8) translateY(-30px); }
+}
 </style>
 </head>
 <body>
 
 <!-- ═══ SCORE BAR ═══ -->
 <div class="sb-wrap" id="sbWrap">
-    <div class="sb-badges">
-        <div id="tgtBadge" class="tgt-badge">TARGET <span id="dTgt">0</span> · NEED <span id="dNeed">0</span> OFF <span id="dNeedOv">0</span></div>
-        <div id="fhBadge" class="fh-badge">🟠 FREE HIT</div>
+  <div class="sb-badges">
+    <div id="tgtBadge" class="tgt-badge">TARGET <span id="dTgt">0</span> · NEED <span id="dNeed">0</span> OFF <span id="dNeedOv">0</span></div>
+    <div id="fhBadge" class="fh-badge">🟠 FREE HIT</div>
+  </div>
+  <div class="score-bar" id="scoreBar">
+    <div class="sb-team">
+      <div class="sb-tm-name" id="dTeam">TEAM</div>
+      <div class="sb-score"><span id="dRuns">0</span><span class="sb-score-wkts">/<span id="dWkts">0</span></span><span class="sb-score-ovs">(<span id="dOvs">0.0</span>)</span></div>
     </div>
-    <div class="score-bar" id="scoreBar">
-        <div class="sb-team">
-            <div class="sb-tm-name" id="dTeam">TEAM</div>
-            <div class="sb-score"><span id="dRuns">0</span><span class="sb-score-wkts">/<span id="dWkts">0</span></span><span class="sb-score-ovs">(<span id="dOvs">0.0</span>)</span></div>
-        </div>
-        <div class="sb-bat">
-            <div id="p1box" class="bat-row"><span class="bat-name" id="dP1n">Bat 1</span><span class="bat-stat"><span id="dP1r">0</span><span class="sb">(<span id="dP1b">0</span>)</span></span></div>
-            <div id="p2box" class="bat-row"><span class="bat-name" id="dP2n">Bat 2</span><span class="bat-stat"><span id="dP2r">0</span><span class="sb">(<span id="dP2b">0</span>)</span></span></div>
-        </div>
-        <div class="sb-bwl">
-            <div class="bwl-name" id="dBwn">Bowler</div>
-            <div class="bwl-stat"><span id="dBww">0</span>-<span id="dBwr">0</span> <span class="bwl-ov">(<span id="dBwb">0.0</span>)</span></div>
-            <div class="og" id="og"></div>
-        </div>
+    <div class="sb-bat">
+      <div id="p1box" class="bat-row"><span class="bat-name" id="dP1n">Bat 1</span><span class="bat-stat"><span id="dP1r">0</span><span class="sb">(<span id="dP1b">0</span>)</span></span></div>
+      <div id="p2box" class="bat-row"><span class="bat-name" id="dP2n">Bat 2</span><span class="bat-stat"><span id="dP2r">0</span><span class="sb">(<span id="dP2b">0</span>)</span></span></div>
     </div>
-    <div class="rates">
-        <div class="ri">CRR <b id="dCRR">0.00</b></div>
-        <div class="ri ri-rrr" id="rrrWrap" style="display:none">RRR <b id="dRRR">0.00</b></div>
-        <div class="ri ri-inn" id="inn1Wrap" style="display:none"><b id="dInn1"></b></div>
+    <div class="sb-bwl">
+      <div class="bwl-name" id="dBwn">Bowler</div>
+      <div class="bwl-stat"><span id="dBww">0</span>-<span id="dBwr">0</span> <span class="bwl-ov">(<span id="dBwb">0.0</span>)</span></div>
+      <div class="og" id="og"></div>
     </div>
+  </div>
+  <div class="rates">
+    <div class="ri">CRR <b id="dCRR">0.00</b></div>
+    <div class="ri ri-rrr" id="rrrWrap" style="display:none">RRR <b id="dRRR">0.00</b></div>
+    <div class="ri ri-inn" id="inn1Wrap" style="display:none"><b id="dInn1"></b></div>
+  </div>
 </div>
 
 <!-- ═══ ICC SCORECARD ═══ -->
 <div class="sc-wrap hidden" id="scWrap">
-    <div class="need-bar" id="needBar">TARGET <span id="scTgtV">0</span> &nbsp;·&nbsp; NEED <span id="scNdV">0</span> OFF <span id="scNdOvV">0</span> &nbsp;·&nbsp; RRR <span id="scRRRV">—</span></div>
-
-    <div class="sc-team-hdr" id="scTeamHdr">
-        <div class="sc-hdr-color" id="scHdrColor"></div>
-        <div class="sc-hdr-main" id="scHdrMain">
-            <div>
-                <div class="sc-team-name" id="scTeamName">TEAM</div>
-                <div class="sc-tournament" id="scTournament">LIVE SCORECARD</div>
-            </div>
-            <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
-                <div class="live-badge">● LIVE</div>
-                <span style="font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1px" id="scInnLbl">1ST INNINGS</span>
-            </div>
-        </div>
-        <div class="sc-hdr-right">
-            <div>
-                <div class="sc-total-lbl">Score</div>
-                <div class="sc-total-val" id="scTotalVal">0/0</div>
-                <div class="sc-total-detail" id="scTotalDetail">OVERS 0.0</div>
-            </div>
-        </div>
+  <div class="need-bar" id="needBar">TARGET <span id="scTgtV">0</span> &nbsp;·&nbsp; NEED <span id="scNdV">0</span> OFF <span id="scNdOvV">0</span> &nbsp;·&nbsp; RRR <span id="scRRRV">—</span></div>
+  <div class="sc-team-hdr" id="scTeamHdr">
+    <div class="sc-hdr-color" id="scHdrColor"></div>
+    <div class="sc-hdr-main" id="scHdrMain">
+      <div>
+        <div class="sc-team-name" id="scTeamName">TEAM</div>
+        <div class="sc-tournament" id="scTournament">LIVE SCORECARD</div>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+        <div class="live-badge">● LIVE</div>
+        <span style="font-size:10px;color:rgba(255,255,255,.5);letter-spacing:1px" id="scInnLbl">1ST INNINGS</span>
+      </div>
     </div>
-
-    <div class="sc-tabs">
-        <div class="sc-tab active" id="tabBat" onclick="setTab('bat')">🏏 Batting</div>
-        <div class="sc-tab" id="tabBwl" onclick="setTab('bwl')">⚾ Bowling</div>
+    <div class="sc-hdr-right">
+      <div>
+        <div class="sc-total-lbl">Score</div>
+        <div class="sc-total-val" id="scTotalVal">0/0</div>
+        <div class="sc-total-detail" id="scTotalDetail">OVERS 0.0</div>
+      </div>
     </div>
-
-    <!-- BATTING PANEL -->
-    <div id="panBat" class="sc-body">
-        <div class="sc-col-hdr bat-hdr">
-            <span>Batsman</span>
-            <span style="text-align:left">How Out</span>
-            <span>R</span><span>B</span><span>4s</span><span>6s</span><span>SR</span>
-        </div>
-        <div id="scBatRows"></div>
-        <div class="sc-fow" id="scFow">
-            <span class="sc-fow-lbl">Fall of Wickets</span>
-            <span style="color:#555;font-style:italic;font-size:11px">—</span>
-        </div>
-        <div class="sc-footer">
-            <div class="sc-footer-cell"><span class="sc-footer-lbl">Extras</span><span class="sc-footer-val" id="scExtVal">0</span></div>
-            <div class="sc-footer-cell"><span class="sc-footer-lbl">Overs</span><span class="sc-footer-val" id="scOvVal">0.0</span></div>
-            <div class="sc-footer-cell"><span class="sc-footer-lbl">CRR</span><span class="sc-footer-val" id="scCRRVal">0.00</span></div>
-            <div class="sc-footer-cell"><span class="sc-footer-lbl">Total</span><span class="sc-footer-val gold" id="scTotFooter">0/0</span></div>
-        </div>
+  </div>
+  <div class="sc-tabs">
+    <div class="sc-tab active" id="tabBat" onclick="setTab('bat')">🏏 Batting</div>
+    <div class="sc-tab" id="tabBwl" onclick="setTab('bwl')">⚾ Bowling</div>
+  </div>
+  <!-- BATTING PANEL -->
+  <div id="panBat" class="sc-body">
+    <div class="sc-col-hdr bat-hdr">
+      <span>Batsman</span>
+      <span style="text-align:left">How Out</span>
+      <span>R</span><span>B</span><span>4s</span><span>6s</span><span>SR</span>
     </div>
-
-    <!-- BOWLING PANEL -->
-    <div id="panBwl" class="sc-body" style="display:none">
-        <div class="sc-team-hdr sc-bowl-hdr" style="border-top:1px solid var(--brd)">
-            <div class="sc-hdr-color" id="scBowlHdrColor"></div>
-            <div class="sc-hdr-main" id="scBowlHdrMain">
-                <div>
-                    <div class="sc-team-name" id="scBowlTeamName">BOWLING TEAM</div>
-                    <div class="sc-tournament">Bowling Figures</div>
-                </div>
-            </div>
-        </div>
-        <div class="sc-col-hdr">
-            <span>Bowler</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECON</span>
-        </div>
-        <div id="scBwlRows"></div>
-        <div class="sc-footer" style="grid-template-columns:1fr 1fr 1fr">
-            <div class="sc-footer-cell"><span class="sc-footer-lbl">Extras (Wd+Nb)</span><span class="sc-footer-val" id="scBwlExt">0</span></div>
-            <div class="sc-footer-cell"><span class="sc-footer-lbl">Overs</span><span class="sc-footer-val" id="scBwlOv">0.0</span></div>
-            <div class="sc-footer-cell"><span class="sc-footer-lbl">Total</span><span class="sc-footer-val gold" id="scBwlTotal">0/0</span></div>
-        </div>
+    <div id="scBatRows"></div>
+    <div class="sc-fow" id="scFow">
+      <span class="sc-fow-lbl">Fall of Wickets</span>
+      <span style="color:#555;font-style:italic;font-size:11px">—</span>
     </div>
+    <div class="sc-footer">
+      <div class="sc-footer-cell"><span class="sc-footer-lbl">Extras</span><span class="sc-footer-val" id="scExtVal">0</span></div>
+      <div class="sc-footer-cell"><span class="sc-footer-lbl">Overs</span><span class="sc-footer-val" id="scOvVal">0.0</span></div>
+      <div class="sc-footer-cell"><span class="sc-footer-lbl">CRR</span><span class="sc-footer-val" id="scCRRVal">0.00</span></div>
+      <div class="sc-footer-cell"><span class="sc-footer-lbl">Total</span><span class="sc-footer-val gold" id="scTotFooter">0/0</span></div>
+    </div>
+  </div>
+  <!-- BOWLING PANEL -->
+  <div id="panBwl" class="sc-body" style="display:none">
+    <div class="sc-team-hdr sc-bowl-hdr" style="border-top:1px solid var(--brd)">
+      <div class="sc-hdr-color" id="scBowlHdrColor"></div>
+      <div class="sc-hdr-main" id="scBowlHdrMain">
+        <div>
+          <div class="sc-team-name" id="scBowlTeamName">BOWLING TEAM</div>
+          <div class="sc-tournament">Bowling Figures</div>
+        </div>
+      </div>
+    </div>
+    <div class="sc-col-hdr">
+      <span>Bowler</span><span>O</span><span>M</span><span>R</span><span>W</span><span>ECON</span>
+    </div>
+    <div id="scBwlRows"></div>
+    <div class="sc-footer" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="sc-footer-cell"><span class="sc-footer-lbl">Extras (Wd+Nb)</span><span class="sc-footer-val" id="scBwlExt">0</span></div>
+      <div class="sc-footer-cell"><span class="sc-footer-lbl">Overs</span><span class="sc-footer-val" id="scBwlOv">0.0</span></div>
+      <div class="sc-footer-cell"><span class="sc-footer-lbl">Total</span><span class="sc-footer-val gold" id="scBwlTotal">0/0</span></div>
+    </div>
+  </div>
+  <div class="kbd-hint"><span>S</span> SCORECARD &nbsp; <span>B</span> SCORE BAR &nbsp; <span>1</span> BATTING &nbsp; <span>2</span> BOWLING</div>
+</div>
 
-    <div class="kbd-hint"><span>S</span> SCORECARD &nbsp; <span>B</span> SCORE BAR &nbsp; <span>1</span> BATTING &nbsp; <span>2</span> BOWLING</div>
+<!-- ═══ ANNOUNCEMENT POPUP ═══ -->
+<div class="ann-popup" id="annPopup">
+  <!-- filled dynamically -->
 </div>
 
 <script type="module">
@@ -294,204 +345,252 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebas
 import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
 const cfg = {
-    apiKey:"AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
-    authDomain:"cricket-8e338.firebaseapp.com", projectId:"cricket-8e338",
-    storageBucket:"cricket-8e338.firebasestorage.app",
-    messagingSenderId:"41064243639", appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
+  apiKey:"AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
+  authDomain:"cricket-8e338.firebaseapp.com", projectId:"cricket-8e338",
+  storageBucket:"cricket-8e338.firebasestorage.app",
+  messagingSenderId:"41064243639", appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
 };
-const db=getDatabase(initializeApp(cfg));
-const uiRef=ref(db,'ui');
-const $=id=>document.getElementById(id);
+const db = getDatabase(initializeApp(cfg));
+const uiRef = ref(db,'ui');
+const annRef = ref(db,'announce');
+const $ = id => document.getElementById(id);
 
 // reconnect watchdog
-let rTimer=null;
+let rTimer = null;
 onValue(ref(db,'.info/connected'),s=>{
-    if(s.val()===false){ rTimer=setTimeout(()=>location.reload(),4000); }
-    else clearTimeout(rTimer);
+  if(s.val()===false){ rTimer=setTimeout(()=>location.reload(),4000); }
+  else clearTimeout(rTimer);
 });
 setTimeout(()=>location.reload(),5*60*1000);
 
 // tab
 let currentTab='bat';
 window.setTab=(t)=>{
-    currentTab=t;
-    $('panBat').style.display=t==='bat'?'':'none';
-    $('panBwl').style.display=t==='bwl'?'':'none';
-    $('tabBat').className=t==='bat'?'sc-tab active':'sc-tab';
-    $('tabBwl').className=t==='bwl'?'sc-tab active':'sc-tab';
+  currentTab=t;
+  $('panBat').style.display=t==='bat'?'':'none';
+  $('panBwl').style.display=t==='bwl'?'':'none';
+  $('tabBat').className=t==='bat'?'sc-tab active':'sc-tab';
+  $('tabBwl').className=t==='bwl'?'sc-tab active':'sc-tab';
 };
 
 // keyboard
 let uiSt={scorebar:true,scorecard:false};
 onValue(uiRef,s=>{uiSt=s.val()||{scorebar:true,scorecard:false};});
 document.addEventListener('keydown',e=>{
-    if(e.key==='s'||e.key==='S') update(uiRef,{scorecard:!uiSt.scorecard});
-    if(e.key==='b'||e.key==='B') update(uiRef,{scorebar:!uiSt.scorebar});
-    if(e.key==='1') window.setTab('bat');
-    if(e.key==='2') window.setTab('bwl');
+  if(e.key==='s'||e.key==='S') update(uiRef,{scorecard:!uiSt.scorecard});
+  if(e.key==='b'||e.key==='B') update(uiRef,{scorebar:!uiSt.scorebar});
+  if(e.key==='1') window.setTab('bat');
+  if(e.key==='2') window.setTab('bwl');
 });
 
 onValue(uiRef,snap=>{
-    const ui=snap.val()||{};
-    $('sbWrap').className=ui.scorebar===false?'sb-wrap hidden':'sb-wrap';
-    $('scWrap').className=ui.scorecard?'sc-wrap':'sc-wrap hidden';
+  const ui=snap.val()||{};
+  $('sbWrap').className=ui.scorebar===false?'sb-wrap hidden':'sb-wrap';
+  $('scWrap').className=ui.scorecard?'sc-wrap':'sc-wrap hidden';
+});
+
+// ══════════════════════════════════════════════════
+// ANNOUNCEMENT SYSTEM
+// ══════════════════════════════════════════════════
+let lastAnnTs = 0;
+let annTimer = null;
+
+onValue(annRef, snap => {
+  const d = snap.val();
+  if (!d || !d.text || d.ts === lastAnnTs) return;
+  lastAnnTs = d.ts;
+
+  const popup = $('annPopup');
+
+  // Stop any running animation by clearing classes & resetting
+  popup.className = 'ann-popup';
+  popup.innerHTML = '';
+  if (annTimer) clearTimeout(annTimer);
+
+  if (d.type === 'emoji') {
+    popup.innerHTML = `<div class="ann-emoji-inner">${d.text}</div>`;
+    // Force reflow then animate
+    void popup.offsetWidth;
+    popup.classList.add('show-emoji');
+    annTimer = setTimeout(() => {
+      popup.className = 'ann-popup';
+      popup.innerHTML = '';
+    }, 2600);
+  } else {
+    // Custom message — pick an icon based on keywords
+    const txt = d.text.toUpperCase();
+    let icon = '📢';
+    if (txt.includes('SIX') || txt.includes('SIXER')) icon = '💥';
+    else if (txt.includes('FOUR') || txt.includes('BOUNDARY')) icon = '🔥';
+    else if (txt.includes('WICKET') || txt.includes('OUT')) icon = '🏏';
+    else if (txt.includes('FIFTY') || txt.includes('HALF')) icon = '⭐';
+    else if (txt.includes('HUNDRED') || txt.includes('CENTURY')) icon = '🏆';
+    else if (txt.includes('WIN') || txt.includes('CHAMPION')) icon = '🎉';
+    else if (txt.includes('BREAK') || txt.includes('DRINKS')) icon = '⏸';
+    else if (txt.includes('RAIN') || txt.includes('DELAY')) icon = '🌧';
+    else if (txt.includes('OVER')) icon = '🔄';
+
+    popup.innerHTML = `
+      <div class="ann-msg-inner">
+        <div class="ann-msg-icon">${icon}</div>
+        <div class="ann-msg-text">${d.text}</div>
+        <div class="ann-accent-bar"></div>
+      </div>`;
+    void popup.offsetWidth;
+    popup.classList.add('show-msg');
+    annTimer = setTimeout(() => {
+      popup.className = 'ann-popup';
+      popup.innerHTML = '';
+    }, 4200);
+  }
 });
 
 function teamColor(name){
-    const n=(name||'').toUpperCase();
-    if(n.includes('INDIA'))        return '#003893';
-    if(n.includes('PAKISTAN'))     return '#006747';
-    if(n.includes('AUSTRALIA'))    return '#c8902a';
-    if(n.includes('ENGLAND'))      return '#CF142B';
-    if(n.includes('SRI LANKA'))    return '#003478';
-    if(n.includes('SOUTH AFRICA')) return '#007A4D';
-    if(n.includes('NEW ZEALAND'))  return '#2a2a2a';
-    if(n.includes('WEST INDIES'))  return '#7B0041';
-    if(n.includes('BANGLADESH'))   return '#006A4E';
-    if(n.includes('ZIMBABWE'))     return '#D40000';
-    if(n.includes('AFGHANISTAN'))  return '#0032A0';
-    if(n.includes('IRELAND'))      return '#169B62';
-    let hash=0; for(const c of n) hash=c.charCodeAt(0)+((hash<<5)-hash);
-    const h=Math.abs(hash)%360;
-    return `hsl(${h},65%,35%)`;
+  const n=(name||'').toUpperCase();
+  if(n.includes('INDIA')) return '#003893';
+  if(n.includes('PAKISTAN')) return '#006747';
+  if(n.includes('AUSTRALIA')) return '#c8902a';
+  if(n.includes('ENGLAND')) return '#CF142B';
+  if(n.includes('SRI LANKA')) return '#003478';
+  if(n.includes('SOUTH AFRICA')) return '#007A4D';
+  if(n.includes('NEW ZEALAND')) return '#2a2a2a';
+  if(n.includes('WEST INDIES')) return '#7B0041';
+  if(n.includes('BANGLADESH')) return '#006A4E';
+  if(n.includes('ZIMBABWE')) return '#D40000';
+  if(n.includes('AFGHANISTAN')) return '#0032A0';
+  if(n.includes('IRELAND')) return '#169B62';
+  let hash=0; for(const c of n) hash=c.charCodeAt(0)+((hash<<5)-hash);
+  const h=Math.abs(hash)%360;
+  return `hsl(${h},65%,35%)`;
 }
 
 function ballCls(v){
-    if(v==='W') return 'bW';
-    if(v===6)   return 'b6';
-    if(v===4)   return 'b4';
-    if(v===0)   return 'b0';
-    if(typeof v==='string'){
-        if(v.startsWith('Wd')) return 'bWd';
-        if(v.startsWith('Nb')) return 'bNb';
-        if(v.startsWith('By')) return 'bBy';
-        if(v.startsWith('Lb')) return 'bLb';
-    }
-    return '';
+  if(v==='W') return 'bW';
+  if(v===6) return 'b6';
+  if(v===4) return 'b4';
+  if(v===0) return 'b0';
+  if(typeof v==='string'){
+    if(v.startsWith('Wd')) return 'bWd';
+    if(v.startsWith('Nb')) return 'bNb';
+    if(v.startsWith('By')) return 'bBy';
+    if(v.startsWith('Lb')) return 'bLb';
+  }
+  return '';
 }
 
 onValue(ref(db,'cricket'),snap=>{
-    const d=snap.val(); if(!d) return;
+  const d=snap.val(); if(!d) return;
+  const batColor=teamColor(d.batTeam);
+  const bowlColor=teamColor(d.bowlTeam);
+  document.documentElement.style.setProperty('--ta',batColor);
+  document.documentElement.style.setProperty('--tb',bowlColor);
 
-    const batColor=teamColor(d.batTeam);
-    const bowlColor=teamColor(d.bowlTeam);
-    document.documentElement.style.setProperty('--ta',batColor);
-    document.documentElement.style.setProperty('--tb',bowlColor);
+  /* ── SCORE BAR ── */
+  $('dTeam').textContent=d.batTeam||'TEAM';
+  $('dRuns').textContent=d.runs; $('dWkts').textContent=d.wkts;
+  const oStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
+  $('dOvs').textContent=oStr;
+  $('dP1n').textContent=d.p1n; $('dP1r').textContent=d.p1r; $('dP1b').textContent=d.p1b;
+  $('dP2n').textContent=d.p2n; $('dP2r').textContent=d.p2r; $('dP2b').textContent=d.p2b;
+  $('p1box').className=d.str===1?'bat-row on':'bat-row';
+  $('p2box').className=d.str===2?'bat-row on':'bat-row';
+  $('dBwn').textContent=d.bwn; $('dBwr').textContent=d.bwr; $('dBww').textContent=d.bww;
+  $('dBwb').textContent=`${Math.floor(d.bwb/6)}.${d.bwb%6}`;
 
-    /* ── SCORE BAR ── */
-    $('dTeam').textContent=d.batTeam||'TEAM';
-    $('dRuns').textContent=d.runs; $('dWkts').textContent=d.wkts;
-    const oStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
-    $('dOvs').textContent=oStr;
-    $('dP1n').textContent=d.p1n; $('dP1r').textContent=d.p1r; $('dP1b').textContent=d.p1b;
-    $('dP2n').textContent=d.p2n; $('dP2r').textContent=d.p2r; $('dP2b').textContent=d.p2b;
-    $('p1box').className=d.str===1?'bat-row on':'bat-row';
-    $('p2box').className=d.str===2?'bat-row on':'bat-row';
-    $('dBwn').textContent=d.bwn; $('dBwr').textContent=d.bwr; $('dBww').textContent=d.bww;
-    $('dBwb').textContent=`${Math.floor(d.bwb/6)}.${d.bwb%6}`;
+  if(d.target>0){
+    $('tgtBadge').className='tgt-badge on';
+    $('dTgt').textContent=d.target;
+    const bL=(d.maxOvers||20)*6-d.balls;
+    $('dNeed').textContent=Math.max(0,d.target-d.runs);
+    $('dNeedOv').textContent=`${Math.floor(bL/6)}.${bL%6}`;
+  } else { $('tgtBadge').className='tgt-badge'; }
+  $('fhBadge').className=d.freeHit?'fh-badge on':'fh-badge';
 
-    // Target badge
-    if(d.target>0){
-        $('tgtBadge').className='tgt-badge on';
-        $('dTgt').textContent=d.target;
-        const bL=(d.maxOvers||20)*6-d.balls;
-        $('dNeed').textContent=Math.max(0,d.target-d.runs);
-        $('dNeedOv').textContent=`${Math.floor(bL/6)}.${bL%6}`;
-    } else { $('tgtBadge').className='tgt-badge'; }
-    $('fhBadge').className=d.freeHit?'fh-badge on':'fh-badge';
+  const ovDec=d.balls/6;
+  const crr=ovDec>0?(d.runs/ovDec).toFixed(2):'0.00';
+  $('dCRR').textContent=crr;
+  if(d.target>0){
+    $('rrrWrap').style.display='';
+    const bL2=(d.maxOvers||20)*6-d.balls;
+    $('dRRR').textContent=bL2>0?((d.target-d.runs)/(bL2/6)).toFixed(2):'∞';
+  } else { $('rrrWrap').style.display='none'; }
+  if(d.inn1Score){ $('inn1Wrap').style.display=''; $('dInn1').textContent=`${d.inn1Bat} ${d.inn1Score}`; }
+  else $('inn1Wrap').style.display='none';
 
-    // Rates
-    const ovDec=d.balls/6;
-    const crr=ovDec>0?(d.runs/ovDec).toFixed(2):'0.00';
-    $('dCRR').textContent=crr;
-    if(d.target>0){
-        $('rrrWrap').style.display='';
-        const bL2=(d.maxOvers||20)*6-d.balls;
-        $('dRRR').textContent=bL2>0?((d.target-d.runs)/(bL2/6)).toFixed(2):'∞';
-    } else { $('rrrWrap').style.display='none'; }
-    if(d.inn1Score){ $('inn1Wrap').style.display=''; $('dInn1').textContent=`${d.inn1Bat} ${d.inn1Score}`; }
-    else $('inn1Wrap').style.display='none';
+  const og=$('og'); og.innerHTML='';
+  const hist=d.recentBalls||[];
+  const slots=Math.max(6,hist.length);
+  for(let i=0;i<slots;i++){
+    const v=i<hist.length?hist[i]:'';
+    const cls=v===''?'':''+ballCls(v);
+    og.innerHTML+=`<div class="ball ${cls}">${v===''?'·':v}</div>`;
+  }
+  const bar=$('scoreBar'); bar.classList.remove('uf'); void bar.offsetWidth; bar.classList.add('uf');
 
-    // Ball grid
-    const og=$('og'); og.innerHTML='';
-    const hist=d.recentBalls||[];
-    const slots=Math.max(6,hist.length);
-    for(let i=0;i<slots;i++){
-        const v=i<hist.length?hist[i]:'';
-        const cls=v===''?'':''+ballCls(v);
-        og.innerHTML+=`<div class="ball ${cls}">${v===''?'·':v}</div>`;
+  /* ── SCORECARD ── */
+  $('scTeamName').textContent=d.batTeam||'TEAM';
+  $('scTournament').textContent=d.inn1Score?`After ${d.inn1Bat}: ${d.inn1Score}`:(d.maxOvers?`${d.maxOvers} OVERS MATCH`:'T20 MATCH');
+  $('scInnLbl').textContent=d.innings===2?'2ND INNINGS':'1ST INNINGS';
+  $('scTotalVal').textContent=`${d.runs}/${d.wkts}`;
+  $('scTotalDetail').textContent=`OVERS ${oStr}`;
+  $('scHdrColor').style.background=batColor;
+  $('scHdrMain').style.background=`linear-gradient(90deg,${batColor} 0%,rgba(12,12,28,.98) 55%,rgba(12,12,28,.98) 100%)`;
+  $('scBowlTeamName').textContent=d.bowlTeam||'BOWLING';
+  $('scBowlHdrColor').style.background=bowlColor;
+  $('scBowlHdrMain').style.background=`linear-gradient(90deg,${bowlColor} 0%,rgba(12,12,28,.98) 55%,rgba(12,12,28,.98) 100%)`;
+
+  if(d.target>0){
+    $('needBar').className='need-bar on';
+    $('scTgtV').textContent=d.target;
+    const bL3=(d.maxOvers||20)*6-d.balls;
+    $('scNdV').textContent=Math.max(0,d.target-d.runs);
+    $('scNdOvV').textContent=`${Math.floor(bL3/6)}.${bL3%6}`;
+    $('scRRRV').textContent=bL3>0?((d.target-d.runs)/(bL3/6)).toFixed(2):'∞';
+  } else { $('needBar').className='need-bar'; }
+
+  let ext=0; (d.bowlRows||[]).forEach(r=>{ext+=(r.wides||0)+(r.noballs||0)+(r.byes||0)+(r.legbyes||0);});
+  $('scExtVal').textContent=ext; $('scOvVal').textContent=oStr; $('scCRRVal').textContent=crr;
+  $('scTotFooter').textContent=`${d.runs}/${d.wkts}`;
+  $('scBwlExt').textContent=(d.bowlRows||[]).reduce((s,r)=>s+(r.wides||0)+(r.noballs||0),0);
+  $('scBwlOv').textContent=oStr; $('scBwlTotal').textContent=`${d.runs}/${d.wkts}`;
+
+  const batCont=$('scBatRows'); batCont.innerHTML='';
+  let fowItems=[], fowCount=0;
+  (d.batRows||[]).forEach((row,i)=>{
+    const isStr=(d.str===1&&d.p1n===row.name)||(d.str===2&&d.p2n===row.name);
+    const isCr=d.p1n===row.name||d.p2n===row.name;
+    const sr=row.balls>0?((row.runs/row.balls)*100).toFixed(0):'—';
+    let howOut='', howStyle='';
+    if(row.out){
+      howOut=row.howOut||'out'; howStyle='color:#888';
+      fowCount++;
+      fowItems.push(`<span class="sc-fow-item"><b>${fowCount}.</b> ${row.name} ${row.runs}</span>`);
+    } else if(isStr){
+      howOut='★ batting'; howStyle='color:var(--gold)';
+    } else if(isCr){
+      howOut='not out'; howStyle='color:#06d6a0';
     }
-    const bar=$('scoreBar'); bar.classList.remove('uf'); void bar.offsetWidth; bar.classList.add('uf');
+    const div=document.createElement('div');
+    div.className=['sc-row bat-row-sc',row.out?'dis-row':'',isStr?'hlt':'',i%2===0?'alt':''].filter(Boolean).join(' ');
+    div.innerHTML=`<span class="sc-cell left ${isStr?'strike':''}">${isStr?'● ':''}${row.name}</span><span class="sc-cell how" style="${howStyle}">${howOut}</span><span class="sc-cell ${isStr?'gold':''}">${row.runs}</span><span class="sc-cell">${row.balls}</span><span class="sc-cell">${row.fours||0}</span><span class="sc-cell">${row.sixes||0}</span><span class="sc-cell" style="font-size:11px;color:#888">${sr}</span>`;
+    batCont.appendChild(div);
+  });
+  $('scFow').innerHTML=`<span class="sc-fow-lbl">Fall of Wickets</span>`+(fowItems.length?fowItems.join(''):`<span style="color:#444;font-style:italic;font-size:11px">—</span>`);
 
-    /* ── SCORECARD ── */
-    $('scTeamName').textContent=d.batTeam||'TEAM';
-    $('scTournament').textContent=d.inn1Score?`After ${d.inn1Bat}: ${d.inn1Score}`:(d.maxOvers?`${d.maxOvers} OVERS MATCH`:'T20 MATCH');
-    $('scInnLbl').textContent=d.innings===2?'2ND INNINGS':'1ST INNINGS';
-    $('scTotalVal').textContent=`${d.runs}/${d.wkts}`;
-    $('scTotalDetail').textContent=`OVERS ${oStr}`;
-    $('scHdrColor').style.background=batColor;
-    $('scHdrMain').style.background=`linear-gradient(90deg,${batColor} 0%,rgba(12,12,28,.98) 55%,rgba(12,12,28,.98) 100%)`;
-    $('scBowlTeamName').textContent=d.bowlTeam||'BOWLING';
-    $('scBowlHdrColor').style.background=bowlColor;
-    $('scBowlHdrMain').style.background=`linear-gradient(90deg,${bowlColor} 0%,rgba(12,12,28,.98) 55%,rgba(12,12,28,.98) 100%)`;
-
-    if(d.target>0){
-        $('needBar').className='need-bar on';
-        $('scTgtV').textContent=d.target;
-        const bL3=(d.maxOvers||20)*6-d.balls;
-        $('scNdV').textContent=Math.max(0,d.target-d.runs);
-        $('scNdOvV').textContent=`${Math.floor(bL3/6)}.${bL3%6}`;
-        $('scRRRV').textContent=bL3>0?((d.target-d.runs)/(bL3/6)).toFixed(2):'∞';
-    } else { $('needBar').className='need-bar'; }
-
-    let ext=0; (d.bowlRows||[]).forEach(r=>{ext+=(r.wides||0)+(r.noballs||0)+(r.byes||0)+(r.legbyes||0);});
-    $('scExtVal').textContent=ext; $('scOvVal').textContent=oStr; $('scCRRVal').textContent=crr;
-    $('scTotFooter').textContent=`${d.runs}/${d.wkts}`;
-    $('scBwlExt').textContent=(d.bowlRows||[]).reduce((s,r)=>s+(r.wides||0)+(r.noballs||0),0);
-    $('scBwlOv').textContent=oStr; $('scBwlTotal').textContent=`${d.runs}/${d.wkts}`;
-
-    // Batting rows
-    const batCont=$('scBatRows'); batCont.innerHTML='';
-    let fowItems=[], fowCount=0;
-    (d.batRows||[]).forEach((row,i)=>{
-        const isStr=(d.str===1&&d.p1n===row.name)||(d.str===2&&d.p2n===row.name);
-        const isCr=d.p1n===row.name||d.p2n===row.name;
-        const sr=row.balls>0?((row.runs/row.balls)*100).toFixed(0):'—';
-        let howOut='', howStyle='';
-        if(row.out){
-            howOut=row.howOut||'out';
-            howStyle='color:#888';
-            fowCount++;
-            fowItems.push(`<span class="sc-fow-item"><b>${fowCount}.</b> ${row.name} ${row.runs}</span>`);
-        } else if(isStr){
-            howOut='★ batting';
-            howStyle='color:var(--gold)';
-        } else if(isCr){
-            howOut='not out';
-            howStyle='color:#06d6a0';
-        }
-        const div=document.createElement('div');
-        div.className=['sc-row bat-row-sc',row.out?'dis-row':'',isStr?'hlt':'',i%2===0?'alt':''].filter(Boolean).join(' ');
-        div.innerHTML=`<span class="sc-cell left ${isStr?'strike':''}">${isStr?'● ':''}${row.name}</span><span class="sc-cell how" style="${howStyle}">${howOut}</span><span class="sc-cell ${isStr?'gold':''}">${row.runs}</span><span class="sc-cell">${row.balls}</span><span class="sc-cell">${row.fours||0}</span><span class="sc-cell">${row.sixes||0}</span><span class="sc-cell" style="font-size:11px;color:#888">${sr}</span>`;
-        batCont.appendChild(div);
-    });
-    $('scFow').innerHTML=`<span class="sc-fow-lbl">Fall of Wickets</span>`+(fowItems.length?fowItems.join(''):`<span style="color:#444;font-style:italic;font-size:11px">—</span>`);
-
-    // Bowling rows
-    const bwlCont=$('scBwlRows'); bwlCont.innerHTML='';
-    (d.bowlRows||[]).forEach((row,i)=>{
-        const hasBowled=row.balls>0||(row.wides||0)>0||(row.noballs||0)>0;
-        const isCur=d.bwn===row.name;
-        const oSt=`${Math.floor(row.balls/6)}.${row.balls%6}`;
-        const oD=row.balls/6;
-        const eco=oD>0?(row.runs/oD).toFixed(1):'—';
-        const eNum=parseFloat(eco);
-        const eCls=eNum<7?'green':(eNum>10?'red':'');
-        const div=document.createElement('div');
-        div.className=['sc-row',!hasBowled?'dnb-row':'',isCur?'hlt':'',i%2===0&&hasBowled?'alt':''].filter(Boolean).join(' ');
-        div.innerHTML=`<span class="sc-cell left ${isCur?'gold':''}">${isCur?'▶ ':''}${row.name}</span><span class="sc-cell">${hasBowled?oSt:'—'}</span><span class="sc-cell">${hasBowled?0:'—'}</span><span class="sc-cell">${hasBowled?row.runs:'—'}</span><span class="sc-cell gold">${hasBowled?row.wkts:'—'}</span><span class="sc-cell ${eCls}">${hasBowled?eco:'—'}</span>`;
-        bwlCont.appendChild(div);
-    });
+  const bwlCont=$('scBwlRows'); bwlCont.innerHTML='';
+  (d.bowlRows||[]).forEach((row,i)=>{
+    const hasBowled=row.balls>0||(row.wides||0)>0||(row.noballs||0)>0;
+    const isCur=d.bwn===row.name;
+    const oSt=`${Math.floor(row.balls/6)}.${row.balls%6}`;
+    const oD=row.balls/6;
+    const eco=oD>0?(row.runs/oD).toFixed(1):'—';
+    const eNum=parseFloat(eco);
+    const eCls=eNum<7?'green':(eNum>10?'red':'');
+    const div=document.createElement('div');
+    div.className=['sc-row',!hasBowled?'dnb-row':'',isCur?'hlt':'',i%2===0&&hasBowled?'alt':''].filter(Boolean).join(' ');
+    div.innerHTML=`<span class="sc-cell left ${isCur?'gold':''}">${isCur?'▶ ':''}${row.name}</span><span class="sc-cell">${hasBowled?oSt:'—'}</span><span class="sc-cell">${hasBowled?0:'—'}</span><span class="sc-cell">${hasBowled?row.runs:'—'}</span><span class="sc-cell gold">${hasBowled?row.wkts:'—'}</span><span class="sc-cell ${eCls}">${hasBowled?eco:'—'}</span>`;
+    bwlCont.appendChild(div);
+  });
 });
 </script>
 </body>
