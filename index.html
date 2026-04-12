@@ -714,7 +714,7 @@ function showAnn(data){
 
     spawnParticles(data.style||'custom');
     buildFloaters(data.style||'custom');
-    spawnRain(data.style||'custom', DUR);
+    if(data.rain !== false) spawnRain(data.style||'custom', DUR);
 
     requestAnimationFrame(()=>{ toast.classList.add('visible'); });
 
@@ -722,8 +722,7 @@ function showAnn(data){
         toast.classList.add('leaving');
         $('annRain').innerHTML='';
         setTimeout(()=>{ toast.classList.remove('visible','leaving'); }, 520);
-    }, DUR*1000);
-}
+    }, DUR*1000);}
 
 onValue(annRef, snap=>{
     const data=snap.val();
