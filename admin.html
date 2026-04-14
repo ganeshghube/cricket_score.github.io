@@ -122,9 +122,87 @@ button:active{ opacity:.65; transform:scale(.95); }
 .qf-rain-row{ display:flex; align-items:center; gap:6px; padding:3px 0 0; }
 .qf-rain-chk{ width:13px!important; height:13px!important; cursor:pointer; flex-shrink:0; margin:0!important; }
 .qf-rain-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; cursor:pointer; margin:0; }
+
+/* ── PASSWORD GATE ── */
+#pwGate{
+    position:fixed; inset:0; background:#080810;
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999; flex-direction:column; gap:0;
+}
+#pwGate.gone{ display:none; }
+.pw-box{
+    background:#0e0e1a; border:1px solid #252535;
+    border-radius:10px; padding:36px 32px 30px;
+    display:flex; flex-direction:column; align-items:center;
+    gap:16px; width:320px;
+    box-shadow:0 20px 60px rgba(0,0,0,.9), 0 0 0 1px rgba(240,180,41,.08);
+}
+.pw-logo{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:22px; font-weight:900; color:#f0b429;
+    letter-spacing:4px; text-transform:uppercase;
+}
+.pw-sub{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:11px; color:#555566; letter-spacing:2px;
+    text-transform:uppercase; margin-top:-8px;
+}
+.pw-input-wrap{ position:relative; width:100%; }
+#pwInput{
+    width:100%; padding:11px 40px 11px 14px;
+    background:#06060f; border:1px solid #252535;
+    border-radius:6px; color:#ddd; font-size:15px;
+    font-family:'Barlow',sans-serif; text-align:center;
+    letter-spacing:2px; transition:border-color .2s;
+}
+#pwInput:focus{ outline:none; border-color:#f0b429; box-shadow:0 0 0 2px rgba(240,180,41,.1); }
+#pwInput.error{ border-color:#e63946; animation:pwShake .3s ease; }
+@keyframes pwShake{
+    0%,100%{ transform:translateX(0); }
+    25%{ transform:translateX(-8px); }
+    75%{ transform:translateX(8px); }
+}
+.pw-eye{
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    background:none; border:none; cursor:pointer; color:#555; font-size:16px;
+    padding:0; width:auto; line-height:1;
+}
+.pw-eye:hover{ color:#aaa; }
+#pwBtn{
+    width:100%; padding:12px;
+    background:linear-gradient(135deg,#3a2800,#2a1e00);
+    color:#f0b429; border:1px solid #5a3c00;
+    border-radius:6px; font-family:'Barlow Condensed',sans-serif;
+    font-size:15px; font-weight:800; letter-spacing:2px;
+    cursor:pointer; transition:all .15s;
+}
+#pwBtn:hover{ background:linear-gradient(135deg,#5a3c00,#3a2800); }
+#pwErr{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:11px; color:#e63946; letter-spacing:1px;
+    min-height:16px; text-align:center;
+}
 </style>
 </head>
 <body>
+
+<!-- ── PASSWORD GATE ── -->
+<div id="pwGate">
+    <div class="pw-box">
+        <div class="pw-logo">🏏 Cricket Admin</div>
+        <div class="pw-sub">Restricted Access</div>
+        <div class="pw-input-wrap">
+            <input id="pwInput" type="password" placeholder="Enter password"
+                onkeydown="if(event.key==='Enter')checkPw()">
+            <button class="pw-eye" onclick="togglePwEye()" id="pwEye" title="Show/hide">👁</button>
+        </div>
+        <button id="pwBtn" onclick="checkPw()">UNLOCK</button>
+        <div id="pwErr"></div>
+    </div>
+</div>
+
+<!-- main content hidden until unlocked -->
+<div id="mainContent" style="display:none">
 
 <div class="topbar">
     <h1><span class="live-dot"></span>Cricket Admin</h1>
@@ -951,6 +1029,45 @@ window.saveMatch = async () => {
 // ensure UI defaults
 const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false});
+</script>
+
+</div><!-- /mainContent -->
+
+<script>
+(function(){
+    const PW = 'Ganesh@12345';
+    const SESSION_KEY = 'cricket_admin_auth';
+
+    function unlock(){
+        document.getElementById('pwGate').classList.add('gone');
+        document.getElementById('mainContent').style.display = '';
+    }
+
+    // stay unlocked for the session
+    if(sessionStorage.getItem(SESSION_KEY) === '1'){ unlock(); return; }
+
+    window.checkPw = function(){
+        const input = document.getElementById('pwInput');
+        const err   = document.getElementById('pwErr');
+        if(input.value === PW){
+            sessionStorage.setItem(SESSION_KEY, '1');
+            unlock();
+        } else {
+            input.classList.add('error');
+            err.textContent = 'Incorrect password. Try again.';
+            input.value = '';
+            setTimeout(()=> input.classList.remove('error'), 400);
+        }
+    };
+
+    window.togglePwEye = function(){
+        const input = document.getElementById('pwInput');
+        input.type = input.type === 'password' ? 'text' : 'password';
+    };
+
+    // focus input on load
+    document.getElementById('pwInput').focus();
+})();
 </script>
 
 </body>
