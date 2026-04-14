@@ -129,8 +129,7 @@ button:active{ opacity:.65; transform:scale(.95); }
     display:flex; align-items:center; justify-content:center;
     z-index:9999; flex-direction:column; gap:0;
 }
-#pwGate.gone{ display:none; }
-.pw-box{
+#pwGate.gone{ display:none; }.pw-box{
     background:#0e0e1a; border:1px solid #252535;
     border-radius:10px; padding:36px 32px 30px;
     display:flex; flex-direction:column; align-items:center;
@@ -202,7 +201,7 @@ button:active{ opacity:.65; transform:scale(.95); }
 </div>
 
 <!-- main content hidden until unlocked -->
-<div id="mainContent" style="display:none">
+<div id="mainContent" style="filter:blur(6px);pointer-events:none;user-select:none">
 
 <div class="topbar">
     <h1><span class="live-dot"></span>Cricket Admin</h1>
@@ -1040,7 +1039,10 @@ if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false});
 
     function unlock(){
         document.getElementById('pwGate').classList.add('gone');
-        document.getElementById('mainContent').style.display = '';
+        const mc = document.getElementById('mainContent');
+        mc.style.filter = '';
+        mc.style.pointerEvents = '';
+        mc.style.userSelect = '';
     }
 
     // stay unlocked for the session
