@@ -166,13 +166,18 @@ button:active{ opacity:.65; transform:scale(.95); }
     <div class="g2" style="margin-top:10px">
         <div>
             <label>Format</label>
-            <select id="fmtSel">
+            <select id="fmtSel" onchange="toggleCustomOvers()">
                 <option value="20">T20 (20 overs)</option>
                 <option value="50">ODI (50 overs)</option>
                 <option value="40">40 Overs</option>
                 <option value="10">T10 (10 overs)</option>
                 <option value="0">Custom / Club</option>
             </select>
+            <div id="customOversWrap" style="display:none;margin-top:6px">
+                <label>Number of Overs</label>
+                <input type="number" id="customOvers" min="1" max="100" placeholder="e.g. 15" value="15"
+                    style="text-align:center;font-size:16px;font-weight:700;color:var(--y)">
+            </div>
         </div>
         <div>
             <label>Batting First</label>
@@ -610,9 +615,17 @@ onValue(mRef, snap => {
     if (d.bowlTeam) $('tNB').value = d.bowlTeam;
 
     const fmt = d.maxOvers||20;
-    $('fmtLbl').textContent = fmt===50?'ODI · 50 OVERS':fmt===0?'CUSTOM':`T${fmt} · ${fmt} OVERS`;
+    $('fmtLbl').textContent = fmt===50?'ODI · 50 OVERS':fmt===20?'T20 · 20 OVERS':fmt===10?'T10 · 10 OVERS':fmt===40?'40 OVERS':`CUSTOM · ${fmt} OVERS`;
     const fmtEl = $('fmtSel');
-    if ([10,20,40,50,0].includes(fmt)) fmtEl.value = String(fmt);
+    // if it's a custom over count not in the preset list, show custom input
+    if ([10,20,40,50].includes(fmt)) {
+        fmtEl.value = String(fmt);
+        $('customOversWrap').style.display = 'none';
+    } else {
+        fmtEl.value = '0';
+        $('customOvers').value = fmt;
+        $('customOversWrap').style.display = 'block';
+    }
 
     if (d.batRows && d.bowlRows) {
         const currentBat  = d.batRows.map(r => r.name);
@@ -640,12 +653,24 @@ onValue(sRef, snap => {
 });
 
 // ══ INIT MATCH ══════════════════════════════════════
+window.toggleCustomOvers = () => {
+    const isCustom = $('fmtSel').value === '0';
+    $('customOversWrap').style.display = isCustom ? 'block' : 'none';
+};
+
 window.initMatch = async () => {
     const sAr = $('sqA').value, sBr = $('sqB').value;
     const sA  = sAr.split('\n').map(n=>n.trim()).filter(Boolean);
     const sB  = sBr.split('\n').map(n=>n.trim()).filter(Boolean);
     if (!sA.length||!sB.length) return alert('Please enter at least one player per squad!');
-    const fmt  = parseInt($('fmtSel').value)||20;
+    const fmtRaw = $('fmtSel').value;
+    let fmt;
+    if (fmtRaw === '0') {
+        fmt = parseInt($('customOvers').value) || 20;
+        if (fmt < 1) return alert('Please enter a valid number of overs (minimum 1).');
+    } else {
+        fmt = parseInt(fmtRaw) || 20;
+    }
     const toss = $('tossSel').value;
     const batSq  = toss==='A'?sA:sB;
     const bowlSq = toss==='A'?sB:sA;
