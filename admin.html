@@ -116,6 +116,14 @@ button:active{ opacity:.65; transform:scale(.95); }
 
 .ov-panel{ display:flex; flex-direction:column; gap:6px; background:var(--card2); padding:10px; border-radius:6px; border:1px solid var(--brd); }
 .ov-panel .panel-label{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:2px; }
+
+/* ── QUICK-FIRE CHECKBOX ITEMS ── */
+.qf-item{ display:flex; flex-direction:column; gap:5px; }
+.qf-chk-row{ display:flex; align-items:center; gap:6px; padding:2px 0; }
+.qf-chk{ width:14px!important; height:14px!important; cursor:pointer; flex-shrink:0; }
+.qf-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; cursor:pointer; margin:0; }
+.qf-item.disabled button{ opacity:.35; cursor:not-allowed; pointer-events:none; }
+.qf-item.disabled .qf-lbl{ color:#333; text-decoration:line-through; }
 </style>
 </head>
 <body>
@@ -272,15 +280,28 @@ button:active{ opacity:.65; transform:scale(.95); }
     <h4><span class="hico">📣</span> Announcements &amp; Celebrations</h4>
 
     <div class="sep">Quick fire — auto-fills player name from current striker</div>
-    <div class="g3">
-        <button class="b-ann-century" onclick="sendQuickAnn('century')">🏆 CENTURY</button>
-        <button class="b-ann-fifty"   onclick="sendQuickAnn('fifty')">⭐ HALF CENTURY</button>
-        <button class="b-ann-wkt"     onclick="sendQuickAnn('wicket')">💥 WICKET TAKEN</button>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <input type="checkbox" id="qfMasterChk" checked
+            style="width:15px;height:15px;margin:0;accent-color:var(--y);cursor:pointer;flex-shrink:0">
+        <label for="qfMasterChk"
+            style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#888;
+                   text-transform:uppercase;letter-spacing:1.5px;margin:0;cursor:pointer">
+            Enable quick-fire announcements
+        </label>
     </div>
-    <div class="g3" style="margin-top:8px">
-        <button class="b-ann-six"     onclick="sendQuickAnn('six')">🚀 MAXIMUM SIX</button>
-        <button class="b-ann-four"    onclick="sendQuickAnn('four')">🔥 BOUNDARY FOUR</button>
-        <button class="b-ann-custom"  onclick="sendQuickAnn('hattrick')">🎩 HAT TRICK!</button>
+
+    <div id="quickAnnGrid">
+        <div class="g3">
+            <button class="b-ann-century" onclick="sendQuickAnn('century')">🏆 CENTURY</button>
+            <button class="b-ann-fifty"   onclick="sendQuickAnn('fifty')">⭐ HALF CENTURY</button>
+            <button class="b-ann-wkt"     onclick="sendQuickAnn('wicket')">💥 WICKET TAKEN</button>
+        </div>
+        <div class="g3" style="margin-top:8px">
+            <button class="b-ann-six"     onclick="sendQuickAnn('six')">🚀 MAXIMUM SIX</button>
+            <button class="b-ann-four"    onclick="sendQuickAnn('four')">🔥 BOUNDARY FOUR</button>
+            <button class="b-ann-custom"  onclick="sendQuickAnn('hattrick')">🎩 HAT TRICK!</button>
+        </div>
     </div>
 
     <div class="sep">Custom message</div>
@@ -319,7 +340,7 @@ button:active{ opacity:.65; transform:scale(.95); }
     <button class="b-ann-custom" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND ANNOUNCEMENT TO OVERLAY</button>
 
     <div class="note">
-        <b>How it works:</b> Announcements appear above the score bar for the chosen duration (5–30s). Toggle <b>Emoji Rain</b> on/off — quick-fire buttons always send rain on. Quick-fire buttons auto-fill the current striker's name (bowler for wicket).
+        <b>How it works:</b> Uncheck <b>Enable quick-fire announcements</b> to disable all 6 buttons at once. Duration and Emoji Rain apply to custom messages only; quick-fire always uses 20s with rain on.
     </div>
 </div>
 <!-- ═══ END ANNOUNCEMENTS CARD ═══ -->
@@ -491,6 +512,9 @@ window.updateAnnPreview = () => {
 };
 
 window.sendQuickAnn = async (type) => {
+    // respect master enable checkbox
+    if (!$('qfMasterChk').checked) return;
+
     const cfg = QUICK_ANN[type];
     if (!cfg) return;
     // Try to auto-fill player name from current striker
@@ -506,11 +530,12 @@ window.sendQuickAnn = async (type) => {
     await set(aRef, {
         emoji:   cfg.emoji,
         text,
-        sub:     playerName ? cfg.sub : cfg.sub,
+        sub:     cfg.sub,
         style:   cfg.style,
         dur:     cfg.dur,
+        rain:    true,
         sentAt:  Date.now(),
-        id:      Math.random().toString(36).slice(2)   // forces re-trigger even if same text
+        id:      Math.random().toString(36).slice(2)
     });
 };
 
@@ -890,6 +915,18 @@ window.saveMatch = async () => {
 // ensure UI defaults
 const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false});
+</script>
+
+<!-- Wire master checkbox → dim/enable quick-fire grid -->
+<script>
+const qfChk  = document.getElementById('qfMasterChk');
+const qfGrid = document.getElementById('quickAnnGrid');
+function applyQfState(){
+    qfGrid.style.opacity       = qfChk.checked ? '1'           : '0.35';
+    qfGrid.style.pointerEvents = qfChk.checked ? 'auto'        : 'none';
+}
+applyQfState();
+qfChk.addEventListener('change', applyQfState);
 </script>
 </body>
 </html>
