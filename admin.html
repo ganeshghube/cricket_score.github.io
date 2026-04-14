@@ -117,13 +117,11 @@ button:active{ opacity:.65; transform:scale(.95); }
 .ov-panel{ display:flex; flex-direction:column; gap:6px; background:var(--card2); padding:10px; border-radius:6px; border:1px solid var(--brd); }
 .ov-panel .panel-label{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:2px; }
 
-/* ── QUICK-FIRE CHECKBOX ITEMS ── */
+/* ── QUICK-FIRE RAIN CHECKBOX ROWS ── */
 .qf-item{ display:flex; flex-direction:column; gap:5px; }
-.qf-chk-row{ display:flex; align-items:center; gap:6px; padding:2px 0; }
-.qf-chk{ width:14px!important; height:14px!important; cursor:pointer; flex-shrink:0; }
-.qf-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; cursor:pointer; margin:0; }
-.qf-item.disabled button{ opacity:.35; cursor:not-allowed; pointer-events:none; }
-.qf-item.disabled .qf-lbl{ color:#333; text-decoration:line-through; }
+.qf-rain-row{ display:flex; align-items:center; gap:6px; padding:3px 0 0; }
+.qf-rain-chk{ width:13px!important; height:13px!important; cursor:pointer; flex-shrink:0; margin:0!important; }
+.qf-rain-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; cursor:pointer; margin:0; }
 </style>
 </head>
 <body>
@@ -281,27 +279,40 @@ button:active{ opacity:.65; transform:scale(.95); }
 
     <div class="sep">Quick fire — auto-fills player name from current striker</div>
 
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <input type="checkbox" id="qfMasterChk" checked
-            style="width:15px;height:15px;margin:0;accent-color:var(--y);cursor:pointer;flex-shrink:0">
-        <label for="qfMasterChk"
-            style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#888;
-                   text-transform:uppercase;letter-spacing:1.5px;margin:0;cursor:pointer">
-            Enable quick-fire announcements
-        </label>
+    <!-- Row 1: always fire WITH rain -->
+    <div class="g3">
+        <button class="b-ann-century" onclick="sendQuickAnn('century')">🏆 CENTURY</button>
+        <button class="b-ann-fifty"   onclick="sendQuickAnn('fifty')">⭐ HALF CENTURY</button>
+        <button class="b-ann-custom"  onclick="sendQuickAnn('hattrick')">🎩 HAT TRICK!</button>
     </div>
 
-    <div id="quickAnnGrid">
-        <div class="g3">
-            <button class="b-ann-century" onclick="sendQuickAnn('century')">🏆 CENTURY</button>
-            <button class="b-ann-fifty"   onclick="sendQuickAnn('fifty')">⭐ HALF CENTURY</button>
-            <button class="b-ann-wkt"     onclick="sendQuickAnn('wicket')">💥 WICKET TAKEN</button>
+    <!-- Row 2: fire always, rain is optional via checkbox -->
+    <div class="g3" style="margin-top:8px">
+
+        <div class="qf-item">
+            <button class="b-ann-wkt" onclick="sendQuickAnn('wicket')">💥 WICKET TAKEN</button>
+            <div class="qf-rain-row">
+                <input type="checkbox" id="rain_wicket" class="qf-rain-chk" style="accent-color:var(--y)">
+                <label for="rain_wicket" class="qf-rain-lbl">Emoji Rain 🌧️</label>
+            </div>
         </div>
-        <div class="g3" style="margin-top:8px">
-            <button class="b-ann-six"     onclick="sendQuickAnn('six')">🚀 MAXIMUM SIX</button>
-            <button class="b-ann-four"    onclick="sendQuickAnn('four')">🔥 BOUNDARY FOUR</button>
-            <button class="b-ann-custom"  onclick="sendQuickAnn('hattrick')">🎩 HAT TRICK!</button>
+
+        <div class="qf-item">
+            <button class="b-ann-six" onclick="sendQuickAnn('six')">🚀 MAXIMUM SIX</button>
+            <div class="qf-rain-row">
+                <input type="checkbox" id="rain_six" class="qf-rain-chk" style="accent-color:var(--y)">
+                <label for="rain_six" class="qf-rain-lbl">Emoji Rain 🌧️</label>
+            </div>
         </div>
+
+        <div class="qf-item">
+            <button class="b-ann-four" onclick="sendQuickAnn('four')">🔥 BOUNDARY FOUR</button>
+            <div class="qf-rain-row">
+                <input type="checkbox" id="rain_four" class="qf-rain-chk" style="accent-color:var(--y)">
+                <label for="rain_four" class="qf-rain-lbl">Emoji Rain 🌧️</label>
+            </div>
+        </div>
+
     </div>
 
     <div class="sep">Custom message</div>
@@ -340,7 +351,7 @@ button:active{ opacity:.65; transform:scale(.95); }
     <button class="b-ann-custom" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND ANNOUNCEMENT TO OVERLAY</button>
 
     <div class="note">
-        <b>How it works:</b> Uncheck <b>Enable quick-fire announcements</b> to disable all 6 buttons at once. Duration and Emoji Rain apply to custom messages only; quick-fire always uses 20s with rain on.
+        <b>How it works:</b> Century, Half Century &amp; Hat Trick always fire with emoji rain. Wicket, Six &amp; Four fire always — tick their <b>Emoji Rain</b> checkbox to add rain for those too. Custom messages use the Duration + Emoji Rain settings below.
     </div>
 </div>
 <!-- ═══ END ANNOUNCEMENTS CARD ═══ -->
@@ -512,18 +523,18 @@ window.updateAnnPreview = () => {
 };
 
 window.sendQuickAnn = async (type) => {
-    // respect master enable checkbox
-    if (!$('qfMasterChk').checked) return;
-
     const cfg = QUICK_ANN[type];
     if (!cfg) return;
-    // Try to auto-fill player name from current striker
+
+    // century, fifty, hattrick always send rain; wicket/six/four respect their checkbox
+    const rainChk = document.getElementById(`rain_${type}`);
+    const rain = rainChk ? rainChk.checked : true;
+
     const snap = await get(mRef);
     const d    = snap.val();
     let playerName = '';
     if (d) {
         playerName = d.str === 1 ? (d.p1n || '') : (d.p2n || '');
-        // For wicket, use bowler name instead
         if (type === 'wicket') playerName = d.bwn || '';
     }
     const text = playerName ? `${playerName} — ${cfg.text}` : cfg.text;
@@ -533,7 +544,7 @@ window.sendQuickAnn = async (type) => {
         sub:     cfg.sub,
         style:   cfg.style,
         dur:     cfg.dur,
-        rain:    true,
+        rain,
         sentAt:  Date.now(),
         id:      Math.random().toString(36).slice(2)
     });
@@ -917,16 +928,5 @@ const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false});
 </script>
 
-<!-- Wire master checkbox → dim/enable quick-fire grid -->
-<script>
-const qfChk  = document.getElementById('qfMasterChk');
-const qfGrid = document.getElementById('quickAnnGrid');
-function applyQfState(){
-    qfGrid.style.opacity       = qfChk.checked ? '1'           : '0.35';
-    qfGrid.style.pointerEvents = qfChk.checked ? 'auto'        : 'none';
-}
-applyQfState();
-qfChk.addEventListener('change', applyQfState);
-</script>
 </body>
 </html>
