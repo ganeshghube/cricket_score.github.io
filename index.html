@@ -150,7 +150,7 @@ body{
     position:fixed;
     bottom:0; left:50%; transform:translateX(-50%);
     width:96%; max-width:1080px;
-    height:92vh;                  /* ← 92% of screen height */
+    height:88vh;                  /* ← 88% of screen height */
     display:flex;
     flex-direction:column;
     background:rgba(6,6,14,0.97);
@@ -185,7 +185,7 @@ body{
 @keyframes autoBarShrink{ from{width:100%} to{width:0%} }
 
 /* ── Header ── */
-.sc-team-hdr{ display:flex; align-items:stretch; height:68px; flex-shrink:0; }
+.sc-team-hdr{ display:flex; align-items:stretch; height:60px; flex-shrink:0; }
 .sc-hdr-color{ width:8px; background:var(--ta); flex-shrink:0; }
 .sc-hdr-main{
     flex:1;
@@ -203,7 +203,7 @@ body{
 
 /* ── Tabs ── */
 .sc-tabs{ display:flex; background:rgba(0,0,0,.5); border-bottom:1px solid var(--brd); flex-shrink:0; }
-.sc-tab{ flex:1; padding:10px 14px; cursor:pointer; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
+.sc-tab{ flex:1; padding:7px 14px; cursor:pointer; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
 .sc-tab.active{ color:var(--gold); border-bottom-color:var(--gold); background:rgba(240,180,41,.05); }
 
 /* ── Need bar ── */
@@ -211,7 +211,7 @@ body{
 .need-bar.on{ display:block; }
 
 /* ── Scrollable content ── */
-.sc-body{ flex:1; display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden; background:var(--panel); }
+.sc-body{ flex:1; display:flex; flex-direction:column; overflow-y:hidden; overflow-x:hidden; background:var(--panel); }
 .sc-body::-webkit-scrollbar{ width:4px; }
 .sc-body::-webkit-scrollbar-track{ background:rgba(0,0,0,.3); }
 .sc-body::-webkit-scrollbar-thumb{ background:#2a2a3a; border-radius:2px; }
@@ -223,7 +223,7 @@ body{
 .sc-col-hdr.bat-hdr{ grid-template-columns:1fr 180px 65px 65px 55px 55px 65px; }
 
 /* ── Data rows ── */
-.sc-row{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; padding:13px 20px; border-bottom:1px solid rgba(255,255,255,.06); align-items:center; transition:background .15s; }
+.sc-row{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; padding:9px 20px; border-bottom:1px solid rgba(255,255,255,.06); align-items:center; transition:background .15s; }
 .sc-row:hover{ background:var(--rowh); }
 .sc-row.bat-row-sc{ grid-template-columns:1fr 180px 65px 65px 55px 55px 65px; }
 .sc-row.alt{ background:var(--row); }
@@ -240,18 +240,18 @@ body{
 .sc-cell.strike{ color:var(--gold); font-weight:700; }
 
 /* ── Fall of wickets ── */
-.sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.45); border-top:1px solid rgba(255,255,255,.08); padding:6px 16px; flex-wrap:wrap; gap:4px; flex-shrink:0; }
+.sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.45); border-top:1px solid rgba(255,255,255,.08); padding:4px 16px; flex-wrap:wrap; gap:4px; flex-shrink:0; }
 .sc-fow-lbl{ font-size:11px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:8px; white-space:nowrap; }
 .sc-fow-item{ font-size:13px; color:#aaa; padding:2px 10px; border-right:1px solid rgba(255,255,255,.08); }
 .sc-fow-item:last-child{ border-right:none; }
 .sc-fow-item b{ color:var(--gold); }
 
 /* ── Footer totals ── */
-.sc-footer{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; background:rgba(0,0,0,.75); border-top:1px solid rgba(255,255,255,.14); flex-shrink:0; margin-top:auto; }
-.sc-footer-cell{ padding:12px 16px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:3px; }
+.sc-footer{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; background:rgba(0,0,0,.75); border-top:1px solid rgba(255,255,255,.14); flex-shrink:0; }
+.sc-footer-cell{ padding:8px 16px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:2px; }
 .sc-footer-cell:last-child{ border-right:none; }
 .sc-footer-lbl{ font-size:12px; color:#888; text-transform:uppercase; letter-spacing:2px; }
-.sc-footer-val{ font-size:26px; font-weight:900; color:#e8e8f0; letter-spacing:1px; }
+.sc-footer-val{ font-size:22px; font-weight:900; color:#e8e8f0; letter-spacing:1px; }
 .sc-footer-val.gold{ color:var(--gold); }
 
 /* ── Bowling panel header ── */
