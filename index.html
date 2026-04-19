@@ -115,7 +115,7 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
     50%    { opacity:1;  }
 }
 
-/* progress bar at bottom — 20s */
+/* progress bar at bottom */
 .ann-progress{
     position:absolute;
     bottom:0; left:0;
@@ -548,7 +548,8 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, get }
+    from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
 const cfg = {
     apiKey:"AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
@@ -596,7 +597,7 @@ onValue(uiRef,snap=>{
 });
 
 // ══════════════════════════════════════════════
-// ANNOUNCEMENT SYSTEM
+// ANNOUNCEMENT SYSTEM — refresh-safe
 // ══════════════════════════════════════════════
 let annTimer=null;
 let lastAnnId=null;
@@ -609,7 +610,6 @@ const PARTICLE_COLORS={
     custom: ['#06d6a0','#40e0b0','#70edc0','#a0f5d5','#23e5a0'],
 };
 
-// per-event emoji sets for rain & floater row
 const EVENT_EMOJIS={
     gold:   ['🏆','⭐','✨','🌟','💛','🥇','🎊','🎉','🏅','💫'],
     red:    ['💥','🔴','😱','🎯','🔥','💢','⚡','😤','🏏','❌'],
@@ -650,15 +650,15 @@ function spawnRain(style, dur){
     rain.innerHTML='';
     const emojis=EVENT_EMOJIS[style]||EVENT_EMOJIS.custom;
     const count=22;
-    const vhFall=110; // % of viewport
+    const vhFall=110;
     for(let i=0;i<count;i++){
         const el=document.createElement('div');
         el.className='rain-emoji';
         const emoji=emojis[Math.floor(Math.random()*emojis.length)];
         el.textContent=emoji;
         const left=2+Math.random()*96;
-        const delay=Math.random()*4;          // stagger over first 4s
-        const fallDur=4+Math.random()*6;      // each drop takes 4-10s
+        const delay=Math.random()*4;
+        const fallDur=4+Math.random()*6;
         const spin=(Math.random()>0.5?1:-1)*(180+Math.random()*360);
         const size=22+Math.random()*28;
         el.style.cssText=`
@@ -671,7 +671,6 @@ function spawnRain(style, dur){
         `;
         rain.appendChild(el);
     }
-    // clear rain a second before toast leaves
     setTimeout(()=>{ rain.innerHTML=''; }, Math.max(0,(dur-1)*1000));
 }
 
@@ -695,7 +694,7 @@ function buildFloaters(style){
 function showAnn(data){
     const toast=$('annToast');
     const prog=$('annProgress');
-    const DUR = data.dur || 20;   // ← default 20 seconds
+    const DUR = data.dur || 20;
 
     if(annTimer){ clearTimeout(annTimer); annTimer=null; }
 
@@ -707,7 +706,6 @@ function showAnn(data){
     $('annSub').textContent   = data.sub   || '';
     toast.className = `ann-toast style-${data.style||'custom'}`;
 
-    // progress bar — 20s
     prog.style.animation='none';
     void prog.offsetWidth;
     prog.style.animation=`annProgress ${DUR}s linear forwards`;
@@ -722,14 +720,21 @@ function showAnn(data){
         toast.classList.add('leaving');
         $('annRain').innerHTML='';
         setTimeout(()=>{ toast.classList.remove('visible','leaving'); }, 520);
-    }, DUR*1000);}
+    }, DUR*1000);
+}
 
-onValue(annRef, snap=>{
-    const data=snap.val();
-    if(!data) return;
-    if(data.id === lastAnnId) return;
-    lastAnnId = data.id;
-    showAnn(data);
+// ── Refresh-safe: read current ID first, then start listener ──
+get(annRef).then(snap => {
+    const existing = snap.val();
+    lastAnnId = existing?.id || null;   // mark whatever is already there as "seen"
+
+    onValue(annRef, snap => {
+        const data = snap.val();
+        if (!data) return;
+        if (data.id === lastAnnId) return; // skip anything already in DB on load
+        lastAnnId = data.id;
+        showAnn(data);
+    });
 });
 // ══════════════════════════════════════════════
 
@@ -786,7 +791,6 @@ onValue(ref(db,'cricket'),snap=>{
     $('dBwn').textContent=d.bwn; $('dBwr').textContent=d.bwr; $('dBww').textContent=d.bww;
     $('dBwb').textContent=`${Math.floor(d.bwb/6)}.${d.bwb%6}`;
 
-    // Target badge
     if(d.target>0){
         $('tgtBadge').className='tgt-badge on';
         $('dTgt').textContent=d.target;
@@ -796,7 +800,6 @@ onValue(ref(db,'cricket'),snap=>{
     } else { $('tgtBadge').className='tgt-badge'; }
     $('fhBadge').className=d.freeHit?'fh-badge on':'fh-badge';
 
-    // Rates
     const ovDec=d.balls/6;
     const crr=ovDec>0?(d.runs/ovDec).toFixed(2):'0.00';
     $('dCRR').textContent=crr;
@@ -808,7 +811,6 @@ onValue(ref(db,'cricket'),snap=>{
     if(d.inn1Score){ $('inn1Wrap').style.display=''; $('dInn1').textContent=`${d.inn1Bat} ${d.inn1Score}`; }
     else $('inn1Wrap').style.display='none';
 
-    // Ball grid
     const og=$('og'); og.innerHTML='';
     const hist=d.recentBalls||[];
     const slots=Math.max(6,hist.length);
@@ -846,7 +848,6 @@ onValue(ref(db,'cricket'),snap=>{
     $('scBwlExt').textContent=(d.bowlRows||[]).reduce((s,r)=>s+(r.wides||0)+(r.noballs||0),0);
     $('scBwlOv').textContent=oStr; $('scBwlTotal').textContent=`${d.runs}/${d.wkts}`;
 
-    // Batting rows
     const batCont=$('scBatRows'); batCont.innerHTML='';
     let fowItems=[], fowCount=0;
     (d.batRows||[]).forEach((row,i)=>{
@@ -873,7 +874,6 @@ onValue(ref(db,'cricket'),snap=>{
     });
     $('scFow').innerHTML=`<span class="sc-fow-lbl">Fall of Wickets</span>`+(fowItems.length?fowItems.join(''):`<span style="color:#444;font-style:italic;font-size:11px">—</span>`);
 
-    // Bowling rows
     const bwlCont=$('scBwlRows'); bwlCont.innerHTML='';
     (d.bowlRows||[]).forEach((row,i)=>{
         const hasBowled=row.balls>0||(row.wides||0)>0||(row.noballs||0)>0;
