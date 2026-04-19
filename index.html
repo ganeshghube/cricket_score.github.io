@@ -185,7 +185,7 @@ body{
 @keyframes autoBarShrink{ from{width:100%} to{width:0%} }
 
 /* ── Header ── */
-.sc-team-hdr{ display:flex; align-items:stretch; height:56px; flex-shrink:0; }
+.sc-team-hdr{ display:flex; align-items:stretch; height:68px; flex-shrink:0; }
 .sc-hdr-color{ width:8px; background:var(--ta); flex-shrink:0; }
 .sc-hdr-main{
     flex:1;
@@ -194,16 +194,16 @@ body{
     position:relative; overflow:hidden;
 }
 .sc-hdr-main::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(255,255,255,.04) 0%,transparent 60%); }
-.sc-team-name{ font-size:26px; font-weight:900; color:#fff; text-transform:uppercase; letter-spacing:3px; text-shadow:0 2px 12px rgba(0,0,0,.8); z-index:1; }
-.sc-tournament{ font-size:11px; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:2px; font-family:'Barlow',sans-serif; font-weight:500; z-index:1; }
+.sc-team-name{ font-size:32px; font-weight:900; color:#fff; text-transform:uppercase; letter-spacing:3px; text-shadow:0 2px 12px rgba(0,0,0,.8); z-index:1; }
+.sc-tournament{ font-size:13px; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:2px; font-family:'Barlow',sans-serif; font-weight:500; z-index:1; }
 .sc-hdr-right{ display:flex; align-items:center; gap:10px; padding:0 24px; background:rgba(10,10,22,.98); border-left:1px solid var(--brd); min-width:200px; flex-shrink:0; }
-.sc-total-lbl{ font-size:9px; color:#888; text-transform:uppercase; letter-spacing:2px; }
-.sc-total-val{ font-size:30px; font-weight:900; color:var(--gold); letter-spacing:1px; line-height:1; }
-.sc-total-detail{ font-size:11px; color:#aaa; margin-top:2px; }
+.sc-total-lbl{ font-size:11px; color:#888; text-transform:uppercase; letter-spacing:2px; }
+.sc-total-val{ font-size:36px; font-weight:900; color:var(--gold); letter-spacing:1px; line-height:1; }
+.sc-total-detail{ font-size:13px; color:#aaa; margin-top:2px; }
 
 /* ── Tabs ── */
 .sc-tabs{ display:flex; background:rgba(0,0,0,.5); border-bottom:1px solid var(--brd); flex-shrink:0; }
-.sc-tab{ flex:1; padding:7px 14px; cursor:pointer; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
+.sc-tab{ flex:1; padding:10px 14px; cursor:pointer; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
 .sc-tab.active{ color:var(--gold); border-bottom-color:var(--gold); background:rgba(240,180,41,.05); }
 
 /* ── Need bar ── */
@@ -217,13 +217,13 @@ body{
 .sc-body::-webkit-scrollbar-thumb{ background:#2a2a3a; border-radius:2px; }
 
 /* ── Column headers ── */
-.sc-col-hdr{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; background:rgba(0,0,0,.6); border-bottom:1px solid rgba(255,255,255,.12); padding:5px 16px; position:sticky; top:0; z-index:2; flex-shrink:0; }
-.sc-col-hdr span{ font-size:9px; font-weight:700; color:#666; text-transform:uppercase; letter-spacing:2px; text-align:right; }
+.sc-col-hdr{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; background:rgba(0,0,0,.6); border-bottom:1px solid rgba(255,255,255,.12); padding:8px 20px; position:sticky; top:0; z-index:2; flex-shrink:0; }
+.sc-col-hdr span{ font-size:12px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:2px; text-align:right; }
 .sc-col-hdr span:first-child{ text-align:left; }
 .sc-col-hdr.bat-hdr{ grid-template-columns:1fr 180px 65px 65px 55px 55px 65px; }
 
 /* ── Data rows ── */
-.sc-row{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; padding:8px 16px; border-bottom:1px solid rgba(255,255,255,.04); align-items:center; transition:background .15s; }
+.sc-row{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; padding:13px 20px; border-bottom:1px solid rgba(255,255,255,.06); align-items:center; transition:background .15s; }
 .sc-row:hover{ background:var(--rowh); }
 .sc-row.bat-row-sc{ grid-template-columns:1fr 180px 65px 65px 55px 55px 65px; }
 .sc-row.alt{ background:var(--row); }
@@ -231,9 +231,9 @@ body{
 .sc-row.dis-row{ opacity:.6; }
 .sc-row.dis-row > span:first-child{ color:#444; text-decoration:line-through; }
 .sc-row.dnb-row{ opacity:.3; }
-.sc-cell{ font-size:14px; color:#ccc; text-align:right; }
-.sc-cell.left{ text-align:left; font-size:14px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.sc-cell.how{ text-align:left; font-size:11px; color:#888; font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sc-cell{ font-size:17px; color:#ccc; text-align:right; }
+.sc-cell.left{ text-align:left; font-size:17px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sc-cell.how{ text-align:left; font-size:13px; color:#888; font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sc-cell.gold{ color:var(--gold); font-weight:700; }
 .sc-cell.green{ color:#06d6a0; font-weight:600; }
 .sc-cell.red{ color:#e63946; font-weight:600; }
@@ -241,17 +241,17 @@ body{
 
 /* ── Fall of wickets ── */
 .sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.45); border-top:1px solid rgba(255,255,255,.08); padding:6px 16px; flex-wrap:wrap; gap:4px; flex-shrink:0; }
-.sc-fow-lbl{ font-size:9px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:8px; white-space:nowrap; }
-.sc-fow-item{ font-size:11px; color:#aaa; padding:1px 8px; border-right:1px solid rgba(255,255,255,.08); }
+.sc-fow-lbl{ font-size:11px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:8px; white-space:nowrap; }
+.sc-fow-item{ font-size:13px; color:#aaa; padding:2px 10px; border-right:1px solid rgba(255,255,255,.08); }
 .sc-fow-item:last-child{ border-right:none; }
 .sc-fow-item b{ color:var(--gold); }
 
 /* ── Footer totals ── */
 .sc-footer{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; background:rgba(0,0,0,.75); border-top:1px solid rgba(255,255,255,.14); flex-shrink:0; margin-top:auto; }
-.sc-footer-cell{ padding:8px 16px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:2px; }
+.sc-footer-cell{ padding:12px 16px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:3px; }
 .sc-footer-cell:last-child{ border-right:none; }
-.sc-footer-lbl{ font-size:9px; color:#888; text-transform:uppercase; letter-spacing:2px; }
-.sc-footer-val{ font-size:19px; font-weight:900; color:#e8e8f0; letter-spacing:1px; }
+.sc-footer-lbl{ font-size:12px; color:#888; text-transform:uppercase; letter-spacing:2px; }
+.sc-footer-val{ font-size:26px; font-weight:900; color:#e8e8f0; letter-spacing:1px; }
 .sc-footer-val.gold{ color:var(--gold); }
 
 /* ── Bowling panel header ── */
@@ -724,7 +724,7 @@ onValue(ref(db,'cricket'),snap=>{
         else if(isCr){ howOut='not out'; howStyle='color:#06d6a0'; }
         const div=document.createElement('div');
         div.className=['sc-row bat-row-sc',row.out?'dis-row':'',isStr?'hlt':'',i%2===0?'alt':''].filter(Boolean).join(' ');
-        div.innerHTML=`<span class="sc-cell left ${isStr?'strike':''}">${isStr?'● ':''}${row.name}</span><span class="sc-cell how" style="${howStyle}">${howOut}</span><span class="sc-cell ${isStr?'gold':''}">${row.runs}</span><span class="sc-cell">${row.balls}</span><span class="sc-cell">${row.fours||0}</span><span class="sc-cell">${row.sixes||0}</span><span class="sc-cell" style="font-size:12px;color:#888">${sr}</span>`;
+        div.innerHTML=`<span class="sc-cell left ${isStr?'strike':''}">${isStr?'● ':''}${row.name}</span><span class="sc-cell how" style="${howStyle}">${howOut}</span><span class="sc-cell ${isStr?'gold':''}">${row.runs}</span><span class="sc-cell">${row.balls}</span><span class="sc-cell">${row.fours||0}</span><span class="sc-cell">${row.sixes||0}</span><span class="sc-cell" style="font-size:16px;color:#888">${sr}</span>`;
         batCont.appendChild(div);
     });
     $('scFow').innerHTML=`<span class="sc-fow-lbl">Fall of Wickets</span>`+(fowItems.length?fowItems.join(''):`<span style="color:#444;font-style:italic;font-size:11px">—</span>`);
