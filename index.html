@@ -480,27 +480,33 @@ function triggerAutoPopup(dur){
     if(autoBarTimer)   clearTimeout(autoBarTimer);
 
     autoPopupActive = true;
-    $('scWrap').className = 'sc-wrap';          // show scorecard
-    window.setTab('bat');                        // always show batting tab
+    $('scWrap').className = 'sc-wrap';      // show scorecard
+    window.setTab('bat');                   // start with batting
 
-    // Show & animate the countdown bar
-    const bar   = $('scAutoBar');
-    const fill  = $('scAutoBarFill');
+    // Show & animate the full-duration countdown bar
+    const bar  = $('scAutoBar');
+    const fill = $('scAutoBarFill');
     bar.classList.add('running');
     fill.style.animation = 'none';
-    void fill.offsetWidth;                       // reflow
+    void fill.offsetWidth;                  // reflow
     fill.style.animation = `autoBarShrink ${dur}s linear forwards`;
 
-    // Show over badge briefly
-    const badge=$('overBadge');
+    // Show over-end badge briefly
+    const badge = $('overBadge');
     badge.classList.add('show');
-    setTimeout(()=>badge.classList.remove('show'),3000);
+    setTimeout(()=>badge.classList.remove('show'), 3000);
 
-    // Auto-hide after dur seconds
+    // ── Switch to bowling at the halfway point ──
+    const half = Math.floor(dur / 2);
+    autoBarTimer = setTimeout(()=>{
+        window.setTab('bwl');
+    }, half * 1000);
+
+    // ── Auto-hide after full duration ──
     autoPopupTimer = setTimeout(()=>{
         autoPopupActive = false;
         bar.classList.remove('running');
-        // restore whatever the manual state is
+        window.setTab('bat');               // reset tab back to batting for next time
         const ui = uiSt || {};
         $('scWrap').className = ui.scorecard ? 'sc-wrap' : 'sc-wrap hidden';
     }, dur * 1000);
