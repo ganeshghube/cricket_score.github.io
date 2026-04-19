@@ -129,7 +129,8 @@ button:active{ opacity:.65; transform:scale(.95); }
     display:flex; align-items:center; justify-content:center;
     z-index:9999; flex-direction:column; gap:0;
 }
-#pwGate.gone{ display:none; }.pw-box{
+#pwGate.gone{ display:none; }
+.pw-box{
     background:#0e0e1a; border:1px solid #252535;
     border-radius:10px; padding:36px 32px 30px;
     display:flex; flex-direction:column; align-items:center;
@@ -355,7 +356,7 @@ button:active{ opacity:.65; transform:scale(.95); }
     </div>
 </div>
 
-<!-- ═══ NEW: ANNOUNCEMENTS CARD ═══ -->
+<!-- ═══ ANNOUNCEMENTS CARD ═══ -->
 <div class="card">
     <h4><span class="hico">📣</span> Announcements &amp; Celebrations</h4>
 
@@ -529,7 +530,7 @@ const mRef = ref(db,'cricket');
 const sRef = ref(db,'squads');
 const uRef = ref(db,'ui');
 const hRef = ref(db,'undoStack');
-const aRef = ref(db,'announcement');   // ← NEW: announcement node
+const aRef = ref(db,'announcement');
 const $    = id => document.getElementById(id);
 
 // ── Shared state ──
@@ -579,7 +580,7 @@ onValue(hRef, snap => {
 });
 
 // ══════════════════════════════════════════════════
-// ANNOUNCEMENT SYSTEM — NEW
+// ANNOUNCEMENT SYSTEM
 // ══════════════════════════════════════════════════
 const QUICK_ANN = {
     century:  { emoji:'🏆', text:'CENTURY!',          sub:'100 runs off the bat!',     dur:20, style:'gold' },
@@ -590,7 +591,6 @@ const QUICK_ANN = {
     hattrick: { emoji:'🎩', text:'HAT TRICK!',         sub:'Three in three!',            dur:20, style:'gold' },
 };
 
-// Preview updater
 window.updateAnnPreview = () => {
     const emoji = $('annEmoji').value.trim() || '📣';
     const msg   = $('annMsg').value.trim();
@@ -608,7 +608,6 @@ window.sendQuickAnn = async (type) => {
     const cfg = QUICK_ANN[type];
     if (!cfg) return;
 
-    // century, fifty, hattrick always send rain; wicket/six/four respect their checkbox
     const rainChk = document.getElementById(`rain_${type}`);
     const rain = rainChk ? rainChk.checked : true;
 
@@ -694,7 +693,6 @@ onValue(mRef, snap => {
     const fmt = d.maxOvers||20;
     $('fmtLbl').textContent = fmt===50?'ODI · 50 OVERS':fmt===20?'T20 · 20 OVERS':fmt===10?'T10 · 10 OVERS':fmt===40?'40 OVERS':`CUSTOM · ${fmt} OVERS`;
     const fmtEl = $('fmtSel');
-    // if it's a custom over count not in the preset list, show custom input
     if ([10,20,40,50].includes(fmt)) {
         fmtEl.value = String(fmt);
         $('customOversWrap').style.display = 'none';
