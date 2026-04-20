@@ -167,6 +167,30 @@ button:active{ opacity:.65; transform:scale(.95); }
 .qf-rain-chk{ width:13px!important; height:13px!important; cursor:pointer; flex-shrink:0; margin:0!important; }
 .qf-rain-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; cursor:pointer; margin:0; }
 
+/* ── MATCH HISTORY ── */
+.hist-empty{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#333; text-align:center; padding:20px; letter-spacing:1px; }
+.hist-item{
+    background:#07070f; border:1px solid var(--brd); border-radius:6px;
+    padding:12px 14px; margin-bottom:8px;
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.hist-item:last-child{ margin-bottom:0; }
+.hist-info{ flex:1; min-width:160px; }
+.hist-title{ font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:800; color:#ddd; letter-spacing:.5px; }
+.hist-meta{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--muted); margin-top:3px; letter-spacing:.5px; }
+.hist-score{ font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:900; color:var(--y); letter-spacing:1px; white-space:nowrap; }
+.hist-actions{ display:flex; gap:6px; flex-shrink:0; }
+.b-hist-dl{ background:#032212; color:#06d6a0; border:1px solid #0a4030; border-radius:4px; padding:8px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; letter-spacing:1px; width:auto; }
+.b-hist-dl:hover{ background:#06d6a0; color:#000; }
+.b-hist-del{ background:#200000; color:#ff6060; border:1px solid #500000; border-radius:4px; padding:8px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; letter-spacing:1px; width:auto; }
+.b-hist-del:hover{ background:#e63946; color:#fff; }
+.hist-list{ max-height:400px; overflow-y:auto; }
+.hist-list::-webkit-scrollbar{ width:4px; }
+.hist-list::-webkit-scrollbar-track{ background:rgba(0,0,0,.3); }
+.hist-list::-webkit-scrollbar-thumb{ background:#2a2a3a; border-radius:2px; }
+.b-save-db{ background:linear-gradient(135deg,#003a28,#002018); color:#06d6a0; border:1px solid #0a5038; font-size:15px; }
+.b-save-db:hover{ background:#06d6a0; color:#000; }
+
 /* ── PASSWORD GATE ── */
 #pwGate{ position:fixed; inset:0; background:#080810; display:flex; align-items:center; justify-content:center; z-index:9999; flex-direction:column; gap:0; }
 #pwGate.gone{ display:none; }
@@ -470,15 +494,26 @@ button:active{ opacity:.65; transform:scale(.95); }
 <!-- 7. SAVE SCORECARD -->
 <div class="card">
     <h4><span class="hico">💾</span> Save Match Scorecard</h4>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.7">Downloads a standalone HTML scorecard. Save before resetting.</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.7">Save to database for later, or download as a file.</div>
     <div class="g2">
         <div><label>Match Title</label><input id="matchTitle" placeholder="Club Final · Ground Name"></div>
         <div><label>Venue</label><input id="matchVenue" placeholder="Eden Gardens, Kolkata"></div>
     </div>
-    <button class="b-show" style="margin-top:12px" onclick="saveMatch()">💾 DOWNLOAD SCORECARD FILE</button>
+    <div class="g2" style="margin-top:10px">
+        <button class="b-save-db" onclick="saveMatchToDb()">☁ SAVE TO DATABASE</button>
+        <button class="b-show" onclick="saveMatch()">💾 DOWNLOAD FILE</button>
+    </div>
 </div>
 
-<!-- 8. INNINGS / RESET -->
+<!-- 8. MATCH HISTORY -->
+<div class="card">
+    <h4><span class="hico">📚</span> Match History</h4>
+    <div class="hist-list" id="histList">
+        <div class="hist-empty">No saved matches yet.</div>
+    </div>
+</div>
+
+<!-- 9. INNINGS / RESET -->
 <div class="card">
     <button class="b-inn" style="margin-bottom:10px" onclick="swapInnings()">🔄 START 2ND INNINGS</button>
     <button class="b-rst" onclick="fullReset()">⚠ RESET ALL DATA</button>
@@ -534,16 +569,112 @@ const cfg = {
     messagingSenderId:"41064243639",
     appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
 };
-const db   = getDatabase(initializeApp(cfg));
-const mRef = ref(db,'cricket');
-const sRef = ref(db,'squads');
-const uRef = ref(db,'ui');
-const hRef = ref(db,'undoStack');
-const aRef = ref(db,'announcement');
-const $    = id => document.getElementById(id);
+const db    = getDatabase(initializeApp(cfg));
+const mRef  = ref(db,'cricket');
+const sRef  = ref(db,'squads');
+const uRef  = ref(db,'ui');
+const hRef  = ref(db,'undoStack');
+const aRef  = ref(db,'announcement');
+const histRef = ref(db,'matchHistory');
+const $     = id => document.getElementById(id);
 
 let _squads = { bat:[], bowl:[] };
 let _match  = null;
+
+// ══ MATCH HISTORY ══════════════════════════════════
+
+// Save current match state to Firebase matchHistory
+window.saveMatchToDb = async () => {
+    const snap = await get(mRef); const d = snap.val();
+    if(!d) return alert('No match data to save!');
+    const title = $('matchTitle').value.trim() || `${d.batTeam} vs ${d.bowlTeam}`;
+    const venue = $('matchVenue').value.trim() || '';
+    const now   = new Date();
+    const dateLabel = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const ovStr = b => `${Math.floor(b/6)}.${b%6}`;
+    const record = {
+        title,
+        venue,
+        savedAt: Date.now(),
+        dateLabel,
+        batTeam:   d.batTeam,
+        bowlTeam:  d.bowlTeam,
+        score:     `${d.runs}/${d.wkts}`,
+        overs:     ovStr(d.balls),
+        maxOvers:  d.maxOvers || 20,
+        innings:   d.innings || 1,
+        inn1Score: d.inn1Score || null,
+        inn1Bat:   d.inn1Bat  || null,
+        target:    d.target   || 0,
+        batRows:   d.batRows  || [],
+        bowlRows:  d.bowlRows || [],
+    };
+    await push(histRef, record);
+    alert(`✅ Match saved: "${title}"`);
+};
+
+// Delete a match from history
+window.deleteMatch = async (key) => {
+    if(!confirm('Delete this match from history?')) return;
+    await remove(ref(db, `matchHistory/${key}`));
+};
+
+// Download a saved match as HTML file
+window.downloadSavedMatch = (key, data) => {
+    const ovStr = b => `${Math.floor(b/6)}.${b%6}`;
+    const sr  = (r,b) => b>0?((r/b)*100).toFixed(0):'—';
+    const eco = (r,b) => b>0?(r/(b/6)).toFixed(2):'—';
+    const batHtml = (rows, team) => {
+        if(!rows||!rows.length) return '';
+        let ext=0; (data.bowlRows||[]).forEach(r=>{ext+=(r.wides||0)+(r.noballs||0)+(r.byes||0)+(r.legbyes||0);});
+        let h=`<h3 class="th">🏏 ${team} — Batting</h3><table><thead><tr><th>Batsman</th><th>How Out</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>`;
+        rows.forEach(row=>{ const st=row.out?(row.howOut||'out'):'not out'; const cl=row.out?'out':'notout'; h+=`<tr class="${cl}"><td class="nm">${row.name}</td><td class="ho">${st}</td><td class="n"><b>${row.runs}</b></td><td class="n">${row.balls}</td><td class="n">${row.fours||0}</td><td class="n">${row.sixes||0}</td><td class="n s">${sr(row.runs,row.balls)}</td></tr>`; });
+        h+=`<tr class="xr"><td colspan="2">Extras</td><td class="n"><b>${ext}</b></td><td colspan="4"></td></tr><tr class="tr"><td colspan="2"><b>TOTAL</b></td><td class="n"><b>${data.score}</b></td><td colspan="2" class="n s">(${data.overs} ovs)</td><td colspan="2"></td></tr></tbody></table>`;
+        return h;
+    };
+    const bwlHtml = (rows, team) => {
+        if(!rows||!rows.length) return '';
+        let h=`<h3 class="th">⚾ ${team} — Bowling</h3><table><thead><tr><th>Bowler</th><th>O</th><th>R</th><th>W</th><th>Wd</th><th>Nb</th><th>Eco</th></tr></thead><tbody>`;
+        rows.forEach(row=>{ if(!row.balls&&!(row.wides||0)&&!(row.noballs||0)){h+=`<tr class="dnb"><td class="nm">${row.name}</td><td colspan="6" style="color:#555;font-style:italic">did not bowl</td></tr>`;return;} const ecoV=parseFloat(eco(row.runs,row.balls)); const eCl=ecoV<7?'eg':(ecoV>10?'eb':''); h+=`<tr><td class="nm">${row.name}</td><td class="n">${ovStr(row.balls)}</td><td class="n">${row.runs}</td><td class="n"><b>${row.wkts}</b></td><td class="n s">${row.wides||0}</td><td class="n s">${row.noballs||0}</td><td class="n ${eCl}">${eco(row.runs,row.balls)}</td></tr>`; });
+        h+=`</tbody></table>`; return h;
+    };
+    const i1 = data.inn1Score ? `<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.inn1Bat} — ${data.inn1Score}</span></div>` : '';
+    const i2 = data.innings===2
+        ? `<div class="is i2"><span class="il">2ND INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span>${data.target>0?`<span class="it">Target ${data.target}</span>`:''}</div>`
+        : `<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span></div>`;
+    const fmt = data.maxOvers ? `${data.maxOvers} Overs` : 'T20';
+    const html=`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${data.title}</title><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--y:#f0b429;--bg:#080810;--card:#0e0e1a;--brd:#1e1e2e;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Barlow',sans-serif;background:var(--bg);color:#ccc;padding:20px;max-width:900px;margin:auto;}.hdr{background:linear-gradient(135deg,#0c0c00,#111);border:1px solid #2a2000;border-radius:8px;padding:20px 24px;margin-bottom:16px;}.htitle{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--y);text-transform:uppercase;letter-spacing:2px;}.hmeta{font-size:11px;color:#555;margin-top:6px;display:flex;gap:16px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;}.hmeta b{color:#888;}.is{background:#0e0e1a;border-left:4px solid var(--y);padding:10px 16px;margin-bottom:8px;border-radius:0 6px 6px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}.i2{border-left-color:#06d6a0;}.il{font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#444;text-transform:uppercase;letter-spacing:2px;}.isc{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#fff;}.it{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--y);font-weight:700;}.sec{background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:16px;margin-bottom:14px;}.th{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--y);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--brd);}table{width:100%;border-collapse:collapse;margin-bottom:20px;}th{font-family:'Barlow Condensed',sans-serif;font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1px;padding:4px 8px;text-align:right;font-weight:700;border-bottom:1px solid var(--brd);}th:first-child,th:nth-child(2){text-align:left;}td{font-size:13px;padding:7px 8px;text-align:right;border-top:1px solid rgba(255,255,255,.03);color:#aaa;}td.nm{text-align:left;color:#ddd;font-weight:600;}td.ho{text-align:left;font-size:11px;color:#555;}tr.notout td.nm{color:#fff;}tr.notout td.ho{color:#06d6a0;}tr.xr td{color:#666;font-size:12px;}tr.tr td{color:var(--y);font-weight:700;background:#0a0a18;}.eg{color:#06d6a0!important;font-weight:600;}.eb{color:#e63946!important;font-weight:600;}.ftr{text-align:center;font-size:10px;color:#222;margin-top:20px;font-family:'Barlow Condensed',sans-serif;}</style></head><body><div class="hdr"><div class="htitle">${data.title}</div><div class="hmeta"><span><b>Date:</b> ${data.dateLabel}</span>${data.venue?`<span><b>Venue:</b> ${data.venue}</span>`:''}<span><b>Format:</b> ${fmt}</span><span><b>${data.batTeam}</b> vs <b>${data.bowlTeam}</b></span></div></div>${i1}${i2}<div class="sec">${batHtml(data.batRows,data.batTeam)}${bwlHtml(data.bowlRows,data.bowlTeam)}</div><div class="ftr">Generated by Cricket Overlay Admin · ${data.dateLabel}</div></body></html>`;
+    const safe = data.title.replace(/[^a-zA-Z0-9\s]/g,'').replace(/\s+/g,'-').substring(0,40);
+    const blob = new Blob([html],{type:'text/html'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a'); a.href=url; a.download=`scorecard_${safe}.html`; a.click();
+    URL.revokeObjectURL(url);
+};
+
+// Render history list
+function renderHistory(val){
+    const list = $('histList');
+    if(!val){ list.innerHTML='<div class="hist-empty">No saved matches yet.</div>'; return; }
+    const entries = Object.entries(val).sort((a,b)=>b[1].savedAt-a[1].savedAt);
+    list.innerHTML = entries.map(([key, d])=>{
+        const inn = d.inn1Score ? `${d.inn1Bat}: ${d.inn1Score} | ${d.batTeam}: ${d.score} (${d.overs})` : `${d.batTeam}: ${d.score} (${d.overs} ovs)`;
+        return `
+        <div class="hist-item">
+            <div class="hist-info">
+                <div class="hist-title">${d.title||'Untitled Match'}</div>
+                <div class="hist-meta">${d.dateLabel}${d.venue?' · '+d.venue:''} · ${d.maxOvers||20} ovs</div>
+                <div class="hist-meta" style="color:#888;margin-top:2px">${inn}</div>
+            </div>
+            <div class="hist-score">${d.score}</div>
+            <div class="hist-actions">
+                <button class="b-hist-dl" onclick="downloadSavedMatch('${key}', JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(d))}')))" title="Download as HTML">⬇ FILE</button>
+                <button class="b-hist-del" onclick="deleteMatch('${key}')" title="Delete">🗑 DEL</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+onValue(histRef, snap => renderHistory(snap.val()));
 
 // ══ AUTO POPUP TOGGLE ══════════════════════════════
 let _autoOn = false;
