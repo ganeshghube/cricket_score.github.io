@@ -69,7 +69,6 @@ button:active{ opacity:.65; transform:scale(.95); }
 .undo-badge{ display:inline-block; background:#1a1a40; color:#9090ff; border-radius:3px; padding:1px 6px; font-size:11px; margin-left:4px; font-family:'Barlow Condensed',sans-serif; }
 .b-injury{ background:#1a0a00; color:#ffaa44; border:1px solid #4a2800; font-size:12px; padding:10px 8px; }
 .b-injury:hover{ background:#e67e22; color:#000; border-color:#e67e22; }
-
 .b-ann-century { background:linear-gradient(135deg,#2a1e00,#1e1400); color:#ffd700; border:1px solid #8a6000; font-size:15px; }
 .b-ann-fifty   { background:linear-gradient(135deg,#1a1a00,#141400); color:#e0c040; border:1px solid #6a5a00; }
 .b-ann-wkt     { background:linear-gradient(135deg,#1a0000,#200000); color:#ff7070; border:1px solid #600000; }
@@ -78,11 +77,24 @@ button:active{ opacity:.65; transform:scale(.95); }
 .b-ann-custom  { background:linear-gradient(135deg,#081818,#0a2020); color:#06d6a0; border:1px solid #0a4030; }
 .ann-preview{ background:#06060f; border:1px solid var(--brd2); border-radius:5px; padding:10px 14px; margin-top:10px; min-height:40px; font-family:'Barlow Condensed',sans-serif; font-size:14px; color:#555; letter-spacing:.5px; text-align:center; transition:color .2s; }
 .ann-preview.has-msg{ color:#ddd; }
-
 .sep{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin:10px 0 5px; display:flex; align-items:center; gap:8px; }
 .sep::after{ content:''; flex:1; height:1px; background:var(--brd); }
 .note{ font-size:10px; color:#333344; margin-top:10px; line-height:1.7; border-top:1px solid var(--brd); padding-top:8px; }
 .note b{ color:#555566; }
+
+/* ── PLAYER INPUTS (11 per team) ── */
+.squad-grid{ display:flex; flex-direction:column; gap:5px; margin-top:6px; }
+.player-row{ display:flex; align-items:center; gap:8px; }
+.player-num{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--muted); width:18px; flex-shrink:0; text-align:right; }
+.player-avatar-wrap{ position:relative; width:32px; height:32px; flex-shrink:0; }
+.player-avatar{ width:32px; height:32px; border-radius:50%; object-fit:cover; background:#111; border:2px solid var(--brd2); cursor:pointer; }
+.player-avatar:hover{ border-color:var(--y); }
+.player-avatar-upload{ display:none; }
+.player-photo-btn{ position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .2s; font-size:14px; border:none; padding:0; width:32px; }
+.player-avatar-wrap:hover .player-photo-btn{ opacity:1; }
+.player-name-input{ flex:1; padding:7px 10px; font-size:13px; }
+.player-cap-badge{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--y); border:1px solid var(--y); border-radius:2px; padding:1px 5px; cursor:pointer; white-space:nowrap; flex-shrink:0; opacity:.5; transition:.2s; }
+.player-cap-badge.on{ opacity:1; background:rgba(240,180,41,.1); }
 
 /* modals */
 .modal-bg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
@@ -106,7 +118,6 @@ button:active{ opacity:.65; transform:scale(.95); }
 .ov-panel{ display:flex; flex-direction:column; gap:6px; background:var(--card2); padding:10px; border-radius:6px; border:1px solid var(--brd); }
 .ov-panel .panel-label{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:2px; }
 
-/* auto popup panel */
 .auto-popup-panel{ margin-top:12px; background:var(--card2); border:1px solid var(--brd); border-radius:6px; padding:12px 14px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
 .auto-popup-toggle{ display:flex; align-items:center; gap:10px; flex:1; min-width:200px; }
 .toggle-track{ width:46px; height:24px; border-radius:12px; background:#1a1a2e; border:1px solid #252535; position:relative; cursor:pointer; flex-shrink:0; transition:background .2s,border-color .2s; }
@@ -132,7 +143,6 @@ button:active{ opacity:.65; transform:scale(.95); }
 .bpk-cancel{ width:100%; padding:11px; background:transparent; border:1px solid #252535; border-radius:6px; color:#555; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; letter-spacing:1px; }
 .bpk-cancel:hover{ color:#aaa; border-color:#444; }
 
-/* quick fire rain checkboxes */
 .qf-item{ display:flex; flex-direction:column; gap:5px; }
 .qf-rain-row{ display:flex; align-items:center; gap:6px; padding:3px 0 0; }
 .qf-rain-chk{ width:13px!important; height:13px!important; cursor:pointer; flex-shrink:0; margin:0!important; }
@@ -163,263 +173,6 @@ button:active{ opacity:.65; transform:scale(.95); }
 /* auto-save toast */
 #autoSaveToast{ position:fixed; bottom:80px; right:16px; z-index:9999; background:#032212; color:#06d6a0; border:1px solid #0a4030; border-radius:6px; padding:8px 16px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; opacity:0; transition:opacity .3s; pointer-events:none; }
 
-/* ── PLAYER POPUP MODAL ── */
-#playerPopupModal{
-    display:none; position:fixed; inset:0; z-index:400;
-    background:rgba(0,0,0,.94); backdrop-filter:blur(8px);
-    align-items:center; justify-content:center;
-}
-#playerPopupModal.open{ display:flex; }
-.pp-box{
-    background:#0c0c1a; border:1px solid #252535; border-radius:14px;
-    padding:22px 20px; width:96%; max-width:580px;
-    max-height:90vh; overflow-y:auto;
-    box-shadow:0 30px 100px rgba(0,0,0,.98), 0 0 0 1px rgba(240,180,41,.1);
-}
-.pp-box::-webkit-scrollbar{ width:4px; }
-.pp-box::-webkit-scrollbar-thumb{ background:#2a2a3a; border-radius:2px; }
-.pp-title{
-    font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:900;
-    color:var(--y); text-transform:uppercase; letter-spacing:3px;
-    margin-bottom:16px; padding-bottom:10px; border-bottom:1px solid #252535;
-    display:flex; justify-content:space-between; align-items:center;
-}
-.pp-close{
-    background:none; border:none; cursor:pointer; color:#555;
-    font-size:18px; padding:0; width:auto; line-height:1;
-}
-.pp-close:hover{ color:#fff; }
-.pp-teams{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.pp-team-name{
-    font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:800;
-    color:var(--y); text-transform:uppercase; letter-spacing:2px;
-    margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid #1e1e2e;
-}
-.pp-players{ display:flex; flex-direction:column; gap:6px; }
-.pp-player{
-    display:flex; align-items:center; gap:8px;
-    background:#07070f; border-radius:6px; padding:7px 10px;
-    border:1px solid #1e1e2e;
-}
-.pp-player-img{
-    width:32px; height:32px; border-radius:50%;
-    object-fit:cover; object-position:top center;
-    border:1px solid #252535; flex-shrink:0;
-}
-.pp-player-placeholder{
-    width:32px; height:32px; border-radius:50%;
-    background:#0d0d1a; border:1px dashed #252535;
-    display:flex; align-items:center; justify-content:center;
-    font-size:13px; flex-shrink:0;
-}
-.pp-player-name{
-    font-family:'Barlow Condensed',sans-serif; font-size:13px;
-    font-weight:700; color:#ccc;
-}
-.pp-player-num{
-    font-family:'Barlow Condensed',sans-serif; font-size:10px;
-    color:#333; margin-left:auto; flex-shrink:0;
-}
-.b-players{ background:linear-gradient(135deg,#0a1a0a,#061206); color:#06d6a0; border:1px solid #0a4030; font-size:13px; }
-.b-players:hover{ background:#06d6a0; color:#000; }
-
-/* ── SQUAD PLAYER ROWS ── */
-.squad-section{ display:flex; flex-direction:column; gap:6px; }
-.squad-team-label{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:2px; }
-.squad-player-row{ display:flex; align-items:center; gap:8px; }
-.squad-player-input{ flex:1; padding:7px 10px!important; font-size:13px!important; }
-.squad-photo-btn{
-    width:34px; height:34px; flex-shrink:0;
-    border-radius:50%; border:1.5px dashed #252535;
-    background:#0a0a18; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    font-size:14px; transition:all .15s; overflow:hidden; padding:0;
-}
-.squad-photo-btn:hover{ border-color:var(--y); background:#1a1200; }
-.squad-photo-btn img{ width:34px; height:34px; object-fit:cover; object-position:top center; border-radius:50%; }
-.squad-add-row{ display:flex; gap:8px; margin-top:4px; }
-.b-squad-add{ background:#070712; color:#555; border:1px dashed #252535; font-size:12px; padding:8px; }
-.b-squad-add:hover{ border-color:var(--y); color:var(--y); }
-.b-intro{ background:linear-gradient(135deg,#001428,#001e38); color:#7ec8ff; border:1px solid #0a3060; font-size:13px; }
-.b-intro:hover{ background:#7ec8ff; color:#000; }
-
-/* overlay toggle rows */
-.ov-toggles{ display:flex; flex-direction:column; gap:6px; margin-top:10px; }
-.ov-toggle-row{
-    display:flex; align-items:center; justify-content:space-between;
-    background:#07070f; border:1px solid var(--brd); border-radius:6px;
-    padding:9px 12px; gap:10px;
-}
-.ov-toggle-row.active{ border-color:#0a3a20; }
-.ov-toggle-info{ flex:1; }
-.ov-toggle-name{
-    font-family:'Barlow Condensed',sans-serif; font-size:12px;
-    font-weight:700; color:#bbb; letter-spacing:.5px; text-transform:uppercase;
-}
-.ov-toggle-desc{
-    font-family:'Barlow Condensed',sans-serif; font-size:10px;
-    color:#333; letter-spacing:.5px; margin-top:2px;
-}
-.ov-toggle-row.active .ov-toggle-desc{ color:#3a6a3a; }
-.ov-chk-wrap{
-    position:relative; width:40px; height:22px; flex-shrink:0;
-}
-.ov-chk-wrap input[type=checkbox]{ opacity:0; width:0; height:0; position:absolute; }
-.ov-chk-slider{
-    position:absolute; inset:0; border-radius:11px;
-    background:#1a1a2e; border:1px solid #252535; cursor:pointer;
-    transition:background .2s, border-color .2s;
-}
-.ov-chk-slider::after{
-    content:''; position:absolute; top:2px; left:2px;
-    width:16px; height:16px; border-radius:50%;
-    background:#444; transition:transform .2s, background .2s;
-}
-.ov-chk-wrap input:checked + .ov-chk-slider{ background:#0a3a20; border-color:#06d6a0; }
-.ov-chk-wrap input:checked + .ov-chk-slider::after{ transform:translateX(18px); background:#06d6a0; }
-
-/* player photo manager */
-.photo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:400px; overflow-y:auto; margin-top:8px; }
-.photo-grid::-webkit-scrollbar{ width:4px; }
-.photo-grid::-webkit-scrollbar-thumb{ background:#2a2a3a; border-radius:2px; }
-.photo-row{
-    display:flex; flex-direction:column; align-items:center; gap:6px;
-    background:#07070f; border:1px solid var(--brd); border-radius:8px; padding:10px 8px;
-    cursor:pointer; transition:border-color .2s;
-    position:relative;
-}
-.photo-row:hover{ border-color:var(--y); }
-.photo-row.has-photo{ border-color:#0a4030; }
-.photo-thumb{
-    width:64px; height:64px; border-radius:50%;
-    object-fit:cover; object-position:top center;
-    background:#111; border:2px solid #252535; flex-shrink:0;
-    display:block;
-}
-.photo-thumb-placeholder{
-    width:64px; height:64px; border-radius:50%;
-    background:#0d0d1a; border:2px dashed #252535; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center; font-size:22px; color:#333;
-}
-.photo-row.has-photo .photo-thumb-placeholder{ border-color:#0a4030; }
-.photo-name{
-    font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700;
-    color:#ccc; text-align:center; width:100%;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.photo-upload-label{
-    font-family:'Barlow Condensed',sans-serif; font-size:9px; color:#444;
-    text-transform:uppercase; letter-spacing:1px; text-align:center;
-}
-.photo-row.has-photo .photo-upload-label{ color:#06d6a0; }
-.photo-del{
-    position:absolute; top:4px; right:4px;
-    background:#200000; color:#ff6060; border:none; border-radius:3px;
-    font-size:10px; padding:2px 5px; cursor:pointer; display:none; width:auto;
-}
-.photo-row.has-photo .photo-del{ display:block; }
-.photo-uploading{ position:absolute; inset:0; border-radius:8px; background:rgba(0,0,0,.7); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--y); letter-spacing:1px; }
-.b-show-player{ background:#051428; color:#7ec8ff; border:1px solid #0a2a50; border-radius:4px; padding:6px 10px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; width:auto; flex-shrink:0; }
-.b-show-player:hover{ background:#7ec8ff; color:#000; }
-
-/* player card overlay on index.html */
-.player-card-wrap{
-    position:fixed;
-    bottom:130px; right:24px;
-    z-index:52;
-    pointer-events:none;
-    opacity:0;
-    transform:translateX(40px) scale(0.92);
-    transition:opacity .5s cubic-bezier(.175,.885,.32,1.275), transform .5s cubic-bezier(.175,.885,.32,1.275);
-}
-.player-card-wrap.visible{
-    opacity:1;
-    transform:translateX(0) scale(1);
-}
-.player-card-wrap.leaving{
-    opacity:0;
-    transform:translateX(40px) scale(0.9);
-    transition:opacity .4s ease-in, transform .4s ease-in;
-}
-.player-card{
-    width:180px;
-    background:linear-gradient(160deg,rgba(14,14,28,.98) 0%,rgba(8,8,18,.98) 100%);
-    border:1px solid rgba(255,255,255,.1);
-    border-radius:10px;
-    overflow:hidden;
-    box-shadow:0 16px 60px rgba(0,0,0,.95), 0 0 0 1px rgba(240,180,41,.08);
-    position:relative;
-}
-.player-card-img{
-    width:100%; height:180px;
-    object-fit:cover; object-position:top center;
-    display:block;
-}
-.player-card-img-placeholder{
-    width:100%; height:180px;
-    background:linear-gradient(135deg,#0d0d1a,#1a1a2e);
-    display:flex; align-items:center; justify-content:center;
-    font-size:64px;
-}
-.player-card-body{
-    padding:10px 12px 12px;
-    background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(6,6,14,.98) 100%);
-}
-.player-card-role{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:9px; font-weight:700; letter-spacing:2px;
-    text-transform:uppercase; margin-bottom:3px;
-}
-.player-card-name{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:20px; font-weight:900; color:#fff;
-    line-height:1.1; letter-spacing:.5px;
-}
-.player-card-team{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:10px; color:rgba(255,255,255,.5);
-    letter-spacing:1px; margin-top:2px;
-}
-.player-card-stats{
-    display:flex; gap:10px; margin-top:8px;
-    border-top:1px solid rgba(255,255,255,.08);
-    padding-top:8px;
-}
-.player-card-stat{ flex:1; text-align:center; }
-.player-card-stat-val{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:18px; font-weight:900; color:var(--gold);
-    line-height:1;
-}
-.player-card-stat-lbl{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:9px; color:#666; letter-spacing:1px;
-    text-transform:uppercase; margin-top:2px;
-}
-.player-card-progress{
-    position:absolute; bottom:0; left:0; height:3px;
-    background:linear-gradient(90deg,var(--gold),#06d6a0);
-    animation:pcProgress linear forwards;
-    box-shadow:0 0 6px var(--gold);
-}
-@keyframes pcProgress{ from{width:100%} to{width:0%} }
-
-/* win popup */
-.win-popup-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.96); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
-.win-popup-overlay.open{ display:flex; }
-.win-popup-box{ background:linear-gradient(135deg,#0e0a00,#0a0600); border:2px solid var(--y); border-radius:16px; padding:36px 32px; width:96%; max-width:480px; text-align:center; box-shadow:0 0 80px rgba(240,180,41,.25),0 24px 80px rgba(0,0,0,.98); position:relative; overflow:hidden; }
-.win-popup-box::before{ content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(240,180,41,.07) 0%,transparent 70%); pointer-events:none; }
-.win-trophy{ font-size:72px; animation:trophyBounce .8s cubic-bezier(.36,.07,.19,.97) both; display:block; }
-@keyframes trophyBounce{ 0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg);opacity:1} 80%{transform:scale(.92) rotate(-2deg)} 100%{transform:scale(1) rotate(0)} }
-.win-popup-title{ font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:var(--y); text-transform:uppercase; letter-spacing:4px; margin:12px 0 6px; }
-.win-popup-sub{ font-family:'Barlow Condensed',sans-serif; font-size:16px; color:#ddd; letter-spacing:1px; margin-bottom:16px; }
-.win-popup-detail{ font-family:'Barlow Condensed',sans-serif; font-size:13px; color:#888; margin-bottom:24px; }
-.win-confetti{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
-.wc-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:wconfetti linear forwards; opacity:0; }
-@keyframes wconfetti{ 0%{opacity:1;transform:translateY(-20px) rotate(0deg);} 100%{opacity:0;transform:translateY(120vh) rotate(720deg);} }
-.win-popup-close{ background:linear-gradient(135deg,#3a2800,#2a1e00); color:var(--y); border:1px solid #5a3c00; border-radius:6px; padding:14px 32px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; width:auto; margin-top:4px; }
-.win-popup-close:hover{ background:var(--y); color:#000; }
-
 /* password gate */
 #pwGate{ position:fixed; inset:0; background:#080810; display:flex; align-items:center; justify-content:center; z-index:9999; }
 #pwGate.gone{ display:none; }
@@ -434,6 +187,53 @@ button:active{ opacity:.65; transform:scale(.95); }
 .pw-eye{ position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#555; font-size:16px; padding:0; width:auto; }
 #pwBtn{ width:100%; padding:12px; background:linear-gradient(135deg,#3a2800,#2a1e00); color:#f0b429; border:1px solid #5a3c00; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; }
 #pwErr{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:#e63946; letter-spacing:1px; min-height:16px; text-align:center; }
+
+/* ── PLAYER POPUP MODAL ── */
+.player-popup-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.94); z-index:400; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
+.player-popup-overlay.open{ display:flex; }
+.player-popup-box{ background:#0c0c1a; border:1px solid #252535; border-radius:14px; padding:24px; width:96%; max-width:700px; max-height:90vh; overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,.98); }
+.player-popup-box h3{ font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:900; color:var(--y); text-transform:uppercase; letter-spacing:3px; margin:0 0 18px; border-bottom:1px solid #252535; padding-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
+.player-popup-close{ background:none; border:1px solid #333; border-radius:4px; color:#555; font-size:16px; cursor:pointer; padding:4px 10px; width:auto; font-family:'Barlow Condensed',sans-serif; }
+.player-popup-close:hover{ color:#aaa; border-color:#555; }
+.team-section{ margin-bottom:20px; }
+.team-section-title{ font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:800; color:var(--y); text-transform:uppercase; letter-spacing:3px; margin-bottom:10px; }
+.player-grid-popup{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; }
+.player-card-popup{ background:#07070f; border:1px solid #1e1e2e; border-radius:8px; padding:12px 10px; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; }
+.player-card-popup img{ width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #252535; background:#111; }
+.player-card-popup .pcp-name{ font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:#ddd; }
+.player-card-popup .pcp-role{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#555; letter-spacing:1px; text-transform:uppercase; }
+
+/* ── WIN POPUP MODAL (non-alert) ── */
+.win-popup-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.96); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
+.win-popup-overlay.open{ display:flex; }
+.win-popup-box{ background:linear-gradient(135deg,#0e0a00,#0a0600); border:2px solid var(--y); border-radius:16px; padding:36px 32px; width:96%; max-width:500px; text-align:center; box-shadow:0 0 80px rgba(240,180,41,.25),0 24px 80px rgba(0,0,0,.98); position:relative; overflow:hidden; }
+.win-popup-box::before{ content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(240,180,41,.07) 0%,transparent 70%); pointer-events:none; }
+.win-trophy{ font-size:72px; animation:trophyBounce .8s cubic-bezier(.36,.07,.19,.97) both; display:block; }
+@keyframes trophyBounce{ 0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg);opacity:1} 80%{transform:scale(.92) rotate(-2deg)} 100%{transform:scale(1) rotate(0)} }
+.win-popup-title{ font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:var(--y); text-transform:uppercase; letter-spacing:4px; margin:12px 0 6px; }
+.win-popup-sub{ font-family:'Barlow Condensed',sans-serif; font-size:16px; color:#ddd; letter-spacing:1px; margin-bottom:20px; }
+.win-popup-detail{ font-family:'Barlow Condensed',sans-serif; font-size:13px; color:#888; margin-bottom:24px; }
+.win-confetti{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.wc-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:wconfetti linear forwards; opacity:0; }
+@keyframes wconfetti{ 0%{opacity:1;transform:translateY(-20px) rotate(0deg);} 100%{opacity:0;transform:translateY(120vh) rotate(720deg);} }
+.win-popup-close{ background:linear-gradient(135deg,#3a2800,#2a1e00); color:var(--y); border:1px solid #5a3c00; border-radius:6px; padding:14px 32px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; width:auto; margin-top:4px; }
+.win-popup-close:hover{ background:var(--y); color:#000; }
+
+/* ── AUDIO COMMENTARY ── */
+.audio-panel{ background:var(--card2); border:1px solid var(--brd); border-radius:6px; padding:12px 14px; margin-top:12px; }
+.audio-status{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.audio-indicator{ width:10px; height:10px; border-radius:50%; background:#333; flex-shrink:0; transition:.3s; }
+.audio-indicator.on{ background:var(--green); box-shadow:0 0 8px var(--green); animation:audioP 1.5s infinite; }
+.audio-indicator.speaking{ background:var(--y); box-shadow:0 0 10px var(--y); animation:audioP .6s infinite; }
+@keyframes audioP{ 0%,100%{opacity:1}50%{opacity:.4} }
+.audio-label{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#888; letter-spacing:1px; text-transform:uppercase; }
+.audio-current{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:#555; letter-spacing:.5px; flex:1; min-width:200px; font-style:italic; margin-top:6px; width:100%; }
+.audio-toggle{ background:#0a0a18; color:#888; border:1px solid #252535; border-radius:4px; padding:6px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; letter-spacing:1px; transition:.2s; }
+.audio-toggle.on{ background:#032212; color:#06d6a0; border-color:#0a4030; }
+.audio-voice-sel{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:center; }
+.audio-voice-sel label{ margin:0; }
+.audio-voice-sel select{ width:auto; padding:6px 10px; font-size:12px; }
+
 </style>
 </head>
 <body>
@@ -458,7 +258,10 @@ button:active{ opacity:.65; transform:scale(.95); }
 
 <div class="topbar">
     <h1><span class="live-dot"></span>Cricket Admin</h1>
-    <span class="fmt-lbl" id="fmtLbl">T20 · 20 OVERS</span>
+    <div style="display:flex;gap:10px;align-items:center">
+        <button onclick="openPlayerPopup()" style="width:auto;padding:6px 14px;background:#0a0a18;color:var(--y);border:1px solid #3a2800;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px">👥 PLAYERS</button>
+        <span class="fmt-lbl" id="fmtLbl">T20 · 20 OVERS</span>
+    </div>
 </div>
 <div class="infobar">
     <span>INN <b id="iInn">1ST</b></span>
@@ -474,35 +277,22 @@ button:active{ opacity:.65; transform:scale(.95); }
 
 <div class="body">
 
-<!-- hidden file input for photo uploads -->
-<input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
-
 <!-- 1. SQUADS -->
 <div class="card">
     <h4><span class="hico">🏟</span> Team Squads &amp; Match Setup</h4>
     <div class="g2">
-        <!-- Team A -->
-        <div class="squad-section">
-            <label>Team A Name</label>
-            <input id="tNA" placeholder="India" value="India">
-            <label style="margin-top:8px">Team A Players <span style="color:#333;font-size:9px">(tap 📷 to add photo)</span></label>
-            <div id="squadA"></div>
-            <div class="squad-add-row">
-                <button class="b-squad-add" onclick="addSquadRow('A')">+ Add Player</button>
-            </div>
+        <div>
+            <label>Batting Team Name</label><input id="tNA" placeholder="India" value="India">
+            <label style="margin-top:10px">Batting XI</label>
+            <div class="squad-grid" id="squadA"></div>
         </div>
-        <!-- Team B -->
-        <div class="squad-section">
-            <label>Team B Name</label>
-            <input id="tNB" placeholder="Australia" value="Australia">
-            <label style="margin-top:8px">Team B Players <span style="color:#333;font-size:9px">(tap 📷 to add photo)</span></label>
-            <div id="squadB"></div>
-            <div class="squad-add-row">
-                <button class="b-squad-add" onclick="addSquadRow('B')">+ Add Player</button>
-            </div>
+        <div>
+            <label>Bowling Team Name</label><input id="tNB" placeholder="Australia" value="Australia">
+            <label style="margin-top:10px">Bowling XI</label>
+            <div class="squad-grid" id="squadB"></div>
         </div>
     </div>
-    <div class="g2" style="margin-top:12px">
+    <div class="g2" style="margin-top:10px">
         <div>
             <label>Format</label>
             <select id="fmtSel" onchange="toggleCustomOvers()">
@@ -520,29 +310,12 @@ button:active{ opacity:.65; transform:scale(.95); }
         <div>
             <label>Batting First</label>
             <select id="tossSel">
-                <option value="A">Team A</option>
-                <option value="B">Team B</option>
+                <option value="A">Team A (top squad)</option>
+                <option value="B">Team B (bottom squad)</option>
             </select>
         </div>
     </div>
-    <div class="g2" style="margin-top:12px">
-        <button class="b-gold" onclick="initMatch()">⚡ INITIALIZE MATCH</button>
-        <button class="b-intro" onclick="showTeamIntro(true)">🎬 TEAM INTRO OVERLAY</button>
-    </div>
-    <div class="g2" style="margin-top:8px">
-        <button class="b-players" onclick="openPlayerPopup()">👥 VIEW ALL PLAYERS</button>
-        <button class="b-show-player" style="font-size:13px" onclick="showPlayerCard()">📸 SHOW PLAYER CARD</button>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:flex-end">
-        <div style="flex:2;min-width:140px">
-            <label>Player for card</label>
-            <select id="photoShowSel" style="font-size:12px"></select>
-        </div>
-        <div style="flex:1;min-width:90px">
-            <label>Role label</label>
-            <input id="photoShowRole" placeholder="BATTING" value="BATTING" style="font-size:12px">
-        </div>
-    </div>
+    <button class="b-gold" style="margin-top:12px" onclick="initMatch()">⚡ INITIALIZE MATCH</button>
 </div>
 
 <!-- 2. FIELD -->
@@ -613,8 +386,6 @@ button:active{ opacity:.65; transform:scale(.95); }
 <!-- 4. OVERLAY CONTROLS -->
 <div class="card">
     <h4><span class="hico">📺</span> Overlay Controls</h4>
-
-    <!-- Score bar + Scorecard quick buttons -->
     <div class="g2">
         <div class="ov-panel">
             <div class="panel-label">Score Bar</div>
@@ -627,24 +398,19 @@ button:active{ opacity:.65; transform:scale(.95); }
             <button class="b-hide" onclick="setV('scorecard',false)">HIDE</button>
         </div>
     </div>
-
-    <!-- Popup toggles -->
-    <div class="sep" style="margin-top:12px">Popup Visibility — enable / disable each overlay</div>
-    <div class="ov-toggles">
-
-        <div class="ov-toggle-row" id="tog_scorecardAuto">
-            <div class="ov-toggle-info">
-                <div class="ov-toggle-name">📊 Auto Scorecard (every over)</div>
-                <div class="ov-toggle-desc">Slides up after each completed over</div>
+    <div class="auto-popup-panel">
+        <div class="auto-popup-toggle">
+            <div class="toggle-track" id="autoToggleTrack" onclick="toggleAutoPopup()">
+                <div class="toggle-thumb" id="autoToggleThumb"></div>
             </div>
-            <div class="ov-chk-wrap">
-                <input type="checkbox" id="chk_autoScorecard" onchange="setPopupFlag('autoOverPopup',this.checked)">
-                <label class="ov-chk-slider" for="chk_autoScorecard"></label>
+            <div>
+                <div class="toggle-label" id="autoToggleLabel">AUTO SCORECARD EVERY OVER</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#333;letter-spacing:.5px;margin-top:2px" id="autoToggleSub">OFF — scorecard will not auto-popup</div>
             </div>
         </div>
-        <div style="padding:0 12px 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#444;letter-spacing:1px">SHOW FOR</span>
-            <select id="overPopupDurSel" onchange="setOverPopupDur(this.value)" style="width:80px;padding:5px 8px;font-size:11px">
+        <div class="auto-dur-wrap">
+            <label>Show for</label>
+            <select id="overPopupDurSel" onchange="setOverPopupDur(this.value)">
                 <option value="5">5 sec</option>
                 <option value="8" selected>8 sec</option>
                 <option value="10">10 sec</option>
@@ -652,81 +418,47 @@ button:active{ opacity:.65; transform:scale(.95); }
                 <option value="20">20 sec</option>
             </select>
         </div>
-
-        <div class="ov-toggle-row" id="tog_overSummary">
-            <div class="ov-toggle-info">
-                <div class="ov-toggle-name">⬛ Over Summary Card</div>
-                <div class="ov-toggle-desc">Batting pair + bowler photos + scores after every over</div>
-            </div>
-            <div class="ov-chk-wrap">
-                <input type="checkbox" id="chk_overSummary" onchange="setPopupFlag('showTeamIntro',this.checked)">
-                <label class="ov-chk-slider" for="chk_overSummary"></label>
-            </div>
-        </div>
-
-        <div class="ov-toggle-row" id="tog_teamIntro">
-            <div class="ov-toggle-info">
-                <div class="ov-toggle-name">🎬 Team Intro Overlay</div>
-                <div class="ov-toggle-desc">Both XI with photos — on init &amp; after every over</div>
-            </div>
-            <div class="ov-chk-wrap">
-                <input type="checkbox" id="chk_teamIntro" onchange="setPopupFlag('showTeamIntro',this.checked)">
-                <label class="ov-chk-slider" for="chk_teamIntro"></label>
-            </div>
-        </div>
-
-        <div class="ov-toggle-row" id="tog_playerCard">
-            <div class="ov-toggle-info">
-                <div class="ov-toggle-name">📸 Player Card (milestone auto)</div>
-                <div class="ov-toggle-desc">Photo card on century, fifty, wicket, six, four</div>
-            </div>
-            <div class="ov-chk-wrap">
-                <input type="checkbox" id="chk_playerCard" onchange="setPopupFlag('showPlayerCard',this.checked)">
-                <label class="ov-chk-slider" for="chk_playerCard"></label>
-            </div>
-        </div>
-
-        <div class="ov-toggle-row" id="tog_announcements">
-            <div class="ov-toggle-info">
-                <div class="ov-toggle-name">📣 Announcements &amp; Celebrations</div>
-                <div class="ov-toggle-desc">Toast overlays for milestones and custom messages</div>
-            </div>
-            <div class="ov-chk-wrap">
-                <input type="checkbox" id="chk_announcements" onchange="setPopupFlag('showAnnouncements',this.checked)">
-                <label class="ov-chk-slider" for="chk_announcements"></label>
-            </div>
-        </div>
-
-        <div class="ov-toggle-row" id="tog_winAnn">
-            <div class="ov-toggle-info">
-                <div class="ov-toggle-name">🏆 Win / Tie Announcement</div>
-                <div class="ov-toggle-desc">Auto win overlay at end of match</div>
-            </div>
-            <div class="ov-chk-wrap">
-                <input type="checkbox" id="chk_winAnn" onchange="setPopupFlag('showWinAnn',this.checked)">
-                <label class="ov-chk-slider" for="chk_winAnn"></label>
-            </div>
-        </div>
-
-        <div class="ov-toggle-row" id="tog_emojiRain">
-            <div class="ov-toggle-info">
-                <div class="ov-toggle-name">🌧️ Emoji Rain</div>
-                <div class="ov-toggle-desc">Particle burst on celebrations</div>
-            </div>
-            <div class="ov-chk-wrap">
-                <input type="checkbox" id="chk_emojiRain" onchange="setPopupFlag('showEmojiRain',this.checked)">
-                <label class="ov-chk-slider" for="chk_emojiRain"></label>
-            </div>
-        </div>
-
+        <div class="auto-popup-note">Scorecard auto-slides up after every completed over, then hides itself.</div>
     </div>
-
-    <div style="font-size:10px;color:#2a2a3a;text-align:center;margin-top:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">
+    <div style="font-size:10px;color:#2a2a3a;text-align:center;margin-top:8px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">
         KEYBOARD ON OVERLAY — S = SCORECARD · B = SCORE BAR · 1 = BATTING · 2 = BOWLING
     </div>
 </div>
 
-<!-- 5. ANNOUNCEMENTS -->
+<!-- 5. AUDIO COMMENTARY -->
+<div class="card">
+    <h4><span class="hico">🎙</span> Live Ball-by-Ball Audio Commentary</h4>
+    <div class="audio-panel">
+        <div class="audio-status">
+            <div class="audio-indicator" id="audioIndicator"></div>
+            <div class="audio-label" id="audioStatusLabel">COMMENTARY OFF</div>
+            <button class="audio-toggle" id="audioToggleBtn" onclick="toggleAudio()">ENABLE</button>
+        </div>
+        <div class="audio-voice-sel">
+            <label>Voice:</label>
+            <select id="voiceSel" onchange="updateVoice()">
+                <option value="">Loading voices...</option>
+            </select>
+            <label style="margin-left:8px">Rate:</label>
+            <select id="rateSel" style="width:80px">
+                <option value="0.9">0.9x</option>
+                <option value="1.0" selected>1.0x</option>
+                <option value="1.1">1.1x</option>
+                <option value="1.2">1.2x</option>
+            </select>
+            <label style="margin-left:8px">Pitch:</label>
+            <select id="pitchSel" style="width:80px">
+                <option value="0.9">Low</option>
+                <option value="1.0">Normal</option>
+                <option value="1.1" selected>Energetic</option>
+                <option value="1.2">High</option>
+            </select>
+        </div>
+        <div class="audio-current" id="audioCurrentText">No commentary yet — initialize a match to begin.</div>
+    </div>
+</div>
+
+<!-- 6. ANNOUNCEMENTS -->
 <div class="card">
     <h4><span class="hico">📣</span> Announcements &amp; Celebrations</h4>
     <div class="sep">Quick fire</div>
@@ -796,26 +528,6 @@ button:active{ opacity:.65; transform:scale(.95); }
 
 </div><!-- /body -->
 
-<!-- PLAYER POPUP MODAL -->
-<div id="playerPopupModal">
-    <div class="pp-box">
-        <div class="pp-title">
-            <span>👥 Both Squads</span>
-            <button class="pp-close" onclick="document.getElementById('playerPopupModal').classList.remove('open')">✕</button>
-        </div>
-        <div class="pp-teams">
-            <div>
-                <div class="pp-team-name" id="ppTeamA">TEAM A</div>
-                <div class="pp-players" id="ppPlayersA"></div>
-            </div>
-            <div>
-                <div class="pp-team-name" id="ppTeamB">TEAM B</div>
-                <div class="pp-players" id="ppPlayersB"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- BOWLER PICKER -->
 <div class="bpk-overlay" id="bowlerModal">
     <div class="bpk-box">
@@ -835,8 +547,6 @@ button:active{ opacity:.65; transform:scale(.95); }
         <button class="bpk-cancel" onclick="document.getElementById('batInjuryModal').classList.remove('open')">✕ CANCEL</button>
     </div>
 </div>
-
-<!-- PLAYER CARD OVERLAY (for index.html only — injected via Firebase) -->
 
 <!-- WICKET MODAL -->
 <div class="modal-bg" id="wktModal">
@@ -873,6 +583,26 @@ button:active{ opacity:.65; transform:scale(.95); }
 </div>
 </div>
 
+<!-- PLAYER POPUP -->
+<div class="player-popup-overlay" id="playerPopupOverlay">
+    <div class="player-popup-box">
+        <h3>👥 Match Players <button class="player-popup-close" onclick="closePlayerPopup()">✕ CLOSE</button></h3>
+        <div id="playerPopupContent"></div>
+    </div>
+</div>
+
+<!-- WIN POPUP -->
+<div class="win-popup-overlay" id="winPopupOverlay">
+    <div class="win-popup-box">
+        <div class="win-confetti" id="winConfetti"></div>
+        <span class="win-trophy" id="winTrophy">🏆</span>
+        <div class="win-popup-title" id="winPopupTitle">TEAM WIN!</div>
+        <div class="win-popup-sub" id="winPopupSub">Won by X wickets</div>
+        <div class="win-popup-detail" id="winPopupDetail"></div>
+        <button class="win-popup-close" onclick="closeWinPopup()">✓ CONTINUE</button>
+    </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, onValue, push, remove }
@@ -893,14 +623,346 @@ const uRef    = ref(db,'ui');
 const hRef    = ref(db,'undoStack');
 const aRef    = ref(db,'announcement');
 const histRef = ref(db,'matchHistory');
+const phRef   = ref(db,'playerPhotos');
 const $       = id => document.getElementById(id);
 
 let _squads = { bat:[], bowl:[] };
 let _match  = null;
 let _autoOn = false;
-let _currentMatchKey = null;   // fixed Firebase key for current match — updates in place
+let _currentMatchKey = null;
+let _playerPhotos = {}; // name -> dataURL
 
-// ── Toast helper ──────────────────────────────────
+// ══ PLAYER PHOTOS ═════════════════════════════════
+onValue(phRef, snap => {
+    _playerPhotos = snap.val() || {};
+    refreshAvatars();
+});
+
+function getPhoto(name){ return _playerPhotos[name] || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%23111"/><circle cx="16" cy="12" r="6" fill="%23333"/><ellipse cx="16" cy="28" rx="10" ry="7" fill="%23333"/></svg>'; }
+
+async function savePhoto(name, dataUrl){
+    const key = name.replace(/[^a-zA-Z0-9]/g,'_');
+    await update(phRef, { [key]: dataUrl });
+    _playerPhotos[key] = dataUrl;
+}
+
+function refreshAvatars(){
+    document.querySelectorAll('.player-avatar[data-name]').forEach(img => {
+        const name = img.dataset.name;
+        const key = name.replace(/[^a-zA-Z0-9]/g,'_');
+        img.src = _playerPhotos[key] || getPhoto(name);
+    });
+}
+
+// ══ SQUAD BUILDER — 11 INPUTS PER TEAM ═══════════
+function buildSquadInputs(){
+    ['A','B'].forEach(team => {
+        const cont = $(`squad${team}`);
+        cont.innerHTML = '';
+        for(let i=1;i<=11;i++){
+            const row = document.createElement('div');
+            row.className = 'player-row';
+            const num = `<span class="player-num">${i}</span>`;
+            const avatarId = `avatar${team}${i}`;
+            const inputId  = `player${team}${i}`;
+            const fileId   = `file${team}${i}`;
+            row.innerHTML = `
+                ${num}
+                <div class="player-avatar-wrap">
+                    <img class="player-avatar" id="${avatarId}" data-team="${team}" data-idx="${i}" src="${getPhoto('')}">
+                    <input type="file" class="player-avatar-upload" id="${fileId}" accept="image/*">
+                    <button class="player-photo-btn" onclick="document.getElementById('${fileId}').click()">📷</button>
+                </div>
+                <input class="player-name-input" id="${inputId}" placeholder="Player ${i}" oninput="onPlayerNameChange('${team}',${i})">
+            `;
+            cont.appendChild(row);
+
+            // File upload handler
+            setTimeout(() => {
+                const fileInput = $(`file${team}${i}`);
+                if(!fileInput) return;
+                fileInput.addEventListener('change', async e => {
+                    const file = e.target.files[0];
+                    if(!file) return;
+                    const reader = new FileReader();
+                    reader.onload = async ev => {
+                        const dataUrl = ev.target.result;
+                        const nameEl = $(`player${team}${i}`);
+                        const name = nameEl ? nameEl.value.trim() : '';
+                        const avatarImg = $(`avatar${team}${i}`);
+                        if(avatarImg) avatarImg.src = dataUrl;
+                        if(name){
+                            const key = name.replace(/[^a-zA-Z0-9]/g,'_');
+                            await update(phRef, {[key]: dataUrl});
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }, 0);
+        }
+    });
+}
+
+function onPlayerNameChange(team, idx){
+    // Update avatar data-name
+    const nameEl = $(`player${team}${idx}`);
+    const avatarEl = $(`avatar${team}${idx}`);
+    if(nameEl && avatarEl){
+        const name = nameEl.value.trim();
+        avatarEl.dataset.name = name;
+        const key = name.replace(/[^a-zA-Z0-9]/g,'_');
+        avatarEl.src = _playerPhotos[key] || getPhoto('');
+    }
+}
+
+function getSquadNames(team){
+    const names = [];
+    for(let i=1;i<=11;i++){
+        const el = $(`player${team}${i}`);
+        if(el && el.value.trim()) names.push(el.value.trim());
+    }
+    return names;
+}
+
+function setSquadNames(team, names){
+    for(let i=1;i<=11;i++){
+        const el = $(`player${team}${i}`);
+        if(el) el.value = names[i-1] || '';
+        const avatarEl = $(`avatar${team}${i}`);
+        if(avatarEl && names[i-1]){
+            avatarEl.dataset.name = names[i-1];
+            const key = names[i-1].replace(/[^a-zA-Z0-9]/g,'_');
+            avatarEl.src = _playerPhotos[key] || getPhoto('');
+        }
+    }
+}
+
+// ══ PLAYER POPUP ══════════════════════════════════
+window.openPlayerPopup = async () => {
+    const snap = await get(mRef); const d = snap.val();
+    const cont = $('playerPopupContent');
+    const sA = getSquadNames('A'); const sB = getSquadNames('B');
+    const batNm = ($('tNA').value||'Team A').toUpperCase();
+    const bowlNm = ($('tNB').value||'Team B').toUpperCase();
+
+    function teamHtml(name, players){
+        if(!players.length) return '';
+        const cards = players.map(p => {
+            const key = p.replace(/[^a-zA-Z0-9]/g,'_');
+            const photo = _playerPhotos[key] || getPhoto('');
+            return `<div class="player-card-popup">
+                <img src="${photo}" alt="${p}">
+                <div class="pcp-name">${p}</div>
+            </div>`;
+        }).join('');
+        return `<div class="team-section">
+            <div class="team-section-title">🏏 ${name}</div>
+            <div class="player-grid-popup">${cards}</div>
+        </div>`;
+    }
+    cont.innerHTML = teamHtml(batNm, sA) + teamHtml(bowlNm, sB);
+    $('playerPopupOverlay').classList.add('open');
+};
+window.closePlayerPopup = () => $('playerPopupOverlay').classList.remove('open');
+
+// ══ WIN POPUP ═════════════════════════════════════
+function showWinPopup(title, sub, detail, isWin){
+    $('winTrophy').textContent = isWin === 'tie' ? '🤝' : '🏆';
+    $('winPopupTitle').textContent = title;
+    $('winPopupSub').textContent = sub;
+    $('winPopupDetail').textContent = detail || '';
+    // Confetti
+    const conf = $('winConfetti');
+    conf.innerHTML = '';
+    const cols = ['#f5c518','#06d6a0','#e63946','#9b72cf','#118ab2','#fff'];
+    for(let i=0;i<40;i++){
+        const dot = document.createElement('div');
+        dot.className = 'wc-dot';
+        dot.style.cssText = `left:${Math.random()*100}%;top:${-10+Math.random()*20}%;background:${cols[Math.floor(Math.random()*cols.length)]};animation-delay:${Math.random()*3}s;animation-duration:${3+Math.random()*3}s;`;
+        conf.appendChild(dot);
+    }
+    $('winPopupOverlay').classList.add('open');
+}
+window.closeWinPopup = () => $('winPopupOverlay').classList.remove('open');
+
+// ══ AUDIO COMMENTARY SYSTEM ══════════════════════
+let _audioEnabled = false;
+let _speechQueue  = [];
+let _speaking     = false;
+let _selectedVoice = null;
+let _lastBallState = null;
+
+// Load voices
+function loadVoices(){
+    const voices = window.speechSynthesis.getVoices();
+    const sel = $('voiceSel');
+    if(!voices.length){ sel.innerHTML = '<option value="">No voices found</option>'; return; }
+    sel.innerHTML = '';
+    // Prefer energetic female English voices
+    const preferred = voices.filter(v => v.lang.startsWith('en'));
+    const all = preferred.length ? preferred : voices;
+    all.forEach((v,i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${v.name} (${v.lang})`;
+        sel.appendChild(opt);
+    });
+    // Auto-pick a female/energetic voice if possible
+    const female = all.findIndex(v => /female|woman|zira|samantha|victoria|karen|moira|fiona|tessa|susan|hazel|heera/i.test(v.name));
+    if(female >= 0) sel.value = female;
+    _selectedVoice = all[parseInt(sel.value)||0] || all[0];
+}
+window.speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 800);
+
+window.updateVoice = () => {
+    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+    const all = voices.length ? voices : window.speechSynthesis.getVoices();
+    const idx = parseInt($('voiceSel').value) || 0;
+    _selectedVoice = all[idx] || all[0];
+};
+
+window.toggleAudio = () => {
+    _audioEnabled = !_audioEnabled;
+    const btn = $('audioToggleBtn');
+    const ind = $('audioIndicator');
+    const lbl = $('audioStatusLabel');
+    btn.textContent = _audioEnabled ? 'DISABLE' : 'ENABLE';
+    btn.className = _audioEnabled ? 'audio-toggle on' : 'audio-toggle';
+    ind.className = _audioEnabled ? 'audio-indicator on' : 'audio-indicator';
+    lbl.textContent = _audioEnabled ? 'COMMENTARY ACTIVE' : 'COMMENTARY OFF';
+    if(!_audioEnabled){ window.speechSynthesis.cancel(); _speechQueue = []; _speaking = false; }
+};
+
+function speakText(text){
+    if(!_audioEnabled) return;
+    _speechQueue.push(text);
+    if(!_speaking) processQueue();
+}
+
+function processQueue(){
+    if(!_speechQueue.length){ _speaking=false; $('audioIndicator').className='audio-indicator on'; return; }
+    _speaking = true;
+    const text = _speechQueue.shift();
+    $('audioCurrentText').textContent = `"${text}"`;
+    $('audioIndicator').className = 'audio-indicator speaking';
+    const utt = new SpeechSynthesisUtterance(text);
+    if(_selectedVoice) utt.voice = _selectedVoice;
+    utt.rate  = parseFloat($('rateSel').value)  || 1.0;
+    utt.pitch = parseFloat($('pitchSel').value) || 1.1;
+    utt.volume = 1;
+    utt.onend  = () => { setTimeout(processQueue, 400); };
+    utt.onerror= () => { _speaking=false; };
+    window.speechSynthesis.speak(utt);
+}
+
+function buildCommentary(d, prevD, eventType){
+    const striker    = d.str===1 ? d.p1n : d.p2n;
+    const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
+    const nonStriker = d.str===1 ? d.p2n : d.p1n;
+    const bowler     = d.bwn || 'the bowler';
+    const team       = d.batTeam || 'the batting side';
+    const overs      = `${Math.floor(d.balls/6)} point ${d.balls%6}`;
+    const maxOv      = d.maxOvers || 20;
+    const ballsLeft  = maxOv*6 - d.balls;
+    const runsNeeded = d.target > 0 ? d.target - d.runs : null;
+    const isChase    = d.target > 0;
+    const isFinalOvers = Math.floor(d.balls/6) >= maxOv - 3;
+    const crr        = d.balls > 0 ? (d.runs/(d.balls/6)).toFixed(1) : '0';
+    const wktsLeft   = 10 - d.wkts;
+
+    // Tone detection
+    let tone = 'normal';
+    if(d.wkts >= 6) tone = 'collapse';
+    else if(isChase && runsNeeded && ballsLeft > 0 && (runsNeeded/(ballsLeft/6)) > 12) tone = 'tough';
+    else if(isChase && runsNeeded && ballsLeft > 0 && (runsNeeded/(ballsLeft/6)) < 7) tone = 'dominating';
+    else if(isFinalOvers) tone = 'tension';
+    else if(strikerR >= 70) tone = 'hype';
+
+    const commentary = {
+        dot: [
+            `Dot ball! ${bowler} keeps it tight, ${striker} couldn't find the gap.`,
+            `No run! ${bowler} beats ${striker} outside off stump.`,
+            `Good length delivery, ${striker} defends solidly. Dot ball.`,
+            `${bowler} gets one through, ${striker} plays and misses! Dot.`,
+            `Tight line from ${bowler}, nothing doing for ${striker}.`,
+        ],
+        1: [
+            `${striker} clips it for a single, rotates the strike well.`,
+            `One run, nudged away by ${striker} off ${bowler}.`,
+            `Pushed to mid-on, they run a quick single.`,
+            `${striker} works it around the corner, one run.`,
+        ],
+        2: [
+            `Two runs! ${striker} plays it down to deep, good running between the wickets.`,
+            `${striker} and ${nonStriker} come back for the second, two runs.`,
+            `Nicely placed, two runs for ${team}!`,
+        ],
+        3: [
+            `Three runs! Great running from ${striker} and ${nonStriker}!`,
+            `Three! They've turned it around brilliantly for three runs.`,
+        ],
+        4: [
+            `FOUR! ${striker} drives it through the covers, stunning shot!`,
+            `BOUNDARY! ${striker} pulls ${bowler} to the square leg fence!`,
+            `FOUR! Cracking shot from ${striker}, pierces the gap perfectly!`,
+            `That's gone for FOUR! ${striker} deposits it through extra cover!`,
+            `Beautiful FOUR from ${striker}, the timing was absolutely sublime!`,
+        ],
+        6: [
+            `SIX! What a shot! ${striker} sends ${bowler} into the stands!`,
+            `MAXIMUM! ${striker} launches it way into the crowd! Six runs!`,
+            `That's GONE! ${striker} muscles ${bowler} over the midwicket boundary!`,
+            `ENORMOUS SIX from ${striker}! This is spectacular cricket!`,
+            `Six! ${striker} picked the length early and absolutely smoked it!`,
+        ],
+        wicket: [
+            `WICKET! ${striker} is OUT! ${bowler} gets the breakthrough!`,
+            `OH! ${striker} has to go! ${bowler} is pumped up!`,
+            `That's OUT! ${bowler} claims the wicket of ${striker}!`,
+            `GONE! The stumps are disturbed, ${striker} walks back to the pavilion!`,
+        ],
+        wide: [
+            `Wide ball, costly from ${bowler}. One extra added.`,
+            `That's a wide! ${bowler} strays down the leg side.`,
+        ],
+        noball: [
+            `No ball from ${bowler}! Free hit coming up for ${striker}!`,
+            `Overstepping! No ball called, and it's a free hit!`,
+        ],
+        bye: [ `Byes! The ball gets past the keeper.` ],
+        legbye: [ `Leg byes! Deflects off the pad, they run.` ],
+    };
+
+    // Milestone additions
+    let milestone = '';
+    if(eventType !== 'wicket' && eventType !== 'wide' && eventType !== 'noball'){
+        if(strikerR === 50) milestone = ` And what a moment — ${striker} brings up the HALF CENTURY! Fifty runs for this outstanding batsman!`;
+        else if(strikerR === 100) milestone = ` Unbelievable! ${striker} reaches ONE HUNDRED RUNS! A century for the ages!`;
+    }
+
+    // Check for fifer
+    const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
+    if(bowlerRow && bowlerRow.wkts === 5 && eventType === 'wicket'){
+        milestone = ` And that's FIVE wickets for ${bowler}! A brilliant FIFER! Outstanding bowling!`;
+    }
+
+    // Context additions based on tone
+    let context = '';
+    if(isFinalOvers && isChase && runsNeeded){
+        context = ` ${team} need ${runsNeeded} runs off ${ballsLeft} balls!`;
+    } else if(tone === 'collapse'){
+        context = ` ${team} are in real trouble here with ${wktsLeft} wickets remaining.`;
+    } else if(tone === 'tension' && !isChase){
+        context = ` We're in the final overs, every ball is crucial!`;
+    }
+
+    const pool = commentary[eventType] || commentary.dot;
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    return line + milestone + context;
+}
+
+// ══ Toast helper ──────────────────────────────────
 function showToast(msg){
     const t = $('autoSaveToast');
     t.textContent = msg;
@@ -948,76 +1010,30 @@ window.updateAnnPreview=()=>{
 };
 window.sendQuickAnn=async(type)=>{
     const cfg=QUICK_ANN[type]; if(!cfg) return;
-
-    // ── Verify live scoreboard before sending ──────────
     const snap=await get(mRef); const d=snap.val();
     if(!d){ alert('No live match data — cannot send announcement.'); return; }
-
     const striker    = d.str===1 ? d.p1n : d.p2n;
     const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
-    const nonStriker = d.str===1 ? d.p2n : d.p1n;
     const bowler     = d.bwn||'';
     const lastBall   = (d.recentBalls||[]).slice(-1)[0];
-
-    // Verify conditions match reality
-    let verified = true;
-    let reason   = '';
-
-    if(type==='century'){
-        if(strikerR < 100){ verified=false; reason=`${striker} has only ${strikerR} runs — not a century yet.`; }
-    }
-    else if(type==='fifty'){
-        if(strikerR < 50){ verified=false; reason=`${striker} has only ${strikerR} runs — not a half century yet.`; }
-        if(strikerR >= 100){ verified=false; reason=`${striker} has ${strikerR} runs — use CENTURY instead.`; }
-    }
-    else if(type==='six'){
-        if(lastBall !== 6){ verified=false; reason=`Last ball scored was "${lastBall}" — not a six. Score a six first.`; }
-    }
-    else if(type==='four'){
-        if(lastBall !== 4){ verified=false; reason=`Last ball scored was "${lastBall}" — not a four. Score a four first.`; }
-    }
-    else if(type==='wicket'){
-        // check a wicket was just taken: last ball was W or wkts > 0
-        if(lastBall !== 'W'){ verified=false; reason=`Last ball was "${lastBall}" — no wicket on last delivery.`; }
-    }
-    // hattrick — can't auto-verify easily, allow operator to judge
-    // century/fifty already verified above
-
-    if(!verified){
-        if(!confirm(`⚠️ Scoreboard check failed:
-${reason}
-
-Send anyway?`)) return;
-    }
-
+    let verified = true; let reason = '';
+    if(type==='century'){ if(strikerR < 100){ verified=false; reason=`${striker} has only ${strikerR} runs — not a century yet.`; } }
+    else if(type==='fifty'){ if(strikerR < 50){ verified=false; reason=`${striker} has only ${strikerR} runs — not a half century yet.`; } if(strikerR >= 100){ verified=false; reason=`${striker} has ${strikerR} runs — use CENTURY instead.`; } }
+    else if(type==='six'){ if(lastBall !== 6){ verified=false; reason=`Last ball scored was "${lastBall}" — not a six.`; } }
+    else if(type==='four'){ if(lastBall !== 4){ verified=false; reason=`Last ball scored was "${lastBall}" — not a four.`; } }
+    else if(type==='wicket'){ if(lastBall !== 'W'){ verified=false; reason=`Last ball was "${lastBall}" — no wicket on last delivery.`; } }
+    if(!verified){ if(!confirm(`⚠️ Scoreboard check failed:\n${reason}\n\nSend anyway?`)) return; }
     const rainChk = document.getElementById(`rain_${type}`);
     const rain    = rainChk ? rainChk.checked : true;
     let name      = striker;
     if(type==='wicket') name = bowler;
     if(type==='hattrick') name = bowler;
-
-    if(!_uiFlags.showAnnouncements) return;  // announcements disabled
-    await set(aRef,{
-        emoji:cfg.emoji,
-        text: name ? `${name} — ${cfg.text}` : cfg.text,
-        sub:  cfg.sub,
-        style:cfg.style,
-        dur:  cfg.dur,
-        rain: rain && _uiFlags.showEmojiRain,
-        sentAt:Date.now(),
-        id:Math.random().toString(36).slice(2)
-    });
-    // Auto-show player card if photo available AND toggle is ON
-    const cardName = (type==='wicket'||type==='hattrick') ? bowler : striker;
-    if(cardName && _photoMap[cardName] && _uiFlags.showPlayerCard){
-        const roleMap = {century:'CENTURY 🏆',fifty:'HALF CENTURY ⭐',wicket:'WICKET 💥',six:'SIX 🚀',four:'FOUR 🔥',hattrick:'HAT TRICK 🎩'};
-        setTimeout(()=>sendPlayerCard(cardName, roleMap[type]||type.toUpperCase(), 10), 500);
-    }
+    await set(aRef,{ emoji:cfg.emoji, text: name ? `${name} — ${cfg.text}` : cfg.text, sub:cfg.sub, style:cfg.style, dur:cfg.dur, rain, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
 };
 window.sendCustomAnn=async()=>{
     const emoji=$('annEmoji').value.trim()||'📣', msg=$('annMsg').value.trim();
     if(!msg) return alert('Enter a message to send!');
-    await set(aRef,{emoji,text:msg,sub:'',style:'custom',dur:parseInt($('annDur').value)||20,rain:$('annRainToggle').checked && _uiFlags.showEmojiRain,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
+    await set(aRef,{emoji,text:msg,sub:'',style:'custom',dur:parseInt($('annDur').value)||20,rain:$('annRainToggle').checked,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
     $('annMsg').value=''; updateAnnPreview();
 };
 
@@ -1031,200 +1047,37 @@ function fillSel(bat,bowl,p1n,p2n,bwn){
     if(bwn)$('selBw').value=bwn; else if(bowl[0])$('selBw').value=bowl[0];
 }
 
-// ══ SQUAD ROWS + PLAYER PHOTOS ══════════════════
-const photoRef    = ref(db,'playerPhotos');
-let _photoMap     = {};   // { playerName: base64DataUrl }
-let _uploadTarget = null; // which player name the file input is uploading for
-let _squadRowsA   = [];   // [{ name }]
-let _squadRowsB   = [];
-
-// Load photos from Firebase ({ safeKey: { name, data } })
-onValue(photoRef, snap=>{
-    const val=snap.val()||{};
-    _photoMap={};
-    Object.values(val).forEach(v=>{ if(v&&v.name&&v.data) _photoMap[v.name]=v.data; });
-    renderSquadRows('A');
-    renderSquadRows('B');
-    // also refresh photo selector in manual trigger
-    updatePhotoSel();
-});
-
-// ── Squad row management ──────────────────────────
-function getSquadNames(team){
-    return (team==='A'?_squadRowsA:_squadRowsB).map(r=>r.name).filter(Boolean);
-}
-
-function renderSquadRows(team){
-    const rows   = team==='A'?_squadRowsA:_squadRowsB;
-    const contId = 'squad'+team;
-    const cont   = $(contId); if(!cont) return;
-    cont.innerHTML = rows.map((r,i)=>{
-        const photo = _photoMap[r.name]||'';
-        const safeN = r.name.replace(/'/g,"\'");
-        const btnInner = photo
-            ? `<img src="${photo}" alt="">`
-            : `📷`;
-        return `<div class="squad-player-row" id="srow_${team}_${i}">
-            <input class="squad-player-input" type="text"
-                placeholder="Player ${i+1}"
-                value="${r.name}"
-                onchange="updateSquadName('${team}',${i},this.value)"
-                oninput="updateSquadName('${team}',${i},this.value)">
-            <button class="squad-photo-btn" title="Upload photo for ${r.name||'player'}"
-                onclick="triggerPhotoUpload('${safeN||''}','${team}',${i})"
-                id="spbtn_${team}_${i}">${btnInner}</button>
-        </div>`;
-    }).join('');
-}
-
-window.addSquadRow=(team)=>{
-    const rows=team==='A'?_squadRowsA:_squadRowsB;
-    rows.push({name:''});
-    renderSquadRows(team);
-};
-
-window.updateSquadName=(team,idx,val)=>{
-    const rows=team==='A'?_squadRowsA:_squadRowsB;
-    if(rows[idx]) rows[idx].name=val.trim();
-    // update photo button title
-    const btn=$(`spbtn_${team}_${idx}`);
-    if(btn) btn.title=`Upload photo for ${val.trim()||'player'}`;
-};
-
-// Populate rows from saved squads
-function loadSquadRows(sqA, sqB){
-    _squadRowsA = (sqA||'').split('
-').map(n=>n.trim()).filter(Boolean).map(n=>({name:n}));
-    _squadRowsB = (sqB||'').split('
-').map(n=>n.trim()).filter(Boolean).map(n=>({name:n}));
-    // ensure at least 11 empty rows
-    while(_squadRowsA.length < 11) _squadRowsA.push({name:''});
-    while(_squadRowsB.length < 11) _squadRowsB.push({name:''});
-    renderSquadRows('A');
-    renderSquadRows('B');
-}
-
-// Get textarea-compatible string from squad rows
-function squadRowsToStr(team){
-    return (team==='A'?_squadRowsA:_squadRowsB)
-        .map(r=>r.name).filter(Boolean).join('
-');
-}
-
-// Init default rows on page load
-loadSquadRows('','');
-
-// ── Photo upload ──────────────────────────────────
-window.triggerPhotoUpload=(name,team,idx)=>{
-    // if name is empty, prompt to enter name first
-    const rows=team==='A'?_squadRowsA:_squadRowsB;
-    const actualName=rows[idx]?.name||name;
-    if(!actualName){ alert('Enter player name first before adding photo.'); return; }
-    _uploadTarget=actualName;
-    const inp=$('photoFileInput');
-    inp.value='';
-    inp.click();
-};
-
-window.handlePhotoUpload=(input)=>{
-    const file=input.files[0];
-    if(!file||!_uploadTarget) return;
-    const name=_uploadTarget;
-    const reader=new FileReader();
-    reader.onload=(e)=>{
-        const img=new Image();
-        img.onload=async()=>{
-            const MAX=260;
-            let w=img.width, h=img.height;
-            if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
-            else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
-            const canvas=document.createElement('canvas');
-            canvas.width=w; canvas.height=h;
-            canvas.getContext('2d').drawImage(img,0,0,w,h);
-            const dataUrl=canvas.toDataURL('image/jpeg',0.80);
-            const safeKey=name.replace(/[.#$[\]]/g,'_');
-            await set(ref(db,`playerPhotos/${safeKey}`),{name,data:dataUrl});
-            showToast(`✅ Photo saved: ${name}`);
-        };
-        img.src=e.target.result;
-    };
-    reader.readAsDataURL(file);
-};
-
-window.deletePlayerPhoto=async(name)=>{
-    if(!confirm(`Delete photo for ${name}?`)) return;
-    const safeKey=name.replace(/[.#$[\]]/g,'_');
-    await remove(ref(db,`playerPhotos/${safeKey}`));
-    showToast(`🗑 Deleted photo for ${name}`);
-};
-
-// ── Player Popup ─────────────────────────────────
-window.openPlayerPopup = () => {
-    const teamA = $('tNA')?.value.trim().toUpperCase() || 'TEAM A';
-    const teamB = $('tNB')?.value.trim().toUpperCase() || 'TEAM B';
-    $('ppTeamA').textContent = teamA;
-    $('ppTeamB').textContent = teamB;
-
-    function renderPP(names, contId){
-        const cont = $(contId); if(!cont) return;
-        cont.innerHTML = names.map((n,i)=>{
-            const photo = _photoMap[n]||'';
-            const img = photo
-                ? `<img class="pp-player-img" src="${photo}" alt="${n}">`
-                : `<div class="pp-player-placeholder">👤</div>`;
-            return `<div class="pp-player">
-                ${img}
-                <span class="pp-player-name">${n}</span>
-                <span class="pp-player-num">#${i+1}</span>
-            </div>`;
-        }).join('');
-    }
-
-    // Use match data if available, otherwise squad rows
-    const batNames = _match?.batRows?.map(r=>r.name) || getSquadNames('A');
-    const bowlNames = _match?.bowlRows?.map(r=>r.name) || getSquadNames('B');
-    renderPP(batNames, 'ppPlayersA');
-    renderPP(bowlNames, 'ppPlayersB');
-    $('playerPopupModal').classList.add('open');
-};
-
-// ── Manual player card trigger ────────────────────
-function updatePhotoSel(){
-    const sel=$('photoShowSel'); if(!sel) return;
-    const allNames=[..._squadRowsA,..._squadRowsB].map(r=>r.name).filter(Boolean);
-    sel.innerHTML=allNames.map(n=>`<option value="${n}">${n}</option>`).join('');
-}
-
-window.showPlayerCard=async()=>{
-    const name=$('photoShowSel')?.value;
-    const role=$('photoShowRole')?.value.trim().toUpperCase()||'PLAYER';
-    if(!name){ alert('Select a player first.'); return; }
-    await sendPlayerCard(name,role,8);
-    showToast(`📸 Showing ${name}`);
-};
-
-// ── Team Intro Overlay ────────────────────────────
-window.showTeamIntro=async(forceShow=false)=>{
-    if(!forceShow && !_uiFlags.showTeamIntro) return;  // disabled by toggle
-    const teamA = $('tNA').value.trim().toUpperCase() || 'TEAM A';
-    const teamB = $('tNB').value.trim().toUpperCase() || 'TEAM B';
-    const playersA = getSquadNames('A');
-    const playersB = getSquadNames('B');
-    if(!playersA.length && !playersB.length){ if(forceShow) alert('Enter player names first.'); return; }
-    await set(ref(db,'teamIntro'),{
-        teamA, teamB,
-        playersA: playersA.map(n=>({name:n,photo:_photoMap[n]||''})),
-        playersB: playersB.map(n=>({name:n,photo:_photoMap[n]||''})),
-        dur: 12,
-        sentAt: Date.now(),
-        id: Math.random().toString(36).slice(2),
-    });
-    if(forceShow) showToast('🎬 Team Intro sent to overlay!');
-};
-
-// ══ MATCH DATA LISTENER ═══════════════════════════// ══ MATCH DATA LISTENER ═══════════════════════════
+// ══ MATCH DATA LISTENER ═══════════════════════════
+let _prevMatchState = null;
 onValue(mRef,snap=>{
     const d=snap.val(); _match=d; if(!d) return;
+
+    // Audio commentary — detect what changed
+    if(_audioEnabled && _prevMatchState){
+        const prev = _prevMatchState;
+        const newBalls = d.recentBalls || [];
+        const prevBalls = prev.recentBalls || [];
+        if(newBalls.length !== prevBalls.length || d.wkts !== prev.wkts || d.runs !== prev.runs){
+            let evType = 'dot';
+            const lastBall = newBalls.slice(-1)[0];
+            if(d.wkts > prev.wkts) evType = 'wicket';
+            else if(lastBall === 4) evType = '4';
+            else if(lastBall === 6) evType = '6';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('Wd')) evType = 'wide';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('Nb')) evType = 'noball';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('By')) evType = 'bye';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('Lb')) evType = 'legbye';
+            else if(lastBall === 1) evType = '1';
+            else if(lastBall === 2) evType = '2';
+            else if(lastBall === 3) evType = '3';
+            else if(lastBall === 0) evType = 'dot';
+            const commentKey = { '4':'4','6':'6','1':'1','2':'2','3':'3','dot':'dot','wicket':'wicket','wide':'wide','noball':'noball','bye':'bye','legbye':'legbye' };
+            const cLine = buildCommentary(d, prev, commentKey[evType] || 'dot');
+            speakText(cLine);
+        }
+    }
+    _prevMatchState = JSON.parse(JSON.stringify(d));
+
     $('iBat').textContent=d.batTeam||'—';
     $('iSc').textContent=`${d.runs}/${d.wkts}`;
     $('iOv').textContent=`${Math.floor(d.balls/6)}.${d.balls%6}`;
@@ -1232,10 +1085,8 @@ onValue(mRef,snap=>{
     $('iInn').textContent=d.target>0?'2ND':'1ST';
     $('iFH').className=d.freeHit?'fh-pill on':'fh-pill';
     $('iOvB').textContent=(d.recentBalls||[]).length?(d.recentBalls||[]).join(' · '):'—';
-    // (error correction removed)
     if(d.batTeam) $('tNA').value=d.batTeam;
     if(d.bowlTeam) $('tNB').value=d.bowlTeam;
-    updatePhotoSel();
     const fmt=d.maxOvers||20;
     $('fmtLbl').textContent=fmt===50?'ODI · 50 OVERS':fmt===20?'T20 · 20 OVERS':fmt===10?'T10 · 10 OVERS':fmt===40?'40 OVERS':`CUSTOM · ${fmt} OVERS`;
     if([10,20,40,50].includes(fmt)){$('fmtSel').value=String(fmt);$('customOversWrap').style.display='none';}
@@ -1246,71 +1097,32 @@ onValue(mRef,snap=>{
     } else if(_squads.bat.length||_squads.bowl.length){
         fillSel(_squads.bat,_squads.bowl,d.p1n,d.p2n,d.bwn);
     }
-    renderPhotoGrid();
 });
 onValue(sRef,snap=>{
     const s=snap.val(); if(!s) return;
-    loadSquadRows(s.sqA||'', s.sqB||'');
+    if(s.sqA){ const names=s.sqA.split('\n').map(n=>n.trim()).filter(Boolean); setSquadNames('A',names); }
+    if(s.sqB){ const names=s.sqB.split('\n').map(n=>n.trim()).filter(Boolean); setSquadNames('B',names); }
     if(!_match||!_match.batRows){
-        _squads.bat=(s.sqA||'').split('\n').map(n=>n.trim()).filter(Boolean);
-        _squads.bowl=(s.sqB||'').split('\n').map(n=>n.trim()).filter(Boolean);
+        _squads.bat=getSquadNames('A'); _squads.bowl=getSquadNames('B');
         fillSel(_squads.bat,_squads.bowl,_match?.p1n||null,_match?.p2n||null,_match?.bwn||null);
     }
-    updatePhotoSel();
 });
 
-// ══ OVERLAY POPUP FLAGS ══════════════════════════
-// All flags stored in Firebase ui node, synced across devices
-// Defaults: all ON except autoOverPopup
-const POPUP_DEFAULTS = {
-    autoOverPopup:  false,
-    showTeamIntro:  true,
-    showPlayerCard: true,
-    showAnnouncements: true,
-    showWinAnn:     true,
-    showEmojiRain:  true,
-    overPopupDur:   8,
-};
-let _uiFlags = {...POPUP_DEFAULTS};
-
-window.setPopupFlag=(key,val)=>{
-    _uiFlags[key]=val;
-    update(uRef,{[key]:val});
-    syncToggleUI();
-};
-window.setOverPopupDur=(val)=>{ update(uRef,{overPopupDur:parseInt(val)||8}); };
-
-function syncToggleUI(){
-    // checkbox states
-    const map={
-        chk_autoScorecard:'autoOverPopup',
-        chk_overSummary:  'showTeamIntro',
-        chk_teamIntro:    'showTeamIntro',
-        chk_playerCard:   'showPlayerCard',
-        chk_announcements:'showAnnouncements',
-        chk_winAnn:       'showWinAnn',
-        chk_emojiRain:    'showEmojiRain',
-    };
-    Object.entries(map).forEach(([id,key])=>{
-        const el=$(id); if(!el) return;
-        el.checked=!!_uiFlags[key];
-        const row=el.closest('.ov-toggle-row');
-        if(row) row.classList.toggle('active',!!_uiFlags[key]);
-    });
-    if($('overPopupDurSel')) $('overPopupDurSel').value=String(_uiFlags.overPopupDur||8);
-    // legacy support
-    _autoOn = !!_uiFlags.autoOverPopup;
+// ══ AUTO POPUP TOGGLE ═════════════════════════════
+function updateAutoUI(on){
+    $('autoToggleTrack').classList.toggle('on',on);
+    $('autoToggleLabel').style.color=on?'#06d6a0':'';
+    $('autoToggleSub').textContent=on?'✅ ON — scorecard auto-pops after every over':'OFF — scorecard will not auto-popup';
+    $('autoToggleSub').style.color=on?'#3a6a3a':'';
 }
-
+window.toggleAutoPopup=()=>{ _autoOn=!_autoOn; update(uRef,{autoOverPopup:_autoOn}); updateAutoUI(_autoOn); };
+window.setOverPopupDur=(val)=>update(uRef,{overPopupDur:parseInt(val)||8});
 onValue(uRef,snap=>{
     const ui=snap.val()||{};
-    _uiFlags = {...POPUP_DEFAULTS, ...ui};
-    syncToggleUI();
+    _autoOn=!!ui.autoOverPopup;
+    updateAutoUI(_autoOn);
+    if(ui.overPopupDur) $('overPopupDurSel').value=String(ui.overPopupDur);
 });
-
-// Legacy alias
-window.toggleAutoPopup=()=>setPopupFlag('autoOverPopup',!_uiFlags.autoOverPopup);
-let _autoOn=false;
 
 // ══ BOWLER PICKER ═════════════════════════════════
 let _midOver=false;
@@ -1321,7 +1133,7 @@ function openBowlerPicker(bowlRows, currentBowler, ovNum, midOver){
     $('bpkTitle').textContent=midOver?'🚑 Bowler Injury — Replacement':'⚾ Select Next Bowler';
     $('bpkSub').textContent=midOver?`MID-OVER CHANGE — replacement completes over ${ovNum}`:`END OF OVER ${ovNum} — choose the next bowler`;
     $('bpkGrid').innerHTML=bowlRows.map(r=>{
-        const blocked = midOver ? (r.name===currentBowler) : (r.name===currentBowler);
+        const blocked = r.name===currentBowler;
         const ovs=`${Math.floor(r.balls/6)}.${r.balls%6} ov`;
         const fig=r.balls>0?`${r.wkts}-${r.runs} (${ovs})`:'yet to bowl';
         const tag=blocked?(midOver?' 🤕':' ✋'):'';
@@ -1352,18 +1164,11 @@ onValue(mRef,async snap=>{
     const maxOvers       = d.maxOvers || 20;
     const maxBalls       = maxOvers * 6;
     const innComplete    = d.balls >= maxBalls || d.wkts >= 10;
-
-    // Over just completed?
     if(_adminLastOver>=0 && completedOvers>_adminLastOver && d.balls%6===0 && d.balls>0){
-        if(!innComplete){
-            openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false);
-            showTeamIntro();   // auto team intro after every over
-        }
+        if(!innComplete){ openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false); }
         saveMatchToDb(true);
     }
     _adminLastOver=completedOvers;
-
-    // Check win/tie/innings-end on every confirmed Firebase update
     checkMatchEvents(d);
 });
 
@@ -1399,8 +1204,7 @@ window.selectBatReplacement=async(pos,name)=>{
 // ══ INIT MATCH ════════════════════════════════════
 window.toggleCustomOvers=()=>{ $('customOversWrap').style.display=$('fmtSel').value==='0'?'block':'none'; };
 window.initMatch=async()=>{
-    const sA=getSquadNames('A'), sB=getSquadNames('B');
-    const sAr=sA.join('\n'), sBr=sB.join('\n');
+    const sA=getSquadNames('A'); const sB=getSquadNames('B');
     if(!sA.length||!sB.length) return alert('Please enter at least one player per squad!');
     const fmtRaw=$('fmtSel').value; let fmt;
     if(fmtRaw==='0'){fmt=parseInt($('customOvers').value)||20;if(fmt<1)return alert('Min 1 over.');}
@@ -1417,14 +1221,15 @@ window.initMatch=async()=>{
         p2n:batSq[1]||batSq[0],p2r:0,p2b:0,p2fours:0,p2sixes:0,
         bwn:bowlSq[0],bwr:0,bww:0,bwb:0,recentBalls:[],nextBatIdx:2,
         freeHit:false,innings:1,maxOvers:fmt,batRows,bowlRows});
-    await set(sRef,{sqA:sAr,sqB:sBr});
+    await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n')});
     await update(uRef,{scorebar:true,scorecard:false});
     _adminLastOver=0;
-    _currentMatchKey=null;   // new match = new history slot
+    _currentMatchKey=null;
     _winFired=false;
     _inn1EndFired=false;
-    await showTeamIntro();
+    _prevMatchState=null;
     await saveMatchToDb(true);
+    if(_audioEnabled) speakText(`Match initialized! ${batNm} will bat first against ${bowlNm}. Let's get this game started!`);
     alert('✅ Match Initialized!');
 };
 
@@ -1442,143 +1247,64 @@ window.ball=async(r,type)=>{
     else if(isLB){ d.freeHit=false;d.balls++;d.bwb++; updBowl(d,d.bwn,{balls:1,legbyes:r}); if(r%2!==0)d.str=d.str===1?2:1; d.recentBalls.push(r>1?`Lb${r}`:'Lb'); if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];} }
     else{ d.freeHit=false;d.balls++;d.bwb++;d.bwr+=r; updBowl(d,d.bwn,{runs:r,balls:1}); if(d.str===1){d.p1r+=r;d.p1b++;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}else{d.p2r+=r;d.p2b++;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);} updBat(d,d.str===1?d.p1n:d.p2n,{runs:r,balls:1,fours:r===4?1:0,sixes:r===6?1:0}); if(r%2!==0)d.str=d.str===1?2:1; if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}else d.recentBalls.push(r); }
     await update(mRef,d);
-    // win/innings-end checked in onValue listener below
 };
 
 // ══ INNINGS END & WIN DETECTION ══════════════════
 let _winFired      = false;
-let _inn1EndFired  = false;   // 1st innings end popup already shown
+let _inn1EndFired  = false;
 
-// Called after every ball AND after every wicket
 async function checkMatchEvents(d){
     if(!d) return;
-
     const maxBalls  = (d.maxOvers||20) * 6;
     const allOut    = d.wkts >= 10;
     const oversUp   = d.balls >= maxBalls;
     const inn       = d.innings || 1;
-
-    // ── 1ST INNINGS END ──────────────────────────────
-    // Trigger when: 1st innings AND (all out OR overs complete)
     if(inn === 1 && !_inn1EndFired && (allOut || oversUp)){
         _inn1EndFired = true;
         const ovStr = `${Math.floor(d.balls/6)}.${d.balls%6}`;
-        // Show end-of-innings announcement on overlay
-        await set(aRef,{
-            emoji: '🏏',
-            text:  `END OF 1ST INNINGS`,
-            sub:   `${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs) — ${allOut?'All Out':'Overs Up'}`,
-            style: 'custom',
-            dur:   15,
-            rain:  false,
-            sentAt: Date.now(),
-            id: Math.random().toString(36).slice(2),
-        });
-        // Show 2nd innings popup on admin after 2 seconds
+        await set(aRef,{ emoji:'🏏', text:`END OF 1ST INNINGS`, sub:`${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs) — ${allOut?'All Out':'Overs Up'}`, style:'custom', dur:15, rain:false, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
         setTimeout(()=>{ openInningsEndModal(d); }, 2000);
         return;
     }
-
-    // ── 2ND INNINGS WIN/TIE/LOSS ─────────────────────
     if(inn !== 2 || _winFired) return;
     const target     = d.target || 0;
     if(target <= 0)  return;
-
     const runsNeeded = target - d.runs;
     const wicketsLeft= 10 - d.wkts;
     const ballsLeft  = maxBalls - d.balls;
-
     let winMsg = null;
-
-    // 1. CHASE WIN — batting team reaches/passes target
     if(runsNeeded <= 0){
-        winMsg = {
-            emoji: '🏆',
-            text:  `${d.batTeam} WIN!`,
-            sub:   `${d.batTeam} won by ${wicketsLeft} wicket${wicketsLeft!==1?'s':''} (${ballsLeft} ball${ballsLeft!==1?'s':''} to spare)`,
-            style: 'win', dur: 30, rain: true,
-        };
-    }
-    // 2. TIE — 2nd innings total equals 1st innings total
-    //    target = inn1_score + 1, so tie = runs === target - 1
-    else if(runsNeeded === 1 && (allOut || oversUp)){
-        winMsg = {
-            emoji: '🤝',
-            text:  `IT'S A TIE!`,
-            sub:   `Both teams scored ${d.runs} runs — Match tied!`,
-            style: 'tie', dur: 25, rain: true,
-        };
-    }
-    // 3. DEFENCE WIN — all out or overs up, batting team needs 2+ more runs
-    else if(allOut || oversUp){
+        winMsg = { emoji:'🏆', text:`${d.batTeam} WIN!`, sub:`Won by ${wicketsLeft} wicket${wicketsLeft!==1?'s':''} (${ballsLeft} ball${ballsLeft!==1?'s':''} to spare)`, style:'win', dur:30, rain:true, winner:d.batTeam, margin:`${wicketsLeft} wickets`, type:'win' };
+    } else if(runsNeeded === 1 && (allOut || oversUp)){
+        winMsg = { emoji:'🤝', text:`IT'S A TIE!`, sub:`Both teams scored ${d.runs} runs — Match tied!`, style:'tie', dur:25, rain:true, winner:'TIE', margin:'tie', type:'tie' };
+    } else if(allOut || oversUp){
         const margin = runsNeeded - 1;
-        winMsg = {
-            emoji: '🏆',
-            text:  `${d.bowlTeam} WIN!`,
-            sub:   `${d.bowlTeam} won by ${margin} run${margin!==1?'s':''} — ${d.batTeam} fell short`,
-            style: 'win', dur: 30, rain: true,
-        };
+        winMsg = { emoji:'🏆', text:`${d.bowlTeam} WIN!`, sub:`Won by ${margin} run${margin!==1?'s':''} — ${d.batTeam} fell short`, style:'win', dur:30, rain:true, winner:d.bowlTeam, margin:`${margin} runs`, type:'win' };
     }
-
     if(winMsg){
         _winFired = true;
-        // Send to overlay (if win ann enabled)
-        if(_uiFlags.showWinAnn){
-            await set(aRef,{
-                ...winMsg,
-                rain: winMsg.rain && _uiFlags.showEmojiRain,
-                sentAt: Date.now(),
-                id: Math.random().toString(36).slice(2),
-            });
-        }
-        // Save final state to history
+        await set(aRef,{ ...winMsg, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
         setTimeout(()=>{ saveMatchToDb(true); }, 1500);
-        // Show win popup (not alert)
+        // Show win popup (not alert!)
         setTimeout(()=>{
-            const d2 = winMsg;
             showWinPopup(
-                d2.text,
-                d2.sub,
+                winMsg.text,
+                winMsg.sub,
                 `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,
-                winMsg.style
+                winMsg.type === 'tie' ? 'tie' : 'win'
             );
+            if(_audioEnabled){
+                const ovStr = `${Math.floor(d.balls/6)} overs`;
+                speakText(`${winMsg.text} ${winMsg.sub}. What an incredible match! The crowd is on their feet!`);
+            }
         }, 800);
     }
 }
 
-// ── Win popup ────────────────────────────────────
-function showWinPopup(title, sub, detail, type){
-    const el = document.getElementById('winPopupOverlay');
-    if(!el) return;
-    document.getElementById('winTrophy').textContent = type==='tie' ? '🤝' : '🏆';
-    document.getElementById('winPopupTitle').textContent = title;
-    document.getElementById('winPopupSub').textContent = sub;
-    document.getElementById('winPopupDetail').textContent = detail||'';
-    // confetti
-    const conf = document.getElementById('winConfetti');
-    conf.innerHTML='';
-    const cols=['#f5c518','#06d6a0','#e63946','#9b72cf','#118ab2','#fff','#ffd700'];
-    for(let i=0;i<40;i++){
-        const d=document.createElement('div'); d.className='wc-dot';
-        d.style.cssText=`left:${Math.random()*100}%;top:${-10+Math.random()*20}%;background:${cols[Math.floor(Math.random()*cols.length)]};animation-delay:${Math.random()*3}s;animation-duration:${3+Math.random()*3}s;`;
-        conf.appendChild(d);
-    }
-    el.classList.add('open');
-}
-window.closeWinPopup=()=>document.getElementById('winPopupOverlay').classList.remove('open');
-
-// ── 1st innings end modal ─────────────────────────
 function openInningsEndModal(d){
     const ovStr = `${Math.floor(d.balls/6)}.${d.balls%6}`;
     const reason = d.wkts>=10 ? 'ALL OUT' : 'OVERS COMPLETE';
-    if(confirm(
-        `🏏 END OF 1ST INNINGS
-
-${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs)
-${reason}
-
-Start 2nd Innings now?`
-    )){ swapInnings(); }
+    if(confirm(`🏏 END OF 1ST INNINGS\n\n${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs)\n${reason}\n\nStart 2nd Innings now?`)){ swapInnings(); }
 }
 
 // ══ WICKET MODAL ══════════════════════════════════
@@ -1622,10 +1348,9 @@ window.confirmWicket=async()=>{
     else{d.p2n=nxt;d.p2r=0;d.p2b=0;d.p2fours=0;d.p2sixes=0;}
     d.nextBatIdx=idx+1;
     await update(mRef,d);
-    closeWicket(); // win/innings-end checked in onValue listener
+    closeWicket();
 };
 
-// ── helpers ──
 function updBat(d,name,{runs=0,balls=0,fours=0,sixes=0}={}){ const r=(d.batRows||[]).find(x=>x.name===name); if(r){r.runs+=runs;r.balls+=balls;r.fours+=fours;r.sixes+=sixes;} }
 function markOut(d,name,howOut='out'){ const r=(d.batRows||[]).find(x=>x.name===name); if(r){r.out=true;r.howOut=howOut;} }
 function updBowl(d,name,{runs=0,balls=0,wkts=0,wides=0,noballs=0,byes=0,legbyes=0}={}){ const r=(d.bowlRows||[]).find(x=>x.name===name); if(r){r.balls+=balls;r.runs+=runs;r.wkts+=wkts;r.wides+=wides;r.noballs+=noballs;r.byes=(r.byes||0)+byes;r.legbyes=(r.legbyes||0)+legbyes;} }
@@ -1657,6 +1382,8 @@ window.swapInnings=async()=>{
     _adminLastOver=0;
     _winFired=false;
     _inn1EndFired=false;
+    _prevMatchState=null;
+    if(_audioEnabled) speakText(`Second innings underway! ${d.bowlTeam} need ${d.runs+1} runs to win. The chase is on!`);
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
@@ -1670,11 +1397,11 @@ window.fullReset=async()=>{
     await set(sRef,null);
     await set(hRef,null);
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
-    await set(ref(db,'playerCard'),null);
     _adminLastOver=-1;
     _currentMatchKey=null;
     _winFired=false;
     _inn1EndFired=false;
+    _prevMatchState=null;
     location.reload();
 };
 
@@ -1686,7 +1413,6 @@ async function enforceHistoryLimit(){
         if(keys.length>10) for(const k of keys.slice(0,keys.length-10)) await remove(ref(db,`matchHistory/${k}`));
     }
 }
-
 window.saveMatchToDb=async(silent=false)=>{
     const snap=await get(mRef); const d=snap.val();
     if(!d){ if(!silent) alert('No match data to save!'); return; }
@@ -1707,22 +1433,18 @@ window.saveMatchToDb=async(silent=false)=>{
         fullState:JSON.parse(JSON.stringify(d)),
     };
     if(_currentMatchKey){
-        // update existing entry in-place — ONE row per match
         await set(ref(db,`matchHistory/${_currentMatchKey}`), record);
     } else {
-        // first save — create new entry and store its key
         const newRef = await push(histRef, record);
         _currentMatchKey = newRef.key;
         await enforceHistoryLimit();
     }
     if(!silent) showToast(`✅ Saved: "${title}"`);
 };
-
 window.deleteMatch=async(key)=>{
     if(!confirm('Delete this match from history?')) return;
     await remove(ref(db,`matchHistory/${key}`));
 };
-
 window.reloadMatch=async(key,encoded)=>{
     const data=JSON.parse(decodeURIComponent(encoded));
     if(!confirm(`Reload "${data.title}" into live panel? This will REPLACE the current match.`)) return;
@@ -1733,10 +1455,9 @@ window.reloadMatch=async(key,encoded)=>{
     const bowlNames=(data.fullState.bowlRows||[]).map(r=>r.name).join('\n');
     await set(sRef,{sqA:batNames,sqB:bowlNames});
     _adminLastOver=Math.floor(data.fullState.balls/6);
-    _currentMatchKey=key;   // future saves will update this same slot
+    _currentMatchKey=key;
     showToast(`✅ Loaded: "${data.title}"`);
 };
-
 window.downloadSavedMatch=(key,encoded)=>{
     const data=JSON.parse(decodeURIComponent(encoded));
     const ovStr=b=>`${Math.floor(b/6)}.${b%6}`;
@@ -1776,16 +1497,10 @@ function renderHistory(val){
     const entries=Object.entries(val).sort((a,b)=>b[1].savedAt-a[1].savedAt);
     list.innerHTML=`<div class="hist-count">${entries.length}/10 MATCHES SAVED — auto-updates every over</div>`+entries.map(([key,d])=>{
         const isActive = key===_currentMatchKey;
-        const innBadge = d.innings===2
-            ? `<span style="background:#0a3a28;color:#06d6a0;border:1px solid #0a5038;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:700;letter-spacing:1px;margin-left:6px">BOTH INN</span>`
-            : `<span style="background:#0a0a20;color:#888;border:1px solid #252535;border-radius:3px;padding:1px 7px;font-size:10px;letter-spacing:1px;margin-left:6px">1ST INN</span>`;
-        const activeBadge = isActive
-            ? `<span style="background:#3a2800;color:var(--y);border:1px solid #5a3c00;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:700;letter-spacing:1px;margin-left:4px">● LIVE</span>`
-            : '';
+        const innBadge = d.innings===2?`<span style="background:#0a3a28;color:#06d6a0;border:1px solid #0a5038;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:700;letter-spacing:1px;margin-left:6px">BOTH INN</span>`:`<span style="background:#0a0a20;color:#888;border:1px solid #252535;border-radius:3px;padding:1px 7px;font-size:10px;letter-spacing:1px;margin-left:6px">1ST INN</span>`;
+        const activeBadge = isActive?`<span style="background:#3a2800;color:var(--y);border:1px solid #5a3c00;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:700;letter-spacing:1px;margin-left:4px">● LIVE</span>`:'';
         const inn1line = d.inn1Score ? `<div class="hist-meta" style="color:#666;margin-top:1px">1st: ${d.inn1Bat||''} ${d.inn1Score}</div>` : '';
-        const inn2line = d.innings===2
-            ? `<div class="hist-meta" style="color:#06d6a0;margin-top:1px">2nd: ${d.batTeam} ${d.score} (${d.overs} ovs)${d.target>0?' · Target '+d.target:''}</div>`
-            : `<div class="hist-meta" style="color:#aaa;margin-top:1px">${d.batTeam}: ${d.score} (${d.overs} ovs)</div>`;
+        const inn2line = d.innings===2?`<div class="hist-meta" style="color:#06d6a0;margin-top:1px">2nd: ${d.batTeam} ${d.score} (${d.overs} ovs)${d.target>0?' · Target '+d.target:''}</div>`:`<div class="hist-meta" style="color:#aaa;margin-top:1px">${d.batTeam}: ${d.score} (${d.overs} ovs)</div>`;
         const enc=encodeURIComponent(JSON.stringify(d));
         return `<div class="hist-item" style="${isActive?'border-color:var(--y);':''}">
             <div class="hist-info">
@@ -1804,42 +1519,24 @@ function renderHistory(val){
 }
 onValue(histRef,snap=>renderHistory(snap.val()));
 
-// ══ DOWNLOAD FILE (current match) ═════════════════
 window.saveMatch=async()=>{
     const snap=await get(mRef); const d=snap.val(); if(!d) return alert('No match data to save!');
     const now=new Date();
     const dd=String(now.getDate()).padStart(2,'0'),mm=String(now.getMonth()+1).padStart(2,'0'),yyyy=now.getFullYear();
-    const dateStr=`${dd}-${mm}-${yyyy}`,dateLabel=`${dd}/${mm}/${yyyy} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const dateLabel=`${dd}/${mm}/${yyyy} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const title=$('matchTitle').value.trim()||`${d.batTeam} vs ${d.bowlTeam}`;
     const venue=$('matchVenue').value.trim();
-    const enc=encodeURIComponent(JSON.stringify({
-        title,venue,dateLabel,batTeam:d.batTeam,bowlTeam:d.bowlTeam,
-        score:`${d.runs}/${d.wkts}`,overs:`${Math.floor(d.balls/6)}.${d.balls%6}`,
-        maxOvers:d.maxOvers||20,innings:d.innings||1,
-        inn1Score:d.inn1Score||null,inn1Bat:d.inn1Bat||null,target:d.target||0,
-        batRows:d.batRows||[],bowlRows:d.bowlRows||[],
-        inn1BatRows:d.inn1BatRows||(d.innings===1?d.batRows:[])||[],
-        inn1BowlRows:d.inn1BowlRows||(d.innings===1?d.bowlRows:[])||[],
-    }));
+    const enc=encodeURIComponent(JSON.stringify({title,venue,dateLabel,batTeam:d.batTeam,bowlTeam:d.bowlTeam,score:`${d.runs}/${d.wkts}`,overs:`${Math.floor(d.balls/6)}.${d.balls%6}`,maxOvers:d.maxOvers||20,innings:d.innings||1,inn1Score:d.inn1Score||null,inn1Bat:d.inn1Bat||null,target:d.target||0,batRows:d.batRows||[],bowlRows:d.bowlRows||[],inn1BatRows:d.inn1BatRows||(d.innings===1?d.batRows:[])||[],inn1BowlRows:d.inn1BowlRows||(d.innings===1?d.bowlRows:[])||[],}));
     downloadSavedMatch('current',enc);
 };
 
+// Build squad inputs on load
+buildSquadInputs();
+
 // init UI
 const uSnap=await get(uRef);
-if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8,showTeamIntro:true,showPlayerCard:true,showAnnouncements:true,showWinAnn:true,showEmojiRain:true});
+if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8});
 </script>
-
-<!-- WIN POPUP -->
-<div class="win-popup-overlay" id="winPopupOverlay">
-    <div class="win-popup-box">
-        <div class="win-confetti" id="winConfetti"></div>
-        <span class="win-trophy" id="winTrophy">🏆</span>
-        <div class="win-popup-title" id="winPopupTitle">TEAM WIN!</div>
-        <div class="win-popup-sub" id="winPopupSub">Won by X wickets</div>
-        <div class="win-popup-detail" id="winPopupDetail"></div>
-        <button class="win-popup-close" onclick="closeWinPopup()">✓ CONTINUE</button>
-    </div>
-</div>
 
 </div><!-- /mainContent -->
 
