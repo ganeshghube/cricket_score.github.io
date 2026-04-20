@@ -757,6 +757,7 @@ window.initMatch=async()=>{
     await update(uRef,{scorebar:true,scorecard:false});
     _adminLastOver=0;
     _currentMatchKey=null;   // new match = new history slot
+    _winFired=false;
     await saveMatchToDb(true);
     alert('✅ Match Initialized!');
 };
@@ -775,7 +776,60 @@ window.ball=async(r,type)=>{
     else if(isLB){ d.freeHit=false;d.balls++;d.bwb++; updBowl(d,d.bwn,{balls:1,legbyes:r}); if(r%2!==0)d.str=d.str===1?2:1; d.recentBalls.push(r>1?`Lb${r}`:'Lb'); if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];} }
     else{ d.freeHit=false;d.balls++;d.bwb++;d.bwr+=r; updBowl(d,d.bwn,{runs:r,balls:1}); if(d.str===1){d.p1r+=r;d.p1b++;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}else{d.p2r+=r;d.p2b++;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);} updBat(d,d.str===1?d.p1n:d.p2n,{runs:r,balls:1,fours:r===4?1:0,sixes:r===6?1:0}); if(r%2!==0)d.str=d.str===1?2:1; if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}else d.recentBalls.push(r); }
     await update(mRef,d);
+    // check win condition after every ball
+    await checkWinCondition(d);
 };
+
+// ══ WIN DETECTION ═════════════════════════════════
+let _winFired = false;   // prevent firing multiple times
+
+async function checkWinCondition(d){
+    if(!d || d.innings!==2 || _winFired) return;
+    const target = d.target || 0;
+    if(target <= 0) return;
+
+    const maxBalls = (d.maxOvers||20) * 6;
+    const ballsLeft = maxBalls - d.balls;
+    const runsNeeded = target - d.runs;
+    const allOut = d.wkts >= 10;
+    const oversUp = d.balls >= maxBalls;
+
+    let winMsg = null;
+
+    // Chase successful — batting team wins
+    if(runsNeeded <= 0){
+        const wicketsLeft = 10 - d.wkts;
+        winMsg = {
+            emoji: '🏆',
+            text: `${d.batTeam} WIN!`,
+            sub: `${d.batTeam} won by ${wicketsLeft} wicket${wicketsLeft!==1?'s':''}`,
+            style: 'win',
+            dur: 30,
+            rain: true,
+        };
+    }
+    // Defence successful — bowling team wins (all out or overs up, still need more runs)
+    else if(allOut || oversUp){
+        const runsShort = runsNeeded;
+        winMsg = {
+            emoji: '🏆',
+            text: `${d.bowlTeam} WIN!`,
+            sub: `${d.bowlTeam} won by ${runsShort} run${runsShort!==1?'s':''}`,
+            style: 'win',
+            dur: 30,
+            rain: true,
+        };
+    }
+
+    if(winMsg){
+        _winFired = true;
+        await set(aRef, {
+            ...winMsg,
+            sentAt: Date.now(),
+            id: Math.random().toString(36).slice(2),
+        });
+    }
+}
 
 // ══ WICKET MODAL ══════════════════════════════════
 let _dt='b';
@@ -817,7 +871,9 @@ window.confirmWicket=async()=>{
     if(d.str===1){d.p1n=nxt;d.p1r=0;d.p1b=0;d.p1fours=0;d.p1sixes=0;}
     else{d.p2n=nxt;d.p2r=0;d.p2b=0;d.p2fours=0;d.p2sixes=0;}
     d.nextBatIdx=idx+1;
-    await update(mRef,d); closeWicket();
+    await update(mRef,d);
+    await checkWinCondition(d);
+    closeWicket();
 };
 
 // ── helpers ──
@@ -850,6 +906,7 @@ window.swapInnings=async()=>{
         inn1BowlRows:d.bowlRows||[],
     });
     _adminLastOver=0;
+    _winFired=false;
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
@@ -865,6 +922,7 @@ window.fullReset=async()=>{
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
     _adminLastOver=-1;
     _currentMatchKey=null;
+    _winFired=false;
     location.reload();
 };
 
