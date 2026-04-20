@@ -1653,6 +1653,186 @@ function runCommentary(d){
 
 // Hook commentary into main listener
 onValue(ref(db,'cricket'),snap=>{ const d=snap.val(); if(d) runCommentary(d); });
+
+// ══════════════════════════════════════════════════════════
+// 🎧 POST-MATCH AUDIO STORY
+// ══════════════════════════════════════════════════════════
+
+// UI for post-match story (injected into win overlay area)
+(function(){
+    const panel = document.createElement('div');
+    panel.id = 'storyPanel';
+    panel.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+        width:96%;max-width:700px;z-index:80;
+        background:linear-gradient(135deg,rgba(10,8,0,.98),rgba(6,6,14,.98));
+        border:1px solid rgba(240,180,41,.3);border-radius:10px;
+        padding:16px 20px;display:none;
+        box-shadow:0 8px 40px rgba(0,0,0,.98);`;
+    panel.innerHTML = `
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#f0b429;text-transform:uppercase;letter-spacing:3px;margin-bottom:10px">
+            🎧 Post-Match Story
+        </div>
+        <div id="storyText" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:#888;letter-spacing:.5px;line-height:1.7;margin-bottom:12px;max-height:80px;overflow-y:auto;"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button id="storyPlayBtn" onclick="storyPlay()" style="background:#032212;color:#06d6a0;border:1px solid #0a4030;border-radius:5px;padding:8px 18px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;cursor:pointer;width:auto;letter-spacing:1px">▶ PLAY STORY</button>
+            <button id="storyStopBtn" onclick="storyStop()" style="background:#200000;color:#ff8080;border:1px solid #500000;border-radius:5px;padding:8px 18px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;cursor:pointer;width:auto;letter-spacing:1px;display:none">■ STOP</button>
+            <button onclick="storyDownload()" style="background:#100828;color:#c4a0ff;border:1px solid #281050;border-radius:5px;padding:8px 18px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;cursor:pointer;width:auto;letter-spacing:1px">⬇ DOWNLOAD TEXT</button>
+            <button onclick="document.getElementById('storyPanel').style.display='none'" style="background:transparent;color:#444;border:1px solid #252535;border-radius:5px;padding:8px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;cursor:pointer;width:auto">✕</button>
+        </div>`;
+    document.body.appendChild(panel);
+})();
+
+let _storyText = '';
+let _storyUtts  = [];
+let _storyIdx   = 0;
+
+function generateMatchStory(d){
+    const bat  = d.batTeam   || 'Team A';
+    const bowl = d.bowlTeam  || 'Team B';
+    const score = `${d.runs}/${d.wkts}`;
+    const overs = `${Math.floor(d.balls/6)}.${d.balls%6}`;
+    const inn1  = d.inn1Score || '';
+    const inn1bat = d.inn1Bat || '';
+    const target = d.target || 0;
+
+    // Top performers
+    const batRows  = (d.batRows ||[]).filter(r=>r.balls>0).sort((a,b)=>b.runs-a.runs);
+    const bowlRows = (d.bowlRows||[]).filter(r=>r.balls>0).sort((a,b)=>b.wkts-a.wkts||a.runs-b.runs);
+    const topBat   = batRows[0]  || null;
+    const topBat2  = batRows[1]  || null;
+    const topBowl  = bowlRows[0] || null;
+    const sixes    = batRows.reduce((s,r)=>s+(r.sixes||0),0);
+    const fours    = batRows.reduce((s,r)=>s+(r.fours||0),0);
+
+    // Build story
+    const lines = [];
+
+    // Intro
+    lines.push(`What a match we have witnessed today! ${bat} took on ${bowl} in what turned out to be a thrilling contest!`);
+
+    // 1st innings recap
+    if(inn1 && inn1bat){
+        lines.push(`${inn1bat} batted first and put up a score of ${inn1}. ${d.innings===2 && target>0 ? `Setting a target of ${target} runs for ${bat} to chase!` : ''}`);
+    }
+
+    // Top batting performance
+    if(topBat){
+        const sr = topBat.balls>0 ? ((topBat.runs/topBat.balls)*100).toFixed(0) : 0;
+        lines.push(`The star of the batting display was ${topBat.name}, who scored a brilliant ${topBat.runs} runs off just ${topBat.balls} balls at a strike rate of ${sr}! Absolutely phenomenal stuff!`);
+    }
+    if(topBat2 && topBat2.runs >= 20){
+        lines.push(`${topBat2.name} also contributed handsomely with ${topBat2.runs} runs, providing a solid foundation for ${topBat2.runs>=50 ? 'the chase' : 'the innings'}!`);
+    }
+
+    // Boundaries
+    if(sixes >= 3 || fours >= 5){
+        const boundary_line = [];
+        if(sixes>=3) boundary_line.push(`${sixes} sixes`);
+        if(fours>=5) boundary_line.push(`${fours} fours`);
+        lines.push(`The boundary count tells the story of the innings — ${boundary_line.join(' and ')}! The crowd was on its feet on multiple occasions!`);
+    }
+
+    // Bowling
+    if(topBowl){
+        const eco = topBowl.balls>0 ? (topBowl.runs/(topBowl.balls/6)).toFixed(1) : 0;
+        const fig = `${topBowl.wkts} for ${topBowl.runs}`;
+        lines.push(`With the ball, ${topBowl.name} was absolutely outstanding, returning figures of ${fig} at an economy of ${eco}. What a spell of bowling!`);
+        if(topBowl.wkts>=5) lines.push(`A FIFER for ${topBowl.name}! Five wickets in a single innings — this will be remembered for a long time!`);
+    }
+
+    // Result
+    if(target>0){
+        const runsNeeded = target - d.runs;
+        if(runsNeeded<=0){
+            const wktsLeft = 10-d.wkts;
+            lines.push(`And in the end, ${bat} crossed the line with ${wktsLeft} wickets to spare! What a chase! The crowd erupted in celebration as ${bat} clinched an incredible victory!`);
+        } else if(runsNeeded===1 && (d.wkts>=10 || d.balls>=(d.maxOvers||20)*6)){
+            lines.push(`In an absolutely stunning finish, the scores were level! It ends in a TIE! Can you believe it?! Both teams gave everything they had and neither side blinked! Incredible scenes!`);
+        } else {
+            lines.push(`${bowl} held their nerve brilliantly! ${bat} fell short by ${runsNeeded-1} runs! ${bowl} won with an exceptional defensive performance! ${bowl} are the champions today!`);
+        }
+    } else if(d.wkts>=10||d.balls>=(d.maxOvers||20)*6){
+        lines.push(`${bat} posted ${score} in ${overs} overs. A competitive total on this surface. Well played to everyone involved!`);
+    }
+
+    // Outro
+    lines.push(`That's the end of a wonderful match. Thank you for joining us for this encounter. Until next time — from all of us here — this has been absolutely sensational cricket! Goodbye!`);
+
+    return lines;
+}
+
+function storyPlay(){
+    const d = _cmtPrevState;
+    if(!d){ alert('No match data available.'); return; }
+    const lines = generateMatchStory(d);
+    _storyText = lines.join(' ');
+    document.getElementById('storyText').textContent = _storyText;
+
+    window.speechSynthesis.cancel();
+    _storyUtts = [];
+    _storyIdx  = 0;
+
+    lines.forEach((line,i)=>{
+        const utt = new SpeechSynthesisUtterance(line);
+        utt.lang   = 'en-GB';
+        utt.pitch  = 1.05 + (Math.random()*0.1);
+        utt.rate   = 1.05;
+        utt.volume = 1;
+        const voice = CMT.pickVoice();
+        if(voice) utt.voice = voice;
+        utt.onend = ()=>{
+            _storyIdx++;
+            if(_storyIdx >= _storyUtts.length){
+                document.getElementById('storyPlayBtn').style.display='';
+                document.getElementById('storyStopBtn').style.display='none';
+            }
+        };
+        _storyUtts.push(utt);
+    });
+
+    document.getElementById('storyPlayBtn').style.display='none';
+    document.getElementById('storyStopBtn').style.display='';
+    // Speak sequentially via queue
+    _storyUtts.forEach(u=>speechSynthesis.speak(u));
+}
+
+function storyStop(){
+    speechSynthesis.cancel();
+    _storyIdx = 0;
+    document.getElementById('storyPlayBtn').style.display='';
+    document.getElementById('storyStopBtn').style.display='none';
+}
+
+function storyDownload(){
+    if(!_storyText){
+        const d = _cmtPrevState;
+        if(!d){ alert('No match data.'); return; }
+        _storyText = generateMatchStory(d).join(' ');
+    }
+    const blob = new Blob([_storyText], {type:'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'match_story.txt';
+    a.click();
+}
+
+// Show story panel when win overlay is detected
+const _origShowWin = window.showWinOverlay || null;
+onValue(ref(db,'announcement'), snap=>{
+    const data = snap.val();
+    if(!data) return;
+    if(data.style==='win'||data.style==='tie'){
+        // Delay story panel by 5s so win overlay shows first
+        setTimeout(()=>{
+            if(_cmtPrevState){
+                const lines = generateMatchStory(_cmtPrevState);
+                _storyText = lines.join(' ');
+                document.getElementById('storyText').textContent = _storyText;
+                document.getElementById('storyPanel').style.display='block';
+            }
+        }, 5000);
+    }
+});
 </script>
 </body>
 </html>
