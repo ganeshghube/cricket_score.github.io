@@ -6,6 +6,25 @@
 <title>Cricket Overlay</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+.player-event-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.9);
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  z-index: 9999;
+  display: none;
+}
+
+.player-event-overlay img{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  border:3px solid white;
+}
 :root {
     --ta: #1a56b0; --ta-light: #2672d4;
     --tb: #006747; --tb-light: #008f63;
@@ -299,6 +318,21 @@ body{
 </style>
 </head>
 <body>
+<div id="eventOverlay" class="player-event-overlay">
+  <img id="eventPlayerPhoto" src="">
+  <h2 id="eventText"></h2>
+</div>
+
+<script>
+function showEventOverlay(text,photo){
+  document.getElementById('eventText').innerText=text;
+  document.getElementById('eventPlayerPhoto').src=photo;
+  document.getElementById('eventOverlay').style.display='block';
+  setTimeout(()=>{
+    document.getElementById('eventOverlay').style.display='none';
+  },3000);
+}
+</script>
 
 <!-- ═══ EMOJI RAIN ═══ -->
 <div class="ann-rain" id="annRain"></div>
