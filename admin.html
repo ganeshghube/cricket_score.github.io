@@ -937,8 +937,8 @@ onValue(mRef, snap => {
 // Silent auto-save after every over — no alert, no user action needed
 async function autoSilentSave(d, overNum){
     try {
-        const title = (.value.trim() || `${d.batTeam} vs ${d.bowlTeam}`) + ` (Auto)`;
-        const venue = .value.trim() || '';
+        const title = ($('matchTitle').value.trim() || `${d.batTeam} vs ${d.bowlTeam}`) + ` (Auto-Ov${overNum})`;
+        const venue = $('matchVenue').value.trim() || '';
         const now   = new Date();
         const dateLabel = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
         const ovStr = b => `${Math.floor(b/6)}.${b%6}`;
