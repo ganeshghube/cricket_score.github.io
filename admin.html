@@ -724,24 +724,25 @@ window.openBowlerInjury=async()=>{
     openBowlerPicker(d.bowlRows||[],d.bwn,Math.floor(d.balls/6),true);
 };
 
-// Over-end: auto bowler picker + auto-save snapshot
-onValue(mRef,snap=>{
+// Main Firebase listener — handles over-end, win detection, innings end
+onValue(mRef,async snap=>{
     const d=snap.val(); if(!d) return;
     const completedOvers = Math.floor(d.balls/6);
     const maxOvers       = d.maxOvers || 20;
     const maxBalls       = maxOvers * 6;
     const innComplete    = d.balls >= maxBalls || d.wkts >= 10;
 
+    // Over just completed?
     if(_adminLastOver>=0 && completedOvers>_adminLastOver && d.balls%6===0 && d.balls>0){
-        // Only open bowler picker if innings is NOT complete
-        // (no bowler needed when all overs done or all out)
         if(!innComplete){
             openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false);
         }
-        // Always auto-save after every over
         saveMatchToDb(true);
     }
     _adminLastOver=completedOvers;
+
+    // Check win/tie/innings-end on every confirmed Firebase update
+    checkMatchEvents(d);
 });
 
 // ══ BATSMAN INJURY ════════════════════════════════
@@ -819,8 +820,7 @@ window.ball=async(r,type)=>{
     else if(isLB){ d.freeHit=false;d.balls++;d.bwb++; updBowl(d,d.bwn,{balls:1,legbyes:r}); if(r%2!==0)d.str=d.str===1?2:1; d.recentBalls.push(r>1?`Lb${r}`:'Lb'); if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];} }
     else{ d.freeHit=false;d.balls++;d.bwb++;d.bwr+=r; updBowl(d,d.bwn,{runs:r,balls:1}); if(d.str===1){d.p1r+=r;d.p1b++;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}else{d.p2r+=r;d.p2b++;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);} updBat(d,d.str===1?d.p1n:d.p2n,{runs:r,balls:1,fours:r===4?1:0,sixes:r===6?1:0}); if(r%2!==0)d.str=d.str===1?2:1; if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}else d.recentBalls.push(r); }
     await update(mRef,d);
-    // check win condition after every ball
-    await checkMatchEvents(d);
+    // win/innings-end checked in onValue listener below
 };
 
 // ══ INNINGS END & WIN DETECTION ══════════════════
@@ -900,13 +900,21 @@ async function checkMatchEvents(d){
 
     if(winMsg){
         _winFired = true;
+        // Send to overlay
         await set(aRef,{
             ...winMsg,
             sentAt: Date.now(),
             id: Math.random().toString(36).slice(2),
         });
-        // Also save final state to history
+        // Save final state to history
         setTimeout(()=>{ saveMatchToDb(true); }, 1500);
+        // Show win popup on admin panel
+        setTimeout(()=>{
+            const icon = winMsg.style==='tie' ? '🤝' : '🏆';
+            alert(`${icon} ${winMsg.text}
+
+${winMsg.sub}`);
+        }, 800);
     }
 }
 
@@ -965,8 +973,7 @@ window.confirmWicket=async()=>{
     else{d.p2n=nxt;d.p2r=0;d.p2b=0;d.p2fours=0;d.p2sixes=0;}
     d.nextBatIdx=idx+1;
     await update(mRef,d);
-    await checkMatchEvents(d);
-    closeWicket();
+    closeWicket(); // win/innings-end checked in onValue listener
 };
 
 // ── helpers ──
