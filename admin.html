@@ -208,6 +208,8 @@ button:active{ opacity:.65; transform:scale(.95); }
 }
 .bpk-btn:hover{ background:#1a1a2e; border-color:var(--y); color:var(--y); }
 .bpk-btn.last-bowler{ border-color:#444; color:#888; font-style:italic; }
+.b-injury{ background:#1a0a00; color:#ffaa44; border:1px solid #4a2800; font-size:12px; padding:10px 8px; }
+.b-injury:hover{ background:#e67e22; color:#000; border-color:#e67e22; }
 .bpk-cancel{
     width:100%; padding:11px;
     background:transparent; border:1px solid #252535;
@@ -350,8 +352,13 @@ button:active{ opacity:.65; transform:scale(.95); }
         <div><label>Striker ●</label><select id="selP1" onchange="chg('p1n',this.value)"></select></div>
         <div><label>Non-Striker</label><select id="selP2" onchange="chg('p2n',this.value)"></select></div>
     </div>
-    <label>Current Bowler</label>
+    <div class="g2" style="margin-top:6px">
+        <button class="b-injury" onclick="openBatInjury('striker')">🚑 STRIKER INJURED</button>
+        <button class="b-injury" onclick="openBatInjury('nonstriker')">🚑 NON-STRIKER INJ.</button>
+    </div>
+    <label style="margin-top:10px">Current Bowler</label>
     <select id="selBw" onchange="chg('bwn',this.value)"></select>
+    <button class="b-injury" style="margin-top:8px" onclick="openBowlerInjury()">🚑 BOWLER INJURED / CHANGE MID-OVER</button>
 </div>
 
 <!-- 3. SCORING -->
@@ -577,10 +584,20 @@ button:active{ opacity:.65; transform:scale(.95); }
 <!-- BOWLER PICKER MODAL -->
 <div id="bowlerModal">
     <div class="bpk-box">
-        <div class="bpk-title">⚾ Select Next Bowler</div>
+        <div class="bpk-title" id="bpkTitle">⚾ Select Next Bowler</div>
         <div class="bpk-sub" id="bpkSub">END OF OVER — choose the next bowler</div>
         <div class="bpk-grid" id="bpkGrid"></div>
         <button class="bpk-cancel" onclick="closeBowlerPicker()">✕ DISMISS (keep current)</button>
+    </div>
+</div>
+
+<!-- BATSMAN INJURY MODAL -->
+<div id="batInjuryModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(6px)">
+    <div class="bpk-box">
+        <div class="bpk-title">🚑 Select Replacement Batsman</div>
+        <div class="bpk-sub" id="batInjSub">Choose who comes in</div>
+        <div class="bpk-grid" id="batInjGrid"></div>
+        <button class="bpk-cancel" onclick="document.getElementById('batInjuryModal').style.display='none'">✕ CANCEL</button>
     </div>
 </div>
 
@@ -783,18 +800,24 @@ function renderHistory(val){
 onValue(histRef, snap => renderHistory(snap.val()));
 
 // ══ BOWLER PICKER ══════════════════════════════════
-let _lastBowler = '';   // tracks who just finished bowling
+let _midOver = false;   // true = injury/change mid-over, keep bwb count
 
-function openBowlerPicker(bowlRows, currentBowler, ovNum){
+function openBowlerPicker(bowlRows, currentBowler, ovNum, midOver=false){
+    _midOver = midOver;
+    $('bpkTitle').textContent = midOver ? '🚑 Bowler Injury — Replacement' : '⚾ Select Next Bowler';
+    $('bpkSub').textContent   = midOver
+        ? `MID-OVER CHANGE — replacement completes remaining balls of over ${ovNum}`
+        : `END OF OVER ${ovNum} — choose the next bowler`;
     const grid = $('bpkGrid');
-    $('bpkSub').textContent = `END OF OVER ${ovNum} — choose the next bowler`;
     grid.innerHTML = bowlRows.map(r => {
-        const isLast = r.name === currentBowler;
+        const isInjured = r.name === currentBowler && midOver;
         const ovs = `${Math.floor(r.balls/6)}.${r.balls%6} ov`;
         const fig = r.balls > 0 ? `${r.wkts}-${r.runs} (${ovs})` : 'yet to bowl';
-        return `<button class="bpk-btn${isLast?' last-bowler':''}"
+        return `<button class="bpk-btn${isInjured?' last-bowler':''}"
+            ${isInjured?'disabled title="Currently injured"':''}
             onclick="selectBowler('${r.name.replace(/'/g,"\'")}')">
-            ${r.name}<br><span style="font-size:11px;color:#666;font-weight:400">${fig}</span>
+            ${r.name}${isInjured?' 🤕':''}
+            <br><span style="font-size:11px;color:#666;font-weight:400">${fig}</span>
         </button>`;
     }).join('');
     $('bowlerModal').classList.add('open');
@@ -803,11 +826,61 @@ function openBowlerPicker(bowlRows, currentBowler, ovNum){
 window.closeBowlerPicker = () => $('bowlerModal').classList.remove('open');
 
 window.selectBowler = async (name) => {
-    await update(mRef, { bwn:name, bwr:0, bww:0, bwb:0 });
-    // reset this bowler's over stats in bowlRows
     const snap = await get(mRef); const d = snap.val(); if(!d) return;
-    // bwr/bww/bwb on the main node track THIS spell only — bowlRows accumulate totals
+    if(_midOver){
+        // mid-over: keep existing bwb (balls bowled so far this over), just swap bowler name
+        await update(mRef, { bwn:name, bwr:0, bww:0 });
+        // bwb stays so the ball grid continues correctly for this over
+    } else {
+        // end of over: full reset of current bowler spell stats
+        await update(mRef, { bwn:name, bwr:0, bww:0, bwb:0 });
+    }
     closeBowlerPicker();
+};
+
+// Manual mid-over bowler injury/change
+window.openBowlerInjury = async () => {
+    const snap = await get(mRef); const d = snap.val(); if(!d) return alert('No match in progress.');
+    const completedOvers = Math.floor(d.balls/6);
+    openBowlerPicker(d.bowlRows||[], d.bwn, completedOvers, true);
+};
+
+// ── Batsman injury handler ──
+window.openBatInjury = async (pos) => {
+    const snap = await get(mRef); const d = snap.val(); if(!d) return alert('No match in progress.');
+    const injured = pos==='striker' ? d.p1n : d.p2n;
+    $('batInjSub').textContent = `${injured} is injured — select replacement`;
+    const nextIdx = d.nextBatIdx || 2;
+    const available = (d.batRows||[]).filter(r => !r.out && r.name!==d.p1n && r.name!==d.p2n);
+    const grid = $('batInjGrid');
+    if(!available.length){ alert('No more batsmen available!'); return; }
+    grid.innerHTML = available.map(r =>
+        `<button class="bpk-btn" onclick="selectInjuredBatReplacement('${pos}','${r.name.replace(/'/g,"\'")}')">
+            ${r.name}<br><span style="font-size:11px;color:#666;font-weight:400">yet to bat</span>
+        </button>`
+    ).join('');
+    $('batInjuryModal').style.display='flex';
+};
+
+window.selectInjuredBatReplacement = async (pos, name) => {
+    const snap = await get(mRef); const d = snap.val(); if(!d) return;
+    // mark injured player as retired hurt in batRows
+    const injuredName = pos==='striker' ? d.p1n : d.p2n;
+    const batRows = d.batRows||[];
+    const injRow = batRows.find(r=>r.name===injuredName);
+    if(injRow){ injRow.out=true; injRow.howOut='retired hurt'; }
+    // find the new player's index so nextBatIdx stays correct
+    const newIdx = batRows.findIndex(r=>r.name===name);
+    const updates = { batRows };
+    if(pos==='striker'){
+        updates.p1n=name; updates.p1r=0; updates.p1b=0; updates.p1fours=0; updates.p1sixes=0;
+    } else {
+        updates.p2n=name; updates.p2r=0; updates.p2b=0; updates.p2fours=0; updates.p2sixes=0;
+    }
+    // advance nextBatIdx if needed
+    if(newIdx >= (d.nextBatIdx||2)) updates.nextBatIdx = newIdx+1;
+    await update(mRef, updates);
+    $('batInjuryModal').style.display='none';
 };
 
 // Track over completion to auto-open bowler picker
@@ -822,9 +895,7 @@ onValue(mRef, snap => {
         ballsThisOver === 0 &&
         d.balls > 0
     ){
-        // over just completed — open bowler picker
-        const bowlRows = d.bowlRows || [];
-        openBowlerPicker(bowlRows, d.bwn, completedOvers);
+        openBowlerPicker(d.bowlRows||[], d.bwn, completedOvers, false);
     }
     _adminLastOver = completedOvers;
 });
