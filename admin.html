@@ -163,6 +163,152 @@ button:active{ opacity:.65; transform:scale(.95); }
 /* auto-save toast */
 #autoSaveToast{ position:fixed; bottom:80px; right:16px; z-index:9999; background:#032212; color:#06d6a0; border:1px solid #0a4030; border-radius:6px; padding:8px 16px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; opacity:0; transition:opacity .3s; pointer-events:none; }
 
+/* ── SQUAD PLAYER ROWS ── */
+.squad-section{ display:flex; flex-direction:column; gap:6px; }
+.squad-team-label{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:2px; }
+.squad-player-row{ display:flex; align-items:center; gap:8px; }
+.squad-player-input{ flex:1; padding:7px 10px!important; font-size:13px!important; }
+.squad-photo-btn{
+    width:34px; height:34px; flex-shrink:0;
+    border-radius:50%; border:1.5px dashed #252535;
+    background:#0a0a18; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; transition:all .15s; overflow:hidden; padding:0;
+}
+.squad-photo-btn:hover{ border-color:var(--y); background:#1a1200; }
+.squad-photo-btn img{ width:34px; height:34px; object-fit:cover; object-position:top center; border-radius:50%; }
+.squad-add-row{ display:flex; gap:8px; margin-top:4px; }
+.b-squad-add{ background:#070712; color:#555; border:1px dashed #252535; font-size:12px; padding:8px; }
+.b-squad-add:hover{ border-color:var(--y); color:var(--y); }
+.b-intro{ background:linear-gradient(135deg,#001428,#001e38); color:#7ec8ff; border:1px solid #0a3060; font-size:13px; }
+.b-intro:hover{ background:#7ec8ff; color:#000; }
+
+/* player photo manager */
+.photo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:400px; overflow-y:auto; margin-top:8px; }
+.photo-grid::-webkit-scrollbar{ width:4px; }
+.photo-grid::-webkit-scrollbar-thumb{ background:#2a2a3a; border-radius:2px; }
+.photo-row{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    background:#07070f; border:1px solid var(--brd); border-radius:8px; padding:10px 8px;
+    cursor:pointer; transition:border-color .2s;
+    position:relative;
+}
+.photo-row:hover{ border-color:var(--y); }
+.photo-row.has-photo{ border-color:#0a4030; }
+.photo-thumb{
+    width:64px; height:64px; border-radius:50%;
+    object-fit:cover; object-position:top center;
+    background:#111; border:2px solid #252535; flex-shrink:0;
+    display:block;
+}
+.photo-thumb-placeholder{
+    width:64px; height:64px; border-radius:50%;
+    background:#0d0d1a; border:2px dashed #252535; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:22px; color:#333;
+}
+.photo-row.has-photo .photo-thumb-placeholder{ border-color:#0a4030; }
+.photo-name{
+    font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700;
+    color:#ccc; text-align:center; width:100%;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.photo-upload-label{
+    font-family:'Barlow Condensed',sans-serif; font-size:9px; color:#444;
+    text-transform:uppercase; letter-spacing:1px; text-align:center;
+}
+.photo-row.has-photo .photo-upload-label{ color:#06d6a0; }
+.photo-del{
+    position:absolute; top:4px; right:4px;
+    background:#200000; color:#ff6060; border:none; border-radius:3px;
+    font-size:10px; padding:2px 5px; cursor:pointer; display:none; width:auto;
+}
+.photo-row.has-photo .photo-del{ display:block; }
+.photo-uploading{ position:absolute; inset:0; border-radius:8px; background:rgba(0,0,0,.7); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--y); letter-spacing:1px; }
+.b-show-player{ background:#051428; color:#7ec8ff; border:1px solid #0a2a50; border-radius:4px; padding:6px 10px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; width:auto; flex-shrink:0; }
+.b-show-player:hover{ background:#7ec8ff; color:#000; }
+
+/* player card overlay on index.html */
+.player-card-wrap{
+    position:fixed;
+    bottom:130px; right:24px;
+    z-index:52;
+    pointer-events:none;
+    opacity:0;
+    transform:translateX(40px) scale(0.92);
+    transition:opacity .5s cubic-bezier(.175,.885,.32,1.275), transform .5s cubic-bezier(.175,.885,.32,1.275);
+}
+.player-card-wrap.visible{
+    opacity:1;
+    transform:translateX(0) scale(1);
+}
+.player-card-wrap.leaving{
+    opacity:0;
+    transform:translateX(40px) scale(0.9);
+    transition:opacity .4s ease-in, transform .4s ease-in;
+}
+.player-card{
+    width:180px;
+    background:linear-gradient(160deg,rgba(14,14,28,.98) 0%,rgba(8,8,18,.98) 100%);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 16px 60px rgba(0,0,0,.95), 0 0 0 1px rgba(240,180,41,.08);
+    position:relative;
+}
+.player-card-img{
+    width:100%; height:180px;
+    object-fit:cover; object-position:top center;
+    display:block;
+}
+.player-card-img-placeholder{
+    width:100%; height:180px;
+    background:linear-gradient(135deg,#0d0d1a,#1a1a2e);
+    display:flex; align-items:center; justify-content:center;
+    font-size:64px;
+}
+.player-card-body{
+    padding:10px 12px 12px;
+    background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(6,6,14,.98) 100%);
+}
+.player-card-role{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:9px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; margin-bottom:3px;
+}
+.player-card-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:20px; font-weight:900; color:#fff;
+    line-height:1.1; letter-spacing:.5px;
+}
+.player-card-team{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px; color:rgba(255,255,255,.5);
+    letter-spacing:1px; margin-top:2px;
+}
+.player-card-stats{
+    display:flex; gap:10px; margin-top:8px;
+    border-top:1px solid rgba(255,255,255,.08);
+    padding-top:8px;
+}
+.player-card-stat{ flex:1; text-align:center; }
+.player-card-stat-val{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:18px; font-weight:900; color:var(--gold);
+    line-height:1;
+}
+.player-card-stat-lbl{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:9px; color:#666; letter-spacing:1px;
+    text-transform:uppercase; margin-top:2px;
+}
+.player-card-progress{
+    position:absolute; bottom:0; left:0; height:3px;
+    background:linear-gradient(90deg,var(--gold),#06d6a0);
+    animation:pcProgress linear forwards;
+    box-shadow:0 0 6px var(--gold);
+}
+@keyframes pcProgress{ from{width:100%} to{width:0%} }
+
 /* password gate */
 #pwGate{ position:fixed; inset:0; background:#080810; display:flex; align-items:center; justify-content:center; z-index:9999; }
 #pwGate.gone{ display:none; }
@@ -217,22 +363,35 @@ button:active{ opacity:.65; transform:scale(.95); }
 
 <div class="body">
 
+<!-- hidden file input for photo uploads -->
+<input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
+
 <!-- 1. SQUADS -->
 <div class="card">
     <h4><span class="hico">🏟</span> Team Squads &amp; Match Setup</h4>
     <div class="g2">
-        <div>
-            <label>Batting Team Name</label><input id="tNA" placeholder="India" value="India">
-            <label>Batting XI — one name per line</label>
-            <textarea id="sqA" rows="7" placeholder="Player 1&#10;Player 2&#10;..."></textarea>
+        <!-- Team A -->
+        <div class="squad-section">
+            <label>Team A Name</label>
+            <input id="tNA" placeholder="India" value="India">
+            <label style="margin-top:8px">Team A Players <span style="color:#333;font-size:9px">(tap 📷 to add photo)</span></label>
+            <div id="squadA"></div>
+            <div class="squad-add-row">
+                <button class="b-squad-add" onclick="addSquadRow('A')">+ Add Player</button>
+            </div>
         </div>
-        <div>
-            <label>Bowling Team Name</label><input id="tNB" placeholder="Australia" value="Australia">
-            <label>Bowling XI — one name per line</label>
-            <textarea id="sqB" rows="7" placeholder="Player 1&#10;Player 2&#10;..."></textarea>
+        <!-- Team B -->
+        <div class="squad-section">
+            <label>Team B Name</label>
+            <input id="tNB" placeholder="Australia" value="Australia">
+            <label style="margin-top:8px">Team B Players <span style="color:#333;font-size:9px">(tap 📷 to add photo)</span></label>
+            <div id="squadB"></div>
+            <div class="squad-add-row">
+                <button class="b-squad-add" onclick="addSquadRow('B')">+ Add Player</button>
+            </div>
         </div>
     </div>
-    <div class="g2" style="margin-top:10px">
+    <div class="g2" style="margin-top:12px">
         <div>
             <label>Format</label>
             <select id="fmtSel" onchange="toggleCustomOvers()">
@@ -250,12 +409,15 @@ button:active{ opacity:.65; transform:scale(.95); }
         <div>
             <label>Batting First</label>
             <select id="tossSel">
-                <option value="A">Team A (top squad)</option>
-                <option value="B">Team B (bottom squad)</option>
+                <option value="A">Team A</option>
+                <option value="B">Team B</option>
             </select>
         </div>
     </div>
-    <button class="b-gold" style="margin-top:12px" onclick="initMatch()">⚡ INITIALIZE MATCH</button>
+    <div class="g2" style="margin-top:12px">
+        <button class="b-gold" onclick="initMatch()">⚡ INITIALIZE MATCH</button>
+        <button class="b-intro" onclick="showTeamIntro()">🎬 TEAM INTRO OVERLAY</button>
+    </div>
 </div>
 
 <!-- 2. FIELD -->
@@ -455,6 +617,8 @@ button:active{ opacity:.65; transform:scale(.95); }
     </div>
 </div>
 
+<!-- PLAYER CARD OVERLAY (for index.html only — injected via Firebase) -->
+
 <!-- WICKET MODAL -->
 <div class="modal-bg" id="wktModal">
 <div class="modal">
@@ -623,6 +787,12 @@ Send anyway?`)) return;
         sentAt:Date.now(),
         id:Math.random().toString(36).slice(2)
     });
+    // Auto-show player card if photo available
+    const cardName = (type==='wicket'||type==='hattrick') ? bowler : striker;
+    if(cardName && _photoMap[cardName]){
+        const roleMap = {century:'CENTURY 🏆',fifty:'HALF CENTURY ⭐',wicket:'WICKET 💥',six:'SIX 🚀',four:'FOUR 🔥',hattrick:'HAT TRICK 🎩'};
+        setTimeout(()=>sendPlayerCard(cardName, roleMap[type]||type.toUpperCase(), 10), 500);
+    }
 };
 window.sendCustomAnn=async()=>{
     const emoji=$('annEmoji').value.trim()||'📣', msg=$('annMsg').value.trim();
@@ -641,7 +811,170 @@ function fillSel(bat,bowl,p1n,p2n,bwn){
     if(bwn)$('selBw').value=bwn; else if(bowl[0])$('selBw').value=bowl[0];
 }
 
-// ══ MATCH DATA LISTENER ═══════════════════════════
+// ══ SQUAD ROWS + PLAYER PHOTOS ══════════════════
+const photoRef    = ref(db,'playerPhotos');
+let _photoMap     = {};   // { playerName: base64DataUrl }
+let _uploadTarget = null; // which player name the file input is uploading for
+let _squadRowsA   = [];   // [{ name }]
+let _squadRowsB   = [];
+
+// Load photos from Firebase ({ safeKey: { name, data } })
+onValue(photoRef, snap=>{
+    const val=snap.val()||{};
+    _photoMap={};
+    Object.values(val).forEach(v=>{ if(v&&v.name&&v.data) _photoMap[v.name]=v.data; });
+    renderSquadRows('A');
+    renderSquadRows('B');
+    // also refresh photo selector in manual trigger
+    updatePhotoSel();
+});
+
+// ── Squad row management ──────────────────────────
+function getSquadNames(team){
+    return (team==='A'?_squadRowsA:_squadRowsB).map(r=>r.name).filter(Boolean);
+}
+
+function renderSquadRows(team){
+    const rows   = team==='A'?_squadRowsA:_squadRowsB;
+    const contId = 'squad'+team;
+    const cont   = $(contId); if(!cont) return;
+    cont.innerHTML = rows.map((r,i)=>{
+        const photo = _photoMap[r.name]||'';
+        const safeN = r.name.replace(/'/g,"\'");
+        const btnInner = photo
+            ? `<img src="${photo}" alt="">`
+            : `📷`;
+        return `<div class="squad-player-row" id="srow_${team}_${i}">
+            <input class="squad-player-input" type="text"
+                placeholder="Player ${i+1}"
+                value="${r.name}"
+                onchange="updateSquadName('${team}',${i},this.value)"
+                oninput="updateSquadName('${team}',${i},this.value)">
+            <button class="squad-photo-btn" title="Upload photo for ${r.name||'player'}"
+                onclick="triggerPhotoUpload('${safeN||''}','${team}',${i})"
+                id="spbtn_${team}_${i}">${btnInner}</button>
+        </div>`;
+    }).join('');
+}
+
+window.addSquadRow=(team)=>{
+    const rows=team==='A'?_squadRowsA:_squadRowsB;
+    rows.push({name:''});
+    renderSquadRows(team);
+};
+
+window.updateSquadName=(team,idx,val)=>{
+    const rows=team==='A'?_squadRowsA:_squadRowsB;
+    if(rows[idx]) rows[idx].name=val.trim();
+    // update photo button title
+    const btn=$(`spbtn_${team}_${idx}`);
+    if(btn) btn.title=`Upload photo for ${val.trim()||'player'}`;
+};
+
+// Populate rows from saved squads
+function loadSquadRows(sqA, sqB){
+    _squadRowsA = (sqA||'').split('
+').map(n=>n.trim()).filter(Boolean).map(n=>({name:n}));
+    _squadRowsB = (sqB||'').split('
+').map(n=>n.trim()).filter(Boolean).map(n=>({name:n}));
+    // ensure at least 11 empty rows
+    while(_squadRowsA.length < 11) _squadRowsA.push({name:''});
+    while(_squadRowsB.length < 11) _squadRowsB.push({name:''});
+    renderSquadRows('A');
+    renderSquadRows('B');
+}
+
+// Get textarea-compatible string from squad rows
+function squadRowsToStr(team){
+    return (team==='A'?_squadRowsA:_squadRowsB)
+        .map(r=>r.name).filter(Boolean).join('
+');
+}
+
+// Init default rows on page load
+loadSquadRows('','');
+
+// ── Photo upload ──────────────────────────────────
+window.triggerPhotoUpload=(name,team,idx)=>{
+    // if name is empty, prompt to enter name first
+    const rows=team==='A'?_squadRowsA:_squadRowsB;
+    const actualName=rows[idx]?.name||name;
+    if(!actualName){ alert('Enter player name first before adding photo.'); return; }
+    _uploadTarget=actualName;
+    const inp=$('photoFileInput');
+    inp.value='';
+    inp.click();
+};
+
+window.handlePhotoUpload=(input)=>{
+    const file=input.files[0];
+    if(!file||!_uploadTarget) return;
+    const name=_uploadTarget;
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+        const img=new Image();
+        img.onload=async()=>{
+            const MAX=260;
+            let w=img.width, h=img.height;
+            if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
+            else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
+            const canvas=document.createElement('canvas');
+            canvas.width=w; canvas.height=h;
+            canvas.getContext('2d').drawImage(img,0,0,w,h);
+            const dataUrl=canvas.toDataURL('image/jpeg',0.80);
+            const safeKey=name.replace(/[.#$[\]]/g,'_');
+            await set(ref(db,`playerPhotos/${safeKey}`),{name,data:dataUrl});
+            showToast(`✅ Photo saved: ${name}`);
+        };
+        img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+};
+
+window.deletePlayerPhoto=async(name)=>{
+    if(!confirm(`Delete photo for ${name}?`)) return;
+    const safeKey=name.replace(/[.#$[\]]/g,'_');
+    await remove(ref(db,`playerPhotos/${safeKey}`));
+    showToast(`🗑 Deleted photo for ${name}`);
+};
+
+// ── Manual player card trigger ────────────────────
+function updatePhotoSel(){
+    const sel=$('photoShowSel'); if(!sel) return;
+    const allNames=[..._squadRowsA,..._squadRowsB].map(r=>r.name).filter(Boolean);
+    sel.innerHTML=allNames.map(n=>`<option value="${n}">${n}</option>`).join('');
+}
+
+window.showPlayerCard=async()=>{
+    const name=$('photoShowSel')?.value;
+    const role=$('photoShowRole')?.value.trim().toUpperCase()||'PLAYER';
+    if(!name){ alert('Select a player first.'); return; }
+    await sendPlayerCard(name,role,8);
+    showToast(`📸 Showing ${name}`);
+};
+
+// ── Team Intro Overlay ────────────────────────────
+window.showTeamIntro=async()=>{
+    const snap=await get(mRef); const d=snap.val();
+    const teamA = $('tNA').value.trim().toUpperCase() || 'TEAM A';
+    const teamB = $('tNB').value.trim().toUpperCase() || 'TEAM B';
+    const playersA = getSquadNames('A');
+    const playersB = getSquadNames('B');
+    if(!playersA.length && !playersB.length){ alert('Enter player names first.'); return; }
+    // Build photo arrays
+    const buildTeam=(names,team)=>names.map(n=>({name:n,photo:_photoMap[n]||''}));
+    await set(ref(db,'teamIntro'),{
+        teamA, teamB,
+        playersA: buildTeam(playersA,teamA),
+        playersB: buildTeam(playersB,teamB),
+        dur: 12,
+        sentAt: Date.now(),
+        id: Math.random().toString(36).slice(2),
+    });
+    showToast('🎬 Team Intro sent to overlay!');
+};
+
+// ══ MATCH DATA LISTENER ═══════════════════════════// ══ MATCH DATA LISTENER ═══════════════════════════
 onValue(mRef,snap=>{
     const d=snap.val(); _match=d; if(!d) return;
     $('iBat').textContent=d.batTeam||'—';
@@ -654,6 +987,7 @@ onValue(mRef,snap=>{
     // (error correction removed)
     if(d.batTeam) $('tNA').value=d.batTeam;
     if(d.bowlTeam) $('tNB').value=d.bowlTeam;
+    updatePhotoSel();
     const fmt=d.maxOvers||20;
     $('fmtLbl').textContent=fmt===50?'ODI · 50 OVERS':fmt===20?'T20 · 20 OVERS':fmt===10?'T10 · 10 OVERS':fmt===40?'40 OVERS':`CUSTOM · ${fmt} OVERS`;
     if([10,20,40,50].includes(fmt)){$('fmtSel').value=String(fmt);$('customOversWrap').style.display='none';}
@@ -664,15 +998,17 @@ onValue(mRef,snap=>{
     } else if(_squads.bat.length||_squads.bowl.length){
         fillSel(_squads.bat,_squads.bowl,d.p1n,d.p2n,d.bwn);
     }
+    renderPhotoGrid();
 });
 onValue(sRef,snap=>{
     const s=snap.val(); if(!s) return;
-    $('sqA').value=s.sqA||''; $('sqB').value=s.sqB||'';
+    loadSquadRows(s.sqA||'', s.sqB||'');
     if(!_match||!_match.batRows){
         _squads.bat=(s.sqA||'').split('\n').map(n=>n.trim()).filter(Boolean);
         _squads.bowl=(s.sqB||'').split('\n').map(n=>n.trim()).filter(Boolean);
         fillSel(_squads.bat,_squads.bowl,_match?.p1n||null,_match?.p2n||null,_match?.bwn||null);
     }
+    updatePhotoSel();
 });
 
 // ══ AUTO POPUP TOGGLE ═════════════════════════════
@@ -736,6 +1072,7 @@ onValue(mRef,async snap=>{
     if(_adminLastOver>=0 && completedOvers>_adminLastOver && d.balls%6===0 && d.balls>0){
         if(!innComplete){
             openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false);
+            showTeamIntro();   // auto team intro after every over
         }
         saveMatchToDb(true);
     }
@@ -777,9 +1114,8 @@ window.selectBatReplacement=async(pos,name)=>{
 // ══ INIT MATCH ════════════════════════════════════
 window.toggleCustomOvers=()=>{ $('customOversWrap').style.display=$('fmtSel').value==='0'?'block':'none'; };
 window.initMatch=async()=>{
-    const sAr=$('sqA').value, sBr=$('sqB').value;
-    const sA=sAr.split('\n').map(n=>n.trim()).filter(Boolean);
-    const sB=sBr.split('\n').map(n=>n.trim()).filter(Boolean);
+    const sA=getSquadNames('A'), sB=getSquadNames('B');
+    const sAr=sA.join('\n'), sBr=sB.join('\n');
     if(!sA.length||!sB.length) return alert('Please enter at least one player per squad!');
     const fmtRaw=$('fmtSel').value; let fmt;
     if(fmtRaw==='0'){fmt=parseInt($('customOvers').value)||20;if(fmt<1)return alert('Min 1 over.');}
@@ -802,6 +1138,7 @@ window.initMatch=async()=>{
     _currentMatchKey=null;   // new match = new history slot
     _winFired=false;
     _inn1EndFired=false;
+    await showTeamIntro();
     await saveMatchToDb(true);
     alert('✅ Match Initialized!');
 };
@@ -1021,6 +1358,7 @@ window.fullReset=async()=>{
     await set(sRef,null);
     await set(hRef,null);
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
+    await set(ref(db,'playerCard'),null);
     _adminLastOver=-1;
     _currentMatchKey=null;
     _winFired=false;
