@@ -184,6 +184,9 @@ button:active{ opacity:.65; transform:scale(.95); }
 .b-hist-dl:hover{ background:#06d6a0; color:#000; }
 .b-hist-del{ background:#200000; color:#ff6060; border:1px solid #500000; border-radius:4px; padding:8px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; letter-spacing:1px; width:auto; }
 .b-hist-del:hover{ background:#e63946; color:#fff; }
+.b-hist-rl{ background:#100828; color:#c4a0ff; border:1px solid #281050; border-radius:4px; padding:8px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; letter-spacing:1px; width:auto; }
+.b-hist-rl:hover{ background:#7c3aed; color:#fff; border-color:#7c3aed; }
+.hist-count{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); margin-bottom:10px; letter-spacing:1px; }
 .hist-list{ max-height:400px; overflow-y:auto; }
 .hist-list::-webkit-scrollbar{ width:4px; }
 .hist-list::-webkit-scrollbar-track{ background:rgba(0,0,0,.3); }
@@ -583,7 +586,7 @@ let _match  = null;
 
 // ══ MATCH HISTORY ══════════════════════════════════
 
-// Save current match state to Firebase matchHistory
+// Save current match state to Firebase matchHistory (max 5, oldest auto-deleted)
 window.saveMatchToDb = async () => {
     const snap = await get(mRef); const d = snap.val();
     if(!d) return alert('No match data to save!');
@@ -593,30 +596,54 @@ window.saveMatchToDb = async () => {
     const dateLabel = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const ovStr = b => `${Math.floor(b/6)}.${b%6}`;
     const record = {
-        title,
-        venue,
-        savedAt: Date.now(),
-        dateLabel,
-        batTeam:   d.batTeam,
-        bowlTeam:  d.bowlTeam,
+        title, venue, savedAt: Date.now(), dateLabel,
+        batTeam:   d.batTeam,   bowlTeam:  d.bowlTeam,
         score:     `${d.runs}/${d.wkts}`,
         overs:     ovStr(d.balls),
         maxOvers:  d.maxOvers || 20,
-        innings:   d.innings || 1,
+        innings:   d.innings  || 1,
         inn1Score: d.inn1Score || null,
-        inn1Bat:   d.inn1Bat  || null,
-        target:    d.target   || 0,
-        batRows:   d.batRows  || [],
-        bowlRows:  d.bowlRows || [],
+        inn1Bat:   d.inn1Bat   || null,
+        target:    d.target    || 0,
+        batRows:   d.batRows   || [],
+        bowlRows:  d.bowlRows  || [],
+        // store full match state so it can be reloaded
+        fullState: JSON.parse(JSON.stringify(d)),
     };
+    // push new entry
     await push(histRef, record);
-    alert(`✅ Match saved: "${title}"`);
+    // enforce max 5 — delete oldest if exceeded
+    const all = await get(histRef);
+    const val = all.val();
+    if(val){
+        const keys = Object.keys(val).sort((a,b)=>val[a].savedAt - val[b].savedAt); // oldest first
+        if(keys.length > 5){
+            for(const k of keys.slice(0, keys.length - 5)){
+                await remove(ref(db, `matchHistory/${k}`));
+            }
+        }
+    }
+    alert(`✅ Match saved: "${title}" (last 5 kept)`);
 };
 
 // Delete a match from history
 window.deleteMatch = async (key) => {
     if(!confirm('Delete this match from history?')) return;
     await remove(ref(db, `matchHistory/${key}`));
+};
+
+// Reload a saved match back into the live admin panel
+window.reloadMatch = async (key, encodedData) => {
+    const data = JSON.parse(decodeURIComponent(encodedData));
+    if(!confirm(`Reload "${data.title}" into the live panel? This will REPLACE the current match.`)) return;
+    if(!data.fullState){ alert('This saved match has no full state to reload. Re-save it to enable reload.'); return; }
+    await set(hRef, null); // clear undo stack
+    await set(mRef, data.fullState);
+    // also restore squads textarea
+    const batNames = (data.fullState.batRows||[]).map(r=>r.name).join('\n');
+    const bowlNames = (data.fullState.bowlRows||[]).map(r=>r.name).join('\n');
+    await set(sRef, { sqA: batNames, sqB: bowlNames });
+    alert(`✅ Loaded "${data.title}" into live panel!`);
 };
 
 // Download a saved match as HTML file
@@ -654,21 +681,27 @@ window.downloadSavedMatch = (key, data) => {
 // Render history list
 function renderHistory(val){
     const list = $('histList');
-    if(!val){ list.innerHTML='<div class="hist-empty">No saved matches yet.</div>'; return; }
+    if(!val){ list.innerHTML='<div class="hist-empty">No saved matches yet. Use ☁ SAVE TO DATABASE above.</div>'; return; }
     const entries = Object.entries(val).sort((a,b)=>b[1].savedAt-a[1].savedAt);
-    list.innerHTML = entries.map(([key, d])=>{
-        const inn = d.inn1Score ? `${d.inn1Bat}: ${d.inn1Score} | ${d.batTeam}: ${d.score} (${d.overs})` : `${d.batTeam}: ${d.score} (${d.overs} ovs)`;
+    const count = entries.length;
+    list.innerHTML = `<div class="hist-count">${count}/5 MATCHES SAVED — oldest auto-removed when full</div>` +
+    entries.map(([key, d])=>{
+        const inn = d.inn1Score
+            ? `${d.inn1Bat}: ${d.inn1Score} &nbsp;▸&nbsp; ${d.batTeam}: ${d.score} (${d.overs} ovs)`
+            : `${d.batTeam}: ${d.score} (${d.overs} ovs)`;
+        const encoded = encodeURIComponent(JSON.stringify(d));
         return `
         <div class="hist-item">
             <div class="hist-info">
                 <div class="hist-title">${d.title||'Untitled Match'}</div>
                 <div class="hist-meta">${d.dateLabel}${d.venue?' · '+d.venue:''} · ${d.maxOvers||20} ovs</div>
-                <div class="hist-meta" style="color:#888;margin-top:2px">${inn}</div>
+                <div class="hist-meta" style="color:#888;margin-top:3px">${inn}</div>
             </div>
             <div class="hist-score">${d.score}</div>
             <div class="hist-actions">
-                <button class="b-hist-dl" onclick="downloadSavedMatch('${key}', JSON.parse(decodeURIComponent('${encodeURIComponent(JSON.stringify(d))}')))" title="Download as HTML">⬇ FILE</button>
-                <button class="b-hist-del" onclick="deleteMatch('${key}')" title="Delete">🗑 DEL</button>
+                <button class="b-hist-rl"  onclick="reloadMatch('${key}', '${encoded}')"  title="Reload into live panel">↺ LOAD</button>
+                <button class="b-hist-dl"  onclick="downloadSavedMatch('${key}', JSON.parse(decodeURIComponent('${encoded}')))" title="Download as HTML">⬇ FILE</button>
+                <button class="b-hist-del" onclick="deleteMatch('${key}')" title="Delete from database">🗑 DEL</button>
             </div>
         </div>`;
     }).join('');
