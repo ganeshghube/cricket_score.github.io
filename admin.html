@@ -404,6 +404,22 @@ button:active{ opacity:.65; transform:scale(.95); }
 }
 @keyframes pcProgress{ from{width:100%} to{width:0%} }
 
+/* win popup */
+.win-popup-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.96); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
+.win-popup-overlay.open{ display:flex; }
+.win-popup-box{ background:linear-gradient(135deg,#0e0a00,#0a0600); border:2px solid var(--y); border-radius:16px; padding:36px 32px; width:96%; max-width:480px; text-align:center; box-shadow:0 0 80px rgba(240,180,41,.25),0 24px 80px rgba(0,0,0,.98); position:relative; overflow:hidden; }
+.win-popup-box::before{ content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(240,180,41,.07) 0%,transparent 70%); pointer-events:none; }
+.win-trophy{ font-size:72px; animation:trophyBounce .8s cubic-bezier(.36,.07,.19,.97) both; display:block; }
+@keyframes trophyBounce{ 0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg);opacity:1} 80%{transform:scale(.92) rotate(-2deg)} 100%{transform:scale(1) rotate(0)} }
+.win-popup-title{ font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:var(--y); text-transform:uppercase; letter-spacing:4px; margin:12px 0 6px; }
+.win-popup-sub{ font-family:'Barlow Condensed',sans-serif; font-size:16px; color:#ddd; letter-spacing:1px; margin-bottom:16px; }
+.win-popup-detail{ font-family:'Barlow Condensed',sans-serif; font-size:13px; color:#888; margin-bottom:24px; }
+.win-confetti{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.wc-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:wconfetti linear forwards; opacity:0; }
+@keyframes wconfetti{ 0%{opacity:1;transform:translateY(-20px) rotate(0deg);} 100%{opacity:0;transform:translateY(120vh) rotate(720deg);} }
+.win-popup-close{ background:linear-gradient(135deg,#3a2800,#2a1e00); color:var(--y); border:1px solid #5a3c00; border-radius:6px; padding:14px 32px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; width:auto; margin-top:4px; }
+.win-popup-close:hover{ background:var(--y); color:#000; }
+
 /* password gate */
 #pwGate{ position:fixed; inset:0; background:#080810; display:flex; align-items:center; justify-content:center; z-index:9999; }
 #pwGate.gone{ display:none; }
@@ -1517,15 +1533,39 @@ async function checkMatchEvents(d){
         }
         // Save final state to history
         setTimeout(()=>{ saveMatchToDb(true); }, 1500);
-        // Show win popup on admin panel
+        // Show win popup (not alert)
         setTimeout(()=>{
-            const icon = winMsg.style==='tie' ? '🤝' : '🏆';
-            alert(`${icon} ${winMsg.text}
-
-${winMsg.sub}`);
+            const d2 = winMsg;
+            showWinPopup(
+                d2.text,
+                d2.sub,
+                `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,
+                winMsg.style
+            );
         }, 800);
     }
 }
+
+// ── Win popup ────────────────────────────────────
+function showWinPopup(title, sub, detail, type){
+    const el = document.getElementById('winPopupOverlay');
+    if(!el) return;
+    document.getElementById('winTrophy').textContent = type==='tie' ? '🤝' : '🏆';
+    document.getElementById('winPopupTitle').textContent = title;
+    document.getElementById('winPopupSub').textContent = sub;
+    document.getElementById('winPopupDetail').textContent = detail||'';
+    // confetti
+    const conf = document.getElementById('winConfetti');
+    conf.innerHTML='';
+    const cols=['#f5c518','#06d6a0','#e63946','#9b72cf','#118ab2','#fff','#ffd700'];
+    for(let i=0;i<40;i++){
+        const d=document.createElement('div'); d.className='wc-dot';
+        d.style.cssText=`left:${Math.random()*100}%;top:${-10+Math.random()*20}%;background:${cols[Math.floor(Math.random()*cols.length)]};animation-delay:${Math.random()*3}s;animation-duration:${3+Math.random()*3}s;`;
+        conf.appendChild(d);
+    }
+    el.classList.add('open');
+}
+window.closeWinPopup=()=>document.getElementById('winPopupOverlay').classList.remove('open');
 
 // ── 1st innings end modal ─────────────────────────
 function openInningsEndModal(d){
@@ -1788,6 +1828,18 @@ window.saveMatch=async()=>{
 const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8,showTeamIntro:true,showPlayerCard:true,showAnnouncements:true,showWinAnn:true,showEmojiRain:true});
 </script>
+
+<!-- WIN POPUP -->
+<div class="win-popup-overlay" id="winPopupOverlay">
+    <div class="win-popup-box">
+        <div class="win-confetti" id="winConfetti"></div>
+        <span class="win-trophy" id="winTrophy">🏆</span>
+        <div class="win-popup-title" id="winPopupTitle">TEAM WIN!</div>
+        <div class="win-popup-sub" id="winPopupSub">Won by X wickets</div>
+        <div class="win-popup-detail" id="winPopupDetail"></div>
+        <button class="win-popup-close" onclick="closeWinPopup()">✓ CONTINUE</button>
+    </div>
+</div>
 
 </div><!-- /mainContent -->
 
