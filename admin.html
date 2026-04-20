@@ -753,6 +753,7 @@ window.initMatch=async()=>{
     await set(sRef,{sqA:sAr,sqB:sBr});
     await update(uRef,{scorebar:true,scorecard:false});
     _adminLastOver=0;
+    await saveMatchToDb(true);
     alert('✅ Match Initialized!');
 };
 
@@ -871,7 +872,7 @@ async function enforceHistoryLimit(){
     }
 }
 
-window.saveMatchToDb=async()=>{
+window.saveMatchToDb=async(silent=false)=>{
     const snap=await get(mRef); const d=snap.val();
     if(!d) return alert('No match data to save!');
     const title=$('matchTitle').value.trim()||`${d.batTeam} vs ${d.bowlTeam}`;
@@ -891,7 +892,7 @@ window.saveMatchToDb=async()=>{
         fullState:JSON.parse(JSON.stringify(d)),
     });
     await enforceHistoryLimit();
-    showToast(`✅ Saved: "${title}"`);
+    if(!silent) showToast(`✅ Saved: "${title}"`);
 };
 
 window.deleteMatch=async(key)=>{
