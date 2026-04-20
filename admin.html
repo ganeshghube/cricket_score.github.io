@@ -163,6 +163,132 @@ button:active{ opacity:.65; transform:scale(.95); }
 /* auto-save toast */
 #autoSaveToast{ position:fixed; bottom:80px; right:16px; z-index:9999; background:#032212; color:#06d6a0; border:1px solid #0a4030; border-radius:6px; padding:8px 16px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; opacity:0; transition:opacity .3s; pointer-events:none; }
 
+/* player photo manager */
+.photo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; max-height:400px; overflow-y:auto; margin-top:8px; }
+.photo-grid::-webkit-scrollbar{ width:4px; }
+.photo-grid::-webkit-scrollbar-thumb{ background:#2a2a3a; border-radius:2px; }
+.photo-row{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    background:#07070f; border:1px solid var(--brd); border-radius:8px; padding:10px 8px;
+    cursor:pointer; transition:border-color .2s;
+    position:relative;
+}
+.photo-row:hover{ border-color:var(--y); }
+.photo-row.has-photo{ border-color:#0a4030; }
+.photo-thumb{
+    width:64px; height:64px; border-radius:50%;
+    object-fit:cover; object-position:top center;
+    background:#111; border:2px solid #252535; flex-shrink:0;
+    display:block;
+}
+.photo-thumb-placeholder{
+    width:64px; height:64px; border-radius:50%;
+    background:#0d0d1a; border:2px dashed #252535; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:22px; color:#333;
+}
+.photo-row.has-photo .photo-thumb-placeholder{ border-color:#0a4030; }
+.photo-name{
+    font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700;
+    color:#ccc; text-align:center; width:100%;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.photo-upload-label{
+    font-family:'Barlow Condensed',sans-serif; font-size:9px; color:#444;
+    text-transform:uppercase; letter-spacing:1px; text-align:center;
+}
+.photo-row.has-photo .photo-upload-label{ color:#06d6a0; }
+.photo-del{
+    position:absolute; top:4px; right:4px;
+    background:#200000; color:#ff6060; border:none; border-radius:3px;
+    font-size:10px; padding:2px 5px; cursor:pointer; display:none; width:auto;
+}
+.photo-row.has-photo .photo-del{ display:block; }
+.photo-uploading{ position:absolute; inset:0; border-radius:8px; background:rgba(0,0,0,.7); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--y); letter-spacing:1px; }
+.b-show-player{ background:#051428; color:#7ec8ff; border:1px solid #0a2a50; border-radius:4px; padding:6px 10px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; cursor:pointer; white-space:nowrap; width:auto; flex-shrink:0; }
+.b-show-player:hover{ background:#7ec8ff; color:#000; }
+
+/* player card overlay on index.html */
+.player-card-wrap{
+    position:fixed;
+    bottom:130px; right:24px;
+    z-index:52;
+    pointer-events:none;
+    opacity:0;
+    transform:translateX(40px) scale(0.92);
+    transition:opacity .5s cubic-bezier(.175,.885,.32,1.275), transform .5s cubic-bezier(.175,.885,.32,1.275);
+}
+.player-card-wrap.visible{
+    opacity:1;
+    transform:translateX(0) scale(1);
+}
+.player-card-wrap.leaving{
+    opacity:0;
+    transform:translateX(40px) scale(0.9);
+    transition:opacity .4s ease-in, transform .4s ease-in;
+}
+.player-card{
+    width:180px;
+    background:linear-gradient(160deg,rgba(14,14,28,.98) 0%,rgba(8,8,18,.98) 100%);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 16px 60px rgba(0,0,0,.95), 0 0 0 1px rgba(240,180,41,.08);
+    position:relative;
+}
+.player-card-img{
+    width:100%; height:180px;
+    object-fit:cover; object-position:top center;
+    display:block;
+}
+.player-card-img-placeholder{
+    width:100%; height:180px;
+    background:linear-gradient(135deg,#0d0d1a,#1a1a2e);
+    display:flex; align-items:center; justify-content:center;
+    font-size:64px;
+}
+.player-card-body{
+    padding:10px 12px 12px;
+    background:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(6,6,14,.98) 100%);
+}
+.player-card-role{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:9px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; margin-bottom:3px;
+}
+.player-card-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:20px; font-weight:900; color:#fff;
+    line-height:1.1; letter-spacing:.5px;
+}
+.player-card-team{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px; color:rgba(255,255,255,.5);
+    letter-spacing:1px; margin-top:2px;
+}
+.player-card-stats{
+    display:flex; gap:10px; margin-top:8px;
+    border-top:1px solid rgba(255,255,255,.08);
+    padding-top:8px;
+}
+.player-card-stat{ flex:1; text-align:center; }
+.player-card-stat-val{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:18px; font-weight:900; color:var(--gold);
+    line-height:1;
+}
+.player-card-stat-lbl{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:9px; color:#666; letter-spacing:1px;
+    text-transform:uppercase; margin-top:2px;
+}
+.player-card-progress{
+    position:absolute; bottom:0; left:0; height:3px;
+    background:linear-gradient(90deg,var(--gold),#06d6a0);
+    animation:pcProgress linear forwards;
+    box-shadow:0 0 6px var(--gold);
+}
+@keyframes pcProgress{ from{width:100%} to{width:0%} }
+
 /* password gate */
 #pwGate{ position:fixed; inset:0; background:#080810; display:flex; align-items:center; justify-content:center; z-index:9999; }
 #pwGate.gone{ display:none; }
@@ -407,6 +533,37 @@ button:active{ opacity:.65; transform:scale(.95); }
     <button class="b-ann-custom" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND ANNOUNCEMENT TO OVERLAY</button>
 </div>
 
+<!-- 6b. PLAYER PHOTOS -->
+<!-- hidden file input — triggered programmatically per player -->
+<input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
+
+<div class="card">
+    <h4><span class="hico">📸</span> Player Photos</h4>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.6">
+        Tap a player tile to upload a photo from your device. Photos are compressed and saved to Firebase automatically.
+        They appear on the overlay for milestones (century, fifty, wicket, six, four) and via manual trigger below.
+    </div>
+    <div id="photoGrid" class="photo-grid">
+        <div style="color:#333;font-family:'Barlow Condensed',sans-serif;font-size:11px;padding:10px;grid-column:1/-1">
+            Initialize a match first to see players.
+        </div>
+    </div>
+    <div class="sep" style="margin-top:14px">Manual trigger</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:flex-end">
+        <div style="flex:2;min-width:140px">
+            <label>Player</label>
+            <select id="photoShowSel" style="font-size:12px"></select>
+        </div>
+        <div style="flex:1;min-width:100px">
+            <label>Role label</label>
+            <input id="photoShowRole" placeholder="BATTING" value="BATTING" style="font-size:12px">
+        </div>
+        <div style="flex:0 0 auto">
+            <button class="b-show-player" style="padding:9px 14px;font-size:12px" onclick="showPlayerCard()">📸 SHOW ON OVERLAY</button>
+        </div>
+    </div>
+</div>
+
 <!-- 7. SAVE SCORECARD -->
 <div class="card">
     <h4><span class="hico">💾</span> Save Match Scorecard</h4>
@@ -454,6 +611,8 @@ button:active{ opacity:.65; transform:scale(.95); }
         <button class="bpk-cancel" onclick="document.getElementById('batInjuryModal').classList.remove('open')">✕ CANCEL</button>
     </div>
 </div>
+
+<!-- PLAYER CARD OVERLAY (for index.html only — injected via Firebase) -->
 
 <!-- WICKET MODAL -->
 <div class="modal-bg" id="wktModal">
@@ -623,6 +782,12 @@ Send anyway?`)) return;
         sentAt:Date.now(),
         id:Math.random().toString(36).slice(2)
     });
+    // Auto-show player card if photo available
+    const cardName = (type==='wicket'||type==='hattrick') ? bowler : striker;
+    if(cardName && _photoMap[cardName]){
+        const roleMap = {century:'CENTURY 🏆',fifty:'HALF CENTURY ⭐',wicket:'WICKET 💥',six:'SIX 🚀',four:'FOUR 🔥',hattrick:'HAT TRICK 🎩'};
+        setTimeout(()=>sendPlayerCard(cardName, roleMap[type]||type.toUpperCase(), 10), 500);
+    }
 };
 window.sendCustomAnn=async()=>{
     const emoji=$('annEmoji').value.trim()||'📣', msg=$('annMsg').value.trim();
@@ -640,6 +805,115 @@ function fillSel(bat,bowl,p1n,p2n,bwn){
     if(p2n)$('selP2').value=p2n; else if(bat[1])$('selP2').value=bat[1];
     if(bwn)$('selBw').value=bwn; else if(bowl[0])$('selBw').value=bowl[0];
 }
+
+// ══ PLAYER PHOTOS ════════════════════════════════
+const photoRef = ref(db,'playerPhotos');
+let _photoMap      = {};   // { playerName: base64DataUrl }
+let _uploadTarget  = null; // which player the file input is for
+
+// Load photos — stored as { safeKey: { name, data } }
+onValue(photoRef, snap=>{
+    const val=snap.val()||{};
+    _photoMap={};
+    Object.values(val).forEach(v=>{ if(v&&v.name&&v.data) _photoMap[v.name]=v.data; });
+    renderPhotoGrid();
+});
+
+function renderPhotoGrid(){
+    const grid=$('photoGrid'), sel=$('photoShowSel');
+    if(!_match||(!_match.batRows&&!_match.bowlRows)){
+        grid.innerHTML='<div style="color:#333;font-family:\'Barlow Condensed\',sans-serif;font-size:11px;padding:10px;grid-column:1/-1">Initialize a match first to see players.</div>';
+        return;
+    }
+    const allP=[...(_match.batRows||[]).map(r=>r.name),...(_match.bowlRows||[]).map(r=>r.name)];
+    const players=[...new Set(allP)];
+    grid.innerHTML=players.map(n=>{
+        const data=_photoMap[n]||'';
+        const hasPhoto=!!data;
+        const thumb=hasPhoto
+            ? `<img class="photo-thumb" src="${data}" alt="${n}">`
+            : `<div class="photo-thumb-placeholder">👤</div>`;
+        const safeN=n.replace(/'/g,"\\'");
+        return `<div class="photo-row${hasPhoto?' has-photo':''}" id="prow_${n.replace(/[^a-z0-9]/gi,'_')}"
+            onclick="triggerPhotoUpload('${safeN}')" title="Tap to upload photo">
+            ${thumb}
+            <span class="photo-name">${n}</span>
+            <span class="photo-upload-label">${hasPhoto?'✓ Saved':'📷 Tap to upload'}</span>
+            ${hasPhoto?`<button class="photo-del" onclick="event.stopPropagation();deletePlayerPhoto('${safeN}')">✕</button>`:''}
+        </div>`;
+    }).join('');
+    if(sel) sel.innerHTML=players.map(n=>`<option value="${n}">${n}</option>`).join('');
+}
+
+window.triggerPhotoUpload=(name)=>{
+    _uploadTarget=name;
+    const inp=$('photoFileInput');
+    inp.value='';
+    inp.click();
+};
+
+window.handlePhotoUpload=(input)=>{
+    const file=input.files[0];
+    if(!file||!_uploadTarget) return;
+    const name=_uploadTarget;
+    const rowEl=document.getElementById('prow_'+name.replace(/[^a-z0-9]/gi,'_'));
+    if(rowEl){ const ld=document.createElement('div'); ld.className='photo-uploading'; ld.textContent='⏳ Saving…'; rowEl.appendChild(ld); }
+    const reader=new FileReader();
+    reader.onload=async(e)=>{
+        const img=new Image();
+        img.onload=async()=>{
+            const MAX=240;
+            let w=img.width,h=img.height;
+            if(w>h){if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}}
+            else{if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}}
+            const canvas=document.createElement('canvas');
+            canvas.width=w; canvas.height=h;
+            canvas.getContext('2d').drawImage(img,0,0,w,h);
+            const dataUrl=canvas.toDataURL('image/jpeg',0.78);
+            const safeKey=name.replace(/[.#$[\]]/g,'_');
+            await set(ref(db,`playerPhotos/${safeKey}`),{name,data:dataUrl});
+            showToast(`✅ Photo saved for ${name}`);
+        };
+        img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+};
+
+window.deletePlayerPhoto=async(name)=>{
+    if(!confirm(`Delete photo for ${name}?`)) return;
+    const safeKey=name.replace(/[.#$[\]]/g,'_');
+    await remove(ref(db,`playerPhotos/${safeKey}`));
+    showToast(`🗑 Photo deleted for ${name}`);
+};
+
+// Send player card to overlay via Firebase
+async function sendPlayerCard(name, role, dur=8){
+    const url = _photoMap[name] || '';
+    // get live stats
+    const snap = await get(mRef); const d = snap.val();
+    let runs=0, balls=0, wickets=0, overs='';
+    if(d){
+        if(d.p1n===name){ runs=d.p1r||0; balls=d.p1b||0; }
+        else if(d.p2n===name){ runs=d.p2r||0; balls=d.p2b||0; }
+        const bwRow=(d.bowlRows||[]).find(r=>r.name===name);
+        if(bwRow){ wickets=bwRow.wkts||0; overs=`${Math.floor(bwRow.balls/6)}.${bwRow.balls%6}`; }
+        const batRow=(d.batRows||[]).find(r=>r.name===name);
+        if(batRow){ runs=batRow.runs||0; balls=batRow.balls||0; }
+    }
+    const team = _match?.batTeam||'';
+    await set(ref(db,'playerCard'),{
+        name, url, role, team, runs, balls, wickets, overs,
+        dur, sentAt:Date.now(), id:Math.random().toString(36).slice(2)
+    });
+}
+
+window.showPlayerCard = async()=>{
+    const name = $('photoShowSel')?.value;
+    const role = $('photoShowRole')?.value.trim().toUpperCase() || 'PLAYER';
+    if(!name){ alert('Select a player first.'); return; }
+    await sendPlayerCard(name, role, 8);
+    showToast(`📸 Showing ${name}`);
+};
 
 // ══ MATCH DATA LISTENER ═══════════════════════════
 onValue(mRef,snap=>{
@@ -664,6 +938,7 @@ onValue(mRef,snap=>{
     } else if(_squads.bat.length||_squads.bowl.length){
         fillSel(_squads.bat,_squads.bowl,d.p1n,d.p2n,d.bwn);
     }
+    renderPhotoGrid();
 });
 onValue(sRef,snap=>{
     const s=snap.val(); if(!s) return;
@@ -1021,6 +1296,7 @@ window.fullReset=async()=>{
     await set(sRef,null);
     await set(hRef,null);
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
+    await set(ref(db,'playerCard'),null);
     _adminLastOver=-1;
     _currentMatchKey=null;
     _winFired=false;
