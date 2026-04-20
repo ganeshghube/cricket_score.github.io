@@ -284,6 +284,87 @@ body{
 .live-badge{ background:#e63946; color:#fff; padding:2px 8px; border-radius:2px; font-size:9px; font-weight:800; letter-spacing:2px; animation:lpulse 1.5s infinite; white-space:nowrap; }
 @keyframes lpulse{ 0%,100%{opacity:1} 50%{opacity:.55} }
 
+/* ═══ TEAM INTRO ═══ */
+.team-intro-wrap{
+    position:fixed; inset:0; z-index:55;
+    background:rgba(4,4,12,0.96);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .6s ease;
+}
+.team-intro-wrap.visible{ opacity:1; }
+.team-intro-wrap.leaving{ opacity:0; transition:opacity .5s ease-in; }
+
+.ti-header{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:13px; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:4px;
+    margin-bottom:10px;
+}
+.ti-vs{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:44px; font-weight:900; color:var(--gold);
+    letter-spacing:4px; text-shadow:0 0 40px rgba(245,197,24,.4);
+    margin:4px 0 16px;
+    display:flex; align-items:center; gap:20px;
+}
+.ti-team-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:32px; font-weight:900; color:#fff;
+    text-transform:uppercase; letter-spacing:2px;
+    text-shadow:0 2px 20px rgba(0,0,0,.8);
+}
+.ti-vs-badge{
+    font-size:18px; color:var(--gold);
+    background:rgba(240,180,41,.1); border:1px solid rgba(240,180,41,.3);
+    border-radius:4px; padding:4px 14px; letter-spacing:3px;
+}
+.ti-teams{
+    display:flex; gap:40px; align-items:flex-start;
+    width:100%; max-width:1000px; padding:0 20px;
+}
+.ti-team{ flex:1; }
+.ti-team-hdr{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:14px; font-weight:900; text-transform:uppercase;
+    letter-spacing:3px; color:var(--gold);
+    border-bottom:2px solid rgba(240,180,41,.3);
+    padding-bottom:8px; margin-bottom:12px; text-align:center;
+}
+.ti-players{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(70px,1fr));
+    gap:8px;
+}
+.ti-player{
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    animation:tiFadeIn .4s ease both;
+}
+@keyframes tiFadeIn{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.ti-player-img{
+    width:52px; height:52px; border-radius:50%;
+    object-fit:cover; object-position:top center;
+    border:2px solid rgba(240,180,41,.4);
+    background:#0d0d1a;
+}
+.ti-player-placeholder{
+    width:52px; height:52px; border-radius:50%;
+    background:linear-gradient(135deg,#0d0d1a,#1a1a2e);
+    border:2px dashed rgba(255,255,255,.1);
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; color:#333;
+}
+.ti-player-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px; font-weight:700; color:#ccc;
+    text-align:center; letter-spacing:.5px;
+    max-width:70px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ti-progress{
+    position:absolute; bottom:0; left:0; height:3px;
+    background:linear-gradient(90deg,var(--gold),#06d6a0,var(--gold));
+    animation:pcProgress linear forwards;
+}
+
 /* ═══ PLAYER CARD ═══ */
 .player-card-wrap{
     position:fixed;
@@ -400,6 +481,27 @@ body{
 
 <!-- ═══ OVER-END BADGE ═══ -->
 <div class="over-badge" id="overBadge">⬜ END OF OVER</div>
+
+<!-- ═══ TEAM INTRO ═══ -->
+<div class="team-intro-wrap" id="teamIntroWrap">
+    <div class="ti-header">Match Presentation</div>
+    <div class="ti-vs">
+        <span class="ti-team-name" id="tiTeamA">TEAM A</span>
+        <span class="ti-vs-badge">VS</span>
+        <span class="ti-team-name" id="tiTeamB">TEAM B</span>
+    </div>
+    <div class="ti-teams">
+        <div class="ti-team">
+            <div class="ti-team-hdr" id="tiHdrA">TEAM A</div>
+            <div class="ti-players" id="tiPlayersA"></div>
+        </div>
+        <div class="ti-team">
+            <div class="ti-team-hdr" id="tiHdrB">TEAM B</div>
+            <div class="ti-players" id="tiPlayersB"></div>
+        </div>
+    </div>
+    <div class="ti-progress" id="tiProgress"></div>
+</div>
 
 <!-- ═══ PLAYER CARD ═══ -->
 <div class="player-card-wrap" id="playerCardWrap">
@@ -748,6 +850,59 @@ function showPlayerCard(data){
         wrap.classList.add('leaving');
         setTimeout(()=>{ wrap.classList.remove('visible','leaving'); },420);
     },DUR*1000);
+}
+
+// ══ TEAM INTRO SYSTEM ════════════════════════════
+let lastIntroId  = null;
+let introTimer   = null;
+const introRef   = ref(db,'teamIntro');
+
+get(introRef).then(snap=>{
+    lastIntroId = snap.val()?.id || null;
+    onValue(introRef, snap=>{
+        const data = snap.val();
+        if(!data || data.id === lastIntroId) return;
+        lastIntroId = data.id;
+        showTeamIntro(data);
+    });
+});
+
+function showTeamIntro(data){
+    const wrap  = $('teamIntroWrap');
+    const prog  = $('tiProgress');
+    const DUR   = data.dur || 12;
+    if(introTimer){ clearTimeout(introTimer); introTimer=null; }
+    wrap.classList.remove('visible','leaving'); void wrap.offsetWidth;
+
+    $('tiTeamA').textContent  = data.teamA||'TEAM A';
+    $('tiTeamB').textContent  = data.teamB||'TEAM B';
+    $('tiHdrA').textContent   = data.teamA||'TEAM A';
+    $('tiHdrB').textContent   = data.teamB||'TEAM B';
+
+    function renderPlayers(players, contId){
+        const cont = $(contId); if(!cont) return;
+        cont.innerHTML = (players||[]).map((p,i)=>{
+            const img = p.photo
+                ? `<img class="ti-player-img" src="${p.photo}" alt="${p.name}" onerror="this.outerHTML='<div class=\'ti-player-placeholder\'>👤</div>'">`
+                : `<div class="ti-player-placeholder">👤</div>`;
+            return `<div class="ti-player" style="animation-delay:${i*0.05}s">
+                ${img}
+                <span class="ti-player-name">${p.name}</span>
+            </div>`;
+        }).join('');
+    }
+    renderPlayers(data.playersA, 'tiPlayersA');
+    renderPlayers(data.playersB, 'tiPlayersB');
+
+    prog.style.animation = 'none'; void prog.offsetWidth;
+    prog.style.animation = `pcProgress ${DUR}s linear forwards`;
+
+    requestAnimationFrame(()=>{ wrap.classList.add('visible'); });
+
+    introTimer = setTimeout(()=>{
+        wrap.classList.add('leaving');
+        setTimeout(()=>{ wrap.classList.remove('visible','leaving'); }, 520);
+    }, DUR * 1000);
 }
 
 get(annRef).then(snap=>{
