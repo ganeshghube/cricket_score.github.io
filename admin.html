@@ -532,6 +532,7 @@ const $       = id => document.getElementById(id);
 let _squads = { bat:[], bowl:[] };
 let _match  = null;
 let _autoOn = false;
+let _currentMatchKey = null;   // fixed Firebase key for current match — updates in place
 
 // ── Toast helper ──────────────────────────────────
 function showToast(msg){
@@ -689,12 +690,14 @@ window.openBowlerInjury=async()=>{
     openBowlerPicker(d.bowlRows||[],d.bwn,Math.floor(d.balls/6),true);
 };
 
-// Over-end auto bowler picker
+// Over-end: auto bowler picker + auto-save snapshot
 onValue(mRef,snap=>{
     const d=snap.val(); if(!d) return;
     const completedOvers=Math.floor(d.balls/6);
     if(_adminLastOver>=0 && completedOvers>_adminLastOver && d.balls%6===0 && d.balls>0){
         openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false);
+        // silently save a snapshot to history after every over
+        saveMatchToDb(true);
     }
     _adminLastOver=completedOvers;
 });
@@ -753,6 +756,7 @@ window.initMatch=async()=>{
     await set(sRef,{sqA:sAr,sqB:sBr});
     await update(uRef,{scorebar:true,scorecard:false});
     _adminLastOver=0;
+    _currentMatchKey=null;   // new match = new history slot
     await saveMatchToDb(true);
     alert('✅ Match Initialized!');
 };
@@ -860,6 +864,7 @@ window.fullReset=async()=>{
     await set(hRef,null);
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
     _adminLastOver=-1;
+    _currentMatchKey=null;
     location.reload();
 };
 
@@ -874,13 +879,13 @@ async function enforceHistoryLimit(){
 
 window.saveMatchToDb=async(silent=false)=>{
     const snap=await get(mRef); const d=snap.val();
-    if(!d) return alert('No match data to save!');
+    if(!d){ if(!silent) alert('No match data to save!'); return; }
     const title=$('matchTitle').value.trim()||`${d.batTeam} vs ${d.bowlTeam}`;
     const venue=$('matchVenue').value.trim()||'';
     const now=new Date();
     const dateLabel=`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const ovStr=b=>`${Math.floor(b/6)}.${b%6}`;
-    await push(histRef,{
+    const record = {
         title, venue, savedAt:Date.now(), dateLabel,
         batTeam:d.batTeam, bowlTeam:d.bowlTeam,
         score:`${d.runs}/${d.wkts}`, overs:ovStr(d.balls),
@@ -890,8 +895,16 @@ window.saveMatchToDb=async(silent=false)=>{
         inn1BatRows:d.inn1BatRows||(d.innings===1?d.batRows:[])||[],
         inn1BowlRows:d.inn1BowlRows||(d.innings===1?d.bowlRows:[])||[],
         fullState:JSON.parse(JSON.stringify(d)),
-    });
-    await enforceHistoryLimit();
+    };
+    if(_currentMatchKey){
+        // update existing entry in-place — ONE row per match
+        await set(ref(db,`matchHistory/${_currentMatchKey}`), record);
+    } else {
+        // first save — create new entry and store its key
+        const newRef = await push(histRef, record);
+        _currentMatchKey = newRef.key;
+        await enforceHistoryLimit();
+    }
     if(!silent) showToast(`✅ Saved: "${title}"`);
 };
 
@@ -910,6 +923,7 @@ window.reloadMatch=async(key,encoded)=>{
     const bowlNames=(data.fullState.bowlRows||[]).map(r=>r.name).join('\n');
     await set(sRef,{sqA:batNames,sqB:bowlNames});
     _adminLastOver=Math.floor(data.fullState.balls/6);
+    _currentMatchKey=key;   // future saves will update this same slot
     showToast(`✅ Loaded: "${data.title}"`);
 };
 
@@ -948,16 +962,26 @@ window.downloadSavedMatch=(key,encoded)=>{
 
 function renderHistory(val){
     const list=$('histList');
-    if(!val){list.innerHTML='<div class="hist-empty">No saved matches yet. Use ☁ SAVE TO DATABASE above.</div>';return;}
+    if(!val){list.innerHTML='<div class="hist-empty">No saved matches yet — starts auto-saving when you initialize a match.</div>';return;}
     const entries=Object.entries(val).sort((a,b)=>b[1].savedAt-a[1].savedAt);
-    list.innerHTML=`<div class="hist-count">${entries.length}/10 MATCHES SAVED</div>`+entries.map(([key,d])=>{
-        const inn=d.inn1Score?`${d.inn1Bat}: ${d.inn1Score} ▸ ${d.batTeam}: ${d.score} (${d.overs} ovs)`:`${d.batTeam}: ${d.score} (${d.overs} ovs)`;
+    list.innerHTML=`<div class="hist-count">${entries.length}/10 MATCHES SAVED — auto-updates every over</div>`+entries.map(([key,d])=>{
+        const isActive = key===_currentMatchKey;
+        const innBadge = d.innings===2
+            ? `<span style="background:#0a3a28;color:#06d6a0;border:1px solid #0a5038;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:700;letter-spacing:1px;margin-left:6px">BOTH INN</span>`
+            : `<span style="background:#0a0a20;color:#888;border:1px solid #252535;border-radius:3px;padding:1px 7px;font-size:10px;letter-spacing:1px;margin-left:6px">1ST INN</span>`;
+        const activeBadge = isActive
+            ? `<span style="background:#3a2800;color:var(--y);border:1px solid #5a3c00;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:700;letter-spacing:1px;margin-left:4px">● LIVE</span>`
+            : '';
+        const inn1line = d.inn1Score ? `<div class="hist-meta" style="color:#666;margin-top:1px">1st: ${d.inn1Bat||''} ${d.inn1Score}</div>` : '';
+        const inn2line = d.innings===2
+            ? `<div class="hist-meta" style="color:#06d6a0;margin-top:1px">2nd: ${d.batTeam} ${d.score} (${d.overs} ovs)${d.target>0?' · Target '+d.target:''}</div>`
+            : `<div class="hist-meta" style="color:#aaa;margin-top:1px">${d.batTeam}: ${d.score} (${d.overs} ovs)</div>`;
         const enc=encodeURIComponent(JSON.stringify(d));
-        return `<div class="hist-item">
+        return `<div class="hist-item" style="${isActive?'border-color:var(--y);':''}">
             <div class="hist-info">
-                <div class="hist-title">${d.title||'Untitled'}</div>
+                <div class="hist-title">${d.title||'Untitled'}${innBadge}${activeBadge}</div>
                 <div class="hist-meta">${d.dateLabel}${d.venue?' · '+d.venue:''} · ${d.maxOvers||20} ovs</div>
-                <div class="hist-meta" style="color:#777;margin-top:2px">${inn}</div>
+                ${inn1line}${inn2line}
             </div>
             <div class="hist-score">${d.score}</div>
             <div class="hist-actions">
