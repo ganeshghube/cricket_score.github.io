@@ -900,9 +900,71 @@ onValue(mRef, snap => {
         d.balls > 0
     ){
         openBowlerPicker(d.bowlRows||[], d.bwn, completedOvers, false);
+        autoSilentSave(d, completedOvers);   // ← auto-save after every over
     }
     _adminLastOver = completedOvers;
 });
+
+// Silent auto-save after every over — no alert, no user action needed
+async function autoSilentSave(d, overNum){
+    try {
+        const title = (.value.trim() || `${d.batTeam} vs ${d.bowlTeam}`) + ` (Auto)`;
+        const venue = .value.trim() || '';
+        const now   = new Date();
+        const dateLabel = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        const ovStr = b => `${Math.floor(b/6)}.${b%6}`;
+        const record = {
+            title, venue, savedAt: Date.now(), dateLabel,
+            batTeam:   d.batTeam,   bowlTeam:  d.bowlTeam,
+            score:     `${d.runs}/${d.wkts}`,
+            overs:     ovStr(d.balls),
+            maxOvers:  d.maxOvers || 20,
+            innings:   d.innings  || 1,
+            inn1Score: d.inn1Score || null,
+            inn1Bat:   d.inn1Bat   || null,
+            target:    d.target    || 0,
+            batRows:      d.batRows      || [],
+            bowlRows:     d.bowlRows     || [],
+            inn1BatRows:  d.inn1BatRows  || (d.innings===1 ? d.batRows  : []) || [],
+            inn1BowlRows: d.inn1BowlRows || (d.innings===1 ? d.bowlRows : []) || [],
+            fullState: JSON.parse(JSON.stringify(d)),
+            autoSaved: true,
+        };
+        await push(histRef, record);
+        // enforce max 10
+        const all = await get(histRef);
+        const val = all.val();
+        if(val){
+            const keys = Object.keys(val).sort((a,b)=>val[a].savedAt - val[b].savedAt);
+            if(keys.length > 10){
+                for(const k of keys.slice(0, keys.length - 10)){
+                    await remove(ref(db, `matchHistory/${k}`));
+                }
+            }
+        }
+        // show a brief non-blocking toast instead of alert
+        showAutoSaveToast(`Over ${overNum} auto-saved`);
+    } catch(e){ console.error('Auto-save failed:', e); }
+}
+
+// Small non-blocking toast notification for auto-save
+function showAutoSaveToast(msg){
+    let t = document.getElementById('autoSaveToast');
+    if(!t){
+        t = document.createElement('div');
+        t.id = 'autoSaveToast';
+        t.style.cssText = `position:fixed;bottom:80px;right:16px;z-index:9999;
+            background:#032212;color:#06d6a0;border:1px solid #0a4030;
+            border-radius:6px;padding:8px 16px;
+            font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;
+            letter-spacing:1px;opacity:0;transition:opacity .3s;pointer-events:none;`;
+        document.body.appendChild(t);
+    }
+    t.textContent = '✅ ' + msg;
+    t.style.opacity = '1';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=>{ t.style.opacity='0'; }, 2500);
+}
 
 // ══ AUTO POPUP TOGGLE ══════════════════════════════
 let _autoOn = false;
