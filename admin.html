@@ -407,23 +407,6 @@ button:active{ opacity:.65; transform:scale(.95); }
     <button class="b-ann-custom" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND ANNOUNCEMENT TO OVERLAY</button>
 </div>
 
-<!-- 6. ERROR CORRECTION -->
-<div class="card">
-    <h4><span class="hico">🔧</span> Error Correction</h4>
-    <div class="g4">
-        <div><label>Total Runs</label>  <input type="number" id="fxR" onchange="mu('runs',this.value)"></div>
-        <div><label>Wickets</label>     <input type="number" id="fxW" onchange="mu('wkts',this.value)"></div>
-        <div><label>Legal Balls</label> <input type="number" id="fxB" onchange="mu('balls',this.value)"></div>
-        <div><label>Target</label>      <input type="number" id="fxT" onchange="mu('target',this.value)"></div>
-    </div>
-    <div class="g4" style="margin-top:8px">
-        <div><label>Striker R</label>   <input type="number" id="fxP1R" onchange="mu('p1r',this.value)"></div>
-        <div><label>Striker B</label>   <input type="number" id="fxP1B" onchange="mu('p1b',this.value)"></div>
-        <div><label>Bowler R</label>    <input type="number" id="fxBwR" onchange="mu('bwr',this.value)"></div>
-        <div><label>Bowler W</label>    <input type="number" id="fxBwW" onchange="mu('bww',this.value)"></div>
-    </div>
-</div>
-
 <!-- 7. SAVE SCORECARD -->
 <div class="card">
     <h4><span class="hico">💾</span> Save Match Scorecard</h4>
@@ -582,12 +565,64 @@ window.updateAnnPreview=()=>{
 };
 window.sendQuickAnn=async(type)=>{
     const cfg=QUICK_ANN[type]; if(!cfg) return;
-    const rainChk=document.getElementById(`rain_${type}`);
-    const rain=rainChk?rainChk.checked:true;
+
+    // ── Verify live scoreboard before sending ──────────
     const snap=await get(mRef); const d=snap.val();
-    let name='';
-    if(d){ name=d.str===1?(d.p1n||''):(d.p2n||''); if(type==='wicket') name=d.bwn||''; }
-    await set(aRef,{emoji:cfg.emoji,text:name?`${name} — ${cfg.text}`:cfg.text,sub:cfg.sub,style:cfg.style,dur:cfg.dur,rain,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
+    if(!d){ alert('No live match data — cannot send announcement.'); return; }
+
+    const striker    = d.str===1 ? d.p1n : d.p2n;
+    const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
+    const nonStriker = d.str===1 ? d.p2n : d.p1n;
+    const bowler     = d.bwn||'';
+    const lastBall   = (d.recentBalls||[]).slice(-1)[0];
+
+    // Verify conditions match reality
+    let verified = true;
+    let reason   = '';
+
+    if(type==='century'){
+        if(strikerR < 100){ verified=false; reason=`${striker} has only ${strikerR} runs — not a century yet.`; }
+    }
+    else if(type==='fifty'){
+        if(strikerR < 50){ verified=false; reason=`${striker} has only ${strikerR} runs — not a half century yet.`; }
+        if(strikerR >= 100){ verified=false; reason=`${striker} has ${strikerR} runs — use CENTURY instead.`; }
+    }
+    else if(type==='six'){
+        if(lastBall !== 6){ verified=false; reason=`Last ball scored was "${lastBall}" — not a six. Score a six first.`; }
+    }
+    else if(type==='four'){
+        if(lastBall !== 4){ verified=false; reason=`Last ball scored was "${lastBall}" — not a four. Score a four first.`; }
+    }
+    else if(type==='wicket'){
+        // check a wicket was just taken: last ball was W or wkts > 0
+        if(lastBall !== 'W'){ verified=false; reason=`Last ball was "${lastBall}" — no wicket on last delivery.`; }
+    }
+    // hattrick — can't auto-verify easily, allow operator to judge
+    // century/fifty already verified above
+
+    if(!verified){
+        if(!confirm(`⚠️ Scoreboard check failed:
+${reason}
+
+Send anyway?`)) return;
+    }
+
+    const rainChk = document.getElementById(`rain_${type}`);
+    const rain    = rainChk ? rainChk.checked : true;
+    let name      = striker;
+    if(type==='wicket') name = bowler;
+    if(type==='hattrick') name = bowler;
+
+    await set(aRef,{
+        emoji:cfg.emoji,
+        text: name ? `${name} — ${cfg.text}` : cfg.text,
+        sub:  cfg.sub,
+        style:cfg.style,
+        dur:  cfg.dur,
+        rain,
+        sentAt:Date.now(),
+        id:Math.random().toString(36).slice(2)
+    });
 };
 window.sendCustomAnn=async()=>{
     const emoji=$('annEmoji').value.trim()||'📣', msg=$('annMsg').value.trim();
@@ -616,8 +651,7 @@ onValue(mRef,snap=>{
     $('iInn').textContent=d.target>0?'2ND':'1ST';
     $('iFH').className=d.freeHit?'fh-pill on':'fh-pill';
     $('iOvB').textContent=(d.recentBalls||[]).length?(d.recentBalls||[]).join(' · '):'—';
-    $('fxR').value=d.runs; $('fxW').value=d.wkts; $('fxB').value=d.balls; $('fxT').value=d.target||0;
-    $('fxP1R').value=d.p1r||0; $('fxP1B').value=d.p1b||0; $('fxBwR').value=d.bwr||0; $('fxBwW').value=d.bww||0;
+    // (error correction removed)
     if(d.batTeam) $('tNA').value=d.batTeam;
     if(d.bowlTeam) $('tNB').value=d.bowlTeam;
     const fmt=d.maxOvers||20;
@@ -693,10 +727,18 @@ window.openBowlerInjury=async()=>{
 // Over-end: auto bowler picker + auto-save snapshot
 onValue(mRef,snap=>{
     const d=snap.val(); if(!d) return;
-    const completedOvers=Math.floor(d.balls/6);
+    const completedOvers = Math.floor(d.balls/6);
+    const maxOvers       = d.maxOvers || 20;
+    const maxBalls       = maxOvers * 6;
+    const innComplete    = d.balls >= maxBalls || d.wkts >= 10;
+
     if(_adminLastOver>=0 && completedOvers>_adminLastOver && d.balls%6===0 && d.balls>0){
-        openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false);
-        // silently save a snapshot to history after every over
+        // Only open bowler picker if innings is NOT complete
+        // (no bowler needed when all overs done or all out)
+        if(!innComplete){
+            openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false);
+        }
+        // Always auto-save after every over
         saveMatchToDb(true);
     }
     _adminLastOver=completedOvers;
