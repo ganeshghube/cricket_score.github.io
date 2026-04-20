@@ -167,6 +167,56 @@ button:active{ opacity:.65; transform:scale(.95); }
 .qf-rain-chk{ width:13px!important; height:13px!important; cursor:pointer; flex-shrink:0; margin:0!important; }
 .qf-rain-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; cursor:pointer; margin:0; }
 
+/* ── BOWLER PICKER MODAL ── */
+#bowlerModal{
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.92); z-index:300;
+    align-items:center; justify-content:center;
+    backdrop-filter:blur(6px);
+}
+#bowlerModal.open{ display:flex; }
+.bpk-box{
+    background:#0c0c1a; border:1px solid #252535;
+    border-radius:12px; padding:20px;
+    width:94%; max-width:420px;
+    box-shadow:0 24px 80px rgba(0,0,0,.95), 0 0 0 1px rgba(240,180,41,.12);
+}
+.bpk-title{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:13px; font-weight:900; color:var(--y);
+    text-transform:uppercase; letter-spacing:3px;
+    margin-bottom:4px;
+}
+.bpk-sub{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px; color:var(--muted); letter-spacing:1px;
+    margin-bottom:14px;
+}
+.bpk-grid{
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:8px; margin-bottom:12px;
+}
+.bpk-btn{
+    padding:14px 10px;
+    background:#07070f; border:1px solid #1e1e2e;
+    border-radius:7px; color:#bbb;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:15px; font-weight:700; cursor:pointer;
+    text-align:center; letter-spacing:.5px;
+    transition:all .12s; width:100%;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.bpk-btn:hover{ background:#1a1a2e; border-color:var(--y); color:var(--y); }
+.bpk-btn.last-bowler{ border-color:#444; color:#888; font-style:italic; }
+.bpk-cancel{
+    width:100%; padding:11px;
+    background:transparent; border:1px solid #252535;
+    border-radius:6px; color:#555;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:13px; font-weight:700; cursor:pointer; letter-spacing:1px;
+}
+.bpk-cancel:hover{ color:#aaa; border-color:#444; }
+
 /* ── MATCH HISTORY ── */
 .hist-empty{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#333; text-align:center; padding:20px; letter-spacing:1px; }
 .hist-item{
@@ -524,6 +574,16 @@ button:active{ opacity:.65; transform:scale(.95); }
 
 </div><!-- /body -->
 
+<!-- BOWLER PICKER MODAL -->
+<div id="bowlerModal">
+    <div class="bpk-box">
+        <div class="bpk-title">⚾ Select Next Bowler</div>
+        <div class="bpk-sub" id="bpkSub">END OF OVER — choose the next bowler</div>
+        <div class="bpk-grid" id="bpkGrid"></div>
+        <button class="bpk-cancel" onclick="closeBowlerPicker()">✕ DISMISS (keep current)</button>
+    </div>
+</div>
+
 <!-- WICKET MODAL -->
 <div class="modal-bg" id="wktModal">
 <div class="modal">
@@ -721,6 +781,53 @@ function renderHistory(val){
 }
 
 onValue(histRef, snap => renderHistory(snap.val()));
+
+// ══ BOWLER PICKER ══════════════════════════════════
+let _lastBowler = '';   // tracks who just finished bowling
+
+function openBowlerPicker(bowlRows, currentBowler, ovNum){
+    const grid = $('bpkGrid');
+    $('bpkSub').textContent = `END OF OVER ${ovNum} — choose the next bowler`;
+    grid.innerHTML = bowlRows.map(r => {
+        const isLast = r.name === currentBowler;
+        const ovs = `${Math.floor(r.balls/6)}.${r.balls%6} ov`;
+        const fig = r.balls > 0 ? `${r.wkts}-${r.runs} (${ovs})` : 'yet to bowl';
+        return `<button class="bpk-btn${isLast?' last-bowler':''}"
+            onclick="selectBowler('${r.name.replace(/'/g,"\'")}')">
+            ${r.name}<br><span style="font-size:11px;color:#666;font-weight:400">${fig}</span>
+        </button>`;
+    }).join('');
+    $('bowlerModal').classList.add('open');
+}
+
+window.closeBowlerPicker = () => $('bowlerModal').classList.remove('open');
+
+window.selectBowler = async (name) => {
+    await update(mRef, { bwn:name, bwr:0, bww:0, bwb:0 });
+    // reset this bowler's over stats in bowlRows
+    const snap = await get(mRef); const d = snap.val(); if(!d) return;
+    // bwr/bww/bwb on the main node track THIS spell only — bowlRows accumulate totals
+    closeBowlerPicker();
+};
+
+// Track over completion to auto-open bowler picker
+let _adminLastOver = -1;
+onValue(mRef, snap => {
+    const d = snap.val(); if(!d) return;
+    const completedOvers = Math.floor(d.balls / 6);
+    const ballsThisOver  = d.balls % 6;
+    if(
+        _adminLastOver >= 0 &&
+        completedOvers > _adminLastOver &&
+        ballsThisOver === 0 &&
+        d.balls > 0
+    ){
+        // over just completed — open bowler picker
+        const bowlRows = d.bowlRows || [];
+        openBowlerPicker(bowlRows, d.bwn, completedOvers);
+    }
+    _adminLastOver = completedOvers;
+});
 
 // ══ AUTO POPUP TOGGLE ══════════════════════════════
 let _autoOn = false;
