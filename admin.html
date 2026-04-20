@@ -93,8 +93,6 @@ button:active{ opacity:.65; transform:scale(.95); }
 .player-photo-btn{ position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .2s; font-size:14px; border:none; padding:0; width:32px; }
 .player-avatar-wrap:hover .player-photo-btn{ opacity:1; }
 .player-name-input{ flex:1; padding:7px 10px; font-size:13px; }
-.player-cap-badge{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--y); border:1px solid var(--y); border-radius:2px; padding:1px 5px; cursor:pointer; white-space:nowrap; flex-shrink:0; opacity:.5; transition:.2s; }
-.player-cap-badge.on{ opacity:1; background:rgba(240,180,41,.1); }
 
 /* modals */
 .modal-bg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
@@ -233,6 +231,22 @@ button:active{ opacity:.65; transform:scale(.95); }
 .audio-voice-sel{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:center; }
 .audio-voice-sel label{ margin:0; }
 .audio-voice-sel select{ width:auto; padding:6px 10px; font-size:12px; }
+
+/* ── POST MATCH AUDIO STORY ── */
+.post-match-audio{ background:linear-gradient(135deg,#080820,#0a0a18); border:1px solid #252535; border-radius:8px; padding:16px; margin-top:14px; }
+.pma-title{ font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:800; color:var(--y); text-transform:uppercase; letter-spacing:3px; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.pma-status{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:#555; letter-spacing:.5px; margin-bottom:8px; }
+.pma-controls{ display:flex; gap:8px; flex-wrap:wrap; }
+.pma-btn{ padding:10px 18px; border:none; border-radius:5px; font-family:'Barlow Condensed',sans-serif; font-weight:700; cursor:pointer; font-size:13px; letter-spacing:1px; width:auto; }
+.pma-play{ background:#032212; color:#06d6a0; border:1px solid #0a4030; }
+.pma-play:hover{ background:#06d6a0; color:#000; }
+.pma-play:disabled{ opacity:.4; cursor:not-allowed; }
+.pma-stop{ background:#200000; color:#ff8080; border:1px solid #500000; }
+.pma-stop:hover{ background:#e63946; color:#fff; }
+.pma-gen{ background:linear-gradient(135deg,#3a2800,#2a1e00); color:var(--y); border:1px solid #5a3c00; }
+.pma-gen:hover{ background:var(--y); color:#000; }
+.pma-story-text{ font-family:'Barlow',sans-serif; font-size:12px; color:#667; line-height:1.7; margin-top:10px; max-height:120px; overflow-y:auto; padding:8px; background:#06060f; border-radius:4px; border:1px solid #1a1a2a; display:none; }
+.pma-story-text.show{ display:block; color:#aaa; }
 
 </style>
 </head>
@@ -456,6 +470,18 @@ button:active{ opacity:.65; transform:scale(.95); }
         </div>
         <div class="audio-current" id="audioCurrentText">No commentary yet — initialize a match to begin.</div>
     </div>
+
+    <!-- POST MATCH AUDIO STORY -->
+    <div class="post-match-audio" id="postMatchAudioPanel" style="display:none">
+        <div class="pma-title">🎧 Post-Match Audio Story</div>
+        <div class="pma-status" id="pmaStatus">Match ended — generate audio story narration</div>
+        <div class="pma-controls">
+            <button class="pma-btn pma-gen" onclick="generatePostMatchStory()">✨ GENERATE STORY</button>
+            <button class="pma-btn pma-play" id="pmaPlayBtn" onclick="playPostMatchStory()" disabled>▶ PLAY STORY</button>
+            <button class="pma-btn pma-stop" id="pmaStopBtn" onclick="stopPostMatchStory()" disabled>■ STOP</button>
+        </div>
+        <div class="pma-story-text" id="pmaStoryText"></div>
+    </div>
 </div>
 
 <!-- 6. ANNOUNCEMENTS -->
@@ -630,7 +656,75 @@ let _squads = { bat:[], bowl:[] };
 let _match  = null;
 let _autoOn = false;
 let _currentMatchKey = null;
-let _playerPhotos = {}; // name -> dataURL
+let _playerPhotos = {};
+
+// ══ POST MATCH STORY ══════════════════════════════
+let _postMatchStory = '';
+let _postMatchSpeaking = false;
+
+window.generatePostMatchStory = async () => {
+    const snap = await get(mRef); const d = snap.val();
+    if(!d){ alert('No match data!'); return; }
+    $('pmaStatus').textContent = 'Generating story narration...';
+    $('pmaStoryText').className = 'pma-story-text';
+
+    const ovStr = `${Math.floor(d.balls/6)}.${d.balls%6}`;
+    const topBat = (d.batRows||[]).sort((a,b)=>b.runs-a.runs).slice(0,3);
+    const topBwl = (d.bowlRows||[]).filter(r=>r.balls>0).sort((a,b)=>b.wkts-a.wkts||a.runs-b.runs).slice(0,2);
+    const inn1 = d.inn1Score ? `${d.inn1Bat} scored ${d.inn1Score} in the first innings.` : '';
+    const inn2 = d.innings===2 ? `${d.batTeam} scored ${d.runs}/${d.wkts} in ${ovStr} overs chasing ${d.target}.` : '';
+    const batStars = topBat.map(r=>`${r.name} ${r.runs}(${r.balls})`).join(', ');
+    const bwlStars = topBwl.map(r=>`${r.name} ${r.wkts}-${r.runs}`).join(', ');
+    const isChase = d.innings===2;
+    const won = isChase && d.runs >= (d.target||0);
+    const winner = won ? d.batTeam : (isChase ? d.bowlTeam : d.batTeam);
+
+    // Build engaging post-match story
+    const storyLines = [
+        `What an absolute thriller of a cricket match today!`,
+        inn1 ? `In the first innings, ${d.inn1Bat||d.batTeam} set the stage with ${d.inn1Score}.` : '',
+        isChase ? `${d.batTeam} then came out to chase a target of ${d.target} runs.` : '',
+        topBat.length ? `The batting heroes of today were: ${batStars}. Brilliant performances that will be remembered!` : '',
+        topBwl.length ? `On the bowling front, ${bwlStars} were absolutely outstanding, keeping the batsmen under pressure throughout.` : '',
+        d.wkts >= 7 ? `${d.batTeam} suffered a dramatic collapse, losing ${d.wkts} wickets for just ${d.runs} runs — absolutely extraordinary!` : '',
+        isChase && d.runs >= (d.target||9999) ? `${d.batTeam} chased down the target with ${10-d.wkts} wickets in hand — a superb chase!` : '',
+        isChase && d.runs < (d.target||0) && d.wkts>=10 ? `${d.batTeam} were bowled out just ${(d.target||0)-d.runs-1} runs short — heartbreaking!` : '',
+        `And so the final result — ${winner} emerge victorious in what was a truly gripping contest from start to finish!`,
+        `This match had everything — big hits, crucial wickets, pressure moments, and some outstanding cricket. Absolutely magnificent!`,
+        `On behalf of everyone here, thank you for watching. Until next time — this was a match for the ages!`
+    ].filter(Boolean);
+
+    _postMatchStory = storyLines.join(' ');
+    $('pmaStoryText').textContent = _postMatchStory;
+    $('pmaStoryText').className = 'pma-story-text show';
+    $('pmaPlayBtn').disabled = false;
+    $('pmaStatus').textContent = `Story ready (${Math.ceil(_postMatchStory.split(' ').length / 130)} min read)`;
+};
+
+window.playPostMatchStory = () => {
+    if(!_postMatchStory){ alert('Generate story first!'); return; }
+    if(_postMatchSpeaking){ window.speechSynthesis.cancel(); _postMatchSpeaking=false; $('pmaPlayBtn').disabled=false; $('pmaStopBtn').disabled=true; $('pmaStatus').textContent='Stopped.'; return; }
+    _postMatchSpeaking = true;
+    $('pmaPlayBtn').disabled = true;
+    $('pmaStopBtn').disabled = false;
+    $('pmaStatus').textContent = '▶ Playing post-match audio story...';
+    const utt = new SpeechSynthesisUtterance(_postMatchStory);
+    if(_selectedVoice) utt.voice = _selectedVoice;
+    utt.rate  = 0.95;
+    utt.pitch = 1.05;
+    utt.volume = 1;
+    utt.onend = () => { _postMatchSpeaking=false; $('pmaPlayBtn').disabled=false; $('pmaStopBtn').disabled=true; $('pmaStatus').textContent='Story playback complete!'; };
+    utt.onerror = () => { _postMatchSpeaking=false; $('pmaPlayBtn').disabled=false; $('pmaStopBtn').disabled=true; };
+    window.speechSynthesis.speak(utt);
+};
+
+window.stopPostMatchStory = () => {
+    window.speechSynthesis.cancel();
+    _postMatchSpeaking = false;
+    $('pmaPlayBtn').disabled = false;
+    $('pmaStopBtn').disabled = true;
+    $('pmaStatus').textContent = 'Playback stopped.';
+};
 
 // ══ PLAYER PHOTOS ═════════════════════════════════
 onValue(phRef, snap => {
@@ -638,19 +732,19 @@ onValue(phRef, snap => {
     refreshAvatars();
 });
 
-function getPhoto(name){ return _playerPhotos[name] || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%23111"/><circle cx="16" cy="12" r="6" fill="%23333"/><ellipse cx="16" cy="28" rx="10" ry="7" fill="%23333"/></svg>'; }
-
-async function savePhoto(name, dataUrl){
+function getPhoto(name){ 
+    if(!name) return BLANK_SVG;
     const key = name.replace(/[^a-zA-Z0-9]/g,'_');
-    await update(phRef, { [key]: dataUrl });
-    _playerPhotos[key] = dataUrl;
+    return _playerPhotos[key] || BLANK_SVG; 
 }
+
+const BLANK_SVG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"%3E%3Ccircle cx="16" cy="16" r="16" fill="%23111"/%3E%3Ccircle cx="16" cy="12" r="6" fill="%23333"/%3E%3Cellipse cx="16" cy="28" rx="10" ry="7" fill="%23333"/%3E%3C/svg%3E';
 
 function refreshAvatars(){
     document.querySelectorAll('.player-avatar[data-name]').forEach(img => {
         const name = img.dataset.name;
         const key = name.replace(/[^a-zA-Z0-9]/g,'_');
-        img.src = _playerPhotos[key] || getPhoto(name);
+        img.src = _playerPhotos[key] || BLANK_SVG;
     });
 }
 
@@ -662,14 +756,13 @@ function buildSquadInputs(){
         for(let i=1;i<=11;i++){
             const row = document.createElement('div');
             row.className = 'player-row';
-            const num = `<span class="player-num">${i}</span>`;
             const avatarId = `avatar${team}${i}`;
             const inputId  = `player${team}${i}`;
             const fileId   = `file${team}${i}`;
             row.innerHTML = `
-                ${num}
+                <span class="player-num">${i}</span>
                 <div class="player-avatar-wrap">
-                    <img class="player-avatar" id="${avatarId}" data-team="${team}" data-idx="${i}" src="${getPhoto('')}">
+                    <img class="player-avatar" id="${avatarId}" data-team="${team}" data-idx="${i}" src="${BLANK_SVG}">
                     <input type="file" class="player-avatar-upload" id="${fileId}" accept="image/*">
                     <button class="player-photo-btn" onclick="document.getElementById('${fileId}').click()">📷</button>
                 </div>
@@ -677,7 +770,6 @@ function buildSquadInputs(){
             `;
             cont.appendChild(row);
 
-            // File upload handler
             setTimeout(() => {
                 const fileInput = $(`file${team}${i}`);
                 if(!fileInput) return;
@@ -704,14 +796,13 @@ function buildSquadInputs(){
 }
 
 function onPlayerNameChange(team, idx){
-    // Update avatar data-name
     const nameEl = $(`player${team}${idx}`);
     const avatarEl = $(`avatar${team}${idx}`);
     if(nameEl && avatarEl){
         const name = nameEl.value.trim();
         avatarEl.dataset.name = name;
         const key = name.replace(/[^a-zA-Z0-9]/g,'_');
-        avatarEl.src = _playerPhotos[key] || getPhoto('');
+        avatarEl.src = _playerPhotos[key] || BLANK_SVG;
     }
 }
 
@@ -732,14 +823,13 @@ function setSquadNames(team, names){
         if(avatarEl && names[i-1]){
             avatarEl.dataset.name = names[i-1];
             const key = names[i-1].replace(/[^a-zA-Z0-9]/g,'_');
-            avatarEl.src = _playerPhotos[key] || getPhoto('');
+            avatarEl.src = _playerPhotos[key] || BLANK_SVG;
         }
     }
 }
 
 // ══ PLAYER POPUP ══════════════════════════════════
 window.openPlayerPopup = async () => {
-    const snap = await get(mRef); const d = snap.val();
     const cont = $('playerPopupContent');
     const sA = getSquadNames('A'); const sB = getSquadNames('B');
     const batNm = ($('tNA').value||'Team A').toUpperCase();
@@ -749,9 +839,9 @@ window.openPlayerPopup = async () => {
         if(!players.length) return '';
         const cards = players.map(p => {
             const key = p.replace(/[^a-zA-Z0-9]/g,'_');
-            const photo = _playerPhotos[key] || getPhoto('');
+            const photo = _playerPhotos[key] || BLANK_SVG;
             return `<div class="player-card-popup">
-                <img src="${photo}" alt="${p}">
+                <img src="${photo}" alt="${p}" onerror="this.src='${BLANK_SVG}'">
                 <div class="pcp-name">${p}</div>
             </div>`;
         }).join('');
@@ -771,7 +861,6 @@ function showWinPopup(title, sub, detail, isWin){
     $('winPopupTitle').textContent = title;
     $('winPopupSub').textContent = sub;
     $('winPopupDetail').textContent = detail || '';
-    // Confetti
     const conf = $('winConfetti');
     conf.innerHTML = '';
     const cols = ['#f5c518','#06d6a0','#e63946','#9b72cf','#118ab2','#fff'];
@@ -782,6 +871,8 @@ function showWinPopup(title, sub, detail, isWin){
         conf.appendChild(dot);
     }
     $('winPopupOverlay').classList.add('open');
+    // Show post match audio panel
+    $('postMatchAudioPanel').style.display = 'block';
 }
 window.closeWinPopup = () => $('winPopupOverlay').classList.remove('open');
 
@@ -790,15 +881,13 @@ let _audioEnabled = false;
 let _speechQueue  = [];
 let _speaking     = false;
 let _selectedVoice = null;
-let _lastBallState = null;
+let _prevMatchState = null;
 
-// Load voices
 function loadVoices(){
     const voices = window.speechSynthesis.getVoices();
     const sel = $('voiceSel');
     if(!voices.length){ sel.innerHTML = '<option value="">No voices found</option>'; return; }
     sel.innerHTML = '';
-    // Prefer energetic female English voices
     const preferred = voices.filter(v => v.lang.startsWith('en'));
     const all = preferred.length ? preferred : voices;
     all.forEach((v,i) => {
@@ -807,7 +896,6 @@ function loadVoices(){
         opt.textContent = `${v.name} (${v.lang})`;
         sel.appendChild(opt);
     });
-    // Auto-pick a female/energetic voice if possible
     const female = all.findIndex(v => /female|woman|zira|samantha|victoria|karen|moira|fiona|tessa|susan|hazel|heera/i.test(v.name));
     if(female >= 0) sel.value = female;
     _selectedVoice = all[parseInt(sel.value)||0] || all[0];
@@ -841,7 +929,7 @@ function speakText(text){
 }
 
 function processQueue(){
-    if(!_speechQueue.length){ _speaking=false; $('audioIndicator').className='audio-indicator on'; return; }
+    if(!_speechQueue.length){ _speaking=false; if($('audioIndicator').className !== 'audio-indicator') $('audioIndicator').className='audio-indicator on'; return; }
     _speaking = true;
     const text = _speechQueue.shift();
     $('audioCurrentText').textContent = `"${text}"`;
@@ -862,16 +950,13 @@ function buildCommentary(d, prevD, eventType){
     const nonStriker = d.str===1 ? d.p2n : d.p1n;
     const bowler     = d.bwn || 'the bowler';
     const team       = d.batTeam || 'the batting side';
-    const overs      = `${Math.floor(d.balls/6)} point ${d.balls%6}`;
     const maxOv      = d.maxOvers || 20;
     const ballsLeft  = maxOv*6 - d.balls;
     const runsNeeded = d.target > 0 ? d.target - d.runs : null;
     const isChase    = d.target > 0;
     const isFinalOvers = Math.floor(d.balls/6) >= maxOv - 3;
-    const crr        = d.balls > 0 ? (d.runs/(d.balls/6)).toFixed(1) : '0';
     const wktsLeft   = 10 - d.wkts;
 
-    // Tone detection
     let tone = 'normal';
     if(d.wkts >= 6) tone = 'collapse';
     else if(isChase && runsNeeded && ballsLeft > 0 && (runsNeeded/(ballsLeft/6)) > 12) tone = 'tough';
@@ -882,10 +967,10 @@ function buildCommentary(d, prevD, eventType){
     const commentary = {
         dot: [
             `Dot ball! ${bowler} keeps it tight, ${striker} couldn't find the gap.`,
-            `No run! ${bowler} beats ${striker} outside off stump.`,
+            `No run! ${bowler} beats ${striker} outside off stump. Good bowling!`,
             `Good length delivery, ${striker} defends solidly. Dot ball.`,
             `${bowler} gets one through, ${striker} plays and misses! Dot.`,
-            `Tight line from ${bowler}, nothing doing for ${striker}.`,
+            `Tight line from ${bowler}, nothing doing for ${striker}. Pressure building!`,
         ],
         1: [
             `${striker} clips it for a single, rotates the strike well.`,
@@ -894,7 +979,7 @@ function buildCommentary(d, prevD, eventType){
             `${striker} works it around the corner, one run.`,
         ],
         2: [
-            `Two runs! ${striker} plays it down to deep, good running between the wickets.`,
+            `Two runs! ${striker} plays it down to deep, good running!`,
             `${striker} and ${nonStriker} come back for the second, two runs.`,
             `Nicely placed, two runs for ${team}!`,
         ],
@@ -918,9 +1003,9 @@ function buildCommentary(d, prevD, eventType){
         ],
         wicket: [
             `WICKET! ${striker} is OUT! ${bowler} gets the breakthrough!`,
-            `OH! ${striker} has to go! ${bowler} is pumped up!`,
+            `OH! ${striker} has to go! ${bowler} is pumped up! What a moment!`,
             `That's OUT! ${bowler} claims the wicket of ${striker}!`,
-            `GONE! The stumps are disturbed, ${striker} walks back to the pavilion!`,
+            `GONE! The stumps are shattered, ${striker} walks back to the pavilion!`,
         ],
         wide: [
             `Wide ball, costly from ${bowler}. One extra added.`,
@@ -928,33 +1013,30 @@ function buildCommentary(d, prevD, eventType){
         ],
         noball: [
             `No ball from ${bowler}! Free hit coming up for ${striker}!`,
-            `Overstepping! No ball called, and it's a free hit!`,
+            `Overstepping! No ball called, and it's a free hit — danger zone!`,
         ],
-        bye: [ `Byes! The ball gets past the keeper.` ],
+        bye: [ `Byes! The ball gets past the keeper, they scramble for runs.` ],
         legbye: [ `Leg byes! Deflects off the pad, they run.` ],
     };
 
-    // Milestone additions
     let milestone = '';
     if(eventType !== 'wicket' && eventType !== 'wide' && eventType !== 'noball'){
         if(strikerR === 50) milestone = ` And what a moment — ${striker} brings up the HALF CENTURY! Fifty runs for this outstanding batsman!`;
-        else if(strikerR === 100) milestone = ` Unbelievable! ${striker} reaches ONE HUNDRED RUNS! A century for the ages!`;
+        else if(strikerR === 100) milestone = ` Unbelievable! ${striker} reaches ONE HUNDRED RUNS! A CENTURY for the ages!`;
     }
 
-    // Check for fifer
     const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
     if(bowlerRow && bowlerRow.wkts === 5 && eventType === 'wicket'){
-        milestone = ` And that's FIVE wickets for ${bowler}! A brilliant FIFER! Outstanding bowling!`;
+        milestone = ` And that's FIVE wickets for ${bowler}! A brilliant FIFER! Outstanding bowling performance!`;
     }
 
-    // Context additions based on tone
     let context = '';
     if(isFinalOvers && isChase && runsNeeded){
         context = ` ${team} need ${runsNeeded} runs off ${ballsLeft} balls!`;
     } else if(tone === 'collapse'){
         context = ` ${team} are in real trouble here with ${wktsLeft} wickets remaining.`;
     } else if(tone === 'tension' && !isChase){
-        context = ` We're in the final overs, every ball is crucial!`;
+        context = ` We're in the final overs, every ball is crucial now!`;
     }
 
     const pool = commentary[eventType] || commentary.dot;
@@ -962,7 +1044,6 @@ function buildCommentary(d, prevD, eventType){
     return line + milestone + context;
 }
 
-// ══ Toast helper ──────────────────────────────────
 function showToast(msg){
     const t = $('autoSaveToast');
     t.textContent = msg;
@@ -1009,7 +1090,7 @@ window.updateAnnPreview=()=>{
     else{prev.textContent='Preview will appear here…';prev.classList.remove('has-msg');}
 };
 window.sendQuickAnn=async(type)=>{
-    const cfg=QUICK_ANN[type]; if(!cfg) return;
+    const cfg2=QUICK_ANN[type]; if(!cfg2) return;
     const snap=await get(mRef); const d=snap.val();
     if(!d){ alert('No live match data — cannot send announcement.'); return; }
     const striker    = d.str===1 ? d.p1n : d.p2n;
@@ -1028,7 +1109,7 @@ window.sendQuickAnn=async(type)=>{
     let name      = striker;
     if(type==='wicket') name = bowler;
     if(type==='hattrick') name = bowler;
-    await set(aRef,{ emoji:cfg.emoji, text: name ? `${name} — ${cfg.text}` : cfg.text, sub:cfg.sub, style:cfg.style, dur:cfg.dur, rain, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
+    await set(aRef,{ emoji:cfg2.emoji, text: name ? `${name} — ${cfg2.text}` : cfg2.text, sub:cfg2.sub, style:cfg2.style, dur:cfg2.dur, rain, playerName:name, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
 };
 window.sendCustomAnn=async()=>{
     const emoji=$('annEmoji').value.trim()||'📣', msg=$('annMsg').value.trim();
@@ -1048,11 +1129,10 @@ function fillSel(bat,bowl,p1n,p2n,bwn){
 }
 
 // ══ MATCH DATA LISTENER ═══════════════════════════
-let _prevMatchState = null;
 onValue(mRef,snap=>{
     const d=snap.val(); _match=d; if(!d) return;
 
-    // Audio commentary — detect what changed
+    // Audio commentary
     if(_audioEnabled && _prevMatchState){
         const prev = _prevMatchState;
         const newBalls = d.recentBalls || [];
@@ -1138,8 +1218,10 @@ function openBowlerPicker(bowlRows, currentBowler, ovNum, midOver){
         const fig=r.balls>0?`${r.wkts}-${r.runs} (${ovs})`:'yet to bowl';
         const tag=blocked?(midOver?' 🤕':' ✋'):'';
         const tip=blocked?(midOver?'Injured':'Just bowled — cannot bowl consecutive overs'):'';
+        const photo = getPhoto(r.name);
         return `<button class="bpk-btn" ${blocked?`disabled title="${tip}"`:''}
             onclick="selectBowler('${r.name.replace(/'/g,"\\'")}')">
+            <img src="${photo}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-bottom:4px;display:block;margin-left:auto;margin-right:auto;border:1.5px solid #333" onerror="this.style.display='none'">
             ${r.name}${tag}<br>
             <span style="font-size:11px;color:#555;font-weight:400">${fig}</span>
         </button>`;
@@ -1157,7 +1239,6 @@ window.openBowlerInjury=async()=>{
     openBowlerPicker(d.bowlRows||[],d.bwn,Math.floor(d.balls/6),true);
 };
 
-// Main Firebase listener — handles over-end, win detection, innings end
 onValue(mRef,async snap=>{
     const d=snap.val(); if(!d) return;
     const completedOvers = Math.floor(d.balls/6);
@@ -1181,6 +1262,7 @@ window.openBatInjury=async(pos)=>{
     if(!available.length){ alert('No more batsmen available!'); return; }
     $('batInjGrid').innerHTML=available.map(r=>
         `<button class="bpk-btn" onclick="selectBatReplacement('${pos}','${r.name.replace(/'/g,"\\'")}')">
+            <img src="${getPhoto(r.name)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-bottom:4px;display:block;margin-left:auto;margin-right:auto;border:1.5px solid #333" onerror="this.style.display='none'">
             ${r.name}<br><span style="font-size:11px;color:#555;font-weight:400">yet to bat</span>
         </button>`
     ).join('');
@@ -1228,6 +1310,8 @@ window.initMatch=async()=>{
     _winFired=false;
     _inn1EndFired=false;
     _prevMatchState=null;
+    _postMatchStory='';
+    $('postMatchAudioPanel').style.display='none';
     await saveMatchToDb(true);
     if(_audioEnabled) speakText(`Match initialized! ${batNm} will bat first against ${bowlNm}. Let's get this game started!`);
     alert('✅ Match Initialized!');
@@ -1285,17 +1369,10 @@ async function checkMatchEvents(d){
         _winFired = true;
         await set(aRef,{ ...winMsg, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
         setTimeout(()=>{ saveMatchToDb(true); }, 1500);
-        // Show win popup (not alert!)
         setTimeout(()=>{
-            showWinPopup(
-                winMsg.text,
-                winMsg.sub,
-                `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,
-                winMsg.type === 'tie' ? 'tie' : 'win'
-            );
+            showWinPopup(winMsg.text, winMsg.sub, `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`, winMsg.type === 'tie' ? 'tie' : 'win');
             if(_audioEnabled){
-                const ovStr = `${Math.floor(d.balls/6)} overs`;
-                speakText(`${winMsg.text} ${winMsg.sub}. What an incredible match! The crowd is on their feet!`);
+                speakText(`${winMsg.text} ${winMsg.sub}. What an incredible match! The crowd is absolutely on their feet!`);
             }
         }, 800);
     }
@@ -1389,19 +1466,13 @@ window.swapInnings=async()=>{
 
 window.chg=(k,v)=>update(mRef,{[k]:v});
 window.swapStrike=async()=>{ const d=(await get(mRef)).val(); d.str=d.str===1?2:1; update(mRef,d); };
-window.mu=(f,v)=>{ const n=parseInt(v); if(!isNaN(n)) update(mRef,{[f]:n}); };
 window.setV=(k,v)=>update(uRef,{[k]:v});
 window.fullReset=async()=>{
     if(!confirm('⚠ Clear ALL match data?')) return;
-    await set(mRef,null);
-    await set(sRef,null);
-    await set(hRef,null);
+    await set(mRef,null); await set(sRef,null); await set(hRef,null);
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
-    _adminLastOver=-1;
-    _currentMatchKey=null;
-    _winFired=false;
-    _inn1EndFired=false;
-    _prevMatchState=null;
+    _adminLastOver=-1; _currentMatchKey=null; _winFired=false; _inn1EndFired=false; _prevMatchState=null;
+    $('postMatchAudioPanel').style.display='none';
     location.reload();
 };
 
@@ -1530,10 +1601,7 @@ window.saveMatch=async()=>{
     downloadSavedMatch('current',enc);
 };
 
-// Build squad inputs on load
 buildSquadInputs();
-
-// init UI
 const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8});
 </script>
