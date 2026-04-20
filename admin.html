@@ -758,6 +758,7 @@ window.initMatch=async()=>{
     _adminLastOver=0;
     _currentMatchKey=null;   // new match = new history slot
     _winFired=false;
+    _inn1EndFired=false;
     await saveMatchToDb(true);
     alert('✅ Match Initialized!');
 };
@@ -777,58 +778,108 @@ window.ball=async(r,type)=>{
     else{ d.freeHit=false;d.balls++;d.bwb++;d.bwr+=r; updBowl(d,d.bwn,{runs:r,balls:1}); if(d.str===1){d.p1r+=r;d.p1b++;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}else{d.p2r+=r;d.p2b++;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);} updBat(d,d.str===1?d.p1n:d.p2n,{runs:r,balls:1,fours:r===4?1:0,sixes:r===6?1:0}); if(r%2!==0)d.str=d.str===1?2:1; if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}else d.recentBalls.push(r); }
     await update(mRef,d);
     // check win condition after every ball
-    await checkWinCondition(d);
+    await checkMatchEvents(d);
 };
 
-// ══ WIN DETECTION ═════════════════════════════════
-let _winFired = false;   // prevent firing multiple times
+// ══ INNINGS END & WIN DETECTION ══════════════════
+let _winFired      = false;
+let _inn1EndFired  = false;   // 1st innings end popup already shown
 
-async function checkWinCondition(d){
-    if(!d || d.innings!==2 || _winFired) return;
-    const target = d.target || 0;
-    if(target <= 0) return;
+// Called after every ball AND after every wicket
+async function checkMatchEvents(d){
+    if(!d) return;
 
-    const maxBalls = (d.maxOvers||20) * 6;
-    const ballsLeft = maxBalls - d.balls;
+    const maxBalls  = (d.maxOvers||20) * 6;
+    const allOut    = d.wkts >= 10;
+    const oversUp   = d.balls >= maxBalls;
+    const inn       = d.innings || 1;
+
+    // ── 1ST INNINGS END ──────────────────────────────
+    // Trigger when: 1st innings AND (all out OR overs complete)
+    if(inn === 1 && !_inn1EndFired && (allOut || oversUp)){
+        _inn1EndFired = true;
+        const ovStr = `${Math.floor(d.balls/6)}.${d.balls%6}`;
+        // Show end-of-innings announcement on overlay
+        await set(aRef,{
+            emoji: '🏏',
+            text:  `END OF 1ST INNINGS`,
+            sub:   `${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs) — ${allOut?'All Out':'Overs Up'}`,
+            style: 'custom',
+            dur:   15,
+            rain:  false,
+            sentAt: Date.now(),
+            id: Math.random().toString(36).slice(2),
+        });
+        // Show 2nd innings popup on admin after 2 seconds
+        setTimeout(()=>{ openInningsEndModal(d); }, 2000);
+        return;
+    }
+
+    // ── 2ND INNINGS WIN/TIE/LOSS ─────────────────────
+    if(inn !== 2 || _winFired) return;
+    const target     = d.target || 0;
+    if(target <= 0)  return;
+
     const runsNeeded = target - d.runs;
-    const allOut = d.wkts >= 10;
-    const oversUp = d.balls >= maxBalls;
+    const wicketsLeft= 10 - d.wkts;
+    const ballsLeft  = maxBalls - d.balls;
 
     let winMsg = null;
 
-    // Chase successful — batting team wins
+    // 1. CHASE WIN — batting team reaches/passes target
     if(runsNeeded <= 0){
-        const wicketsLeft = 10 - d.wkts;
         winMsg = {
             emoji: '🏆',
-            text: `${d.batTeam} WIN!`,
-            sub: `${d.batTeam} won by ${wicketsLeft} wicket${wicketsLeft!==1?'s':''}`,
-            style: 'win',
-            dur: 30,
-            rain: true,
+            text:  `${d.batTeam} WIN!`,
+            sub:   `${d.batTeam} won by ${wicketsLeft} wicket${wicketsLeft!==1?'s':''} (${ballsLeft} ball${ballsLeft!==1?'s':''} to spare)`,
+            style: 'win', dur: 30, rain: true,
         };
     }
-    // Defence successful — bowling team wins (all out or overs up, still need more runs)
+    // 2. TIE — 2nd innings total equals 1st innings total
+    //    target = inn1_score + 1, so tie = runs === target - 1
+    else if(runsNeeded === 1 && (allOut || oversUp)){
+        winMsg = {
+            emoji: '🤝',
+            text:  `IT'S A TIE!`,
+            sub:   `Both teams scored ${d.runs} runs — Match tied!`,
+            style: 'tie', dur: 25, rain: true,
+        };
+    }
+    // 3. DEFENCE WIN — all out or overs up, batting team needs 2+ more runs
     else if(allOut || oversUp){
-        const runsShort = runsNeeded;
+        const margin = runsNeeded - 1;
         winMsg = {
             emoji: '🏆',
-            text: `${d.bowlTeam} WIN!`,
-            sub: `${d.bowlTeam} won by ${runsShort} run${runsShort!==1?'s':''}`,
-            style: 'win',
-            dur: 30,
-            rain: true,
+            text:  `${d.bowlTeam} WIN!`,
+            sub:   `${d.bowlTeam} won by ${margin} run${margin!==1?'s':''} — ${d.batTeam} fell short`,
+            style: 'win', dur: 30, rain: true,
         };
     }
 
     if(winMsg){
         _winFired = true;
-        await set(aRef, {
+        await set(aRef,{
             ...winMsg,
             sentAt: Date.now(),
             id: Math.random().toString(36).slice(2),
         });
+        // Also save final state to history
+        setTimeout(()=>{ saveMatchToDb(true); }, 1500);
     }
+}
+
+// ── 1st innings end modal ─────────────────────────
+function openInningsEndModal(d){
+    const ovStr = `${Math.floor(d.balls/6)}.${d.balls%6}`;
+    const reason = d.wkts>=10 ? 'ALL OUT' : 'OVERS COMPLETE';
+    if(confirm(
+        `🏏 END OF 1ST INNINGS
+
+${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs)
+${reason}
+
+Start 2nd Innings now?`
+    )){ swapInnings(); }
 }
 
 // ══ WICKET MODAL ══════════════════════════════════
@@ -872,7 +923,7 @@ window.confirmWicket=async()=>{
     else{d.p2n=nxt;d.p2r=0;d.p2b=0;d.p2fours=0;d.p2sixes=0;}
     d.nextBatIdx=idx+1;
     await update(mRef,d);
-    await checkWinCondition(d);
+    await checkMatchEvents(d);
     closeWicket();
 };
 
@@ -907,6 +958,7 @@ window.swapInnings=async()=>{
     });
     _adminLastOver=0;
     _winFired=false;
+    _inn1EndFired=false;
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
@@ -923,6 +975,7 @@ window.fullReset=async()=>{
     _adminLastOver=-1;
     _currentMatchKey=null;
     _winFired=false;
+    _inn1EndFired=false;
     location.reload();
 };
 
