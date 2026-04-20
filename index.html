@@ -78,6 +78,15 @@ body{
 }
 .ann-toast.style-win .ann-progress{ background:linear-gradient(90deg,#ffd700,#fff9c4,#ffd700); }
 .ann-toast.style-win .ann-text{ color:#ffd700; font-size:30px; letter-spacing:2px; }
+.ann-toast.style-tie{
+    --ann-accent:#a0c4ff;
+    background:linear-gradient(135deg,rgba(0,14,38,.99) 0%,rgba(0,8,24,.99) 60%,rgba(0,4,14,.99) 100%);
+    border:2px solid rgba(100,180,255,.5);
+    border-left:6px solid #a0c4ff;
+    box-shadow:0 12px 60px rgba(0,0,0,.98), 0 0 30px rgba(100,180,255,.12);
+}
+.ann-toast.style-tie .ann-progress{ background:linear-gradient(90deg,#a0c4ff,#e8f4ff,#a0c4ff); }
+.ann-toast.style-tie .ann-text{ color:#a0c4ff; font-size:30px; letter-spacing:2px; }
 .ann-emoji{ font-size:56px; line-height:1; filter:drop-shadow(0 3px 12px rgba(0,0,0,.9)); animation:annEmojiBounce .7s cubic-bezier(.36,.07,.19,.97) both; flex-shrink:0; }
 @keyframes annEmojiBounce{ 0%{transform:scale(0.1) rotate(-20deg);opacity:0} 55%{transform:scale(1.35) rotate(8deg);opacity:1} 75%{transform:scale(0.9) rotate(-4deg)} 90%{transform:scale(1.06) rotate(2deg)} 100%{transform:scale(1) rotate(0)} }
 .ann-emoji-ring{ position:relative; flex-shrink:0; }
@@ -535,6 +544,7 @@ const PARTICLE_COLORS={
     blue:['#118ab2','#7ec8ff','#90d5ff','#a8dfff','#48cae4'],
     custom:['#06d6a0','#40e0b0','#70edc0','#a0f5d5','#23e5a0'],
     win:['#ffd700','#ffec6e','#fff9c4','#ffa500','#ffe082'],
+    tie:['#a0c4ff','#e8f4ff','#7ec8ff','#4a90d9','#cce5ff'],
 };
 const EVENT_EMOJIS={
     gold:['🏆','⭐','✨','🌟','💛','🥇','🎊','🎉','🏅','💫'],
@@ -543,6 +553,7 @@ const EVENT_EMOJIS={
     blue:['🔥','💙','4️⃣','🎯','💦','⚡','🏏','🌀','💨','🎊'],
     custom:['🎉','🎊','🎈','🥳','🎆','🌈','🎁','🪄','✨','🎀'],
     win:['🏆','🥇','🎊','🎉','🌟','⭐','🎆','🎇','🥂','👑'],
+    tie:['🤝','⚖️','🏏','🎯','💙','🌊','✨','🎗️','🔵','💫'],
 };
 function spawnParticles(style){
     const c=$('annParticles'); c.innerHTML='';
