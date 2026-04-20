@@ -196,6 +196,7 @@ button:active{ opacity:.65; transform:scale(.95); }
     display:grid; grid-template-columns:1fr 1fr;
     gap:8px; margin-bottom:12px;
 }
+.bpk-grid.single-col{ grid-template-columns:1fr; }
 .bpk-btn{
     padding:14px 10px;
     background:#07070f; border:1px solid #1e1e2e;
@@ -207,7 +208,8 @@ button:active{ opacity:.65; transform:scale(.95); }
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .bpk-btn:hover{ background:#1a1a2e; border-color:var(--y); color:var(--y); }
-.bpk-btn.last-bowler{ border-color:#444; color:#888; font-style:italic; }
+.bpk-btn.last-bowler{ border-color:#2a2a2a; color:#444; font-style:italic; opacity:0.5; cursor:not-allowed; background:#050508; }
+.bpk-btn:disabled{ cursor:not-allowed; }
 .b-injury{ background:#1a0a00; color:#ffaa44; border:1px solid #4a2800; font-size:12px; padding:10px 8px; }
 .b-injury:hover{ background:#e67e22; color:#000; border-color:#e67e22; }
 .bpk-cancel{
