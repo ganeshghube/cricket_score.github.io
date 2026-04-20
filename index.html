@@ -284,6 +284,168 @@ body{
 .live-badge{ background:#e63946; color:#fff; padding:2px 8px; border-radius:2px; font-size:9px; font-weight:800; letter-spacing:2px; animation:lpulse 1.5s infinite; white-space:nowrap; }
 @keyframes lpulse{ 0%,100%{opacity:1} 50%{opacity:.55} }
 
+/* ═══ TEAM INTRO ═══ */
+.team-intro-wrap{
+    position:fixed; inset:0; z-index:55;
+    background:rgba(4,4,12,0.96);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .6s ease;
+}
+.team-intro-wrap.visible{ opacity:1; }
+.team-intro-wrap.leaving{ opacity:0; transition:opacity .5s ease-in; }
+
+.ti-header{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:13px; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:4px;
+    margin-bottom:10px;
+}
+.ti-vs{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:44px; font-weight:900; color:var(--gold);
+    letter-spacing:4px; text-shadow:0 0 40px rgba(245,197,24,.4);
+    margin:4px 0 16px;
+    display:flex; align-items:center; gap:20px;
+}
+.ti-team-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:32px; font-weight:900; color:#fff;
+    text-transform:uppercase; letter-spacing:2px;
+    text-shadow:0 2px 20px rgba(0,0,0,.8);
+}
+.ti-vs-badge{
+    font-size:18px; color:var(--gold);
+    background:rgba(240,180,41,.1); border:1px solid rgba(240,180,41,.3);
+    border-radius:4px; padding:4px 14px; letter-spacing:3px;
+}
+.ti-teams{
+    display:flex; gap:40px; align-items:flex-start;
+    width:100%; max-width:1000px; padding:0 20px;
+}
+.ti-team{ flex:1; }
+.ti-team-hdr{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:14px; font-weight:900; text-transform:uppercase;
+    letter-spacing:3px; color:var(--gold);
+    border-bottom:2px solid rgba(240,180,41,.3);
+    padding-bottom:8px; margin-bottom:12px; text-align:center;
+}
+.ti-players{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(70px,1fr));
+    gap:8px;
+}
+.ti-player{
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    animation:tiFadeIn .4s ease both;
+}
+@keyframes tiFadeIn{ from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.ti-player-img{
+    width:52px; height:52px; border-radius:50%;
+    object-fit:cover; object-position:top center;
+    border:2px solid rgba(240,180,41,.4);
+    background:#0d0d1a;
+}
+.ti-player-placeholder{
+    width:52px; height:52px; border-radius:50%;
+    background:linear-gradient(135deg,#0d0d1a,#1a1a2e);
+    border:2px dashed rgba(255,255,255,.1);
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; color:#333;
+}
+.ti-player-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px; font-weight:700; color:#ccc;
+    text-align:center; letter-spacing:.5px;
+    max-width:70px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.ti-progress{
+    position:absolute; bottom:0; left:0; height:3px;
+    background:linear-gradient(90deg,var(--gold),#06d6a0,var(--gold));
+    animation:pcProgress linear forwards;
+}
+
+/* ═══ PLAYER CARD ═══ */
+.player-card-wrap{
+    position:fixed;
+    bottom:130px; right:24px;
+    z-index:52;
+    pointer-events:none;
+    opacity:0;
+    transform:translateX(60px) scale(0.88);
+    transition:opacity .55s cubic-bezier(.175,.885,.32,1.275), transform .55s cubic-bezier(.175,.885,.32,1.275);
+}
+.player-card-wrap.visible{ opacity:1; transform:translateX(0) scale(1); }
+.player-card-wrap.leaving{
+    opacity:0; transform:translateX(60px) scale(0.88);
+    transition:opacity .4s ease-in, transform .4s ease-in;
+}
+.player-card{
+    width:190px;
+    background:linear-gradient(160deg,rgba(12,12,24,.99) 0%,rgba(6,6,16,.99) 100%);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:12px; overflow:hidden;
+    box-shadow:0 20px 70px rgba(0,0,0,.98), 0 0 0 1px rgba(240,180,41,.1);
+    position:relative;
+}
+.player-card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,var(--gold),#06d6a0,var(--gold));
+    background-size:200% 100%;
+    animation:pcShimmer 2s linear infinite;
+}
+@keyframes pcShimmer{ 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.player-card-img{
+    width:100%; height:190px;
+    object-fit:cover; object-position:top center; display:block;
+}
+.player-card-img-placeholder{
+    width:100%; height:190px;
+    background:linear-gradient(135deg,#0d0d1a,#1a1a2e);
+    display:flex; align-items:center; justify-content:center; font-size:72px;
+}
+.player-card-body{
+    padding:10px 12px 12px;
+    background:linear-gradient(180deg,rgba(6,6,14,0) 0%,rgba(6,6,14,1) 40%);
+    margin-top:-32px; position:relative;
+}
+.player-card-role{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:9px; font-weight:800; letter-spacing:2px;
+    text-transform:uppercase; margin-bottom:3px;
+    color:var(--gold);
+}
+.player-card-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:21px; font-weight:900; color:#fff;
+    line-height:1.05; letter-spacing:.5px;
+    text-shadow:0 2px 10px rgba(0,0,0,.9);
+}
+.player-card-team{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px; color:rgba(255,255,255,.45); letter-spacing:1.5px; margin-top:2px;
+}
+.player-card-stats{
+    display:flex; gap:8px; margin-top:9px;
+    border-top:1px solid rgba(255,255,255,.08); padding-top:8px;
+}
+.player-card-stat{ flex:1; text-align:center; }
+.player-card-stat-val{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:20px; font-weight:900; color:var(--gold); line-height:1;
+}
+.player-card-stat-lbl{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:8px; color:#555; letter-spacing:1.5px;
+    text-transform:uppercase; margin-top:2px;
+}
+.player-card-progress{
+    position:absolute; bottom:0; left:0; height:3px;
+    background:linear-gradient(90deg,var(--gold),#06d6a0);
+    animation:pcProgress linear forwards;
+}
+@keyframes pcProgress{ from{width:100%} to{width:0%} }
+
 /* ── Over-end notification badge (top-right corner) ── */
 .over-badge{
     position:fixed; top:16px; right:16px; z-index:60;
@@ -319,6 +481,41 @@ body{
 
 <!-- ═══ OVER-END BADGE ═══ -->
 <div class="over-badge" id="overBadge">⬜ END OF OVER</div>
+
+<!-- ═══ TEAM INTRO ═══ -->
+<div class="team-intro-wrap" id="teamIntroWrap">
+    <div class="ti-header">Match Presentation</div>
+    <div class="ti-vs">
+        <span class="ti-team-name" id="tiTeamA">TEAM A</span>
+        <span class="ti-vs-badge">VS</span>
+        <span class="ti-team-name" id="tiTeamB">TEAM B</span>
+    </div>
+    <div class="ti-teams">
+        <div class="ti-team">
+            <div class="ti-team-hdr" id="tiHdrA">TEAM A</div>
+            <div class="ti-players" id="tiPlayersA"></div>
+        </div>
+        <div class="ti-team">
+            <div class="ti-team-hdr" id="tiHdrB">TEAM B</div>
+            <div class="ti-players" id="tiPlayersB"></div>
+        </div>
+    </div>
+    <div class="ti-progress" id="tiProgress"></div>
+</div>
+
+<!-- ═══ PLAYER CARD ═══ -->
+<div class="player-card-wrap" id="playerCardWrap">
+    <div class="player-card" id="playerCard">
+        <div id="playerCardImg"></div>
+        <div class="player-card-body">
+            <div class="player-card-role"  id="pcRole">BATTING</div>
+            <div class="player-card-name"  id="pcName">Player</div>
+            <div class="player-card-team"  id="pcTeam">TEAM</div>
+            <div class="player-card-stats" id="pcStats"></div>
+        </div>
+        <div class="player-card-progress" id="pcProgress"></div>
+    </div>
+</div>
 
 <!-- ═══ SCORE BAR ═══ -->
 <div class="sb-wrap" id="sbWrap">
@@ -609,6 +806,105 @@ function showAnn(data){
         setTimeout(()=>{ toast.classList.remove('visible','leaving'); },520);
     },DUR*1000);
 }
+// ══ PLAYER CARD SYSTEM ═══════════════════════════
+let lastCardId=null, cardTimer=null;
+const cardRef=ref(db,'playerCard');
+
+get(cardRef).then(snap=>{
+    const ex=snap.val();
+    lastCardId=ex?.id||null;
+    onValue(cardRef,snap=>{
+        const data=snap.val();
+        if(!data||data.id===lastCardId) return;
+        lastCardId=data.id;
+        showPlayerCard(data);
+    });
+});
+
+function showPlayerCard(data){
+    const wrap=$('playerCardWrap'), prog=$('pcProgress');
+    const DUR=data.dur||8;
+    if(cardTimer){clearTimeout(cardTimer);cardTimer=null;}
+    wrap.classList.remove('visible','leaving'); void wrap.offsetWidth;
+    const roleColors={'BATTING':'#f5c518','BOWLING':'#06d6a0','CENTURY 🏆':'#ffd700','HALF CENTURY ⭐':'#f5c518','WICKET 💥':'#e63946','SIX 🚀':'#c4a0ff','FOUR 🔥':'#7ec8ff','HAT TRICK 🎩':'#ffd700'};
+    const roleColor=roleColors[data.role]||'#f5c518';
+    $('pcRole').textContent=data.role||'PLAYER'; $('pcRole').style.color=roleColor;
+    $('pcName').textContent=data.name||''; $('pcTeam').textContent=(data.team||'').toUpperCase();
+    const imgEl=$('playerCardImg');
+    if(data.url){
+        imgEl.innerHTML=`<img class="player-card-img" src="${data.url}" onerror="this.parentNode.innerHTML='<div class=\'player-card-img-placeholder\'>👤</div>'">`;
+    } else {
+        imgEl.innerHTML=`<div class="player-card-img-placeholder">👤</div>`;
+    }
+    const statsEl=$('pcStats');
+    if(data.overs){
+        statsEl.innerHTML=`<div class="player-card-stat"><div class="player-card-stat-val" style="color:#06d6a0">${data.wickets||0}</div><div class="player-card-stat-lbl">WKT</div></div><div class="player-card-stat"><div class="player-card-stat-val">${data.runs||0}</div><div class="player-card-stat-lbl">RUNS</div></div><div class="player-card-stat"><div class="player-card-stat-val">${data.overs}</div><div class="player-card-stat-lbl">OVS</div></div>`;
+    } else {
+        const sr=data.balls>0?((data.runs/data.balls)*100).toFixed(0):'—';
+        statsEl.innerHTML=`<div class="player-card-stat"><div class="player-card-stat-val" style="color:var(--gold)">${data.runs||0}</div><div class="player-card-stat-lbl">RUNS</div></div><div class="player-card-stat"><div class="player-card-stat-val">${data.balls||0}</div><div class="player-card-stat-lbl">BALLS</div></div><div class="player-card-stat"><div class="player-card-stat-val">${sr}</div><div class="player-card-stat-lbl">S/R</div></div>`;
+    }
+    prog.style.animation='none'; void prog.offsetWidth;
+    prog.style.animation=`pcProgress ${DUR}s linear forwards`;
+    requestAnimationFrame(()=>{ wrap.classList.add('visible'); });
+    cardTimer=setTimeout(()=>{
+        wrap.classList.add('leaving');
+        setTimeout(()=>{ wrap.classList.remove('visible','leaving'); },420);
+    },DUR*1000);
+}
+
+// ══ TEAM INTRO SYSTEM ════════════════════════════
+let lastIntroId  = null;
+let introTimer   = null;
+const introRef   = ref(db,'teamIntro');
+
+get(introRef).then(snap=>{
+    lastIntroId = snap.val()?.id || null;
+    onValue(introRef, snap=>{
+        const data = snap.val();
+        if(!data || data.id === lastIntroId) return;
+        lastIntroId = data.id;
+        showTeamIntro(data);
+    });
+});
+
+function showTeamIntro(data){
+    const wrap  = $('teamIntroWrap');
+    const prog  = $('tiProgress');
+    const DUR   = data.dur || 12;
+    if(introTimer){ clearTimeout(introTimer); introTimer=null; }
+    wrap.classList.remove('visible','leaving'); void wrap.offsetWidth;
+
+    $('tiTeamA').textContent  = data.teamA||'TEAM A';
+    $('tiTeamB').textContent  = data.teamB||'TEAM B';
+    $('tiHdrA').textContent   = data.teamA||'TEAM A';
+    $('tiHdrB').textContent   = data.teamB||'TEAM B';
+
+    function renderPlayers(players, contId){
+        const cont = $(contId); if(!cont) return;
+        cont.innerHTML = (players||[]).map((p,i)=>{
+            const img = p.photo
+                ? `<img class="ti-player-img" src="${p.photo}" alt="${p.name}" onerror="this.outerHTML='<div class=\'ti-player-placeholder\'>👤</div>'">`
+                : `<div class="ti-player-placeholder">👤</div>`;
+            return `<div class="ti-player" style="animation-delay:${i*0.05}s">
+                ${img}
+                <span class="ti-player-name">${p.name}</span>
+            </div>`;
+        }).join('');
+    }
+    renderPlayers(data.playersA, 'tiPlayersA');
+    renderPlayers(data.playersB, 'tiPlayersB');
+
+    prog.style.animation = 'none'; void prog.offsetWidth;
+    prog.style.animation = `pcProgress ${DUR}s linear forwards`;
+
+    requestAnimationFrame(()=>{ wrap.classList.add('visible'); });
+
+    introTimer = setTimeout(()=>{
+        wrap.classList.add('leaving');
+        setTimeout(()=>{ wrap.classList.remove('visible','leaving'); }, 520);
+    }, DUR * 1000);
+}
+
 get(annRef).then(snap=>{
     lastAnnId=snap.val()?.id||null;
     onValue(annRef,snap=>{
