@@ -621,13 +621,13 @@ window.saveMatchToDb = async () => {
     const val = all.val();
     if(val){
         const keys = Object.keys(val).sort((a,b)=>val[a].savedAt - val[b].savedAt); // oldest first
-        if(keys.length > 5){
-            for(const k of keys.slice(0, keys.length - 5)){
+        if(keys.length > 10){
+            for(const k of keys.slice(0, keys.length - 10)){
                 await remove(ref(db, `matchHistory/${k}`));
             }
         }
     }
-    alert(`✅ Match saved: "${title}" (last 5 kept)`);
+    alert(`✅ Match saved: "${title}" (last 10 kept)`);
 };
 
 // Delete a match from history
@@ -697,7 +697,7 @@ function renderHistory(val){
     if(!val){ list.innerHTML='<div class="hist-empty">No saved matches yet. Use ☁ SAVE TO DATABASE above.</div>'; return; }
     const entries = Object.entries(val).sort((a,b)=>b[1].savedAt-a[1].savedAt);
     const count = entries.length;
-    list.innerHTML = `<div class="hist-count">${count}/5 MATCHES SAVED — oldest auto-removed when full</div>` +
+    list.innerHTML = `<div class="hist-count">${count}/10 MATCHES SAVED — oldest auto-removed when full</div>` +
     entries.map(([key, d])=>{
         const inn = d.inn1Score
             ? `${d.inn1Bat}: ${d.inn1Score} &nbsp;▸&nbsp; ${d.batTeam}: ${d.score} (${d.overs} ovs)`
