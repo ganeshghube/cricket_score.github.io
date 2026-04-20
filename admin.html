@@ -810,13 +810,17 @@ function openBowlerPicker(bowlRows, currentBowler, ovNum, midOver=false){
         : `END OF OVER ${ovNum} — choose the next bowler`;
     const grid = $('bpkGrid');
     grid.innerHTML = bowlRows.map(r => {
-        const isInjured = r.name === currentBowler && midOver;
+        const isInjured   = r.name === currentBowler && midOver;
+        const justBowled  = r.name === currentBowler && !midOver;  // finished this over
+        const isDisabled  = isInjured || justBowled;
         const ovs = `${Math.floor(r.balls/6)}.${r.balls%6} ov`;
         const fig = r.balls > 0 ? `${r.wkts}-${r.runs} (${ovs})` : 'yet to bowl';
-        return `<button class="bpk-btn${isInjured?' last-bowler':''}"
-            ${isInjured?'disabled title="Currently injured"':''}
+        const tag = isInjured ? ' 🤕' : justBowled ? ' ✋' : '';
+        const tip = isInjured ? 'Currently injured' : justBowled ? 'Just bowled — cannot bowl consecutive overs' : '';
+        return `<button class="bpk-btn${isDisabled?' last-bowler':''}"
+            ${isDisabled?`disabled title="${tip}"`:''}
             onclick="selectBowler('${r.name.replace(/'/g,"\'")}')">
-            ${r.name}${isInjured?' 🤕':''}
+            ${r.name}${tag}
             <br><span style="font-size:11px;color:#666;font-weight:400">${fig}</span>
         </button>`;
     }).join('');
