@@ -716,15 +716,42 @@ window.deleteMatch = async (key) => {
 // Reload a saved match back into the live admin panel
 window.reloadMatch = async (key, encodedData) => {
     const data = JSON.parse(decodeURIComponent(encodedData));
-    if(!confirm(`Reload "${data.title}" into the live panel? This will REPLACE the current match.`)) return;
-    if(!data.fullState){ alert('This saved match has no full state to reload. Re-save it to enable reload.'); return; }
-    await set(hRef, null); // clear undo stack
-    await set(mRef, data.fullState);
-    // also restore squads textarea
-    const batNames = (data.fullState.batRows||[]).map(r=>r.name).join('\n');
-    const bowlNames = (data.fullState.bowlRows||[]).map(r=>r.name).join('\n');
-    await set(sRef, { sqA: batNames, sqB: bowlNames });
-    alert(`✅ Loaded "${data.title}" into live panel!`);
+    if(!confirm(`Reload "${data.title}" into the live panel?
+
+This will REPLACE the current live match.`)) return;
+    if(!data.fullState){ alert('This saved match has no full state to reload.'); return; }
+    const fs = data.fullState;
+    await set(hRef, null);   // clear undo stack
+    await set(mRef, fs);     // restore full match state
+
+    // Restore squads — use inn1 rows + current rows to get both teams fully
+    // For 2nd innings: fs.bowlRows = original batting team, fs.inn1BatRows = 1st innings batters
+    let sqA, sqB;
+    if(fs.innings === 2){
+        // 2nd innings: original Team A batted first (inn1BatRows), Team B batted 2nd (batRows)
+        const team1Names = (fs.inn1BatRows||[]).map(r=>r.name);
+        const team2Names = (fs.batRows||[]).map(r=>r.name);
+        // figure out which squad goes in sqA (batting first squad)
+        sqA = team1Names.join('
+');
+        sqB = team2Names.join('
+');
+    } else {
+        // 1st innings: batRows = batting team, bowlRows = bowling team
+        sqA = (fs.batRows||[]).map(r=>r.name).join('
+');
+        sqB = (fs.bowlRows||[]).map(r=>r.name).join('
+');
+    }
+    await set(sRef, { sqA, sqB });
+
+    // Update title/venue inputs to match the loaded match
+    if(data.title) .value = data.title.replace(' (Auto)','');
+    if(data.venue) .value = data.venue;
+
+    // Scroll to top so admin sees the infobar update
+    window.scrollTo({top:0, behavior:'smooth'});
+    showAutoSaveToast(`✅ Loaded: ${data.title}`);
 };
 
 // Download a saved match as HTML file
