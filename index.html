@@ -69,6 +69,15 @@ body{
 .ann-toast.style-blue .ann-progress{ background:linear-gradient(90deg,#118ab2,#a8dfff); }
 .ann-toast.style-custom{ --ann-accent:#06d6a0; background:linear-gradient(135deg,rgba(0,22,18,.98),rgba(0,8,6,.98)); border:1px solid rgba(6,214,160,.35); border-left:5px solid #06d6a0; }
 .ann-toast.style-custom .ann-progress{ background:linear-gradient(90deg,#06d6a0,#a0f5d5); }
+.ann-toast.style-win{
+    --ann-accent:#ffd700;
+    background:linear-gradient(135deg,rgba(40,30,0,.99) 0%,rgba(20,14,0,.99) 50%,rgba(8,4,0,.99) 100%);
+    border:2px solid rgba(255,215,0,.6);
+    border-left:6px solid #ffd700;
+    box-shadow:0 12px 60px rgba(0,0,0,.98), 0 0 40px rgba(255,215,0,.15), 0 0 0 1px rgba(255,215,0,.1);
+}
+.ann-toast.style-win .ann-progress{ background:linear-gradient(90deg,#ffd700,#fff9c4,#ffd700); }
+.ann-toast.style-win .ann-text{ color:#ffd700; font-size:30px; letter-spacing:2px; }
 .ann-emoji{ font-size:56px; line-height:1; filter:drop-shadow(0 3px 12px rgba(0,0,0,.9)); animation:annEmojiBounce .7s cubic-bezier(.36,.07,.19,.97) both; flex-shrink:0; }
 @keyframes annEmojiBounce{ 0%{transform:scale(0.1) rotate(-20deg);opacity:0} 55%{transform:scale(1.35) rotate(8deg);opacity:1} 75%{transform:scale(0.9) rotate(-4deg)} 90%{transform:scale(1.06) rotate(2deg)} 100%{transform:scale(1) rotate(0)} }
 .ann-emoji-ring{ position:relative; flex-shrink:0; }
@@ -82,6 +91,7 @@ body{
 .ann-toast.style-purple .ann-text{ color:#c4a0ff; }
 .ann-toast.style-blue .ann-text{ color:#7ec8ff; }
 .ann-toast.style-custom .ann-text{ color:#06d6a0; }
+.ann-toast.style-win     .ann-text{ color:#ffd700; }
 .ann-sub{ font-size:14px; font-weight:600; color:rgba(255,255,255,.65); letter-spacing:1px; text-transform:uppercase; animation:annTextSlide .55s cubic-bezier(.175,.885,.32,1.275) .2s both; }
 .ann-floaters{ display:flex; gap:8px; margin-top:6px; animation:annTextSlide .55s cubic-bezier(.175,.885,.32,1.275) .3s both; }
 .ann-floater{ font-size:20px; animation:annFloat ease-in-out infinite alternate; filter:drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
@@ -524,6 +534,7 @@ const PARTICLE_COLORS={
     purple:['#9b72cf','#c4a0ff','#d4b0ff','#e8d5ff','#b392f0'],
     blue:['#118ab2','#7ec8ff','#90d5ff','#a8dfff','#48cae4'],
     custom:['#06d6a0','#40e0b0','#70edc0','#a0f5d5','#23e5a0'],
+    win:['#ffd700','#ffec6e','#fff9c4','#ffa500','#ffe082'],
 };
 const EVENT_EMOJIS={
     gold:['🏆','⭐','✨','🌟','💛','🥇','🎊','🎉','🏅','💫'],
@@ -531,6 +542,7 @@ const EVENT_EMOJIS={
     purple:['🚀','💜','🌌','⚡','🔮','🌠','💥','🎆','🌊','✨'],
     blue:['🔥','💙','4️⃣','🎯','💦','⚡','🏏','🌀','💨','🎊'],
     custom:['🎉','🎊','🎈','🥳','🎆','🌈','🎁','🪄','✨','🎀'],
+    win:['🏆','🥇','🎊','🎉','🌟','⭐','🎆','🎇','🥂','👑'],
 };
 function spawnParticles(style){
     const c=$('annParticles'); c.innerHTML='';
