@@ -840,6 +840,37 @@ async function speakText(text){
     }, Math.max(2000, text.length * 70));
 }
 
+// ════════════════════════════════════════
+// SILENT COMMENTARY AUTO-ENABLE (index.html)
+// DOES NOT MODIFY ADMIN LOGIC
+// ════════════════════════════════════════
+
+// always enable commentary by default
+if (localStorage.getItem("commentaryEnabled") === null) {
+    localStorage.setItem("commentaryEnabled", "true");
+}
+
+// force enabled (no popup)
+localStorage.setItem("commentaryEnabled", "true");
+
+// prevent any UI from appearing
+document.addEventListener("DOMContentLoaded", function () {
+    const overlay = document.getElementById("audioUnlockOverlay");
+    const dot = document.getElementById("audioStatusDot");
+    const ticker = document.getElementById("commentaryTicker");
+
+    if (overlay) overlay.style.display = "none";
+    if (dot) dot.style.display = "none";
+    if (ticker) ticker.style.display = "none";
+});
+
+// keep enabled even after refresh
+window.addEventListener("storage", function (e) {
+    if (e.key === "commentaryEnabled" && e.newValue === "false") {
+        localStorage.setItem("commentaryEnabled", "true");
+    }
+});
+
 // ══ STANDARD COMMENTARY BUILDER (unchanged) ══════
 function buildCommentary(d, prevD, eventType){
     const striker    = d.str===1 ? d.p1n : d.p2n;
