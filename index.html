@@ -415,32 +415,44 @@ body{
 </head>
 <body>
 
-<!-- ═══ AUDIO UNLOCK OVERLAY ═══ -->
-<div id="audioUnlockOverlay">
-    <div class="auo-box">
-        <div class="auo-icon">🎙</div>
-        <div class="auo-title">Live Commentary</div>
-        <div class="auo-sub">
-            Tap to enable live ball-by-ball audio commentary.<br>
-            Powered by Ravi Shastri / Aakash Chopra style voice.
-        </div>
-        <button class="auo-btn" id="audioUnlockBtn">🔊 ENABLE COMMENTARY</button>
-    </div>
-</div>
 
-<!-- ═══ AUDIO STATUS DOT ═══ -->
-<div id="audioStatusDot">
-    <div class="asd-dot" id="asdDot"></div>
-    <div class="asd-label" id="asdLabel">COMMENTARY</div>
-</div>
+<!-- ═════════ AUDIO SYSTEM AUTO MODE (NO UI / NO PROMPT) ═════════ -->
 
-<!-- ═══ COMMENTARY TICKER ═══ -->
-<div id="commentaryTicker">
-    <div class="ct-inner">
-        <div class="ct-label">🎙 Live Commentary</div>
-        <div class="ct-text" id="ctText">Initialising…</div>
-    </div>
-</div>
+<!-- Hidden overlay (prevents popup completely) -->
+<div id="audioUnlockOverlay" style="display:none !important;"></div>
+
+<!-- Hidden status dot -->
+<div id="audioStatusDot" style="display:none !important;"></div>
+
+<!-- Hidden commentary ticker -->
+<div id="commentaryTicker" style="display:none !important;"></div>
+
+<!-- FORCE AUTO ENABLE (NO USER PROMPT ON REFRESH) -->
+<script>
+(function () {
+    // Always force enable
+    localStorage.setItem("commentaryEnabled", "true");
+
+    // internal flag (if used in your system)
+    window._audioEnabled = true;
+
+    // kill overlay if any JS tries to show it
+    const overlay = document.getElementById("audioUnlockOverlay");
+    if (overlay) {
+        overlay.style.display = "none";
+        overlay.classList.add("gone");
+    }
+
+    // safety: prevent UI flicker on load
+    const dot = document.getElementById("audioStatusDot");
+    const ticker = document.getElementById("commentaryTicker");
+
+    if (dot) dot.style.display = "none";
+    if (ticker) ticker.style.display = "none";
+
+    console.log("🎙 Commentary AUTO-ENABLED (NO PROMPT MODE)");
+})();
+</script>
 
 <!-- ═══ EMOJI RAIN ═══ -->
 <div class="ann-rain" id="annRain"></div>
