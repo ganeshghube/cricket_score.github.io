@@ -266,20 +266,32 @@ body{
     gap:6px; min-width:80px;
 }
 
-/* ══ ID-CARD SIZED PHOTOS (portrait, rounded rectangle) ══
-   Changed from 52px circle → 70x95px ID-card style with rounded corners.
-   This matches a 2:3 portrait aspect ratio similar to real ID cards. */
-.over-player-photo{
-    width:70px;
-    height:95px;
-    border-radius:8px;
-    object-fit:cover;
-    border:2px solid rgba(255,255,255,.15);
-    background:#111;
-    box-shadow:0 3px 10px rgba(0,0,0,.6);
+/* ══ ID-CARD SIZED PHOTOS — shared across all three overlays ══ */
+.over-player-photo,
+.epov-photo,
+.win-player-photo {
+    width: 70px;
+    height: 95px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,.15);
+    background: #111;
+    box-shadow: 0 3px 10px rgba(0,0,0,.6);
 }
-.over-player-photo.striker{ border-color:var(--gold); box-shadow:0 0 14px rgba(240,180,41,.35); }
-.over-player-photo.bowler{  border-color:#06d6a0; box-shadow:0 0 14px rgba(6,214,160,.3); }
+
+/* Striker tint */
+.over-player-photo.striker { border-color: var(--gold); box-shadow: 0 0 14px rgba(240,180,41,.35); }
+/* Bowler tint */
+.over-player-photo.bowler  { border-color: #06d6a0; box-shadow: 0 0 14px rgba(6,214,160,.3); }
+
+/* Event player overlay photo tints */
+.epov-photo          { border-color: var(--gold); box-shadow: 0 0 24px rgba(240,180,41,.4); }
+.epov-photo.red      { border-color: #e63946;     box-shadow: 0 0 24px rgba(230,57,70,.4); }
+.epov-photo.purple   { border-color: #9b72cf;     box-shadow: 0 0 24px rgba(155,114,207,.4); }
+.epov-photo.blue     { border-color: #118ab2;     box-shadow: 0 0 24px rgba(17,138,178,.4); }
+
+/* Win overlay photo tint */
+.win-player-photo    { border-color: var(--gold); box-shadow: 0 0 20px rgba(240,180,41,.3); }
 
 .over-player-name{ font-size:12px; font-weight:700; color:#ddd; text-align:center; max-width:90px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .over-player-stat{ font-size:11px; color:#888; }
@@ -305,10 +317,6 @@ body{
     min-width:260px; text-align:center; position:relative; overflow:hidden;
 }
 .epov-box::before{ content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(240,180,41,.06) 0%,transparent 70%); pointer-events:none; }
-.epov-photo{ width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid var(--gold); box-shadow:0 0 24px rgba(240,180,41,.4); }
-.epov-photo.red{ border-color:#e63946; box-shadow:0 0 24px rgba(230,57,70,.4); }
-.epov-photo.purple{ border-color:#9b72cf; box-shadow:0 0 24px rgba(155,114,207,.4); }
-.epov-photo.blue{ border-color:#118ab2; box-shadow:0 0 24px rgba(17,138,178,.4); }
 .epov-emoji{ font-size:40px; }
 .epov-name{ font-size:22px; font-weight:900; color:#fff; letter-spacing:1px; }
 .epov-stat{ font-size:14px; color:var(--gold); font-weight:700; letter-spacing:1px; }
@@ -335,7 +343,6 @@ body{
 .win-overlay-detail{ font-size:14px; color:#888; letter-spacing:1px; text-align:center; }
 .win-overlay-players{ display:flex; gap:24px; margin-top:8px; flex-wrap:wrap; justify-content:center; }
 .win-player-card{ display:flex; flex-direction:column; align-items:center; gap:8px; }
-.win-player-photo{ width:70px; height:70px; border-radius:50%; object-fit:cover; border:3px solid var(--gold); box-shadow:0 0 20px rgba(240,180,41,.3); }
 .win-player-name{ font-size:13px; color:#ddd; font-weight:700; }
 .win-player-stat{ font-size:11px; color:var(--gold); }
 .win-confetti-layer{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:-1; }
@@ -349,12 +356,7 @@ body{
 .cb-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:cbFly ease-out forwards; opacity:0; }
 @keyframes cbFly{ 0%{opacity:1;transform:translate(0,0) scale(1);} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);} }
 
-/* ═══════════════════════════════════════════════════════════════
-   ══ AUDIO UI HIDDEN ON OVERLAY (REQ #3)
-   ══ Commentary functionality stays fully working — only the
-   ══ visible UI is hidden. DOM elements remain so scripts can
-   ══ reference them (e.g. $('ctText'), $('asdDot'), etc.)
-   ══════════════════════════════════════════════════════════════ */
+/* ═══ AUDIO UI — hidden on overlay (kept in DOM for script refs) ═══ */
 #audioUnlockOverlay,
 #audioStatusDot,
 #commentaryTicker{
@@ -364,7 +366,7 @@ body{
 </head>
 <body>
 
-<!-- ═══ AUDIO UNLOCK OVERLAY (HIDDEN — kept in DOM for script refs) ═══ -->
+<!-- ═══ AUDIO UNLOCK OVERLAY (hidden — kept in DOM for script refs) ═══ -->
 <div id="audioUnlockOverlay">
     <div class="auo-box">
         <div class="auo-icon">🎙</div>
@@ -374,13 +376,13 @@ body{
     </div>
 </div>
 
-<!-- ═══ AUDIO STATUS DOT (HIDDEN — kept in DOM) ═══ -->
+<!-- ═══ AUDIO STATUS DOT (hidden — kept in DOM) ═══ -->
 <div id="audioStatusDot">
     <div class="asd-dot" id="asdDot"></div>
     <div class="asd-label" id="asdLabel">COMMENTARY</div>
 </div>
 
-<!-- ═══ COMMENTARY TICKER (HIDDEN — kept in DOM) ═══ -->
+<!-- ═══ COMMENTARY TICKER (hidden — kept in DOM) ═══ -->
 <div id="commentaryTicker">
     <div class="ct-inner">
         <div class="ct-label">🎙 Live Commentary</div>
@@ -408,8 +410,7 @@ body{
 <!-- ═══ OVER-END BADGE ═══ -->
 <div class="over-badge" id="overBadge">⬜ END OF OVER</div>
 
-<!-- ═══ AFTER-OVER PLAYER DISPLAY (AUTO SCORECARD) ═══
-     Photos now render as ID-card style (70x95px portrait) -->
+<!-- ═══ AFTER-OVER PLAYER DISPLAY (ID-card portrait photos) ═══ -->
 <div class="over-players-wrap" id="overPlayersWrap">
     <div class="over-players-box">
         <div style="flex:1">
@@ -599,16 +600,11 @@ const db       = getDatabase(initializeApp(cfg));
 const uiRef    = ref(db,'ui');
 const annRef   = ref(db,'announcement');
 const phRef    = ref(db,'playerPhotos');
-const commRef  = ref(db,'commentary');          // legacy fallback channel
-const cSettingsRef = ref(db,'commentarySettings'); // NEW: settings (admin writes, overlay reads)
+const commRef  = ref(db,'commentary');
+const cSettingsRef = ref(db,'commentarySettings');
 const $        = id => document.getElementById(id);
 
-// ═══════════════════════════════════════════════════════════════════
-// ══ PREVIEW-MODE DETECTION (REQ #1 — admin iframe suppression) ═════
-// ═══════════════════════════════════════════════════════════════════
-// When admin.html embeds this page in its iframe with ?preview=1,
-// ALL audio logic is skipped entirely. This ensures audio NEVER plays
-// inside the admin panel — it plays ONLY in the standalone overlay.
+// ══ PREVIEW-MODE DETECTION ══════════════════════════════════════
 const IS_PREVIEW = new URLSearchParams(window.location.search).get('preview') === '1';
 
 let _playerPhotos = {};
@@ -618,33 +614,32 @@ let _epovTimer    = null;
 let _overPlayersTimer = null;
 
 // ════════════════════════════════════════════════════════════════
-// ══ LIVE AUDIO COMMENTARY SYSTEM (index.html ONLY) ══════════════
-// ══ REQ #4: All commentary is generated & spoken here.
-// ══ REQ #2: Auto-unlock on load — no click required.
-// ══ REQ #7: Multiple voices (Standard / Shastri / Chopra).
+// ══ AUDIO COMMENTARY SYSTEM ═════════════════════════════════════
+// ══ FIX: _audioUnlocked starts TRUE so speech fires immediately.
+// ══ Browser errors are caught silently; queue retries on next
+// ══ user interaction as fallback.
 // ════════════════════════════════════════════════════════════════
 
-let _audioUnlocked   = false;
+// ── Start unlocked — no gate blocking speech ──────────────────
+let _audioUnlocked   = true;   // ← KEY FIX: was false, blocked all speech
 let _speechQueue     = [];
 let _isSpeaking      = false;
 let _selectedVoice   = null;
 let _lastCommId      = null;
 let _tickerTimer     = null;
 
-// Commentary settings — sourced from Firebase (admin writes, overlay reads)
 let _commentarySettings = {
     enabled: true,
-    style:   'shastri',    // 'standard' | 'shastri' | 'chopra'
+    style:   'shastri',
     rate:    1.0,
     pitch:   1.05,
 };
 
-// ── Voice loader — picks best deep male English voice ──────────
+// ── Voice loader ───────────────────────────────────────────────
 function selectBestVoice(styleHint){
     const all = window.speechSynthesis.getVoices();
     if(!all.length) return null;
 
-    // Chopra = slightly higher / analytical tone — prefer Indian English voices
     if(styleHint === 'chopra'){
         const chopraPrefs = [
             'google hindi', 'rishi', 'veena',
@@ -657,7 +652,6 @@ function selectBestVoice(styleHint){
         }
     }
 
-    // Shastri / Standard — prefer deep, authoritative male voices
     const PREFERRED = [
         'google hindi',
         'google uk english male',
@@ -687,47 +681,32 @@ function initVoice(){
     _selectedVoice = selectBestVoice(_commentarySettings.style);
 }
 
-// Only wire up voice loading if NOT in preview (admin iframe)
 if(!IS_PREVIEW){
     window.speechSynthesis.onvoiceschanged = initVoice;
-    setTimeout(initVoice, 600);
+    // Try immediately and after a short delay (Chrome loads voices async)
+    initVoice();
+    setTimeout(initVoice, 400);
+    setTimeout(initVoice, 1200);
 }
 
-// ── AUTO-UNLOCK AUDIO ON LOAD (REQ #2) ─────────────────────────
-// Tries to unlock speechSynthesis immediately on page load.
-// Falls back to ANY user interaction (click/tap/key) if browser
-// blocks autoplay. This keeps the page compatible with PRISM Live
-// and CameraFi Live which often auto-trigger a tap on load anyway.
-function attemptAutoUnlock(){
-    if(IS_PREVIEW || _audioUnlocked) return;
+// ── Warm-up: fire a zero-volume utterance as early as possible ─
+// This primes the speech engine without waiting for user gesture.
+function warmUpSpeech(){
+    if(IS_PREVIEW) return;
     try {
-        const prime = new SpeechSynthesisUtterance(' ');
-        prime.volume = 0;
-        prime.rate = 1;
-        window.speechSynthesis.speak(prime);
-        _audioUnlocked = true;
-        $('asdDot').className = 'asd-dot on';
-        $('asdLabel').textContent = 'COMMENTARY ON';
-        if(_speechQueue.length) processQueue();
-    } catch(e){
-        // ignore — fallback will pick it up
-    }
+        const u = new SpeechSynthesisUtterance(' ');
+        u.volume = 0; u.rate = 1;
+        window.speechSynthesis.cancel(); // clear any stale queue
+        window.speechSynthesis.speak(u);
+    } catch(e){ /* ignore */ }
 }
 
-function fallbackUnlockOnInteraction(){
+// ── Also unlock on any user interaction (belt & braces) ────────
+function wireInteractionUnlock(){
     if(IS_PREVIEW) return;
     const handler = () => {
-        if(_audioUnlocked) return;
-        _audioUnlocked = true;
-        try {
-            const prime = new SpeechSynthesisUtterance(' ');
-            prime.volume = 0;
-            window.speechSynthesis.speak(prime);
-        } catch(e){}
-        $('asdDot').className = 'asd-dot on';
-        $('asdLabel').textContent = 'COMMENTARY ON';
-        if(_speechQueue.length) processQueue();
-        // Remove listeners once unlocked
+        warmUpSpeech();
+        if(_speechQueue.length && !_isSpeaking) processQueue();
         ['click','touchstart','keydown','pointerdown'].forEach(ev =>
             document.removeEventListener(ev, handler, true)
         );
@@ -737,76 +716,98 @@ function fallbackUnlockOnInteraction(){
     );
 }
 
-// Start auto-unlock attempts on load + streaming-app compatibility
 if(!IS_PREVIEW){
-    // First attempt on DOMContentLoaded
+    // Warm up at DOMContentLoaded, on load, and again after 1s
     if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', attemptAutoUnlock);
+        document.addEventListener('DOMContentLoaded', warmUpSpeech);
     } else {
-        attemptAutoUnlock();
+        warmUpSpeech();
     }
-    // Fallback: any user interaction unlocks it
-    fallbackUnlockOnInteraction();
-    // Retry every 2s for up to 30s (helps streaming apps that inject taps)
-    let _retries = 0;
-    const _retryTimer = setInterval(() => {
-        if(_audioUnlocked || _retries++ > 15){ clearInterval(_retryTimer); return; }
-        attemptAutoUnlock();
-    }, 2000);
+    window.addEventListener('load', warmUpSpeech);
+    setTimeout(warmUpSpeech, 1000);
+    setTimeout(warmUpSpeech, 3000);
 
-    // Also wire the hidden unlock button in case something clicks it
+    wireInteractionUnlock();
+
+    // Hidden button fallback
     $('audioUnlockBtn').addEventListener('click', () => {
-        attemptAutoUnlock();
-        $('audioUnlockOverlay').classList.add('gone');
+        warmUpSpeech();
+        $('audioUnlockOverlay').style.display = 'none';
     });
 }
 
 // ── Speech queue processor ─────────────────────────────────────
 function processQueue(){
     if(IS_PREVIEW) return;
-    if(!_audioUnlocked || !_speechQueue.length){
+    if(!_speechQueue.length){
         _isSpeaking = false;
-        if(_audioUnlocked){
-            $('asdDot').className = 'asd-dot on';
-        }
         return;
     }
+
+    // If voices not yet loaded, wait a tick and retry
+    if(!_selectedVoice){
+        initVoice();
+        if(!_selectedVoice){
+            setTimeout(processQueue, 500);
+            return;
+        }
+    }
+
     _isSpeaking = true;
-    const item = _speechQueue.shift();
-    const text = item.text;
+    const item  = _speechQueue.shift();
+    const text  = item.text;
     const rate  = item.rate  || 1.0;
     const pitch = item.pitch || 1.05;
 
     showTicker(text);
-    $('asdDot').className     = 'asd-dot speaking';
-    $('asdLabel').textContent = 'SPEAKING…';
 
     const utt = new SpeechSynthesisUtterance(text);
     if(_selectedVoice) utt.voice = _selectedVoice;
     utt.rate   = rate;
     utt.pitch  = pitch;
     utt.volume = 1;
-    utt.onend   = () => { setTimeout(processQueue, 380); };
-    utt.onerror = () => { _isSpeaking = false; setTimeout(processQueue, 380); };
+
+    utt.onend   = () => { _isSpeaking = false; setTimeout(processQueue, 380); };
+    utt.onerror = (e) => {
+        console.warn('TTS error:', e.error);
+        _isSpeaking = false;
+        // If browser blocked it, try once more after interaction
+        wireInteractionUnlock();
+        setTimeout(processQueue, 500);
+    };
+
     try {
+        // Chrome bug: cancel any stuck utterance first
+        if(window.speechSynthesis.speaking || window.speechSynthesis.pending){
+            // Only cancel if queue is backed up — don't cancel a live utterance
+        }
         window.speechSynthesis.speak(utt);
     } catch(e){
+        console.warn('TTS speak() threw:', e);
         _isSpeaking = false;
         setTimeout(processQueue, 500);
     }
 }
 
+// Watchdog: Chrome sometimes stalls speechSynthesis — kick it every 10s
+if(!IS_PREVIEW){
+    setInterval(() => {
+        if(window.speechSynthesis.speaking && !_isSpeaking){
+            window.speechSynthesis.cancel();
+        }
+    }, 10000);
+}
+
 function enqueueCommentary(text, rate, pitch){
-    if(IS_PREVIEW) return;                       // admin preview → never audio
+    if(IS_PREVIEW) return;
     if(!text) return;
-    if(!_commentarySettings.enabled) return;     // globally toggled off
+    if(!_commentarySettings.enabled) return;
     _speechQueue.push({ text, rate: rate||1.0, pitch: pitch||1.05 });
-    // Cap queue to avoid runaway
     if(_speechQueue.length > 4) _speechQueue = _speechQueue.slice(-4);
     if(!_isSpeaking) processQueue();
 }
 
-// ── Commentary ticker (hidden via CSS but still populated) ─────
+// ── Commentary ticker ──────────────────────────────────────────
 function showTicker(text){
     $('ctText').textContent = `"${text}"`;
     const ticker = $('commentaryTicker');
@@ -816,8 +817,7 @@ function showTicker(text){
 }
 
 // ════════════════════════════════════════════════════════════════
-// ══ COMMENTARY GENERATION (moved from admin.html) ═══════════════
-// ══ Three styles: standard / shastri (dramatic) / chopra (analytical)
+// ══ COMMENTARY GENERATION ════════════════════════════════════════
 // ════════════════════════════════════════════════════════════════
 
 function buildStandardCommentary(d, prevD, eventType){
@@ -1002,7 +1002,6 @@ function buildShastriCommentary(d, prevD, eventType){
     return pool[Math.floor(Math.random() * pool.length)] + milestone + context;
 }
 
-// ══ NEW: AKASH CHOPRA STYLE (analytical, tactical, measured) ══
 function buildChopraCommentary(d, prevD, eventType){
     const striker    = d.str===1 ? d.p1n : d.p2n;
     const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
@@ -1100,27 +1099,19 @@ function buildChopraCommentary(d, prevD, eventType){
     return pool[Math.floor(Math.random() * pool.length)] + milestone + context;
 }
 
-// ── Unified dispatcher ──
 function buildCommentaryForEvent(d, prevD, eventType, style){
     if(style === 'shastri') return buildShastriCommentary(d, prevD, eventType);
     if(style === 'chopra')  return buildChopraCommentary(d, prevD, eventType);
     return buildStandardCommentary(d, prevD, eventType);
 }
 
-// ── Per-style rate/pitch modifiers (makes each voice sound distinct) ──
 function adjustedRatePitch(baseRate, basePitch, style){
-    if(style === 'shastri'){
-        return { rate: baseRate * 0.95, pitch: basePitch * 0.90 };   // deeper, slower, dramatic
-    }
-    if(style === 'chopra'){
-        return { rate: baseRate * 1.05, pitch: basePitch * 1.05 };   // brisker, higher, analytical
-    }
+    if(style === 'shastri') return { rate: baseRate * 0.95, pitch: basePitch * 0.90 };
+    if(style === 'chopra')  return { rate: baseRate * 1.05, pitch: basePitch * 1.05 };
     return { rate: baseRate, pitch: basePitch };
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ══ COMMENTARY SETTINGS LISTENER (admin writes → overlay reads)
-// ═══════════════════════════════════════════════════════════════
+// ── Commentary settings listener ──────────────────────────────
 if(!IS_PREVIEW){
     onValue(cSettingsRef, snap => {
         const v = snap.val();
@@ -1131,15 +1122,11 @@ if(!IS_PREVIEW){
             rate:    typeof v.rate  === 'number' ? v.rate  : 1.0,
             pitch:   typeof v.pitch === 'number' ? v.pitch : 1.05,
         };
-        // Refresh voice when style changes
         initVoice();
     });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// ══ LEGACY COMMENTARY CHANNEL (backup / manual writes)
-// ══ Still supports any direct writes to /commentary ref.
-// ═══════════════════════════════════════════════════════════════
+// ── Legacy commentary channel ──────────────────────────────────
 if(!IS_PREVIEW){
     get(commRef).then(snap => {
         _lastCommId = snap.val()?.id || null;
@@ -1147,7 +1134,6 @@ if(!IS_PREVIEW){
             const data = snap.val();
             if(!data || !data.text || data.id === _lastCommId) return;
             _lastCommId = data.id;
-            // Ignore stop signals
             if(data.id === '_stop_' || !data.text.trim()) return;
             enqueueCommentary(data.text, data.rate, data.pitch);
         });
@@ -1155,10 +1141,9 @@ if(!IS_PREVIEW){
 }
 
 // ════════════════════════════════════════════════════════════════
-// ══ END COMMENTARY SYSTEM ══════════════════════════════════════
+// ══ PLAYER PHOTOS ════════════════════════════════════════════════
 // ════════════════════════════════════════════════════════════════
 
-// ── Player photos ──────────────────────────────────────────────
 onValue(phRef, snap => {
     _playerPhotos = snap.val() || {};
     document.querySelectorAll('[data-ph-name]').forEach(el => {
@@ -1168,8 +1153,6 @@ onValue(phRef, snap => {
 });
 
 const BLANK_AVATAR = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='30' r='30' fill='%23111'/%3E%3Ccircle cx='30' cy='22' r='10' fill='%23333'/%3E%3Cellipse cx='30' cy='52' rx='16' ry='12' fill='%23333'/%3E%3C/svg%3E`;
-
-// ID-card style placeholder (portrait 2:3) used by over-player photos
 const BLANK_IDCARD = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 95'%3E%3Crect width='70' height='95' fill='%23111' rx='8'/%3E%3Ccircle cx='35' cy='34' r='14' fill='%23333'/%3E%3Cellipse cx='35' cy='74' rx='22' ry='16' fill='%23333'/%3E%3C/svg%3E`;
 
 function getPhoto(name){
@@ -1184,7 +1167,6 @@ function setPhoto(el, name){
     el.dataset.phName = name || '';
 }
 
-// Over-end photos get an ID-card placeholder (portrait) if no photo exists
 function setIdCardPhoto(el, name){
     if(!el) return;
     if(!name){ el.src = BLANK_IDCARD; el.dataset.phName=''; return; }
@@ -1262,10 +1244,11 @@ function triggerAutoPopup(dur){
     }, dur * 1000);
 }
 
-// ══ EVENT PLAYER OVERLAY ══════════════════════
+// ══ EVENT PLAYER OVERLAY ════════════════════════════════════════
 function showEventPlayer(name, emoji, statText, subText, colorClass){
     clearTimeout(_epovTimer);
-    const photo = getPhoto(name);
+    // Use ID-card photo (portrait) for event overlay
+    const photo = _playerPhotos[(name||'').replace(/[^a-zA-Z0-9]/g,'_')] || BLANK_IDCARD;
     $('epovEmoji').textContent = emoji;
     $('epovPhoto').src = photo;
     $('epovPhoto').className = `epov-photo ${colorClass||''}`;
@@ -1277,7 +1260,7 @@ function showEventPlayer(name, emoji, statText, subText, colorClass){
     _epovTimer = setTimeout(()=>{ $('eventPlayerOverlay').classList.remove('show'); }, 5000);
 }
 
-// ══ AFTER-OVER PLAYER DISPLAY (now with ID-card photos) ══════
+// ══ AFTER-OVER PLAYER DISPLAY ═══════════════════════════════════
 function showOverPlayers(d, overNum, overBalls){
     const striker    = d.str===1 ? d.p1n : d.p2n;
     const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
@@ -1289,7 +1272,6 @@ function showOverPlayers(d, overNum, overBalls){
     const bowlerRow  = (d.bowlRows||[]).find(r=>r.name===bowler);
     const bowlerFig  = bowlerRow ? `${bowlerRow.wkts}-${bowlerRow.runs}` : '—';
 
-    // Use ID-card style photos (portrait 70x95)
     setIdCardPhoto($('opStrikerPhoto'), striker);
     setIdCardPhoto($('opNonStrikerPhoto'), nonStriker);
     setIdCardPhoto($('opBowlerPhoto'), bowler);
@@ -1320,7 +1302,7 @@ function showOverPlayers(d, overNum, overBalls){
     _overPlayersTimer = setTimeout(()=>{ $('overPlayersWrap').classList.remove('show'); }, 10000);
 }
 
-// ══ WIN OVERLAY ═══════════════════════════════
+// ══ WIN OVERLAY ══════════════════════════════════════════════════
 function showWinOverlay(d, winnerTeam, margin, winType){
     if(_winShown) return;
     _winShown = true;
@@ -1334,7 +1316,8 @@ function showWinOverlay(d, winnerTeam, margin, winType){
     const bowlRows = (d.bowlRows||[]).sort((a,b)=>b.wkts-a.wkts||a.runs-b.runs).slice(0,1);
     const stars    = [...batRows, ...bowlRows];
     const plHtml = stars.map(p => {
-        const photo = getPhoto(p.name);
+        // Use ID-card portrait photo
+        const photo = _playerPhotos[(p.name||'').replace(/[^a-zA-Z0-9]/g,'_')] || BLANK_IDCARD;
         const stat  = p.wkts !== undefined && p.balls > 0 ? `${p.wkts}-${p.runs}` : `${p.runs}(${p.balls})`;
         return `<div class="win-player-card">
             <img class="win-player-photo" src="${photo}" alt="${p.name}">
@@ -1357,7 +1340,7 @@ function showWinOverlay(d, winnerTeam, margin, winType){
     setTimeout(()=>{ $('winOverlay').classList.remove('show'); }, 30000);
 }
 
-// ══ ANNOUNCEMENT SYSTEM ═══════════════════════
+// ══ ANNOUNCEMENT SYSTEM ══════════════════════════════════════════
 let annTimer=null, lastAnnId=null;
 const PARTICLE_COLORS={
     gold:['#f5c518','#ffd54f','#fff176','#ffe082','#ffca28'],
@@ -1476,10 +1459,7 @@ function ballCls(v){
 }
 
 // ════════════════════════════════════════════════════════════════
-// ══ EVENT DETECTION FROM CRICKET STATE CHANGES ══════════════════
-// ══ Runs on every cricket ref update. Determines what happened
-// ══ between previous and current state, then generates & plays
-// ══ commentary LOCALLY here in index.html (never in admin).
+// ══ EVENT DETECTION ══════════════════════════════════════════════
 // ════════════════════════════════════════════════════════════════
 function detectEventType(d, prev){
     if(!prev) return null;
@@ -1491,7 +1471,6 @@ function detectEventType(d, prev){
                  || (d.balls !== prev.balls);
     if(!changed) return null;
 
-    // Wicket takes priority
     if(d.wkts > prev.wkts) return 'wicket';
 
     const lastBall = newBalls.slice(-1)[0];
@@ -1513,7 +1492,9 @@ function detectEventType(d, prev){
     return null;
 }
 
-// ══ MAIN DATA LISTENER ════════════════════════
+// ════════════════════════════════════════════════════════════════
+// ══ MAIN DATA LISTENER ════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
 onValue(ref(db,'cricket'),snap=>{
     const d=snap.val(); if(!d) return;
 
@@ -1522,7 +1503,7 @@ onValue(ref(db,'cricket'),snap=>{
     document.documentElement.style.setProperty('--ta',batColor);
     document.documentElement.style.setProperty('--tb',bowlColor);
 
-    /* ── GENERATE & PLAY COMMENTARY (only on overlay, never admin) ── */
+    /* ── GENERATE & PLAY COMMENTARY ── */
     if(!IS_PREVIEW && _prevData && _commentarySettings.enabled){
         const evType = detectEventType(d, _prevData);
         if(evType){
@@ -1599,7 +1580,7 @@ onValue(ref(db,'cricket'),snap=>{
     lastOverCount = completedOvers;
     _prevData = JSON.parse(JSON.stringify(d));
 
-    /* SCORE BAR */
+    /* ── SCORE BAR ── */
     $('dTeam').textContent=d.batTeam||'TEAM';
     $('dRuns').textContent=d.runs; $('dWkts').textContent=d.wkts;
     const oStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
@@ -1638,7 +1619,7 @@ onValue(ref(db,'cricket'),snap=>{
     }
     const bar=$('scoreBar'); bar.classList.remove('uf'); void bar.offsetWidth; bar.classList.add('uf');
 
-    /* SCORECARD */
+    /* ── SCORECARD ── */
     $('scTeamName').textContent=d.batTeam||'TEAM';
     $('scTournament').textContent=d.inn1Score?`After ${d.inn1Bat}: ${d.inn1Score}`:(d.maxOvers?`${d.maxOvers} OVERS MATCH`:'T20 MATCH');
     $('scInnLbl').textContent=d.innings===2?'2ND INNINGS':'1ST INNINGS';
