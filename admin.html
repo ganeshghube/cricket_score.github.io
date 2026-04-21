@@ -219,16 +219,21 @@ button:active{ opacity:.65; transform:scale(.95); }
 .win-popup-close{ background:linear-gradient(135deg,#3a2800,#2a1e00); color:var(--y); border:1px solid #5a3c00; border-radius:6px; padding:14px 32px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; width:auto; margin-top:4px; }
 .win-popup-close:hover{ background:var(--y); color:#000; }
 
-/* ── COMMENTARY TOGGLE in overlay controls ── */
-.cmt-panel{ margin-top:12px; background:var(--card2); border:1px solid var(--brd); border-radius:6px; padding:12px 14px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-.cmt-toggle-wrap{ display:flex; align-items:center; gap:10px; flex:1; }
-.cmt-indicator{ width:10px; height:10px; border-radius:50%; background:#333; flex-shrink:0; transition:.3s; }
-.cmt-indicator.on{ background:var(--green); box-shadow:0 0 8px var(--green); animation:cmtPulse 1.5s infinite; }
-@keyframes cmtPulse{ 0%,100%{opacity:1}50%{opacity:.4} }
-.cmt-label{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#888; letter-spacing:1px; text-transform:uppercase; }
-.cmt-btn{ background:#0a0a18; color:#888; border:1px solid #252535; border-radius:4px; padding:8px 18px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; width:auto; letter-spacing:1px; transition:.2s; }
-.cmt-btn.on{ background:#032212; color:#06d6a0; border-color:#0a4030; }
-.cmt-note{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#2a3a2a; letter-spacing:.5px; width:100%; line-height:1.6; margin-top:4px; }
+/* ── AUDIO COMMENTARY ── */
+.audio-panel{ background:var(--card2); border:1px solid var(--brd); border-radius:6px; padding:12px 14px; margin-top:12px; }
+.audio-status{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.audio-indicator{ width:10px; height:10px; border-radius:50%; background:#333; flex-shrink:0; transition:.3s; }
+.audio-indicator.on{ background:var(--green); box-shadow:0 0 8px var(--green); animation:audioP 1.5s infinite; }
+.audio-indicator.speaking{ background:var(--y); box-shadow:0 0 10px var(--y); animation:audioP .6s infinite; }
+@keyframes audioP{ 0%,100%{opacity:1}50%{opacity:.4} }
+.audio-label{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#888; letter-spacing:1px; text-transform:uppercase; }
+.audio-current{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:#555; letter-spacing:.5px; flex:1; min-width:200px; font-style:italic; margin-top:6px; width:100%; }
+.audio-toggle{ background:#0a0a18; color:#888; border:1px solid #252535; border-radius:4px; padding:6px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; letter-spacing:1px; transition:.2s; }
+.audio-toggle.on{ background:#032212; color:#06d6a0; border-color:#0a4030; }
+.audio-voice-sel{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:center; }
+.audio-voice-sel label{ margin:0; }
+.audio-voice-sel select{ width:auto; padding:6px 10px; font-size:12px; }
+
 </style>
 </head>
 <body>
@@ -253,7 +258,10 @@ button:active{ opacity:.65; transform:scale(.95); }
 
 <div class="topbar">
     <h1><span class="live-dot"></span>Cricket Admin</h1>
-    <span class="fmt-lbl" id="fmtLbl">T20 · 20 OVERS</span>
+    <div style="display:flex;gap:10px;align-items:center">
+        <button onclick="openPlayerPopup()" style="width:auto;padding:6px 14px;background:#0a0a18;color:var(--y);border:1px solid #3a2800;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px">👥 PLAYERS</button>
+        <span class="fmt-lbl" id="fmtLbl">T20 · 20 OVERS</span>
+    </div>
 </div>
 <div class="infobar">
     <span>INN <b id="iInn">1ST</b></span>
@@ -412,24 +420,45 @@ button:active{ opacity:.65; transform:scale(.95); }
         </div>
         <div class="auto-popup-note">Scorecard auto-slides up after every completed over, then hides itself.</div>
     </div>
-    <!-- COMMENTARY ON/OFF TOGGLE -->
-    <div class="cmt-panel">
-        <div class="cmt-toggle-wrap">
-            <div class="cmt-indicator" id="cmtIndicator"></div>
-            <div>
-                <div class="cmt-label" id="cmtLabel">🎙 LIVE COMMENTARY — OFF</div>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#2a3a2a;letter-spacing:.5px;margin-top:2px">Ravi Shastri style · audio plays on overlay screen</div>
-            </div>
-        </div>
-        <button class="cmt-btn" id="cmtBtn" onclick="toggleCommentary()">ENABLE</button>
-        <div class="cmt-note">Commentary audio plays from the index.html overlay screen only — not from this admin panel.</div>
-    </div>
     <div style="font-size:10px;color:#2a2a3a;text-align:center;margin-top:8px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">
         KEYBOARD ON OVERLAY — S = SCORECARD · B = SCORE BAR · 1 = BATTING · 2 = BOWLING
     </div>
 </div>
 
-<!-- 5. ANNOUNCEMENTS -->
+<!-- 5. AUDIO COMMENTARY -->
+<div class="card">
+    <h4><span class="hico">🎙</span> Live Ball-by-Ball Audio Commentary</h4>
+    <div class="audio-panel">
+        <div class="audio-status">
+            <div class="audio-indicator" id="audioIndicator"></div>
+            <div class="audio-label" id="audioStatusLabel">COMMENTARY OFF</div>
+            <button class="audio-toggle" id="audioToggleBtn" onclick="toggleAudio()">ENABLE</button>
+        </div>
+        <div class="audio-voice-sel">
+            <label>Voice:</label>
+            <select id="voiceSel" onchange="updateVoice()">
+                <option value="">Loading voices...</option>
+            </select>
+            <label style="margin-left:8px">Rate:</label>
+            <select id="rateSel" style="width:80px">
+                <option value="0.9">0.9x</option>
+                <option value="1.0" selected>1.0x</option>
+                <option value="1.1">1.1x</option>
+                <option value="1.2">1.2x</option>
+            </select>
+            <label style="margin-left:8px">Pitch:</label>
+            <select id="pitchSel" style="width:80px">
+                <option value="0.9">Low</option>
+                <option value="1.0">Normal</option>
+                <option value="1.1" selected>Energetic</option>
+                <option value="1.2">High</option>
+            </select>
+        </div>
+        <div class="audio-current" id="audioCurrentText">No commentary yet — initialize a match to begin.</div>
+    </div>
+</div>
+
+<!-- 6. ANNOUNCEMENTS -->
 <div class="card">
     <h4><span class="hico">📣</span> Announcements &amp; Celebrations</h4>
     <div class="sep">Quick fire</div>
@@ -471,7 +500,7 @@ button:active{ opacity:.65; transform:scale(.95); }
     <button class="b-ann-custom" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND ANNOUNCEMENT TO OVERLAY</button>
 </div>
 
-<!-- 6. SAVE SCORECARD -->
+<!-- 7. SAVE SCORECARD -->
 <div class="card">
     <h4><span class="hico">💾</span> Save Match Scorecard</h4>
     <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.7">Save to database (last 10 kept) or download as a file.</div>
@@ -485,13 +514,13 @@ button:active{ opacity:.65; transform:scale(.95); }
     </div>
 </div>
 
-<!-- 7. MATCH HISTORY -->
+<!-- 8. MATCH HISTORY -->
 <div class="card">
     <h4><span class="hico">📚</span> Match History</h4>
     <div class="hist-list" id="histList"><div class="hist-empty">No saved matches yet.</div></div>
 </div>
 
-<!-- 8. INNINGS / RESET -->
+<!-- 9. INNINGS / RESET -->
 <div class="card">
     <button class="b-inn" style="margin-bottom:10px" onclick="swapInnings()">🔄 START 2ND INNINGS</button>
     <button class="b-rst" onclick="fullReset()">⚠ RESET ALL DATA</button>
@@ -601,8 +630,7 @@ let _squads = { bat:[], bowl:[] };
 let _match  = null;
 let _autoOn = false;
 let _currentMatchKey = null;
-let _playerPhotos = {};
-let _cmtOn = false;
+let _playerPhotos = {}; // name -> dataURL
 
 // ══ PLAYER PHOTOS ═════════════════════════════════
 onValue(phRef, snap => {
@@ -648,6 +676,8 @@ function buildSquadInputs(){
                 <input class="player-name-input" id="${inputId}" placeholder="Player ${i}" oninput="onPlayerNameChange('${team}',${i})">
             `;
             cont.appendChild(row);
+
+            // File upload handler
             setTimeout(() => {
                 const fileInput = $(`file${team}${i}`);
                 if(!fileInput) return;
@@ -674,6 +704,7 @@ function buildSquadInputs(){
 }
 
 function onPlayerNameChange(team, idx){
+    // Update avatar data-name
     const nameEl = $(`player${team}${idx}`);
     const avatarEl = $(`avatar${team}${idx}`);
     if(nameEl && avatarEl){
@@ -713,6 +744,7 @@ window.openPlayerPopup = async () => {
     const sA = getSquadNames('A'); const sB = getSquadNames('B');
     const batNm = ($('tNA').value||'Team A').toUpperCase();
     const bowlNm = ($('tNB').value||'Team B').toUpperCase();
+
     function teamHtml(name, players){
         if(!players.length) return '';
         const cards = players.map(p => {
@@ -739,6 +771,7 @@ function showWinPopup(title, sub, detail, isWin){
     $('winPopupTitle').textContent = title;
     $('winPopupSub').textContent = sub;
     $('winPopupDetail').textContent = detail || '';
+    // Confetti
     const conf = $('winConfetti');
     conf.innerHTML = '';
     const cols = ['#f5c518','#06d6a0','#e63946','#9b72cf','#118ab2','#fff'];
@@ -752,30 +785,182 @@ function showWinPopup(title, sub, detail, isWin){
 }
 window.closeWinPopup = () => $('winPopupOverlay').classList.remove('open');
 
-// ══ COMMENTARY TOGGLE → writes to Firebase ui/commentary ══
-function updateCmtUI(on){
-    _cmtOn = on;
-    const ind = $('cmtIndicator');
-    const btn = $('cmtBtn');
-    const lbl = $('cmtLabel');
-    ind.className = on ? 'cmt-indicator on' : 'cmt-indicator';
-    btn.textContent = on ? 'DISABLE' : 'ENABLE';
-    btn.className = on ? 'cmt-btn on' : 'cmt-btn';
-    lbl.textContent = on ? '🎙 LIVE COMMENTARY — ON' : '🎙 LIVE COMMENTARY — OFF';
+// ══ AUDIO COMMENTARY SYSTEM ══════════════════════
+let _audioEnabled = false;
+let _speechQueue  = [];
+let _speaking     = false;
+let _selectedVoice = null;
+let _lastBallState = null;
+
+// Load voices
+function loadVoices(){
+    const voices = window.speechSynthesis.getVoices();
+    const sel = $('voiceSel');
+    if(!voices.length){ sel.innerHTML = '<option value="">No voices found</option>'; return; }
+    sel.innerHTML = '';
+    // Prefer energetic female English voices
+    const preferred = voices.filter(v => v.lang.startsWith('en'));
+    const all = preferred.length ? preferred : voices;
+    all.forEach((v,i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${v.name} (${v.lang})`;
+        sel.appendChild(opt);
+    });
+    // Auto-pick a female/energetic voice if possible
+    const female = all.findIndex(v => /female|woman|zira|samantha|victoria|karen|moira|fiona|tessa|susan|hazel|heera/i.test(v.name));
+    if(female >= 0) sel.value = female;
+    _selectedVoice = all[parseInt(sel.value)||0] || all[0];
 }
-window.toggleCommentary = () => {
-    const newVal = !_cmtOn;
-    update(uRef, { commentary: newVal });
-    updateCmtUI(newVal);
+window.speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 800);
+
+window.updateVoice = () => {
+    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+    const all = voices.length ? voices : window.speechSynthesis.getVoices();
+    const idx = parseInt($('voiceSel').value) || 0;
+    _selectedVoice = all[idx] || all[0];
 };
-// Sync from Firebase in case another session changed it
-onValue(uRef, snap => {
-    const ui = snap.val() || {};
-    updateCmtUI(!!ui.commentary);
-    _autoOn = !!ui.autoOverPopup;
-    updateAutoUI(_autoOn);
-    if(ui.overPopupDur) $('overPopupDurSel').value = String(ui.overPopupDur);
-});
+
+window.toggleAudio = () => {
+    _audioEnabled = !_audioEnabled;
+    const btn = $('audioToggleBtn');
+    const ind = $('audioIndicator');
+    const lbl = $('audioStatusLabel');
+    btn.textContent = _audioEnabled ? 'DISABLE' : 'ENABLE';
+    btn.className = _audioEnabled ? 'audio-toggle on' : 'audio-toggle';
+    ind.className = _audioEnabled ? 'audio-indicator on' : 'audio-indicator';
+    lbl.textContent = _audioEnabled ? 'COMMENTARY ACTIVE' : 'COMMENTARY OFF';
+    if(!_audioEnabled){ window.speechSynthesis.cancel(); _speechQueue = []; _speaking = false; }
+};
+
+function speakText(text){
+    if(!_audioEnabled) return;
+    _speechQueue.push(text);
+    if(!_speaking) processQueue();
+}
+
+function processQueue(){
+    if(!_speechQueue.length){ _speaking=false; $('audioIndicator').className='audio-indicator on'; return; }
+    _speaking = true;
+    const text = _speechQueue.shift();
+    $('audioCurrentText').textContent = `"${text}"`;
+    $('audioIndicator').className = 'audio-indicator speaking';
+    const utt = new SpeechSynthesisUtterance(text);
+    if(_selectedVoice) utt.voice = _selectedVoice;
+    utt.rate  = parseFloat($('rateSel').value)  || 1.0;
+    utt.pitch = parseFloat($('pitchSel').value) || 1.1;
+    utt.volume = 1;
+    utt.onend  = () => { setTimeout(processQueue, 400); };
+    utt.onerror= () => { _speaking=false; };
+    window.speechSynthesis.speak(utt);
+}
+
+function buildCommentary(d, prevD, eventType){
+    const striker    = d.str===1 ? d.p1n : d.p2n;
+    const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
+    const nonStriker = d.str===1 ? d.p2n : d.p1n;
+    const bowler     = d.bwn || 'the bowler';
+    const team       = d.batTeam || 'the batting side';
+    const overs      = `${Math.floor(d.balls/6)} point ${d.balls%6}`;
+    const maxOv      = d.maxOvers || 20;
+    const ballsLeft  = maxOv*6 - d.balls;
+    const runsNeeded = d.target > 0 ? d.target - d.runs : null;
+    const isChase    = d.target > 0;
+    const isFinalOvers = Math.floor(d.balls/6) >= maxOv - 3;
+    const crr        = d.balls > 0 ? (d.runs/(d.balls/6)).toFixed(1) : '0';
+    const wktsLeft   = 10 - d.wkts;
+
+    // Tone detection
+    let tone = 'normal';
+    if(d.wkts >= 6) tone = 'collapse';
+    else if(isChase && runsNeeded && ballsLeft > 0 && (runsNeeded/(ballsLeft/6)) > 12) tone = 'tough';
+    else if(isChase && runsNeeded && ballsLeft > 0 && (runsNeeded/(ballsLeft/6)) < 7) tone = 'dominating';
+    else if(isFinalOvers) tone = 'tension';
+    else if(strikerR >= 70) tone = 'hype';
+
+    const commentary = {
+        dot: [
+            `Dot ball! ${bowler} keeps it tight, ${striker} couldn't find the gap.`,
+            `No run! ${bowler} beats ${striker} outside off stump.`,
+            `Good length delivery, ${striker} defends solidly. Dot ball.`,
+            `${bowler} gets one through, ${striker} plays and misses! Dot.`,
+            `Tight line from ${bowler}, nothing doing for ${striker}.`,
+        ],
+        1: [
+            `${striker} clips it for a single, rotates the strike well.`,
+            `One run, nudged away by ${striker} off ${bowler}.`,
+            `Pushed to mid-on, they run a quick single.`,
+            `${striker} works it around the corner, one run.`,
+        ],
+        2: [
+            `Two runs! ${striker} plays it down to deep, good running between the wickets.`,
+            `${striker} and ${nonStriker} come back for the second, two runs.`,
+            `Nicely placed, two runs for ${team}!`,
+        ],
+        3: [
+            `Three runs! Great running from ${striker} and ${nonStriker}!`,
+            `Three! They've turned it around brilliantly for three runs.`,
+        ],
+        4: [
+            `FOUR! ${striker} drives it through the covers, stunning shot!`,
+            `BOUNDARY! ${striker} pulls ${bowler} to the square leg fence!`,
+            `FOUR! Cracking shot from ${striker}, pierces the gap perfectly!`,
+            `That's gone for FOUR! ${striker} deposits it through extra cover!`,
+            `Beautiful FOUR from ${striker}, the timing was absolutely sublime!`,
+        ],
+        6: [
+            `SIX! What a shot! ${striker} sends ${bowler} into the stands!`,
+            `MAXIMUM! ${striker} launches it way into the crowd! Six runs!`,
+            `That's GONE! ${striker} muscles ${bowler} over the midwicket boundary!`,
+            `ENORMOUS SIX from ${striker}! This is spectacular cricket!`,
+            `Six! ${striker} picked the length early and absolutely smoked it!`,
+        ],
+        wicket: [
+            `WICKET! ${striker} is OUT! ${bowler} gets the breakthrough!`,
+            `OH! ${striker} has to go! ${bowler} is pumped up!`,
+            `That's OUT! ${bowler} claims the wicket of ${striker}!`,
+            `GONE! The stumps are disturbed, ${striker} walks back to the pavilion!`,
+        ],
+        wide: [
+            `Wide ball, costly from ${bowler}. One extra added.`,
+            `That's a wide! ${bowler} strays down the leg side.`,
+        ],
+        noball: [
+            `No ball from ${bowler}! Free hit coming up for ${striker}!`,
+            `Overstepping! No ball called, and it's a free hit!`,
+        ],
+        bye: [ `Byes! The ball gets past the keeper.` ],
+        legbye: [ `Leg byes! Deflects off the pad, they run.` ],
+    };
+
+    // Milestone additions
+    let milestone = '';
+    if(eventType !== 'wicket' && eventType !== 'wide' && eventType !== 'noball'){
+        if(strikerR === 50) milestone = ` And what a moment — ${striker} brings up the HALF CENTURY! Fifty runs for this outstanding batsman!`;
+        else if(strikerR === 100) milestone = ` Unbelievable! ${striker} reaches ONE HUNDRED RUNS! A century for the ages!`;
+    }
+
+    // Check for fifer
+    const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
+    if(bowlerRow && bowlerRow.wkts === 5 && eventType === 'wicket'){
+        milestone = ` And that's FIVE wickets for ${bowler}! A brilliant FIFER! Outstanding bowling!`;
+    }
+
+    // Context additions based on tone
+    let context = '';
+    if(isFinalOvers && isChase && runsNeeded){
+        context = ` ${team} need ${runsNeeded} runs off ${ballsLeft} balls!`;
+    } else if(tone === 'collapse'){
+        context = ` ${team} are in real trouble here with ${wktsLeft} wickets remaining.`;
+    } else if(tone === 'tension' && !isChase){
+        context = ` We're in the final overs, every ball is crucial!`;
+    }
+
+    const pool = commentary[eventType] || commentary.dot;
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    return line + milestone + context;
+}
 
 // ══ Toast helper ──────────────────────────────────
 function showToast(msg){
@@ -837,10 +1022,7 @@ window.sendQuickAnn=async(type)=>{
     else if(type==='six'){ if(lastBall !== 6){ verified=false; reason=`Last ball scored was "${lastBall}" — not a six.`; } }
     else if(type==='four'){ if(lastBall !== 4){ verified=false; reason=`Last ball scored was "${lastBall}" — not a four.`; } }
     else if(type==='wicket'){ if(lastBall !== 'W'){ verified=false; reason=`Last ball was "${lastBall}" — no wicket on last delivery.`; } }
-    if(!verified){ if(!confirm(`⚠️ Scoreboard check failed:
-${reason}
-
-Send anyway?`)) return; }
+    if(!verified){ if(!confirm(`⚠️ Scoreboard check failed:\n${reason}\n\nSend anyway?`)) return; }
     const rainChk = document.getElementById(`rain_${type}`);
     const rain    = rainChk ? rainChk.checked : true;
     let name      = striker;
@@ -869,7 +1051,33 @@ function fillSel(bat,bowl,p1n,p2n,bwn){
 let _prevMatchState = null;
 onValue(mRef,snap=>{
     const d=snap.val(); _match=d; if(!d) return;
+
+    // Audio commentary — detect what changed
+    if(_audioEnabled && _prevMatchState){
+        const prev = _prevMatchState;
+        const newBalls = d.recentBalls || [];
+        const prevBalls = prev.recentBalls || [];
+        if(newBalls.length !== prevBalls.length || d.wkts !== prev.wkts || d.runs !== prev.runs){
+            let evType = 'dot';
+            const lastBall = newBalls.slice(-1)[0];
+            if(d.wkts > prev.wkts) evType = 'wicket';
+            else if(lastBall === 4) evType = '4';
+            else if(lastBall === 6) evType = '6';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('Wd')) evType = 'wide';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('Nb')) evType = 'noball';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('By')) evType = 'bye';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('Lb')) evType = 'legbye';
+            else if(lastBall === 1) evType = '1';
+            else if(lastBall === 2) evType = '2';
+            else if(lastBall === 3) evType = '3';
+            else if(lastBall === 0) evType = 'dot';
+            const commentKey = { '4':'4','6':'6','1':'1','2':'2','3':'3','dot':'dot','wicket':'wicket','wide':'wide','noball':'noball','bye':'bye','legbye':'legbye' };
+            const cLine = buildCommentary(d, prev, commentKey[evType] || 'dot');
+            speakText(cLine);
+        }
+    }
     _prevMatchState = JSON.parse(JSON.stringify(d));
+
     $('iBat').textContent=d.batTeam||'—';
     $('iSc').textContent=`${d.runs}/${d.wkts}`;
     $('iOv').textContent=`${Math.floor(d.balls/6)}.${d.balls%6}`;
@@ -909,6 +1117,12 @@ function updateAutoUI(on){
 }
 window.toggleAutoPopup=()=>{ _autoOn=!_autoOn; update(uRef,{autoOverPopup:_autoOn}); updateAutoUI(_autoOn); };
 window.setOverPopupDur=(val)=>update(uRef,{overPopupDur:parseInt(val)||8});
+onValue(uRef,snap=>{
+    const ui=snap.val()||{};
+    _autoOn=!!ui.autoOverPopup;
+    updateAutoUI(_autoOn);
+    if(ui.overPopupDur) $('overPopupDurSel').value=String(ui.overPopupDur);
+});
 
 // ══ BOWLER PICKER ═════════════════════════════════
 let _midOver=false;
@@ -921,11 +1135,11 @@ function openBowlerPicker(bowlRows, currentBowler, ovNum, midOver){
     $('bpkGrid').innerHTML=bowlRows.map(r=>{
         const blocked = r.name===currentBowler;
         const ovs=`${Math.floor(r.balls/6)}.${r.balls%6} ov`;
-        const fig=r.balls>0?`${r.wkts}-${r.runs} (${ovs})`:`yet to bowl`;
+        const fig=r.balls>0?`${r.wkts}-${r.runs} (${ovs})`:'yet to bowl';
         const tag=blocked?(midOver?' 🤕':' ✋'):'';
         const tip=blocked?(midOver?'Injured':'Just bowled — cannot bowl consecutive overs'):'';
         return `<button class="bpk-btn" ${blocked?`disabled title="${tip}"`:''}
-            onclick="selectBowler('${r.name.replace(/'/g,"\'")}')">
+            onclick="selectBowler('${r.name.replace(/'/g,"\\'")}')">
             ${r.name}${tag}<br>
             <span style="font-size:11px;color:#555;font-weight:400">${fig}</span>
         </button>`;
@@ -943,6 +1157,7 @@ window.openBowlerInjury=async()=>{
     openBowlerPicker(d.bowlRows||[],d.bwn,Math.floor(d.balls/6),true);
 };
 
+// Main Firebase listener — handles over-end, win detection, innings end
 onValue(mRef,async snap=>{
     const d=snap.val(); if(!d) return;
     const completedOvers = Math.floor(d.balls/6);
@@ -965,7 +1180,7 @@ window.openBatInjury=async(pos)=>{
     const available=(d.batRows||[]).filter(r=>!r.out&&r.name!==d.p1n&&r.name!==d.p2n);
     if(!available.length){ alert('No more batsmen available!'); return; }
     $('batInjGrid').innerHTML=available.map(r=>
-        `<button class="bpk-btn" onclick="selectBatReplacement('${pos}','${r.name.replace(/'/g,"\'")}')">
+        `<button class="bpk-btn" onclick="selectBatReplacement('${pos}','${r.name.replace(/'/g,"\\'")}')">
             ${r.name}<br><span style="font-size:11px;color:#555;font-weight:400">yet to bat</span>
         </button>`
     ).join('');
@@ -1014,6 +1229,7 @@ window.initMatch=async()=>{
     _inn1EndFired=false;
     _prevMatchState=null;
     await saveMatchToDb(true);
+    if(_audioEnabled) speakText(`Match initialized! ${batNm} will bat first against ${bowlNm}. Let's get this game started!`);
     alert('✅ Match Initialized!');
 };
 
@@ -1069,8 +1285,18 @@ async function checkMatchEvents(d){
         _winFired = true;
         await set(aRef,{ ...winMsg, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
         setTimeout(()=>{ saveMatchToDb(true); }, 1500);
+        // Show win popup (not alert!)
         setTimeout(()=>{
-            showWinPopup(winMsg.text, winMsg.sub, `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`, winMsg.type === 'tie' ? 'tie' : 'win');
+            showWinPopup(
+                winMsg.text,
+                winMsg.sub,
+                `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,
+                winMsg.type === 'tie' ? 'tie' : 'win'
+            );
+            if(_audioEnabled){
+                const ovStr = `${Math.floor(d.balls/6)} overs`;
+                speakText(`${winMsg.text} ${winMsg.sub}. What an incredible match! The crowd is on their feet!`);
+            }
         }, 800);
     }
 }
@@ -1157,6 +1383,7 @@ window.swapInnings=async()=>{
     _winFired=false;
     _inn1EndFired=false;
     _prevMatchState=null;
+    if(_audioEnabled) speakText(`Second innings underway! ${d.bowlTeam} need ${d.runs+1} runs to win. The chase is on!`);
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
@@ -1169,7 +1396,7 @@ window.fullReset=async()=>{
     await set(mRef,null);
     await set(sRef,null);
     await set(hRef,null);
-    await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,commentary:false});
+    await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
     _adminLastOver=-1;
     _currentMatchKey=null;
     _winFired=false;
@@ -1255,7 +1482,8 @@ window.downloadSavedMatch=(key,encoded)=>{
     const inn1Bat=data.innings===2?data.bowlTeam:data.batTeam;
     const inn1Bowl=data.innings===2?data.batTeam:data.bowlTeam;
     const i1hdr=data.inn1Score?`<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.inn1Bat} — ${data.inn1Score}</span></div>`:'';
-    const i2hdr=data.innings===2?`<div class="is i2"><span class="il">2ND INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span>${data.target>0?`<span class="it">Target ${data.target}</span>`:''}</div>`:`<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span></div>`;
+    const i2hdr=data.innings===2?`<div class="is i2"><span class="il">2ND INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span>${data.target>0?`<span class="it">Target ${data.target}</span>`:''}</div>`:
+        `<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span></div>`;
     const inn1Sec=(data.inn1BatRows&&data.inn1BatRows.length)?`<div class="sec-hdr">1ST INNINGS — ${inn1Bat}</div><div class="sec">${batHtml(data.inn1BatRows,inn1Bat,data.inn1BowlRows)}${bwlHtml(data.inn1BowlRows||[],inn1Bowl)}</div>`:'';
     const inn2Sec=data.innings===2?`<div class="sec-hdr">2ND INNINGS — ${data.batTeam}</div><div class="sec">${batHtml(data.batRows,data.batTeam,data.bowlRows)}${bwlHtml(data.bowlRows,data.bowlTeam)}</div>`:`<div class="sec">${batHtml(data.batRows,data.batTeam,data.bowlRows)}${bwlHtml(data.bowlRows,data.bowlTeam)}</div>`;
     const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${data.title}</title><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap" rel="stylesheet"><style>${CSS}</style></head><body><div class="hdr"><div class="htitle">${data.title}</div><div class="hmeta"><span><b>Date:</b> ${data.dateLabel}</span>${data.venue?`<span><b>Venue:</b> ${data.venue}</span>`:''}<span><b>Format:</b> ${fmt}</span></div></div>${i1hdr}${i2hdr}${inn1Sec}${inn2Sec}<div class="ftr">Cricket Overlay · ${data.dateLabel}</div></body></html>`;
@@ -1274,7 +1502,7 @@ function renderHistory(val){
         const inn1line = d.inn1Score ? `<div class="hist-meta" style="color:#666;margin-top:1px">1st: ${d.inn1Bat||''} ${d.inn1Score}</div>` : '';
         const inn2line = d.innings===2?`<div class="hist-meta" style="color:#06d6a0;margin-top:1px">2nd: ${d.batTeam} ${d.score} (${d.overs} ovs)${d.target>0?' · Target '+d.target:''}</div>`:`<div class="hist-meta" style="color:#aaa;margin-top:1px">${d.batTeam}: ${d.score} (${d.overs} ovs)</div>`;
         const enc=encodeURIComponent(JSON.stringify(d));
-        return `<div class="hist-item" style="${isActive?'border-color:var(--y);':''} ">
+        return `<div class="hist-item" style="${isActive?'border-color:var(--y);':''}">
             <div class="hist-info">
                 <div class="hist-title">${d.title||'Untitled'}${innBadge}${activeBadge}</div>
                 <div class="hist-meta">${d.dateLabel}${d.venue?' · '+d.venue:''} · ${d.maxOvers||20} ovs</div>
@@ -1302,9 +1530,12 @@ window.saveMatch=async()=>{
     downloadSavedMatch('current',enc);
 };
 
+// Build squad inputs on load
 buildSquadInputs();
+
+// init UI
 const uSnap=await get(uRef);
-if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8,commentary:false});
+if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8});
 </script>
 
 </div><!-- /mainContent -->
