@@ -333,42 +333,108 @@ body{
 .cb-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:cbFly ease-out forwards; opacity:0; }
 @keyframes cbFly{ 0%{opacity:1;transform:translate(0,0) scale(1);} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);} }
 
-/* ═══ AUDIO UNLOCK OVERLAY — CHANGE: hidden, but kept in DOM for compatibility ═══ */
+/* ═══ AUDIO UNLOCK OVERLAY (commentary autoplay) ═══ */
 #audioUnlockOverlay{
-    display: none !important; /* CHANGE: Always hidden — audio auto-enables */
+    position:fixed; inset:0; z-index:999;
+    background:rgba(4,4,10,0.92);
+    display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(8px);
+    transition:opacity .4s;
 }
-
-/* ═══ AUDIO STATUS DOT — CHANGE: hidden but functional ═══ */
-#audioStatusDot{
-    display: none !important; /* CHANGE: Hidden from broadcast view */
+#audioUnlockOverlay.gone{ opacity:0; pointer-events:none; }
+.auo-box{
+    background:linear-gradient(135deg,#0c0c1a,#080810);
+    border:1px solid rgba(240,180,41,.3);
+    border-radius:14px; padding:36px 40px;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    box-shadow:0 20px 60px rgba(0,0,0,.95), 0 0 0 1px rgba(240,180,41,.08);
+    max-width:380px; width:90%; text-align:center;
 }
+.auo-icon{ font-size:52px; animation:auoPulse 2s ease-in-out infinite; }
+@keyframes auoPulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+.auo-title{ font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:#f0b429; text-transform:uppercase; letter-spacing:3px; }
+.auo-sub{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#555566; letter-spacing:1px; line-height:1.7; }
+.auo-btn{
+    background:linear-gradient(135deg,#3a2800,#2a1e00);
+    color:#f0b429; border:1px solid #5a3c00;
+    border-radius:7px; padding:14px 36px;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:16px; font-weight:800; letter-spacing:2px;
+    cursor:pointer; width:100%; transition:all .15s;
+}
+.auo-btn:hover{ background:#f0b429; color:#000; }
+.auo-btn:active{ transform:scale(.96); }
 
-/* ═══ COMMENTARY TICKER — CHANGE: hidden but functional ═══ */
+/* ═══ COMMENTARY TICKER (bottom-left) ═══ */
 #commentaryTicker{
-    display: none !important; /* CHANGE: Hidden from broadcast view */
+    position:fixed; bottom:108px; left:16px; z-index:38;
+    max-width:420px; pointer-events:none;
+    opacity:0; transform:translateY(8px);
+    transition:opacity .4s, transform .4s;
+}
+#commentaryTicker.show{
+    opacity:1; transform:translateY(0);
+}
+.ct-inner{
+    background:linear-gradient(135deg,rgba(6,6,14,.96),rgba(10,10,22,.96));
+    border:1px solid rgba(240,180,41,.2); border-left:3px solid #f0b429;
+    border-radius:6px; padding:8px 14px;
+    box-shadow:0 4px 20px rgba(0,0,0,.8);
+}
+.ct-label{
+    font-family:'Barlow Condensed',sans-serif; font-size:9px;
+    color:#5a4a00; letter-spacing:2px; text-transform:uppercase; margin-bottom:3px;
+}
+.ct-text{
+    font-family:'Barlow Condensed',sans-serif; font-size:13px;
+    color:#c8b060; letter-spacing:.4px; line-height:1.5;
+    font-style:italic;
 }
 
+/* ═══ AUDIO STATUS INDICATOR (top-left) ═══ */
+#audioStatusDot{
+    position:fixed; top:14px; left:14px; z-index:60;
+    display:flex; align-items:center; gap:7px;
+    background:rgba(6,6,14,.85); border:1px solid rgba(255,255,255,.06);
+    border-radius:20px; padding:5px 12px;
+    opacity:0; transition:opacity .4s;
+}
+#audioStatusDot.show{ opacity:1; }
+.asd-dot{
+    width:7px; height:7px; border-radius:50%;
+    background:#333; transition:.3s;
+}
+.asd-dot.on{ background:#06d6a0; box-shadow:0 0 6px #06d6a0; animation:asdPulse 1.5s infinite; }
+.asd-dot.speaking{ background:#f0b429; box-shadow:0 0 8px #f0b429; animation:asdPulse .6s infinite; }
+@keyframes asdPulse{ 0%,100%{opacity:1} 50%{opacity:.35} }
+.asd-label{
+    font-family:'Barlow Condensed',sans-serif; font-size:10px;
+    color:#444; letter-spacing:1px; text-transform:uppercase;
+}
 </style>
 </head>
 <body>
 
-<!-- ═══ AUDIO UNLOCK OVERLAY — CHANGE: Hidden, auto-enable handles this ═══ -->
+<!-- ═══ AUDIO UNLOCK OVERLAY ═══ -->
 <div id="audioUnlockOverlay">
     <div class="auo-box">
         <div class="auo-icon">🎙</div>
         <div class="auo-title">Live Commentary</div>
-        <div class="auo-sub">Tap anywhere to enable live commentary.</div>
+        <div class="auo-sub">
+            Tap to enable live ball-by-ball audio commentary.<br>
+            Powered by Ravi Shastri / Aakash Chopra style voice.
+        </div>
         <button class="auo-btn" id="audioUnlockBtn">🔊 ENABLE COMMENTARY</button>
     </div>
 </div>
 
-<!-- ═══ AUDIO STATUS DOT — CHANGE: Hidden but JS still updates it ═══ -->
+<!-- ═══ AUDIO STATUS DOT ═══ -->
 <div id="audioStatusDot">
     <div class="asd-dot" id="asdDot"></div>
     <div class="asd-label" id="asdLabel">COMMENTARY</div>
 </div>
 
-<!-- ═══ COMMENTARY TICKER — CHANGE: Hidden but JS still updates it ═══ -->
+<!-- ═══ COMMENTARY TICKER ═══ -->
 <div id="commentaryTicker">
     <div class="ct-inner">
         <div class="ct-label">🎙 Live Commentary</div>
@@ -586,7 +652,7 @@ const db      = getDatabase(initializeApp(cfg));
 const uiRef   = ref(db,'ui');
 const annRef  = ref(db,'announcement');
 const phRef   = ref(db,'playerPhotos');
-const commRef = ref(db,'commentary');
+const commRef = ref(db,'commentary');   // ← NEW: commentary channel
 const $       = id => document.getElementById(id);
 
 let _playerPhotos = {};
@@ -596,91 +662,49 @@ let _epovTimer    = null;
 let _overPlayersTimer = null;
 
 // ════════════════════════════════════════════════════════════════
-// ═══ CHANGE: IFRAME DETECTION ════════════════════════════════
-// Detect if loaded inside admin.html's preview iframe.
-// If embedded, ALL audio is disabled — only standalone index.html speaks.
-// ════════════════════════════════════════════════════════════════
-const IS_EMBEDDED = (window.self !== window.top);
-
-// ════════════════════════════════════════════════════════════════
-// ═══ LIVE AUDIO COMMENTARY SYSTEM ════════════════════════════
+// ═══ LIVE AUDIO COMMENTARY SYSTEM (index.html receiver) ═══════
 // ════════════════════════════════════════════════════════════════
 
-// CHANGE: Auto-enable audio. If not in iframe, pre-unlock.
-// Browsers require a user gesture before speech plays.
-// We set _audioUnlocked = true immediately and prime on first interaction.
-let _audioUnlocked   = !IS_EMBEDDED; // CHANGE: auto-true when standalone
+let _audioUnlocked   = false;
 let _speechQueue     = [];
 let _isSpeaking      = false;
 let _selectedVoice   = null;
 let _lastCommId      = null;
 let _tickerTimer     = null;
 
-// ── CHANGE: Auto-prime speech synthesis on page load + first interaction ──
-if (!IS_EMBEDDED) {
-    // Try immediately (may be blocked, that's OK)
-    try {
-        const prime = new SpeechSynthesisUtterance(' ');
-        prime.volume = 0;
-        window.speechSynthesis.speak(prime);
-    } catch(e) { /* silent */ }
-
-    // Also prime on very first user touch/click (guaranteed to work)
-    const primeOnce = () => {
-        try {
-            const prime = new SpeechSynthesisUtterance(' ');
-            prime.volume = 0;
-            window.speechSynthesis.speak(prime);
-            _audioUnlocked = true;
-            if (_speechQueue.length) processQueue();
-        } catch(e) { /* silent */ }
-        document.removeEventListener('click',    primeOnce);
-        document.removeEventListener('touchstart', primeOnce);
-        document.removeEventListener('keydown',  primeOnce);
-    };
-    document.addEventListener('click',    primeOnce, { once: true });
-    document.addEventListener('touchstart', primeOnce, { once: true, passive: true });
-    document.addEventListener('keydown',  primeOnce, { once: true });
-}
-
-// ── CHANGE: Improved voice loader — prioritises Indian English & deep male voices ──
+// ── Voice loader — picks best deep male English voice ──────────
 function selectBestVoice(){
     const all = window.speechSynthesis.getVoices();
     if(!all.length) return null;
 
-    // Priority 1: Indian English voices (ideal for cricket commentary)
-    const INDIAN = ['rishi', 'lekha', 'veena', 'google hindi',
-                    'google indian english', 'heera', 'google uk english male'];
-    for(const pref of INDIAN){
+    // Priority 1: named Indian English or deep male voices
+    const PREFERRED = [
+        'google hindi',          // Chrome Indian
+        'google uk english male',
+        'rishi',                 // macOS Indian English
+        'aaron',                 // macOS deep
+        'daniel',                // macOS/iOS British
+        'google us english',
+        'microsoft david',       // Windows deep male
+        'microsoft mark',
+        'alex',                  // macOS default deep
+        'fred',                  // macOS robotic/deep
+    ];
+    for(const pref of PREFERRED){
         const found = all.find(v => v.name.toLowerCase().includes(pref));
-        if(found) return found;
+        if(found){ return found; }
     }
 
-    // Priority 2: Deep authoritative British/Commonwealth male voices
-    const BRITISH = ['daniel', 'arthur', 'oliver', 'google uk english male',
-                     'microsoft george', 'microsoft hazel'];
-    for(const pref of BRITISH){
-        const found = all.find(v => v.name.toLowerCase().includes(pref));
-        if(found) return found;
-    }
-
-    // Priority 3: US deep male voices
-    const US = ['google us english', 'microsoft david', 'aaron', 'alex',
-                'fred', 'mark', 'microsoft mark', 'brian', 'james'];
-    for(const pref of US){
-        const found = all.find(v => v.name.toLowerCase().includes(pref));
-        if(found) return found;
-    }
-
-    // Priority 4: Any English male-sounding voice
+    // Priority 2: any English male
     const enMale = all.find(v =>
         v.lang.startsWith('en') &&
-        /male|man|david|mark|james|george|oliver|harry|ryan|brian|paul|richard|william|arthur|thomas/i.test(v.name)
+        /male|man|guy|david|mark|james|george|arthur|thomas|oliver|harry|ryan|brian|paul|richard|william/i.test(v.name)
     );
     if(enMale) return enMale;
 
-    // Priority 5: Any English voice
-    return all.find(v => v.lang.startsWith('en')) || all[0];
+    // Priority 3: any English
+    const en = all.find(v => v.lang.startsWith('en'));
+    return en || all[0];
 }
 
 function initVoice(){
@@ -689,66 +713,62 @@ function initVoice(){
 window.speechSynthesis.onvoiceschanged = initVoice;
 setTimeout(initVoice, 600);
 
-// ── CHANGE: Unlock button kept for compatibility but overlay is CSS-hidden ──
+// ── Autoplay unlock ────────────────────────────────────────────
 $('audioUnlockBtn').addEventListener('click', () => {
-    if(IS_EMBEDDED) return; // CHANGE: Never enable audio in iframe
     _audioUnlocked = true;
-    try {
-        const prime = new SpeechSynthesisUtterance(' ');
-        prime.volume = 0;
-        window.speechSynthesis.speak(prime);
-    } catch(e) {}
-    if(_speechQueue.length) processQueue();
-    // Update hidden status elements (functional, not visible)
+    // Prime synthesis with a silent utterance to unlock audio context
+    const prime = new SpeechSynthesisUtterance(' ');
+    prime.volume = 0;
+    window.speechSynthesis.speak(prime);
+    const overlay = $('audioUnlockOverlay');
+    overlay.classList.add('gone');
+    setTimeout(() => { overlay.style.display = 'none'; }, 500);
+    $('audioStatusDot').classList.add('show');
     $('asdDot').className = 'asd-dot on';
     $('asdLabel').textContent = 'COMMENTARY ON';
+    // Flush any queued lines
+    if(_speechQueue.length) processQueue();
 });
 
 // ── Speech queue processor ─────────────────────────────────────
 function processQueue(){
-    // CHANGE: Never speak if embedded in iframe
-    if(IS_EMBEDDED || !_audioUnlocked || !_speechQueue.length){
+    if(!_audioUnlocked || !_speechQueue.length){
         _isSpeaking = false;
+        if(_audioUnlocked){
+            $('asdDot').className = 'asd-dot on';
+        }
         return;
     }
     _isSpeaking = true;
     const item = _speechQueue.shift();
-    const text  = item.text;
+    const text = item.text;
     const rate  = item.rate  || 1.0;
     const pitch = item.pitch || 1.1;
 
-    // Update hidden ticker (functional but not visible)
+    // Update ticker
     showTicker(text);
-    $('asdDot').className     = 'asd-dot speaking';
+    $('asdDot').className    = 'asd-dot speaking';
     $('asdLabel').textContent = 'SPEAKING…';
 
     const utt = new SpeechSynthesisUtterance(text);
-    // CHANGE: Re-select voice each time in case voices loaded after init
-    if(!_selectedVoice) _selectedVoice = selectBestVoice();
     if(_selectedVoice) utt.voice = _selectedVoice;
     utt.rate   = rate;
     utt.pitch  = pitch;
     utt.volume = 1;
     utt.onend  = () => { setTimeout(processQueue, 380); };
     utt.onerror= () => { _isSpeaking = false; setTimeout(processQueue, 380); };
-    try {
-        window.speechSynthesis.speak(utt);
-    } catch(e) {
-        _isSpeaking = false;
-        setTimeout(processQueue, 500);
-    }
+    window.speechSynthesis.speak(utt);
 }
 
 function enqueueCommentary(text, rate, pitch){
-    if(!text || IS_EMBEDDED) return; // CHANGE: Block if in iframe
+    if(!text) return;
     _speechQueue.push({ text, rate: rate||1.0, pitch: pitch||1.1 });
     if(!_isSpeaking) processQueue();
 }
 
-// ── Commentary ticker display (hidden visually, still functional) ──
+// ── Commentary ticker display ──────────────────────────────────
 function showTicker(text){
     $('ctText').textContent = `"${text}"`;
-    // Note: ticker is hidden via CSS but logic is preserved
     const ticker = $('commentaryTicker');
     ticker.classList.add('show');
     clearTimeout(_tickerTimer);
@@ -756,24 +776,19 @@ function showTicker(text){
 }
 
 // ── Firebase commentary listener ──────────────────────────────
-// CHANGE: Only listen and speak if NOT embedded in iframe
-if(!IS_EMBEDDED){
-    get(commRef).then(snap => {
-        _lastCommId = snap.val()?.id || null;
-        onValue(commRef, snap => {
-            const data = snap.val();
-            if(!data || data.id === _lastCommId) return;
-            _lastCommId = data.id;
-            // Don't enqueue if text is the stop signal
-            if(data.text && data.text !== '') {
-                enqueueCommentary(data.text, data.rate, data.pitch);
-            }
-        });
+// Admin writes to ref(db,'commentary') with: { text, rate, pitch, style, id, sentAt }
+get(commRef).then(snap => {
+    _lastCommId = snap.val()?.id || null;
+    onValue(commRef, snap => {
+        const data = snap.val();
+        if(!data || data.id === _lastCommId) return;
+        _lastCommId = data.id;
+        enqueueCommentary(data.text, data.rate, data.pitch);
     });
-}
+});
 
 // ════════════════════════════════════════════════════════════════
-// ═══ END COMMENTARY SYSTEM ═══════════════════════════════════
+// ═══ END COMMENTARY SYSTEM ════════════════════════════════════
 // ════════════════════════════════════════════════════════════════
 
 // ── Player photos ──────────────────────────────────────────────
