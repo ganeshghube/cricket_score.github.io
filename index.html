@@ -415,44 +415,58 @@ body{
 </head>
 <body>
 
-
-<!-- ═════════ AUDIO SYSTEM AUTO MODE (NO UI / NO PROMPT) ═════════ -->
-
-<!-- Hidden overlay (prevents popup completely) -->
-<div id="audioUnlockOverlay" style="display:none !important;"></div>
-
-<!-- Hidden status dot -->
-<div id="audioStatusDot" style="display:none !important;"></div>
-
-<!-- Hidden commentary ticker -->
-<div id="commentaryTicker" style="display:none !important;"></div>
-
 <!-- FORCE AUTO ENABLE (NO USER PROMPT ON REFRESH) -->
 <script>
 (function () {
-    // Always force enable
-    localStorage.setItem("commentaryEnabled", "true");
 
-    // internal flag (if used in your system)
+    // 1. Force enable commentary permanently
+    localStorage.setItem("commentaryEnabled", "true");
     window._audioEnabled = true;
 
-    // kill overlay if any JS tries to show it
+    // 2. Hide unlock overlay safely
     const overlay = document.getElementById("audioUnlockOverlay");
     if (overlay) {
-        overlay.style.display = "none";
         overlay.classList.add("gone");
+        overlay.style.pointerEvents = "none";
     }
 
-    // safety: prevent UI flicker on load
+    // 3. DO NOT block UI permanently — just start hidden state
     const dot = document.getElementById("audioStatusDot");
     const ticker = document.getElementById("commentaryTicker");
 
-    if (dot) dot.style.display = "none";
-    if (ticker) ticker.style.display = "none";
+    if (dot) dot.classList.remove("show");
+    if (ticker) ticker.classList.remove("show");
 
     console.log("🎙 Commentary AUTO-ENABLED (NO PROMPT MODE)");
+
 })();
 </script>
+
+<!-- ═══ AUDIO UNLOCK OVERLAY (AUTO ENABLED) ═══ -->
+<div id="audioUnlockOverlay" class="gone">
+    <div class="auo-box">
+        <div class="auo-icon">🎙</div>
+        <div class="auo-title">Live Commentary</div>
+        <div class="auo-sub">
+            Audio commentary is enabled by default.<br>
+            Running in auto mode.
+        </div>
+    </div>
+</div>
+
+<!-- ═══ AUDIO STATUS DOT (AUTO MODE) ═══ -->
+<div id="audioStatusDot" class="show">
+    <div class="asd-dot on" id="asdDot"></div>
+    <div class="asd-label" id="asdLabel">COMMENTARY</div>
+</div> ═══ -->
+
+<!-- ═══ COMMENTARY TICKER (READY BUT HIDDEN UNTIL USED) ═══ -->
+<div id="commentaryTicker">
+    <div class="ct-inner">
+        <div class="ct-label">🎙 Live Commentary</div>
+        <div class="ct-text" id="ctText">Ready…</div>
+    </div>
+</div>  ═══ -->
 
 <!-- ═══ EMOJI RAIN ═══ -->
 <div class="ann-rain" id="annRain"></div>
