@@ -250,7 +250,7 @@ body{
 /* ═══ AFTER-OVER PLAYER DISPLAY ═══ */
 .over-players-wrap{
     position:fixed; top:16px; left:50%; transform:translateX(-50%);
-    width:96%; max-width:700px; z-index:55; pointer-events:none;
+    width:96%; max-width:760px; z-index:55; pointer-events:none;
     opacity:0; transition:opacity .4s;
 }
 .over-players-wrap.show{ opacity:1; }
@@ -261,14 +261,30 @@ body{
     box-shadow:0 8px 40px rgba(0,0,0,.9);
 }
 .over-players-title{ font-size:10px; font-weight:800; color:#555; text-transform:uppercase; letter-spacing:3px; margin-bottom:8px; }
-.over-player-card{ display:flex; flex-direction:column; align-items:center; gap:6px; min-width:80px; }
-.over-player-photo{ width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,.15); background:#111; }
-.over-player-photo.striker{ border-color:var(--gold); box-shadow:0 0 12px rgba(240,180,41,.3); }
-.over-player-photo.bowler{ border-color:#06d6a0; box-shadow:0 0 12px rgba(6,214,160,.25); }
-.over-player-name{ font-size:12px; font-weight:700; color:#ddd; text-align:center; }
+.over-player-card{
+    display:flex; flex-direction:column; align-items:center;
+    gap:6px; min-width:80px;
+}
+
+/* ══ ID-CARD SIZED PHOTOS (portrait, rounded rectangle) ══
+   Changed from 52px circle → 70x95px ID-card style with rounded corners.
+   This matches a 2:3 portrait aspect ratio similar to real ID cards. */
+.over-player-photo{
+    width:70px;
+    height:95px;
+    border-radius:8px;
+    object-fit:cover;
+    border:2px solid rgba(255,255,255,.15);
+    background:#111;
+    box-shadow:0 3px 10px rgba(0,0,0,.6);
+}
+.over-player-photo.striker{ border-color:var(--gold); box-shadow:0 0 14px rgba(240,180,41,.35); }
+.over-player-photo.bowler{  border-color:#06d6a0; box-shadow:0 0 14px rgba(6,214,160,.3); }
+
+.over-player-name{ font-size:12px; font-weight:700; color:#ddd; text-align:center; max-width:90px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .over-player-stat{ font-size:11px; color:#888; }
 .over-player-role{ font-size:9px; color:#555; text-transform:uppercase; letter-spacing:1px; }
-.over-divider{ width:1px; height:60px; background:rgba(255,255,255,.08); flex-shrink:0; }
+.over-divider{ width:1px; height:110px; background:rgba(255,255,255,.08); flex-shrink:0; }
 .over-summary{ flex:1; }
 .over-summary-ovnum{ font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:800; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
 .over-summary-balls{ display:flex; gap:4px; margin-top:6px; flex-wrap:wrap; }
@@ -326,15 +342,51 @@ body{
 .wc-bit{ position:absolute; width:10px; border-radius:2px; animation:wcfall linear forwards; opacity:0; }
 @keyframes wcfall{ 0%{opacity:1;transform:translateY(-40px) rotate(0deg);} 100%{opacity:0;transform:translateY(110vh) rotate(720deg);} }
 .win-celebration-emojis{ display:flex; gap:20px; font-size:36px; animation:floatUpDown 2s ease-in-out infinite alternate; margin-top:8px; }
-@keyframes floatUpDown{ 0%{transform:translateY(0)} 100%{transform:translateY(-12px)} }
+@keyframes floatUpDown{ 0%{transform:translateY(0) scale(1)} 100%{transform:translateY(-12px) scale(1.06)} }
 
 /* ── floating confetti dots ── */
 .confetti-burst{ position:fixed; inset:0; pointer-events:none; z-index:69; overflow:hidden; }
 .cb-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:cbFly ease-out forwards; opacity:0; }
 @keyframes cbFly{ 0%{opacity:1;transform:translate(0,0) scale(1);} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);} }
+
+/* ═══════════════════════════════════════════════════════════════
+   ══ AUDIO UI HIDDEN ON OVERLAY (REQ #3)
+   ══ Commentary functionality stays fully working — only the
+   ══ visible UI is hidden. DOM elements remain so scripts can
+   ══ reference them (e.g. $('ctText'), $('asdDot'), etc.)
+   ══════════════════════════════════════════════════════════════ */
+#audioUnlockOverlay,
+#audioStatusDot,
+#commentaryTicker{
+    display:none !important;
+}
 </style>
 </head>
 <body>
+
+<!-- ═══ AUDIO UNLOCK OVERLAY (HIDDEN — kept in DOM for script refs) ═══ -->
+<div id="audioUnlockOverlay">
+    <div class="auo-box">
+        <div class="auo-icon">🎙</div>
+        <div class="auo-title">Live Commentary</div>
+        <div class="auo-sub">Audio enabled automatically.</div>
+        <button class="auo-btn" id="audioUnlockBtn">🔊 ENABLE COMMENTARY</button>
+    </div>
+</div>
+
+<!-- ═══ AUDIO STATUS DOT (HIDDEN — kept in DOM) ═══ -->
+<div id="audioStatusDot">
+    <div class="asd-dot" id="asdDot"></div>
+    <div class="asd-label" id="asdLabel">COMMENTARY</div>
+</div>
+
+<!-- ═══ COMMENTARY TICKER (HIDDEN — kept in DOM) ═══ -->
+<div id="commentaryTicker">
+    <div class="ct-inner">
+        <div class="ct-label">🎙 Live Commentary</div>
+        <div class="ct-text" id="ctText">Initialising…</div>
+    </div>
+</div>
 
 <!-- ═══ EMOJI RAIN ═══ -->
 <div class="ann-rain" id="annRain"></div>
@@ -356,7 +408,8 @@ body{
 <!-- ═══ OVER-END BADGE ═══ -->
 <div class="over-badge" id="overBadge">⬜ END OF OVER</div>
 
-<!-- ═══ AFTER-OVER PLAYER DISPLAY ═══ -->
+<!-- ═══ AFTER-OVER PLAYER DISPLAY (AUTO SCORECARD) ═══
+     Photos now render as ID-card style (70x95px portrait) -->
 <div class="over-players-wrap" id="overPlayersWrap">
     <div class="over-players-box">
         <div style="flex:1">
@@ -542,22 +595,572 @@ const cfg = {
     storageBucket:"cricket-8e338.firebasestorage.app",
     messagingSenderId:"41064243639", appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
 };
-const db     = getDatabase(initializeApp(cfg));
-const uiRef  = ref(db,'ui');
-const annRef = ref(db,'announcement');
-const phRef  = ref(db,'playerPhotos');
-const $      = id => document.getElementById(id);
+const db       = getDatabase(initializeApp(cfg));
+const uiRef    = ref(db,'ui');
+const annRef   = ref(db,'announcement');
+const phRef    = ref(db,'playerPhotos');
+const commRef  = ref(db,'commentary');          // legacy fallback channel
+const cSettingsRef = ref(db,'commentarySettings'); // NEW: settings (admin writes, overlay reads)
+const $        = id => document.getElementById(id);
+
+// ═══════════════════════════════════════════════════════════════════
+// ══ PREVIEW-MODE DETECTION (REQ #1 — admin iframe suppression) ═════
+// ═══════════════════════════════════════════════════════════════════
+// When admin.html embeds this page in its iframe with ?preview=1,
+// ALL audio logic is skipped entirely. This ensures audio NEVER plays
+// inside the admin panel — it plays ONLY in the standalone overlay.
+const IS_PREVIEW = new URLSearchParams(window.location.search).get('preview') === '1';
 
 let _playerPhotos = {};
-let _winShown = false;
-let _prevData = null;
-let _epovTimer = null;
+let _winShown     = false;
+let _prevData     = null;
+let _epovTimer    = null;
 let _overPlayersTimer = null;
 
-// ── Player photos ──────────────────────────────
+// ════════════════════════════════════════════════════════════════
+// ══ LIVE AUDIO COMMENTARY SYSTEM (index.html ONLY) ══════════════
+// ══ REQ #4: All commentary is generated & spoken here.
+// ══ REQ #2: Auto-unlock on load — no click required.
+// ══ REQ #7: Multiple voices (Standard / Shastri / Chopra).
+// ════════════════════════════════════════════════════════════════
+
+let _audioUnlocked   = false;
+let _speechQueue     = [];
+let _isSpeaking      = false;
+let _selectedVoice   = null;
+let _lastCommId      = null;
+let _tickerTimer     = null;
+
+// Commentary settings — sourced from Firebase (admin writes, overlay reads)
+let _commentarySettings = {
+    enabled: true,
+    style:   'shastri',    // 'standard' | 'shastri' | 'chopra'
+    rate:    1.0,
+    pitch:   1.05,
+};
+
+// ── Voice loader — picks best deep male English voice ──────────
+function selectBestVoice(styleHint){
+    const all = window.speechSynthesis.getVoices();
+    if(!all.length) return null;
+
+    // Chopra = slightly higher / analytical tone — prefer Indian English voices
+    if(styleHint === 'chopra'){
+        const chopraPrefs = [
+            'google hindi', 'rishi', 'veena',
+            'google uk english male', 'daniel',
+            'microsoft ravi', 'microsoft neerja',
+        ];
+        for(const pref of chopraPrefs){
+            const found = all.find(v => v.name.toLowerCase().includes(pref));
+            if(found) return found;
+        }
+    }
+
+    // Shastri / Standard — prefer deep, authoritative male voices
+    const PREFERRED = [
+        'google hindi',
+        'google uk english male',
+        'rishi',
+        'aaron',
+        'daniel',
+        'google us english',
+        'microsoft david',
+        'microsoft mark',
+        'alex',
+        'fred',
+    ];
+    for(const pref of PREFERRED){
+        const found = all.find(v => v.name.toLowerCase().includes(pref));
+        if(found) return found;
+    }
+    const enMale = all.find(v =>
+        v.lang.startsWith('en') &&
+        /male|man|guy|david|mark|james|george|arthur|thomas|oliver|harry|ryan|brian|paul|richard|william/i.test(v.name)
+    );
+    if(enMale) return enMale;
+    const en = all.find(v => v.lang.startsWith('en'));
+    return en || all[0];
+}
+
+function initVoice(){
+    _selectedVoice = selectBestVoice(_commentarySettings.style);
+}
+
+// Only wire up voice loading if NOT in preview (admin iframe)
+if(!IS_PREVIEW){
+    window.speechSynthesis.onvoiceschanged = initVoice;
+    setTimeout(initVoice, 600);
+}
+
+// ── AUTO-UNLOCK AUDIO ON LOAD (REQ #2) ─────────────────────────
+// Tries to unlock speechSynthesis immediately on page load.
+// Falls back to ANY user interaction (click/tap/key) if browser
+// blocks autoplay. This keeps the page compatible with PRISM Live
+// and CameraFi Live which often auto-trigger a tap on load anyway.
+function attemptAutoUnlock(){
+    if(IS_PREVIEW || _audioUnlocked) return;
+    try {
+        const prime = new SpeechSynthesisUtterance(' ');
+        prime.volume = 0;
+        prime.rate = 1;
+        window.speechSynthesis.speak(prime);
+        _audioUnlocked = true;
+        $('asdDot').className = 'asd-dot on';
+        $('asdLabel').textContent = 'COMMENTARY ON';
+        if(_speechQueue.length) processQueue();
+    } catch(e){
+        // ignore — fallback will pick it up
+    }
+}
+
+function fallbackUnlockOnInteraction(){
+    if(IS_PREVIEW) return;
+    const handler = () => {
+        if(_audioUnlocked) return;
+        _audioUnlocked = true;
+        try {
+            const prime = new SpeechSynthesisUtterance(' ');
+            prime.volume = 0;
+            window.speechSynthesis.speak(prime);
+        } catch(e){}
+        $('asdDot').className = 'asd-dot on';
+        $('asdLabel').textContent = 'COMMENTARY ON';
+        if(_speechQueue.length) processQueue();
+        // Remove listeners once unlocked
+        ['click','touchstart','keydown','pointerdown'].forEach(ev =>
+            document.removeEventListener(ev, handler, true)
+        );
+    };
+    ['click','touchstart','keydown','pointerdown'].forEach(ev =>
+        document.addEventListener(ev, handler, true)
+    );
+}
+
+// Start auto-unlock attempts on load + streaming-app compatibility
+if(!IS_PREVIEW){
+    // First attempt on DOMContentLoaded
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', attemptAutoUnlock);
+    } else {
+        attemptAutoUnlock();
+    }
+    // Fallback: any user interaction unlocks it
+    fallbackUnlockOnInteraction();
+    // Retry every 2s for up to 30s (helps streaming apps that inject taps)
+    let _retries = 0;
+    const _retryTimer = setInterval(() => {
+        if(_audioUnlocked || _retries++ > 15){ clearInterval(_retryTimer); return; }
+        attemptAutoUnlock();
+    }, 2000);
+
+    // Also wire the hidden unlock button in case something clicks it
+    $('audioUnlockBtn').addEventListener('click', () => {
+        attemptAutoUnlock();
+        $('audioUnlockOverlay').classList.add('gone');
+    });
+}
+
+// ── Speech queue processor ─────────────────────────────────────
+function processQueue(){
+    if(IS_PREVIEW) return;
+    if(!_audioUnlocked || !_speechQueue.length){
+        _isSpeaking = false;
+        if(_audioUnlocked){
+            $('asdDot').className = 'asd-dot on';
+        }
+        return;
+    }
+    _isSpeaking = true;
+    const item = _speechQueue.shift();
+    const text = item.text;
+    const rate  = item.rate  || 1.0;
+    const pitch = item.pitch || 1.05;
+
+    showTicker(text);
+    $('asdDot').className     = 'asd-dot speaking';
+    $('asdLabel').textContent = 'SPEAKING…';
+
+    const utt = new SpeechSynthesisUtterance(text);
+    if(_selectedVoice) utt.voice = _selectedVoice;
+    utt.rate   = rate;
+    utt.pitch  = pitch;
+    utt.volume = 1;
+    utt.onend   = () => { setTimeout(processQueue, 380); };
+    utt.onerror = () => { _isSpeaking = false; setTimeout(processQueue, 380); };
+    try {
+        window.speechSynthesis.speak(utt);
+    } catch(e){
+        _isSpeaking = false;
+        setTimeout(processQueue, 500);
+    }
+}
+
+function enqueueCommentary(text, rate, pitch){
+    if(IS_PREVIEW) return;                       // admin preview → never audio
+    if(!text) return;
+    if(!_commentarySettings.enabled) return;     // globally toggled off
+    _speechQueue.push({ text, rate: rate||1.0, pitch: pitch||1.05 });
+    // Cap queue to avoid runaway
+    if(_speechQueue.length > 4) _speechQueue = _speechQueue.slice(-4);
+    if(!_isSpeaking) processQueue();
+}
+
+// ── Commentary ticker (hidden via CSS but still populated) ─────
+function showTicker(text){
+    $('ctText').textContent = `"${text}"`;
+    const ticker = $('commentaryTicker');
+    ticker.classList.add('show');
+    clearTimeout(_tickerTimer);
+    _tickerTimer = setTimeout(() => ticker.classList.remove('show'), 12000);
+}
+
+// ════════════════════════════════════════════════════════════════
+// ══ COMMENTARY GENERATION (moved from admin.html) ═══════════════
+// ══ Three styles: standard / shastri (dramatic) / chopra (analytical)
+// ════════════════════════════════════════════════════════════════
+
+function buildStandardCommentary(d, prevD, eventType){
+    const striker    = d.str===1 ? d.p1n : d.p2n;
+    const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
+    const nonStriker = d.str===1 ? d.p2n : d.p1n;
+    const bowler     = d.bwn || 'the bowler';
+    const team       = d.batTeam || 'the batting side';
+    const maxOv      = d.maxOvers || 20;
+    const ballsLeft  = maxOv*6 - d.balls;
+    const runsNeeded = d.target > 0 ? d.target - d.runs : null;
+    const isChase    = d.target > 0;
+    const isFinalOvers = Math.floor(d.balls/6) >= maxOv - 3;
+    const wktsLeft   = 10 - d.wkts;
+
+    const commentary = {
+        dot: [
+            `Dot ball! ${bowler} keeps it tight, ${striker} couldn't find the gap.`,
+            `No run! ${bowler} beats ${striker} outside off stump.`,
+            `Good length delivery, ${striker} defends solidly. Dot ball.`,
+            `${bowler} gets one through, ${striker} plays and misses! Dot.`,
+            `Tight line from ${bowler}, nothing doing for ${striker}.`,
+        ],
+        '1': [
+            `${striker} clips it for a single, rotates the strike well.`,
+            `One run, nudged away by ${striker} off ${bowler}.`,
+            `Pushed to mid-on, they run a quick single.`,
+            `${striker} works it around the corner, one run.`,
+        ],
+        '2': [
+            `Two runs! ${striker} plays it down to deep, good running between the wickets.`,
+            `${striker} and ${nonStriker} come back for the second, two runs.`,
+            `Nicely placed, two runs for ${team}!`,
+        ],
+        '3': [
+            `Three runs! Great running from ${striker} and ${nonStriker}!`,
+            `Three! They've turned it around brilliantly for three runs.`,
+        ],
+        '4': [
+            `FOUR! ${striker} drives it through the covers, stunning shot!`,
+            `BOUNDARY! ${striker} pulls ${bowler} to the square leg fence!`,
+            `FOUR! Cracking shot from ${striker}, pierces the gap perfectly!`,
+            `That's gone for FOUR! ${striker} deposits it through extra cover!`,
+            `Beautiful FOUR from ${striker}, the timing was absolutely sublime!`,
+        ],
+        '6': [
+            `SIX! What a shot! ${striker} sends ${bowler} into the stands!`,
+            `MAXIMUM! ${striker} launches it way into the crowd! Six runs!`,
+            `That's GONE! ${striker} muscles ${bowler} over the midwicket boundary!`,
+            `ENORMOUS SIX from ${striker}! This is spectacular cricket!`,
+            `Six! ${striker} picked the length early and absolutely smoked it!`,
+        ],
+        wicket: [
+            `WICKET! ${striker} is OUT! ${bowler} gets the breakthrough!`,
+            `OH! ${striker} has to go! ${bowler} is pumped up!`,
+            `That's OUT! ${bowler} claims the wicket of ${striker}!`,
+            `GONE! The stumps are disturbed, ${striker} walks back to the pavilion!`,
+        ],
+        wide: [
+            `Wide ball, costly from ${bowler}. One extra added.`,
+            `That's a wide! ${bowler} strays down the leg side.`,
+        ],
+        noball: [
+            `No ball from ${bowler}! Free hit coming up for ${striker}!`,
+            `Overstepping! No ball called, and it's a free hit!`,
+        ],
+        bye: [ `Byes! The ball gets past the keeper.` ],
+        legbye: [ `Leg byes! Deflects off the pad, they run.` ],
+    };
+
+    let milestone = '';
+    if(eventType !== 'wicket' && eventType !== 'wide' && eventType !== 'noball'){
+        if(strikerR === 50)       milestone = ` And what a moment — ${striker} brings up the HALF CENTURY! Fifty runs for this outstanding batsman!`;
+        else if(strikerR === 100) milestone = ` Unbelievable! ${striker} reaches ONE HUNDRED RUNS! A century for the ages!`;
+    }
+    const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
+    if(bowlerRow && bowlerRow.wkts === 5 && eventType === 'wicket'){
+        milestone = ` And that's FIVE wickets for ${bowler}! A brilliant FIFER! Outstanding bowling!`;
+    }
+
+    let context = '';
+    if(isFinalOvers && isChase && runsNeeded){
+        context = ` ${team} need ${runsNeeded} runs off ${ballsLeft} balls!`;
+    } else if(d.wkts >= 6){
+        context = ` ${team} are in real trouble here with ${wktsLeft} wickets remaining.`;
+    } else if(isFinalOvers && !isChase){
+        context = ` We're in the final overs, every ball is crucial!`;
+    }
+
+    const pool = commentary[eventType] || commentary.dot;
+    return pool[Math.floor(Math.random() * pool.length)] + milestone + context;
+}
+
+function buildShastriCommentary(d, prevD, eventType){
+    const striker    = d.str===1 ? d.p1n : d.p2n;
+    const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
+    const nonStriker = d.str===1 ? d.p2n : d.p1n;
+    const bowler     = d.bwn || 'the bowler';
+    const team       = d.batTeam || 'the batting side';
+    const maxOv      = d.maxOvers || 20;
+    const ballsLeft  = maxOv*6 - d.balls;
+    const runsNeeded = d.target > 0 ? d.target - d.runs : null;
+    const isChase    = d.target > 0;
+    const isFinalOvers = Math.floor(d.balls/6) >= maxOv - 3;
+    const wktsLeft   = 10 - d.wkts;
+
+    const commentary = {
+        dot: [
+            `Dot ball! ${bowler} has got his line and length absolutely spot on! ${striker} just cannot get it away!`,
+            `Defended! ${bowler} is breathing fire today! Beautiful control, and that is a dot ball!`,
+            `${striker} is beaten on the outside edge! Oh, what a delivery that was from ${bowler}! Dot ball!`,
+            `Kept quiet! ${bowler} is on top here. Magnificent bowling. The crowd is applauding that one!`,
+            `Tight, tight, tight! That is another dot ball in this over. ${team}, you need to find a way through!`,
+        ],
+        '1': [
+            `One run, and ${striker} rotates the strike. Smart cricket. Very smart cricket indeed!`,
+            `Worked away for a single! ${striker} is finding the gaps. The running between the wickets has been excellent!`,
+            `A nudge and a run — ${striker} and ${nonStriker} are in complete control out there! One more!`,
+            `Quick single! The communication between the two batters has been outstanding today!`,
+        ],
+        '2': [
+            `Two runs! ${striker} has timed that beautifully through the gap! The timing was just divine!`,
+            `They come back for two! The running is excellent! ${team} are building nicely here!`,
+            `Oh, that is just superb placement from ${striker}! Two runs, and the crowd loves it!`,
+        ],
+        '3': [
+            `Three! And that is a magnificent piece of running between the wickets! Three runs to ${team}!`,
+            `Three runs! Up, up and away! ${striker} and ${nonStriker} are running like the wind out there!`,
+        ],
+        '4': [
+            `FOUR! That has gone like a tracer bullet through the covers! What a magnificent shot from ${striker}! That is sheer class!`,
+            `BOUNDARY! He has hit that into the next zip code! ${striker} has smoked ${bowler} for a cracking FOUR!`,
+            `FOUR RUNS! And the crowd is on its feet! What a shot! What a player! ${striker} is absolutely ON FIRE today!`,
+            `OH! That is absolutely gorgeous! FOUR! Through the gap, past the diving fielder, and into the boundary rope! Stunning stuff!`,
+            `FOUR! As good as it gets! ${striker} has played that with the full face of the bat and it has raced away to the fence!`,
+        ],
+        '6': [
+            `SIX! Up, up and AWAY! That has gone into the STANDS! ${striker} has absolutely MURDERED that delivery from ${bowler}!`,
+            `MAXIMUM! Oh my goodness! That is one of the biggest sixes you will ever see! ${striker} has launched it into ORBIT!`,
+            `SIX RUNS! He has hit that so hard, so clean, so beautiful! The crowd is absolutely ELECTRIC! What a hit from ${striker}!`,
+            `THAT'S A SIX! When ${striker} is in this kind of form, nobody can stop him! Right over the top, and gone for a MAXIMUM!`,
+            `INTO THE CROWD! ${striker} has given ${bowler} absolutely NOTHING to bowl at there! WHAT A SHOT! SIX! SIX! SIX!`,
+        ],
+        wicket: [
+            `WICKET! He is OUT! ${bowler} has got the big one! What a massive breakthrough! ${striker} has to walk!`,
+            `OUT! GONE! The stumps are shattered! ${bowler} is pumped up, the crowd is going absolutely BERSERK! ${striker} has to go!`,
+            `BOWLED HIM! Oh, that is a BEAUTY! ${bowler} has done the job! ${striker} looks back, and the damage is done! Excellent cricket!`,
+            `OUT! And it is a MASSIVE wicket! ${d.batTeam||'The batting side'} will be shaking their heads in the dressing room! ${bowler} has done it again!`,
+        ],
+        wide: [
+            `Wide ball! ${bowler} has gone too far down the leg side there. The pressure of this match is telling! One extra.`,
+            `Wide! That strays too far outside. ${bowler} needs to regroup and come back stronger!`,
+        ],
+        noball: [
+            `NO BALL! ${bowler} has overstepped and that means a FREE HIT is coming up! What a gift for ${striker}!`,
+            `NO BALL called! And now there is a FREE HIT! The crowd is buzzing! ${striker}, this is your moment!`,
+        ],
+        bye: [ `Byes! The keeper is beaten! They take the runs and ${team} will accept every run they can get!` ],
+        legbye: [ `Leg byes! Deflects off the pad and they scamper through! That is what you call opportunistic cricket!` ],
+    };
+
+    let milestone = '';
+    if(eventType !== 'wicket' && eventType !== 'wide' && eventType !== 'noball'){
+        if(strikerR === 50)       milestone = ` And there it is! The HALF CENTURY for ${striker}! FIFTY RUNS! What a knock this has been! Absolutely magnificent!`;
+        else if(strikerR === 100) milestone = ` OH MY GOODNESS! ONE HUNDRED RUNS! ${striker} brings up the CENTURY! This is the stuff of LEGEND! What a player! What a knock!`;
+    }
+    const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
+    if(bowlerRow && bowlerRow.wkts === 5 && eventType === 'wicket'){
+        milestone = ` And that is FIVE wickets for ${bowler}! A FIFER! You cannot ask for more from a bowler! Absolutely WORLD CLASS performance!`;
+    }
+
+    let context = '';
+    if(isFinalOvers && isChase && runsNeeded){
+        context = ` And the equation is clear — ${team} need ${runsNeeded} runs from ${ballsLeft} balls! The pressure is IMMENSE!`;
+    } else if(d.wkts >= 6){
+        context = ` ${team} are in deep trouble now — only ${wktsLeft} wickets remaining! This is a crisis situation!`;
+    } else if(isFinalOvers && !isChase){
+        context = ` The final overs are upon us! Every single delivery counts now! Incredible cricket!`;
+    }
+
+    const pool = commentary[eventType] || commentary.dot;
+    return pool[Math.floor(Math.random() * pool.length)] + milestone + context;
+}
+
+// ══ NEW: AKASH CHOPRA STYLE (analytical, tactical, measured) ══
+function buildChopraCommentary(d, prevD, eventType){
+    const striker    = d.str===1 ? d.p1n : d.p2n;
+    const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
+    const strikerB   = d.str===1 ? (d.p1b||0) : (d.p2b||0);
+    const nonStriker = d.str===1 ? d.p2n : d.p1n;
+    const bowler     = d.bwn || 'the bowler';
+    const team       = d.batTeam || 'the batting side';
+    const maxOv      = d.maxOvers || 20;
+    const ballsLeft  = maxOv*6 - d.balls;
+    const runsNeeded = d.target > 0 ? d.target - d.runs : null;
+    const isChase    = d.target > 0;
+    const isFinalOvers = Math.floor(d.balls/6) >= maxOv - 3;
+    const wktsLeft   = 10 - d.wkts;
+    const sr = strikerB>0 ? ((strikerR/strikerB)*100).toFixed(0) : '—';
+
+    const commentary = {
+        dot: [
+            `Dot ball. Good length from ${bowler} on a nagging line — ${striker} has nothing to play at, has to let it go.`,
+            `Defended back. ${bowler} hit the seam there, ${striker} read it well enough to respect it.`,
+            `No run. Classic bowler's ball — shape away, ${striker} sensible to leave it alone.`,
+            `Tidy. ${bowler} bowling a disciplined channel, stat-check — strike rate is ${sr}, building pressure.`,
+            `Dot. Tactically that's a win for ${bowler}, keeps the scoreboard quiet at a crucial stage.`,
+        ],
+        '1': [
+            `Single. Smart cricket from ${striker} — rotating strike, keeping the scoreboard ticking.`,
+            `One taken. Nudged into the on-side gap — percentage batting from ${striker}.`,
+            `Worked away for one. ${striker} is playing the situation, not the ball.`,
+            `Good running. That single is worth more than you think — it manipulates the field.`,
+        ],
+        '2': [
+            `Two runs. Placed into the gap, and the second was always on. Good awareness from ${striker}.`,
+            `Couple. The running between the wickets has been excellent from ${striker} and ${nonStriker}.`,
+            `Two. Shot was tactical — found the gap, ran hard. Textbook.`,
+        ],
+        '3': [
+            `Three runs. That's rare in the shorter format — tells you the gap was huge.`,
+            `Three taken. Clever placement from ${striker}, and they converted the second into a third.`,
+        ],
+        '4': [
+            `FOUR! Beautifully played by ${striker}. Full face of the bat, elbow high — coaches manual shot.`,
+            `Boundary. ${striker} picked the length early and pierced the gap. That's high-percentage batting.`,
+            `Four! Classical shot — front foot forward, plays through the line. Can't teach that easily.`,
+            `FOUR! Released the pressure with one shot. ${striker} needed that — strike rate was dropping.`,
+            `Boundary! ${bowler} erred in length and ${striker} punished it. Ruthless batting.`,
+        ],
+        '6': [
+            `SIX! ${striker} went over the top and found the range. Calculated risk — paid off beautifully.`,
+            `MAXIMUM! ${striker} reading ${bowler} now. That's the mark of a batsman in rhythm.`,
+            `Six runs! Clean striking. ${striker} used the crease, got under the ball, over the rope.`,
+            `SIX! Momentum shift right there. That shot changes the equation for ${team}.`,
+            `Over the boundary! Stat-check — ${striker} now on ${strikerR}. Playing a captain's knock.`,
+        ],
+        wicket: [
+            `WICKET! ${bowler} has the breakthrough — crucial timing from a tactical standpoint.`,
+            `OUT! ${striker} had to go. ${bowler} set it up beautifully with the previous deliveries.`,
+            `Got him! That's the plan paying off — ${bowler} bowled with a purpose and earned the reward.`,
+            `WICKET! ${striker} falls for ${strikerR}. Big moment — changes the whole complexion of the innings.`,
+        ],
+        wide: [
+            `Wide. Loose from ${bowler} — that's a run-scoring opportunity wasted by the bowling side.`,
+            `Wide called. Discipline is everything in this format — ${bowler} will know that.`,
+        ],
+        noball: [
+            `No ball. Free hit coming up — and that's a massive opportunity for ${striker} to cash in.`,
+            `NO BALL! Big moment — free hit follows. ${striker} can play with complete freedom now.`,
+        ],
+        bye: [ `Byes. Through to the boundary — ${team} takes what they can get.` ],
+        legbye: [ `Leg byes. Off the pad — smart running made that possible.` ],
+    };
+
+    let milestone = '';
+    if(eventType !== 'wicket' && eventType !== 'wide' && eventType !== 'noball'){
+        if(strikerR === 50){
+            milestone = ` And there it is — FIFTY for ${striker}! Well-constructed innings, stat-check — 50 off ${strikerB} balls. Controlled aggression.`;
+        } else if(strikerR === 100){
+            milestone = ` CENTURY! ${striker} gets to three figures — ${strikerR} off ${strikerB} balls. That's a knock under pressure, will be remembered.`;
+        }
+    }
+    const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
+    if(bowlerRow && bowlerRow.wkts === 5 && eventType === 'wicket'){
+        milestone = ` FIVE-FOR for ${bowler}! That's elite bowling — consistent lines, smart variations, deserved rewards.`;
+    }
+
+    let context = '';
+    if(isFinalOvers && isChase && runsNeeded){
+        const rrr = ballsLeft>0 ? ((runsNeeded/(ballsLeft/6)).toFixed(2)) : '∞';
+        context = ` Equation check — ${team} need ${runsNeeded} off ${ballsLeft}, required rate ${rrr}. Manageable, but no room for error.`;
+    } else if(d.wkts >= 6){
+        context = ` Tactically, ${team} are under pressure — ${wktsLeft} wickets left, lower order to expose. Bowling side has the edge.`;
+    } else if(isFinalOvers && !isChase){
+        context = ` Death overs — stat check, these are the runs that decide games. Execution is everything now.`;
+    }
+
+    const pool = commentary[eventType] || commentary.dot;
+    return pool[Math.floor(Math.random() * pool.length)] + milestone + context;
+}
+
+// ── Unified dispatcher ──
+function buildCommentaryForEvent(d, prevD, eventType, style){
+    if(style === 'shastri') return buildShastriCommentary(d, prevD, eventType);
+    if(style === 'chopra')  return buildChopraCommentary(d, prevD, eventType);
+    return buildStandardCommentary(d, prevD, eventType);
+}
+
+// ── Per-style rate/pitch modifiers (makes each voice sound distinct) ──
+function adjustedRatePitch(baseRate, basePitch, style){
+    if(style === 'shastri'){
+        return { rate: baseRate * 0.95, pitch: basePitch * 0.90 };   // deeper, slower, dramatic
+    }
+    if(style === 'chopra'){
+        return { rate: baseRate * 1.05, pitch: basePitch * 1.05 };   // brisker, higher, analytical
+    }
+    return { rate: baseRate, pitch: basePitch };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ══ COMMENTARY SETTINGS LISTENER (admin writes → overlay reads)
+// ═══════════════════════════════════════════════════════════════
+if(!IS_PREVIEW){
+    onValue(cSettingsRef, snap => {
+        const v = snap.val();
+        if(!v) return;
+        _commentarySettings = {
+            enabled: v.enabled !== false,
+            style:   v.style || 'shastri',
+            rate:    typeof v.rate  === 'number' ? v.rate  : 1.0,
+            pitch:   typeof v.pitch === 'number' ? v.pitch : 1.05,
+        };
+        // Refresh voice when style changes
+        initVoice();
+    });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ══ LEGACY COMMENTARY CHANNEL (backup / manual writes)
+// ══ Still supports any direct writes to /commentary ref.
+// ═══════════════════════════════════════════════════════════════
+if(!IS_PREVIEW){
+    get(commRef).then(snap => {
+        _lastCommId = snap.val()?.id || null;
+        onValue(commRef, snap => {
+            const data = snap.val();
+            if(!data || !data.text || data.id === _lastCommId) return;
+            _lastCommId = data.id;
+            // Ignore stop signals
+            if(data.id === '_stop_' || !data.text.trim()) return;
+            enqueueCommentary(data.text, data.rate, data.pitch);
+        });
+    });
+}
+
+// ════════════════════════════════════════════════════════════════
+// ══ END COMMENTARY SYSTEM ══════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+
+// ── Player photos ──────────────────────────────────────────────
 onValue(phRef, snap => {
     _playerPhotos = snap.val() || {};
-    // Refresh any visible photos
     document.querySelectorAll('[data-ph-name]').forEach(el => {
         const name = el.dataset.phName;
         if(name) el.src = getPhoto(name);
@@ -565,6 +1168,9 @@ onValue(phRef, snap => {
 });
 
 const BLANK_AVATAR = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='30' r='30' fill='%23111'/%3E%3Ccircle cx='30' cy='22' r='10' fill='%23333'/%3E%3Cellipse cx='30' cy='52' rx='16' ry='12' fill='%23333'/%3E%3C/svg%3E`;
+
+// ID-card style placeholder (portrait 2:3) used by over-player photos
+const BLANK_IDCARD = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 95'%3E%3Crect width='70' height='95' fill='%23111' rx='8'/%3E%3Ccircle cx='35' cy='34' r='14' fill='%23333'/%3E%3Cellipse cx='35' cy='74' rx='22' ry='16' fill='%23333'/%3E%3C/svg%3E`;
 
 function getPhoto(name){
     if(!name) return BLANK_AVATAR;
@@ -576,6 +1182,15 @@ function setPhoto(el, name){
     if(!el) return;
     el.src = getPhoto(name);
     el.dataset.phName = name || '';
+}
+
+// Over-end photos get an ID-card placeholder (portrait) if no photo exists
+function setIdCardPhoto(el, name){
+    if(!el) return;
+    if(!name){ el.src = BLANK_IDCARD; el.dataset.phName=''; return; }
+    const key = name.replace(/[^a-zA-Z0-9]/g,'_');
+    el.src = _playerPhotos[key] || BLANK_IDCARD;
+    el.dataset.phName = name;
 }
 
 // ── Reconnect watchdog ──
@@ -662,7 +1277,7 @@ function showEventPlayer(name, emoji, statText, subText, colorClass){
     _epovTimer = setTimeout(()=>{ $('eventPlayerOverlay').classList.remove('show'); }, 5000);
 }
 
-// ══ AFTER-OVER PLAYER DISPLAY ═════════════════
+// ══ AFTER-OVER PLAYER DISPLAY (now with ID-card photos) ══════
 function showOverPlayers(d, overNum, overBalls){
     const striker    = d.str===1 ? d.p1n : d.p2n;
     const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
@@ -674,9 +1289,10 @@ function showOverPlayers(d, overNum, overBalls){
     const bowlerRow  = (d.bowlRows||[]).find(r=>r.name===bowler);
     const bowlerFig  = bowlerRow ? `${bowlerRow.wkts}-${bowlerRow.runs}` : '—';
 
-    setPhoto($('opStrikerPhoto'), striker);
-    setPhoto($('opNonStrikerPhoto'), nonStriker);
-    setPhoto($('opBowlerPhoto'), bowler);
+    // Use ID-card style photos (portrait 70x95)
+    setIdCardPhoto($('opStrikerPhoto'), striker);
+    setIdCardPhoto($('opNonStrikerPhoto'), nonStriker);
+    setIdCardPhoto($('opBowlerPhoto'), bowler);
 
     $('opStrikerName').textContent = striker || '—';
     $('opNonStrikerName').textContent = nonStriker || '—';
@@ -685,7 +1301,6 @@ function showOverPlayers(d, overNum, overBalls){
     $('opNonStrikerStat').textContent = `${nonStrikerR}(${nonStrikerB})`;
     $('opBowlerStat').textContent = bowlerFig;
 
-    // Over summary
     $('overSummaryOvNum').textContent = `END OF OVER ${overNum}`;
     const ballsHtml = overBalls.map(v => {
         let cls = '';
@@ -700,7 +1315,6 @@ function showOverPlayers(d, overNum, overBalls){
     const runsInOver = overBalls.reduce((s,v)=>s+(typeof v==='number'?v:0),0);
     $('overSummaryRuns').textContent = `${runsInOver} runs in this over`;
 
-    // Show
     clearTimeout(_overPlayersTimer);
     $('overPlayersWrap').classList.add('show');
     _overPlayersTimer = setTimeout(()=>{ $('overPlayersWrap').classList.remove('show'); }, 10000);
@@ -716,13 +1330,12 @@ function showWinOverlay(d, winnerTeam, margin, winType){
     $('winOverlayDetail').textContent = `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`;
     $('winOverlay').querySelector('.win-trophy-big').textContent = winType === 'tie' ? '🤝' : '🏆';
 
-    // Show top batting photos
-    const batRows = (d.batRows||[]).sort((a,b)=>b.runs-a.runs).slice(0,3);
+    const batRows  = (d.batRows||[]).sort((a,b)=>b.runs-a.runs).slice(0,2);
     const bowlRows = (d.bowlRows||[]).sort((a,b)=>b.wkts-a.wkts||a.runs-b.runs).slice(0,1);
-    const stars = [...batRows.slice(0,2), ...bowlRows];
+    const stars    = [...batRows, ...bowlRows];
     const plHtml = stars.map(p => {
         const photo = getPhoto(p.name);
-        const stat = p.wkts !== undefined && p.balls > 0 ? `${p.wkts}-${p.runs}` : `${p.runs}(${p.balls})`;
+        const stat  = p.wkts !== undefined && p.balls > 0 ? `${p.wkts}-${p.runs}` : `${p.runs}(${p.balls})`;
         return `<div class="win-player-card">
             <img class="win-player-photo" src="${photo}" alt="${p.name}">
             <div class="win-player-name">${p.name}</div>
@@ -731,21 +1344,16 @@ function showWinOverlay(d, winnerTeam, margin, winType){
     }).join('');
     $('winOverlayPlayers').innerHTML = plHtml;
 
-    // Confetti
     const burst = $('confettiBurst');
     burst.innerHTML = '';
     const cols = ['#f5c518','#06d6a0','#e63946','#9b72cf','#fff','#ffd700','#ff8c42'];
     for(let i=0;i<60;i++){
         const d2 = document.createElement('div');
         d2.className = 'wc-bit';
-        const angle = Math.random()*360;
-        const dist  = 100 + Math.random()*200;
-        d2.style.cssText = `left:${Math.random()*100}%;top:${-5+Math.random()*10}%;background:${cols[Math.floor(Math.random()*cols.length)]};height:${8+Math.random()*12}px;animation-delay:${Math.random()*4}s;animation-duration:${4+Math.random()*4}s;transform:rotate(${angle}deg);`;
+        d2.style.cssText = `left:${Math.random()*100}%;top:${-5+Math.random()*10}%;background:${cols[Math.floor(Math.random()*cols.length)]};height:${8+Math.random()*12}px;animation-delay:${Math.random()*4}s;animation-duration:${4+Math.random()*4}s;transform:rotate(${Math.random()*360}deg);`;
         burst.appendChild(d2);
     }
-
     $('winOverlay').classList.add('show');
-    // Auto-hide after 30 seconds
     setTimeout(()=>{ $('winOverlay').classList.remove('show'); }, 30000);
 }
 
@@ -808,7 +1416,6 @@ function showAnn(data){
     if(annTimer){clearTimeout(annTimer);annTimer=null;}
     toast.classList.remove('visible','leaving'); void toast.offsetWidth;
 
-    // Player photo in announcement (replace emoji ring with photo if available)
     const emojiRing = $('annEmojiRing');
     if(data.playerName && getPhoto(data.playerName) !== BLANK_AVATAR){
         emojiRing.innerHTML = `<img class="ann-player-photo" src="${getPhoto(data.playerName)}" alt="${data.playerName}" style="--ann-accent:${data.style==='red'?'#e63946':data.style==='purple'?'#9b72cf':data.style==='blue'?'#118ab2':'#f5c518'}">`;
@@ -868,6 +1475,44 @@ function ballCls(v){
     return '';
 }
 
+// ════════════════════════════════════════════════════════════════
+// ══ EVENT DETECTION FROM CRICKET STATE CHANGES ══════════════════
+// ══ Runs on every cricket ref update. Determines what happened
+// ══ between previous and current state, then generates & plays
+// ══ commentary LOCALLY here in index.html (never in admin).
+// ════════════════════════════════════════════════════════════════
+function detectEventType(d, prev){
+    if(!prev) return null;
+    const newBalls  = d.recentBalls || [];
+    const prevBalls = prev.recentBalls || [];
+    const changed = (newBalls.length !== prevBalls.length)
+                 || (d.wkts !== prev.wkts)
+                 || (d.runs !== prev.runs)
+                 || (d.balls !== prev.balls);
+    if(!changed) return null;
+
+    // Wicket takes priority
+    if(d.wkts > prev.wkts) return 'wicket';
+
+    const lastBall = newBalls.slice(-1)[0];
+    if(lastBall === undefined || lastBall === null) return null;
+
+    if(lastBall === 4) return '4';
+    if(lastBall === 6) return '6';
+    if(lastBall === 1) return '1';
+    if(lastBall === 2) return '2';
+    if(lastBall === 3) return '3';
+    if(lastBall === 0) return 'dot';
+    if(typeof lastBall === 'string'){
+        if(lastBall.startsWith('Wd')) return 'wide';
+        if(lastBall.startsWith('Nb')) return 'noball';
+        if(lastBall.startsWith('By')) return 'bye';
+        if(lastBall.startsWith('Lb')) return 'legbye';
+        if(lastBall === 'W') return 'wicket';
+    }
+    return null;
+}
+
 // ══ MAIN DATA LISTENER ════════════════════════
 onValue(ref(db,'cricket'),snap=>{
     const d=snap.val(); if(!d) return;
@@ -877,13 +1522,27 @@ onValue(ref(db,'cricket'),snap=>{
     document.documentElement.style.setProperty('--ta',batColor);
     document.documentElement.style.setProperty('--tb',bowlColor);
 
+    /* ── GENERATE & PLAY COMMENTARY (only on overlay, never admin) ── */
+    if(!IS_PREVIEW && _prevData && _commentarySettings.enabled){
+        const evType = detectEventType(d, _prevData);
+        if(evType){
+            const style = _commentarySettings.style || 'shastri';
+            const text  = buildCommentaryForEvent(d, _prevData, evType, style);
+            const { rate, pitch } = adjustedRatePitch(
+                _commentarySettings.rate  || 1.0,
+                _commentarySettings.pitch || 1.05,
+                style
+            );
+            enqueueCommentary(text, rate, pitch);
+        }
+    }
+
     /* ── OVER-END AUTO POPUP ── */
     const completedOvers = Math.floor(d.balls/6);
     const ballsThisOver  = d.balls%6;
     if(lastOverCount >= 0 && completedOvers > lastOverCount && ballsThisOver === 0 && uiSt.autoOverPopup === true && d.balls > 0){
         const dur = uiSt.overPopupDur || 8;
         triggerAutoPopup(dur);
-        // Show over player display
         const prevBalls = _prevData ? (_prevData.recentBalls || []) : [];
         showOverPlayers(d, completedOvers, prevBalls.length ? prevBalls : []);
         $('overBadge').textContent = `⬜ END OF OVER ${completedOvers}`;
@@ -897,43 +1556,33 @@ onValue(ref(db,'cricket'),snap=>{
         const strikerR = d.str===1 ? (d.p1r||0) : (d.p2r||0);
         const bowler   = prev.bwn || '';
 
-        // Wicket
         if(d.wkts > prev.wkts){
             showEventPlayer(bowler, '💥', `${bowler} — WICKET!`, `${striker} dismissed`, 'red');
-        }
-        // Six
-        else if(lastBall === 6 && d.runs > prev.runs){
+        } else if(lastBall === 6 && d.runs > prev.runs){
             showEventPlayer(striker, '🚀', `${strikerR} RUNS`, 'MAXIMUM SIX!', 'purple');
-        }
-        // Four
-        else if(lastBall === 4 && d.runs > prev.runs){
+        } else if(lastBall === 4 && d.runs > prev.runs){
             showEventPlayer(striker, '🔥', `${strikerR} RUNS`, 'BOUNDARY FOUR!', 'blue');
-        }
-        // Fifty
-        else if(strikerR >= 50 && strikerR < 55 && (d.str===1 ? (d.p1r||0) : (d.p2r||0)) !== (prev.str===1?(prev.p1r||0):(prev.p2r||0))){
+        } else if(strikerR >= 50 && strikerR < 55){
             const prevR = prev.str===1 ? (prev.p1r||0) : (prev.p2r||0);
             if(prevR < 50 && strikerR >= 50){
                 showEventPlayer(striker, '⭐', `${strikerR} RUNS`, 'HALF CENTURY! 50!', '');
             }
         }
-        // Century
         if(strikerR >= 100){
             const prevR = prev.str===1 ? (prev.p1r||0) : (prev.p2r||0);
             if(prevR < 100 && strikerR >= 100){
                 showEventPlayer(striker, '🏆', `${strikerR} RUNS`, 'CENTURY! 100!', '');
             }
         }
-        // Fifer
         const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
         const prevBowlerRow = (prev.bowlRows||[]).find(r=>r.name===bowler);
         if(bowlerRow && prevBowlerRow && bowlerRow.wkts === 5 && prevBowlerRow.wkts < 5){
             showEventPlayer(bowler, '🎩', `${bowler} — 5 WICKETS!`, 'BRILLIANT FIFER!', '');
         }
 
-        // Win detection
         if(d.innings === 2 && !_winShown){
-            const target = d.target || 0;
-            const maxBalls = (d.maxOvers||20)*6;
+            const target  = d.target || 0;
+            const maxBalls= (d.maxOvers||20)*6;
             const allOut  = d.wkts >= 10;
             const oversUp = d.balls >= maxBalls;
             const runsNeeded = target - d.runs;
@@ -1013,7 +1662,7 @@ onValue(ref(db,'cricket'),snap=>{
     $('scBwlExt').textContent=(d.bowlRows||[]).reduce((s,r)=>s+(r.wides||0)+(r.noballs||0),0);
     $('scBwlOv').textContent=oStr; $('scBwlTotal').textContent=`${d.runs}/${d.wkts}`;
 
-    // Batting rows — with photos
+    // Batting rows
     const batCont=$('scBatRows'); batCont.innerHTML='';
     let fowItems=[],fowCount=0;
     (d.batRows||[]).forEach((row,i)=>{
