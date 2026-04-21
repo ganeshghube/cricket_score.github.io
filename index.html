@@ -415,58 +415,32 @@ body{
 </head>
 <body>
 
-<!-- FORCE AUTO ENABLE (NO USER PROMPT ON REFRESH) -->
-<script>
-(function () {
-
-    // 1. Force enable commentary permanently
-    localStorage.setItem("commentaryEnabled", "true");
-    window._audioEnabled = true;
-
-    // 2. Hide unlock overlay safely
-    const overlay = document.getElementById("audioUnlockOverlay");
-    if (overlay) {
-        overlay.classList.add("gone");
-        overlay.style.pointerEvents = "none";
-    }
-
-    // 3. DO NOT block UI permanently — just start hidden state
-    const dot = document.getElementById("audioStatusDot");
-    const ticker = document.getElementById("commentaryTicker");
-
-    if (dot) dot.classList.remove("show");
-    if (ticker) ticker.classList.remove("show");
-
-    console.log("🎙 Commentary AUTO-ENABLED (NO PROMPT MODE)");
-
-})();
-</script>
-
-<!-- ═══ AUDIO UNLOCK OVERLAY (AUTO ENABLED) ═══ -->
-<div id="audioUnlockOverlay" class="gone">
+<!-- ═══ AUDIO UNLOCK OVERLAY ═══ -->
+<div id="audioUnlockOverlay">
     <div class="auo-box">
         <div class="auo-icon">🎙</div>
         <div class="auo-title">Live Commentary</div>
         <div class="auo-sub">
-            Audio commentary is enabled by default.<br>
-            Running in auto mode.
+            Tap to enable live ball-by-ball audio commentary.<br>
+            Powered by Ravi Shastri / Aakash Chopra style voice.
         </div>
+        <button class="auo-btn" id="audioUnlockBtn">🔊 ENABLE COMMENTARY</button>
     </div>
 </div>
 
-<!-- ═══ AUDIO STATUS DOT (AUTO MODE) ═══ -->
-<div id="audioStatusDot" class="show">
-    <div class="asd-dot on" id="asdDot"></div>
+<!-- ═══ AUDIO STATUS DOT ═══ -->
+<div id="audioStatusDot">
+    <div class="asd-dot" id="asdDot"></div>
     <div class="asd-label" id="asdLabel">COMMENTARY</div>
-</div> ═══ -->
+</div>
 
-<!-- ═══ COMMENTARY TICKER (READY BUT HIDDEN UNTIL USED) ═══ -->
+<!-- ═══ COMMENTARY TICKER ═══ -->
 <div id="commentaryTicker">
     <div class="ct-inner">
         <div class="ct-label">🎙 Live Commentary</div>
-        <div class="ct-text" id="ctText">Ready…</div>
+        <div class="ct-text" id="ctText">Initialising…</div>
     </div>
-</div>  ═══ -->
+</div>
 
 <!-- ═══ EMOJI RAIN ═══ -->
 <div class="ann-rain" id="annRain"></div>
