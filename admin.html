@@ -233,7 +233,9 @@ button:active{ opacity:.65; transform:scale(.95); }
 .audio-voice-sel{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:center; }
 .audio-voice-sel label{ margin:0; }
 .audio-voice-sel select{ width:auto; padding:6px 10px; font-size:12px; }
-
+/* relay note */
+.audio-relay-note{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#2a4a3a; letter-spacing:.5px; margin-top:8px; padding:6px 10px; background:#03120a; border:1px solid #0a3020; border-radius:4px; }
+.audio-relay-note b{ color:#3a7a5a; }
 </style>
 </head>
 <body>
@@ -435,9 +437,11 @@ button:active{ opacity:.65; transform:scale(.95); }
             <button class="audio-toggle" id="audioToggleBtn" onclick="toggleAudio()">ENABLE</button>
         </div>
         <div class="audio-voice-sel">
-            <label>Voice:</label>
-            <select id="voiceSel" onchange="updateVoice()">
-                <option value="">Loading voices...</option>
+            <!-- ══ NEW: Commentary Style selector ══ -->
+            <label>Style:</label>
+            <select id="commentaryStyleSel" title="Commentary style">
+                <option value="standard">Standard</option>
+                <option value="shastri">🎙 Ravi Shastri / Akash Chopra</option>
             </select>
             <label style="margin-left:8px">Rate:</label>
             <select id="rateSel" style="width:80px">
@@ -455,6 +459,10 @@ button:active{ opacity:.65; transform:scale(.95); }
             </select>
         </div>
         <div class="audio-current" id="audioCurrentText">No commentary yet — initialize a match to begin.</div>
+        <!-- ══ NEW: relay status note ══ -->
+        <div class="audio-relay-note">
+            🔊 <b>Audio plays on index.html</b> — viewers visiting the overlay page will hear live commentary in real-time. Admin panel no longer plays audio locally.
+        </div>
     </div>
 </div>
 
@@ -624,13 +632,16 @@ const hRef    = ref(db,'undoStack');
 const aRef    = ref(db,'announcement');
 const histRef = ref(db,'matchHistory');
 const phRef   = ref(db,'playerPhotos');
+// ══ NEW: Firebase relay ref for commentary ══
+const cRef    = ref(db,'commentary');
+
 const $       = id => document.getElementById(id);
 
 let _squads = { bat:[], bowl:[] };
 let _match  = null;
 let _autoOn = false;
 let _currentMatchKey = null;
-let _playerPhotos = {}; // name -> dataURL
+let _playerPhotos = {};
 
 // ══ PLAYER PHOTOS ═════════════════════════════════
 onValue(phRef, snap => {
@@ -677,7 +688,6 @@ function buildSquadInputs(){
             `;
             cont.appendChild(row);
 
-            // File upload handler
             setTimeout(() => {
                 const fileInput = $(`file${team}${i}`);
                 if(!fileInput) return;
@@ -704,7 +714,6 @@ function buildSquadInputs(){
 }
 
 function onPlayerNameChange(team, idx){
-    // Update avatar data-name
     const nameEl = $(`player${team}${idx}`);
     const avatarEl = $(`avatar${team}${idx}`);
     if(nameEl && avatarEl){
@@ -771,7 +780,6 @@ function showWinPopup(title, sub, detail, isWin){
     $('winPopupTitle').textContent = title;
     $('winPopupSub').textContent = sub;
     $('winPopupDetail').textContent = detail || '';
-    // Confetti
     const conf = $('winConfetti');
     conf.innerHTML = '';
     const cols = ['#f5c518','#06d6a0','#e63946','#9b72cf','#118ab2','#fff'];
@@ -785,42 +793,14 @@ function showWinPopup(title, sub, detail, isWin){
 }
 window.closeWinPopup = () => $('winPopupOverlay').classList.remove('open');
 
-// ══ AUDIO COMMENTARY SYSTEM ══════════════════════
+// ══════════════════════════════════════════════════
+// ══ AUDIO COMMENTARY SYSTEM (FIREBASE RELAY) ══════
+// Admin generates the text, writes to Firebase 'commentary' node.
+// index.html listens and speaks. No local audio in admin.
+// ══════════════════════════════════════════════════
 let _audioEnabled = false;
 let _speechQueue  = [];
-let _speaking     = false;
-let _selectedVoice = null;
-let _lastBallState = null;
-
-// Load voices
-function loadVoices(){
-    const voices = window.speechSynthesis.getVoices();
-    const sel = $('voiceSel');
-    if(!voices.length){ sel.innerHTML = '<option value="">No voices found</option>'; return; }
-    sel.innerHTML = '';
-    // Prefer energetic female English voices
-    const preferred = voices.filter(v => v.lang.startsWith('en'));
-    const all = preferred.length ? preferred : voices;
-    all.forEach((v,i) => {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = `${v.name} (${v.lang})`;
-        sel.appendChild(opt);
-    });
-    // Auto-pick a female/energetic voice if possible
-    const female = all.findIndex(v => /female|woman|zira|samantha|victoria|karen|moira|fiona|tessa|susan|hazel|heera/i.test(v.name));
-    if(female >= 0) sel.value = female;
-    _selectedVoice = all[parseInt(sel.value)||0] || all[0];
-}
-window.speechSynthesis.onvoiceschanged = loadVoices;
-setTimeout(loadVoices, 800);
-
-window.updateVoice = () => {
-    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-    const all = voices.length ? voices : window.speechSynthesis.getVoices();
-    const idx = parseInt($('voiceSel').value) || 0;
-    _selectedVoice = all[idx] || all[0];
-};
+let _prevMatchState = null;
 
 window.toggleAudio = () => {
     _audioEnabled = !_audioEnabled;
@@ -830,48 +810,50 @@ window.toggleAudio = () => {
     btn.textContent = _audioEnabled ? 'DISABLE' : 'ENABLE';
     btn.className = _audioEnabled ? 'audio-toggle on' : 'audio-toggle';
     ind.className = _audioEnabled ? 'audio-indicator on' : 'audio-indicator';
-    lbl.textContent = _audioEnabled ? 'COMMENTARY ACTIVE' : 'COMMENTARY OFF';
-    if(!_audioEnabled){ window.speechSynthesis.cancel(); _speechQueue = []; _speaking = false; }
+    lbl.textContent = _audioEnabled ? 'COMMENTARY ACTIVE — playing on index.html' : 'COMMENTARY OFF';
+    if(!_audioEnabled){
+        _speechQueue = [];
+        // Signal index.html to stop
+        set(cRef, { text:'', rate:1.0, pitch:1.1, style:'standard', sentAt:Date.now(), id:'_stop_' });
+    }
 };
 
-function speakText(text){
+// ══ Sends text to Firebase → index.html plays it ══
+async function speakText(text){
     if(!_audioEnabled) return;
-    _speechQueue.push(text);
-    if(!_speaking) processQueue();
-}
-
-function processQueue(){
-    if(!_speechQueue.length){ _speaking=false; $('audioIndicator').className='audio-indicator on'; return; }
-    _speaking = true;
-    const text = _speechQueue.shift();
-    $('audioCurrentText').textContent = `"${text}"`;
+    $('audioCurrentText').textContent = `▶ "${text}"`;
     $('audioIndicator').className = 'audio-indicator speaking';
-    const utt = new SpeechSynthesisUtterance(text);
-    if(_selectedVoice) utt.voice = _selectedVoice;
-    utt.rate  = parseFloat($('rateSel').value)  || 1.0;
-    utt.pitch = parseFloat($('pitchSel').value) || 1.1;
-    utt.volume = 1;
-    utt.onend  = () => { setTimeout(processQueue, 400); };
-    utt.onerror= () => { _speaking=false; };
-    window.speechSynthesis.speak(utt);
+    const rate  = parseFloat($('rateSel').value)  || 1.0;
+    const pitch = parseFloat($('pitchSel').value) || 1.1;
+    const style = $('commentaryStyleSel').value   || 'standard';
+    await set(cRef, {
+        text,
+        rate,
+        pitch,
+        style,
+        sentAt: Date.now(),
+        id: Math.random().toString(36).slice(2)
+    });
+    // Reset indicator after a reasonable time
+    setTimeout(() => {
+        if(_audioEnabled) $('audioIndicator').className = 'audio-indicator on';
+    }, Math.max(2000, text.length * 70));
 }
 
+// ══ STANDARD COMMENTARY BUILDER (unchanged) ══════
 function buildCommentary(d, prevD, eventType){
     const striker    = d.str===1 ? d.p1n : d.p2n;
     const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
     const nonStriker = d.str===1 ? d.p2n : d.p1n;
     const bowler     = d.bwn || 'the bowler';
     const team       = d.batTeam || 'the batting side';
-    const overs      = `${Math.floor(d.balls/6)} point ${d.balls%6}`;
     const maxOv      = d.maxOvers || 20;
     const ballsLeft  = maxOv*6 - d.balls;
     const runsNeeded = d.target > 0 ? d.target - d.runs : null;
     const isChase    = d.target > 0;
     const isFinalOvers = Math.floor(d.balls/6) >= maxOv - 3;
-    const crr        = d.balls > 0 ? (d.runs/(d.balls/6)).toFixed(1) : '0';
     const wktsLeft   = 10 - d.wkts;
 
-    // Tone detection
     let tone = 'normal';
     if(d.wkts >= 6) tone = 'collapse';
     else if(isChase && runsNeeded && ballsLeft > 0 && (runsNeeded/(ballsLeft/6)) > 12) tone = 'tough';
@@ -934,20 +916,16 @@ function buildCommentary(d, prevD, eventType){
         legbye: [ `Leg byes! Deflects off the pad, they run.` ],
     };
 
-    // Milestone additions
     let milestone = '';
     if(eventType !== 'wicket' && eventType !== 'wide' && eventType !== 'noball'){
         if(strikerR === 50) milestone = ` And what a moment — ${striker} brings up the HALF CENTURY! Fifty runs for this outstanding batsman!`;
         else if(strikerR === 100) milestone = ` Unbelievable! ${striker} reaches ONE HUNDRED RUNS! A century for the ages!`;
     }
-
-    // Check for fifer
     const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
     if(bowlerRow && bowlerRow.wkts === 5 && eventType === 'wicket'){
         milestone = ` And that's FIVE wickets for ${bowler}! A brilliant FIFER! Outstanding bowling!`;
     }
 
-    // Context additions based on tone
     let context = '';
     if(isFinalOvers && isChase && runsNeeded){
         context = ` ${team} need ${runsNeeded} runs off ${ballsLeft} balls!`;
@@ -960,6 +938,108 @@ function buildCommentary(d, prevD, eventType){
     const pool = commentary[eventType] || commentary.dot;
     const line = pool[Math.floor(Math.random() * pool.length)];
     return line + milestone + context;
+}
+
+// ══ NEW: RAVI SHASTRI / AKASH CHOPRA STYLE BUILDER ══
+function buildShastriCommentary(d, prevD, eventType){
+    const striker    = d.str===1 ? d.p1n : d.p2n;
+    const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
+    const nonStriker = d.str===1 ? d.p2n : d.p1n;
+    const bowler     = d.bwn || 'the bowler';
+    const team       = d.batTeam || 'the batting side';
+    const maxOv      = d.maxOvers || 20;
+    const ballsLeft  = maxOv*6 - d.balls;
+    const runsNeeded = d.target > 0 ? d.target - d.runs : null;
+    const isChase    = d.target > 0;
+    const isFinalOvers = Math.floor(d.balls/6) >= maxOv - 3;
+    const wktsLeft   = 10 - d.wkts;
+
+    const commentary = {
+        dot: [
+            `Dot ball! ${bowler} has got his line and length absolutely spot on! ${striker} just cannot get it away!`,
+            `Defended! ${bowler} is breathing fire today! Beautiful control, and that is a dot ball!`,
+            `${striker} is beaten on the outside edge! Oh, what a delivery that was from ${bowler}! Dot ball!`,
+            `Kept quiet! ${bowler} is on top here. Magnificent bowling. The crowd is applauding that one!`,
+            `Tight, tight, tight! That is dot ball number one in this over. ${team}, you need to find a way through!`,
+        ],
+        1: [
+            `One run, and ${striker} rotates the strike. Smart cricket. Very smart cricket indeed!`,
+            `Worked away for a single! ${striker} is finding the gaps. The running between the wickets has been excellent!`,
+            `A nudge and a run — ${striker} and ${nonStriker} are in complete control out there! One more!`,
+            `Quick single! The communication between the two batters has been outstanding today!`,
+        ],
+        2: [
+            `Two runs! ${striker} has timed that beautifully through the gap! The timing was just divine!`,
+            `They come back for two! The running is excellent! ${team} are building nicely here!`,
+            `Oh, that is just superb placement from ${striker}! Two runs, and the crowd loves it!`,
+        ],
+        3: [
+            `Three! And that is a magnificent piece of running between the wickets! Three runs to ${team}!`,
+            `Three runs! Up, up and away! ${striker} and ${nonStriker} are running like the wind out there!`,
+        ],
+        4: [
+            `FOUR! That has gone like a tracer bullet through the covers! What a magnificent shot from ${striker}! That is sheer class!`,
+            `BOUNDARY! He has hit that into the next zip code! ${striker} has smoked ${bowler} for a cracking FOUR!`,
+            `FOUR RUNS! And the crowd is on its feet! What a shot! What a player! ${striker} is absolutely ON FIRE today!`,
+            `OH! That is absolutely gorgeous! FOUR! Through the gap, past the diving fielder, and into the boundary rope! Stunning stuff!`,
+            `FOUR! As good as it gets! ${striker} has played that with the full face of the bat and it has raced away to the fence!`,
+        ],
+        6: [
+            `SIX! Up, up and AWAY! That has gone into the STANDS! ${striker} has absolutely MURDERED that delivery from ${bowler}!`,
+            `MAXIMUM! Oh my goodness! That is one of the biggest sixes you will ever see! ${striker} has launched it into ORBIT!`,
+            `SIX RUNS! He has hit that so hard, so clean, so beautiful! The crowd is absolutely ELECTRIC! What a hit from ${striker}!`,
+            `THAT'S A SIX! When ${striker} is in this kind of form, nobody can stop him! Right over the top, and gone for a MAXIMUM!`,
+            `INTO THE CROWD! ${striker} has given ${bowler} absolutely NOTHING to bowl at there! WHAT A SHOT! SIX! SIX! SIX!`,
+        ],
+        wicket: [
+            `WICKET! She is OUT! ${bowler} has got the big one! What a massive breakthrough for ${d.bowlTeam||'the bowling side'}! ${striker} has to walk!`,
+            `OUT! GONE! The stumps are shattered! ${bowler} is pumped up, the crowd is going absolutely BERSERK! ${striker} has to go!`,
+            `BOWLED HIM! Oh, that is a BEAUTY! ${bowler} has done the job! ${striker} looks back, and the damage is done! Excellent cricket!`,
+            `OUT! And it is a MASSIVE wicket! The ${d.batTeam||'batting side'} will be shaking their heads in the dressing room! ${bowler} has done it again!`,
+        ],
+        wide: [
+            `Wide ball! ${bowler} has gone too far down the leg side there. The pressure of this match is telling! One extra.`,
+            `Wide! That strays too far outside. ${bowler} needs to regroup and come back stronger!`,
+        ],
+        noball: [
+            `NO BALL! ${bowler} has overstepped and that means a FREE HIT is coming up! What a gift for ${striker}!`,
+            `NO BALL called! And now there is a FREE HIT! The crowd is buzzing! ${striker}, this is your moment!`,
+        ],
+        bye: [ `Byes! The keeper is beaten! They take the runs and ${team} will accept every run they can get!` ],
+        legbye: [ `Leg byes! Deflects off the pad and they scamper through! That is what you call opportunistic cricket!` ],
+    };
+
+    let milestone = '';
+    if(eventType !== 'wicket' && eventType !== 'wide' && eventType !== 'noball'){
+        if(strikerR === 50) milestone = ` And there it is! The HALF CENTURY for ${striker}! FIFTY RUNS! What a knock this has been! The crowd is giving a standing ovation! Absolutely magnificent!`;
+        else if(strikerR === 100) milestone = ` OH MY GOODNESS! ONE HUNDRED RUNS! ${striker} brings up the CENTURY! This is the stuff of LEGEND! What a player! What a knock! The entire stadium is on its feet!`;
+    }
+    const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
+    if(bowlerRow && bowlerRow.wkts === 5 && eventType === 'wicket'){
+        milestone = ` And that is FIVE wickets for ${bowler}! A FIFER! You cannot ask for more from a bowler! Absolutely WORLD CLASS performance!`;
+    }
+
+    let context = '';
+    if(isFinalOvers && isChase && runsNeeded){
+        context = ` And the equation is clear — ${team} need ${runsNeeded} runs from ${ballsLeft} balls! The pressure is IMMENSE!`;
+    } else if(d.wkts >= 6){
+        context = ` ${team} are in deep trouble now — only ${wktsLeft} wickets remaining! This is a crisis situation!`;
+    } else if(isFinalOvers && !isChase){
+        context = ` The final overs are upon us! Every single delivery counts now! Incredible cricket!`;
+    }
+
+    const pool = commentary[eventType] || commentary.dot;
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    return line + milestone + context;
+}
+
+// ══ Unified commentary dispatcher ══
+function buildCommentaryForEvent(d, prevD, eventType){
+    const style = $('commentaryStyleSel') ? $('commentaryStyleSel').value : 'standard';
+    if(style === 'shastri'){
+        return buildShastriCommentary(d, prevD, eventType);
+    }
+    return buildCommentary(d, prevD, eventType);
 }
 
 // ══ Toast helper ──────────────────────────────────
@@ -1048,11 +1128,10 @@ function fillSel(bat,bowl,p1n,p2n,bwn){
 }
 
 // ══ MATCH DATA LISTENER ═══════════════════════════
-let _prevMatchState = null;
 onValue(mRef,snap=>{
     const d=snap.val(); _match=d; if(!d) return;
 
-    // Audio commentary — detect what changed
+    // ── Audio commentary — detect what changed and relay to Firebase ──
     if(_audioEnabled && _prevMatchState){
         const prev = _prevMatchState;
         const newBalls = d.recentBalls || [];
@@ -1072,7 +1151,7 @@ onValue(mRef,snap=>{
             else if(lastBall === 3) evType = '3';
             else if(lastBall === 0) evType = 'dot';
             const commentKey = { '4':'4','6':'6','1':'1','2':'2','3':'3','dot':'dot','wicket':'wicket','wide':'wide','noball':'noball','bye':'bye','legbye':'legbye' };
-            const cLine = buildCommentary(d, prev, commentKey[evType] || 'dot');
+            const cLine = buildCommentaryForEvent(d, prev, commentKey[evType] || 'dot');
             speakText(cLine);
         }
     }
@@ -1157,7 +1236,6 @@ window.openBowlerInjury=async()=>{
     openBowlerPicker(d.bowlRows||[],d.bwn,Math.floor(d.balls/6),true);
 };
 
-// Main Firebase listener — handles over-end, win detection, innings end
 onValue(mRef,async snap=>{
     const d=snap.val(); if(!d) return;
     const completedOvers = Math.floor(d.balls/6);
@@ -1229,7 +1307,7 @@ window.initMatch=async()=>{
     _inn1EndFired=false;
     _prevMatchState=null;
     await saveMatchToDb(true);
-    if(_audioEnabled) speakText(`Match initialized! ${batNm} will bat first against ${bowlNm}. Let's get this game started!`);
+    if(_audioEnabled) speakText(`Match initialized! ${batNm} will bat first against ${bowlNm}. Ladies and gentlemen, let the game begin!`);
     alert('✅ Match Initialized!');
 };
 
@@ -1285,7 +1363,6 @@ async function checkMatchEvents(d){
         _winFired = true;
         await set(aRef,{ ...winMsg, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
         setTimeout(()=>{ saveMatchToDb(true); }, 1500);
-        // Show win popup (not alert!)
         setTimeout(()=>{
             showWinPopup(
                 winMsg.text,
@@ -1294,7 +1371,6 @@ async function checkMatchEvents(d){
                 winMsg.type === 'tie' ? 'tie' : 'win'
             );
             if(_audioEnabled){
-                const ovStr = `${Math.floor(d.balls/6)} overs`;
                 speakText(`${winMsg.text} ${winMsg.sub}. What an incredible match! The crowd is on their feet!`);
             }
         }, 800);
@@ -1383,7 +1459,7 @@ window.swapInnings=async()=>{
     _winFired=false;
     _inn1EndFired=false;
     _prevMatchState=null;
-    if(_audioEnabled) speakText(`Second innings underway! ${d.bowlTeam} need ${d.runs+1} runs to win. The chase is on!`);
+    if(_audioEnabled) speakText(`Second innings underway! ${d.bowlTeam} need ${d.runs+1} runs to win. The chase is on! And what a chase it promises to be!`);
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
@@ -1396,6 +1472,7 @@ window.fullReset=async()=>{
     await set(mRef,null);
     await set(sRef,null);
     await set(hRef,null);
+    await set(cRef,null);
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
     _adminLastOver=-1;
     _currentMatchKey=null;
