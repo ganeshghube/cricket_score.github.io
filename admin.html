@@ -1966,16 +1966,18 @@ function renderSiTeam(step){
     void fill.offsetWidth;
     fill.style.animation = `siProgress ${SI_DURATION}s linear forwards`;
 
+    const BLANK_SI = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Ccircle cx='26' cy='26' r='26' fill='%23111'/%3E%3Ccircle cx='26' cy='19' r='9' fill='%23333'/%3E%3Cellipse cx='26' cy='44' rx='14' ry='10' fill='%23333'/%3E%3C/svg%3E`;
     const grid = $('siPlayerGrid');
-    grid.innerHTML = names.map((name, i) => {
-        const key = name.replace(/[^a-zA-Z0-9]/g,'_');
-        const photoSrc = _playerPhotos[key] || getPhoto('');
-        const hasPhoto = !!_playerPhotos[key];
-        return `<div class="si-player-card" style="animation-delay:${i * 0.07}s">
-            <img class="si-player-img ${hasPhoto ? 'has-photo' : ''}" src="${photoSrc}" alt="${name}">
-            <div class="si-player-name">${name}</div>
-        </div>`;
-    }).join('');
+    grid.innerHTML = names.length
+        ? names.map((name, i) => {
+            const photoSrc = _photoMap[name] || BLANK_SI;
+            const hasPhoto = !!_photoMap[name];
+            return `<div class="si-player-card" style="animation-delay:${i * 0.07}s">
+                <img class="si-player-img ${hasPhoto ? 'has-photo' : ''}" src="${photoSrc}" alt="${name}">
+                <div class="si-player-name">${name}</div>
+            </div>`;
+          }).join('')
+        : `<div style="grid-column:1/-1;text-align:center;padding:24px;font-family:'Barlow Condensed',sans-serif;font-size:12px;color:#333;letter-spacing:1px">No players entered yet</div>`;
 
     _siTimer = setTimeout(() => {
         if(_siStep === 0){ _siStep = 1; renderSiTeam(1); }
