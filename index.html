@@ -333,63 +333,42 @@ body{
 .cb-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:cbFly ease-out forwards; opacity:0; }
 @keyframes cbFly{ 0%{opacity:1;transform:translate(0,0) scale(1);} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);} }
 
-/* ═══ AUDIO STATUS INDICATOR (top-left) ═══ */
-#audioStatusDot{
-    position:fixed; top:14px; left:14px; z-index:60;
-    display:flex; align-items:center; gap:7px;
-    background:rgba(6,6,14,.85); border:1px solid rgba(255,255,255,.06);
-    border-radius:20px; padding:5px 12px;
-    opacity:0; transition:opacity .4s;
-}
-#audioStatusDot.show{ opacity:1; }
-.asd-dot{
-    width:7px; height:7px; border-radius:50%;
-    background:#333; transition:.3s;
-}
-.asd-dot.on{ background:#06d6a0; box-shadow:0 0 6px #06d6a0; animation:asdPulse 1.5s infinite; }
-.asd-dot.speaking{ background:#f0b429; box-shadow:0 0 8px #f0b429; animation:asdPulse .6s infinite; }
-@keyframes asdPulse{ 0%,100%{opacity:1} 50%{opacity:.35} }
-.asd-label{
-    font-family:'Barlow Condensed',sans-serif; font-size:10px;
-    color:#444; letter-spacing:1px; text-transform:uppercase;
+/* ═══ AUDIO UNLOCK OVERLAY — CHANGE: hidden, but kept in DOM for compatibility ═══ */
+#audioUnlockOverlay{
+    display: none !important; /* CHANGE: Always hidden — audio auto-enables */
 }
 
-/* ═══ COMMENTARY TICKER (bottom-left) ═══ */
+/* ═══ AUDIO STATUS DOT — CHANGE: hidden but functional ═══ */
+#audioStatusDot{
+    display: none !important; /* CHANGE: Hidden from broadcast view */
+}
+
+/* ═══ COMMENTARY TICKER — CHANGE: hidden but functional ═══ */
 #commentaryTicker{
-    position:fixed; bottom:108px; left:16px; z-index:38;
-    max-width:420px; pointer-events:none;
-    opacity:0; transform:translateY(8px);
-    transition:opacity .4s, transform .4s;
+    display: none !important; /* CHANGE: Hidden from broadcast view */
 }
-#commentaryTicker.show{
-    opacity:1; transform:translateY(0);
-}
-.ct-inner{
-    background:linear-gradient(135deg,rgba(6,6,14,.96),rgba(10,10,22,.96));
-    border:1px solid rgba(240,180,41,.2); border-left:3px solid #f0b429;
-    border-radius:6px; padding:8px 14px;
-    box-shadow:0 4px 20px rgba(0,0,0,.8);
-}
-.ct-label{
-    font-family:'Barlow Condensed',sans-serif; font-size:9px;
-    color:#5a4a00; letter-spacing:2px; text-transform:uppercase; margin-bottom:3px;
-}
-.ct-text{
-    font-family:'Barlow Condensed',sans-serif; font-size:13px;
-    color:#c8b060; letter-spacing:.4px; line-height:1.5;
-    font-style:italic;
-}
+
 </style>
 </head>
 <body>
 
-<!-- ═══ AUDIO STATUS DOT — shown automatically, no overlay needed ═══ -->
-<div id="audioStatusDot" class="show">
-    <div class="asd-dot on" id="asdDot"></div>
-    <div class="asd-label" id="asdLabel">COMMENTARY ON</div>
+<!-- ═══ AUDIO UNLOCK OVERLAY — CHANGE: Hidden, auto-enable handles this ═══ -->
+<div id="audioUnlockOverlay">
+    <div class="auo-box">
+        <div class="auo-icon">🎙</div>
+        <div class="auo-title">Live Commentary</div>
+        <div class="auo-sub">Tap anywhere to enable live commentary.</div>
+        <button class="auo-btn" id="audioUnlockBtn">🔊 ENABLE COMMENTARY</button>
+    </div>
 </div>
 
-<!-- ═══ COMMENTARY TICKER ═══ -->
+<!-- ═══ AUDIO STATUS DOT — CHANGE: Hidden but JS still updates it ═══ -->
+<div id="audioStatusDot">
+    <div class="asd-dot" id="asdDot"></div>
+    <div class="asd-label" id="asdLabel">COMMENTARY</div>
+</div>
+
+<!-- ═══ COMMENTARY TICKER — CHANGE: Hidden but JS still updates it ═══ -->
 <div id="commentaryTicker">
     <div class="ct-inner">
         <div class="ct-label">🎙 Live Commentary</div>
@@ -617,158 +596,184 @@ let _epovTimer    = null;
 let _overPlayersTimer = null;
 
 // ════════════════════════════════════════════════════════════════
+// ═══ CHANGE: IFRAME DETECTION ════════════════════════════════
+// Detect if loaded inside admin.html's preview iframe.
+// If embedded, ALL audio is disabled — only standalone index.html speaks.
+// ════════════════════════════════════════════════════════════════
+const IS_EMBEDDED = (window.self !== window.top);
+
+// ════════════════════════════════════════════════════════════════
 // ═══ LIVE AUDIO COMMENTARY SYSTEM ════════════════════════════
-// Auto-enabled on load. Uses first user gesture to prime the
-// Web Speech API (required by browser autoplay policy).
 // ════════════════════════════════════════════════════════════════
 
-let _audioUnlocked = true;   // Always on — no manual enable needed
-let _speechQueue   = [];
-let _isSpeaking    = false;
-let _selectedVoice = null;
-let _lastCommId    = null;
-let _tickerTimer   = null;
-let _synthPrimed   = false;
+// CHANGE: Auto-enable audio. If not in iframe, pre-unlock.
+// Browsers require a user gesture before speech plays.
+// We set _audioUnlocked = true immediately and prime on first interaction.
+let _audioUnlocked   = !IS_EMBEDDED; // CHANGE: auto-true when standalone
+let _speechQueue     = [];
+let _isSpeaking      = false;
+let _selectedVoice   = null;
+let _lastCommId      = null;
+let _tickerTimer     = null;
 
-// ── Prime synthesis on first user interaction ────────────────
-// Browsers block audio until a real user gesture occurs.
-// We silently speak an empty utterance on the first click/tap/key.
-function primeSpeechSynthesis() {
-    if (_synthPrimed) return;
-    _synthPrimed = true;
+// ── CHANGE: Auto-prime speech synthesis on page load + first interaction ──
+if (!IS_EMBEDDED) {
+    // Try immediately (may be blocked, that's OK)
     try {
-        window.speechSynthesis.cancel();
-        const primer = new SpeechSynthesisUtterance(' ');
-        primer.volume = 0;
-        primer.rate   = 1;
-        if (_selectedVoice) primer.voice = _selectedVoice;
-        window.speechSynthesis.speak(primer);
-    } catch(e) { /* ignore */ }
+        const prime = new SpeechSynthesisUtterance(' ');
+        prime.volume = 0;
+        window.speechSynthesis.speak(prime);
+    } catch(e) { /* silent */ }
+
+    // Also prime on very first user touch/click (guaranteed to work)
+    const primeOnce = () => {
+        try {
+            const prime = new SpeechSynthesisUtterance(' ');
+            prime.volume = 0;
+            window.speechSynthesis.speak(prime);
+            _audioUnlocked = true;
+            if (_speechQueue.length) processQueue();
+        } catch(e) { /* silent */ }
+        document.removeEventListener('click',    primeOnce);
+        document.removeEventListener('touchstart', primeOnce);
+        document.removeEventListener('keydown',  primeOnce);
+    };
+    document.addEventListener('click',    primeOnce, { once: true });
+    document.addEventListener('touchstart', primeOnce, { once: true, passive: true });
+    document.addEventListener('keydown',  primeOnce, { once: true });
 }
 
-// Listen for ANY first interaction — click, key, touch
-['click', 'keydown', 'touchstart', 'pointerdown', 'mousedown'].forEach(type => {
-    document.addEventListener(type, primeSpeechSynthesis, { passive: true });
-});
+// ── CHANGE: Improved voice loader — prioritises Indian English & deep male voices ──
+function selectBestVoice(){
+    const all = window.speechSynthesis.getVoices();
+    if(!all.length) return null;
 
-// ── Voice selector ───────────────────────────────────────────
-function selectBestVoice() {
-    const voices = window.speechSynthesis.getVoices();
-    if (!voices.length) return null;
-
-    const PREFERRED = [
-        'google hindi',
-        'google uk english male',
-        'rishi',
-        'aaron',
-        'daniel',
-        'google us english',
-        'microsoft david',
-        'microsoft mark',
-        'alex',
-        'fred',
-    ];
-    for (const pref of PREFERRED) {
-        const v = voices.find(v => v.name.toLowerCase().includes(pref));
-        if (v) return v;
+    // Priority 1: Indian English voices (ideal for cricket commentary)
+    const INDIAN = ['rishi', 'lekha', 'veena', 'google hindi',
+                    'google indian english', 'heera', 'google uk english male'];
+    for(const pref of INDIAN){
+        const found = all.find(v => v.name.toLowerCase().includes(pref));
+        if(found) return found;
     }
 
-    // Any English male voice
-    const enMale = voices.find(v =>
+    // Priority 2: Deep authoritative British/Commonwealth male voices
+    const BRITISH = ['daniel', 'arthur', 'oliver', 'google uk english male',
+                     'microsoft george', 'microsoft hazel'];
+    for(const pref of BRITISH){
+        const found = all.find(v => v.name.toLowerCase().includes(pref));
+        if(found) return found;
+    }
+
+    // Priority 3: US deep male voices
+    const US = ['google us english', 'microsoft david', 'aaron', 'alex',
+                'fred', 'mark', 'microsoft mark', 'brian', 'james'];
+    for(const pref of US){
+        const found = all.find(v => v.name.toLowerCase().includes(pref));
+        if(found) return found;
+    }
+
+    // Priority 4: Any English male-sounding voice
+    const enMale = all.find(v =>
         v.lang.startsWith('en') &&
-        /male|man|guy|david|mark|james|george|arthur|thomas|oliver|harry|ryan|brian|paul|richard|william/i.test(v.name)
+        /male|man|david|mark|james|george|oliver|harry|ryan|brian|paul|richard|william|arthur|thomas/i.test(v.name)
     );
-    if (enMale) return enMale;
+    if(enMale) return enMale;
 
-    return voices.find(v => v.lang.startsWith('en')) || voices[0];
+    // Priority 5: Any English voice
+    return all.find(v => v.lang.startsWith('en')) || all[0];
 }
 
-function initVoice() {
-    const v = selectBestVoice();
-    if (v) _selectedVoice = v;
+function initVoice(){
+    _selectedVoice = selectBestVoice();
 }
-
 window.speechSynthesis.onvoiceschanged = initVoice;
-initVoice();
 setTimeout(initVoice, 600);
-setTimeout(initVoice, 1800);
 
-// ── Commentary ticker ────────────────────────────────────────
-function showTicker(text) {
+// ── CHANGE: Unlock button kept for compatibility but overlay is CSS-hidden ──
+$('audioUnlockBtn').addEventListener('click', () => {
+    if(IS_EMBEDDED) return; // CHANGE: Never enable audio in iframe
+    _audioUnlocked = true;
+    try {
+        const prime = new SpeechSynthesisUtterance(' ');
+        prime.volume = 0;
+        window.speechSynthesis.speak(prime);
+    } catch(e) {}
+    if(_speechQueue.length) processQueue();
+    // Update hidden status elements (functional, not visible)
+    $('asdDot').className = 'asd-dot on';
+    $('asdLabel').textContent = 'COMMENTARY ON';
+});
+
+// ── Speech queue processor ─────────────────────────────────────
+function processQueue(){
+    // CHANGE: Never speak if embedded in iframe
+    if(IS_EMBEDDED || !_audioUnlocked || !_speechQueue.length){
+        _isSpeaking = false;
+        return;
+    }
+    _isSpeaking = true;
+    const item = _speechQueue.shift();
+    const text  = item.text;
+    const rate  = item.rate  || 1.0;
+    const pitch = item.pitch || 1.1;
+
+    // Update hidden ticker (functional but not visible)
+    showTicker(text);
+    $('asdDot').className     = 'asd-dot speaking';
+    $('asdLabel').textContent = 'SPEAKING…';
+
+    const utt = new SpeechSynthesisUtterance(text);
+    // CHANGE: Re-select voice each time in case voices loaded after init
+    if(!_selectedVoice) _selectedVoice = selectBestVoice();
+    if(_selectedVoice) utt.voice = _selectedVoice;
+    utt.rate   = rate;
+    utt.pitch  = pitch;
+    utt.volume = 1;
+    utt.onend  = () => { setTimeout(processQueue, 380); };
+    utt.onerror= () => { _isSpeaking = false; setTimeout(processQueue, 380); };
+    try {
+        window.speechSynthesis.speak(utt);
+    } catch(e) {
+        _isSpeaking = false;
+        setTimeout(processQueue, 500);
+    }
+}
+
+function enqueueCommentary(text, rate, pitch){
+    if(!text || IS_EMBEDDED) return; // CHANGE: Block if in iframe
+    _speechQueue.push({ text, rate: rate||1.0, pitch: pitch||1.1 });
+    if(!_isSpeaking) processQueue();
+}
+
+// ── Commentary ticker display (hidden visually, still functional) ──
+function showTicker(text){
     $('ctText').textContent = `"${text}"`;
+    // Note: ticker is hidden via CSS but logic is preserved
     const ticker = $('commentaryTicker');
     ticker.classList.add('show');
     clearTimeout(_tickerTimer);
     _tickerTimer = setTimeout(() => ticker.classList.remove('show'), 12000);
 }
 
-// ── Speech queue ─────────────────────────────────────────────
-function processQueue() {
-    if (!_audioUnlocked || !_speechQueue.length) {
-        _isSpeaking = false;
-        $('asdDot').className = 'asd-dot on';
-        $('asdLabel').textContent = 'COMMENTARY ON';
-        return;
-    }
-
-    _isSpeaking = true;
-    const item  = _speechQueue.shift();
-    const text  = item.text;
-    const rate  = item.rate  || 1.0;
-    const pitch = item.pitch || 1.1;
-
-    showTicker(text);
-    $('asdDot').className     = 'asd-dot speaking';
-    $('asdLabel').textContent = 'SPEAKING…';
-
-    // Always cancel any stuck utterance first
-    window.speechSynthesis.cancel();
-
-    const utt = new SpeechSynthesisUtterance(text);
-    if (_selectedVoice) utt.voice = _selectedVoice;
-    utt.rate   = rate;
-    utt.pitch  = pitch;
-    utt.volume = 1;
-
-    utt.onend = () => {
-        $('asdDot').className     = 'asd-dot on';
-        $('asdLabel').textContent = 'COMMENTARY ON';
-        setTimeout(processQueue, 380);
-    };
-    utt.onerror = (e) => {
-        // 'interrupted' means we cancelled it intentionally — still continue queue
-        $('asdDot').className     = 'asd-dot on';
-        $('asdLabel').textContent = 'COMMENTARY ON';
-        _isSpeaking = false;
-        setTimeout(processQueue, 500);
-    };
-
-    window.speechSynthesis.speak(utt);
-}
-
-function enqueueCommentary(text, rate, pitch) {
-    if (!text || !text.trim()) return;
-    _speechQueue.push({ text, rate: rate || 1.0, pitch: pitch || 1.1 });
-    if (!_isSpeaking) processQueue();
-}
-
-// ── Firebase commentary listener ─────────────────────────────
-// Capture the current id on load so we don't replay stale commentary.
-get(commRef).then(snap => {
-    _lastCommId = snap.val()?.id || null;
-
-    onValue(commRef, snap => {
-        const data = snap.val();
-        if (!data || !data.text || !data.text.trim()) return;
-        if (!data.id || data.id === _lastCommId) return;
-        if (data.id === '_stop_') { _lastCommId = data.id; return; }
-        _lastCommId = data.id;
-        enqueueCommentary(data.text, data.rate, data.pitch);
+// ── Firebase commentary listener ──────────────────────────────
+// CHANGE: Only listen and speak if NOT embedded in iframe
+if(!IS_EMBEDDED){
+    get(commRef).then(snap => {
+        _lastCommId = snap.val()?.id || null;
+        onValue(commRef, snap => {
+            const data = snap.val();
+            if(!data || data.id === _lastCommId) return;
+            _lastCommId = data.id;
+            // Don't enqueue if text is the stop signal
+            if(data.text && data.text !== '') {
+                enqueueCommentary(data.text, data.rate, data.pitch);
+            }
+        });
     });
-});
+}
 
 // ════════════════════════════════════════════════════════════════
-// ═══ END COMMENTARY SYSTEM ════════════════════════════════════
+// ═══ END COMMENTARY SYSTEM ═══════════════════════════════════
 // ════════════════════════════════════════════════════════════════
 
 // ── Player photos ──────────────────────────────────────────────
