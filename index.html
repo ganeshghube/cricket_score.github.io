@@ -332,49 +332,9 @@ body{
 .confetti-burst{ position:fixed; inset:0; pointer-events:none; z-index:69; overflow:hidden; }
 .cb-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:cbFly ease-out forwards; opacity:0; }
 @keyframes cbFly{ 0%{opacity:1;transform:translate(0,0) scale(1);} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);} }
-
-/* ═══ AUDIO UNLOCK OVERLAY — CHANGE: hidden, but kept in DOM for compatibility ═══ */
-#audioUnlockOverlay{
-    display: none !important; /* CHANGE: Always hidden — audio auto-enables */
-}
-
-/* ═══ AUDIO STATUS DOT — CHANGE: hidden but functional ═══ */
-#audioStatusDot{
-    display: none !important; /* CHANGE: Hidden from broadcast view */
-}
-
-/* ═══ COMMENTARY TICKER — CHANGE: hidden but functional ═══ */
-#commentaryTicker{
-    display: none !important; /* CHANGE: Hidden from broadcast view */
-}
-
 </style>
 </head>
 <body>
-
-<!-- ═══ AUDIO UNLOCK OVERLAY — CHANGE: Hidden, auto-enable handles this ═══ -->
-<div id="audioUnlockOverlay">
-    <div class="auo-box">
-        <div class="auo-icon">🎙</div>
-        <div class="auo-title">Live Commentary</div>
-        <div class="auo-sub">Tap anywhere to enable live commentary.</div>
-        <button class="auo-btn" id="audioUnlockBtn">🔊 ENABLE COMMENTARY</button>
-    </div>
-</div>
-
-<!-- ═══ AUDIO STATUS DOT — CHANGE: Hidden but JS still updates it ═══ -->
-<div id="audioStatusDot">
-    <div class="asd-dot" id="asdDot"></div>
-    <div class="asd-label" id="asdLabel">COMMENTARY</div>
-</div>
-
-<!-- ═══ COMMENTARY TICKER — CHANGE: Hidden but JS still updates it ═══ -->
-<div id="commentaryTicker">
-    <div class="ct-inner">
-        <div class="ct-label">🎙 Live Commentary</div>
-        <div class="ct-text" id="ctText">Initialising…</div>
-    </div>
-</div>
 
 <!-- ═══ EMOJI RAIN ═══ -->
 <div class="ann-rain" id="annRain"></div>
@@ -582,203 +542,22 @@ const cfg = {
     storageBucket:"cricket-8e338.firebasestorage.app",
     messagingSenderId:"41064243639", appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
 };
-const db      = getDatabase(initializeApp(cfg));
-const uiRef   = ref(db,'ui');
-const annRef  = ref(db,'announcement');
-const phRef   = ref(db,'playerPhotos');
-const commRef = ref(db,'commentary');
-const $       = id => document.getElementById(id);
+const db     = getDatabase(initializeApp(cfg));
+const uiRef  = ref(db,'ui');
+const annRef = ref(db,'announcement');
+const phRef  = ref(db,'playerPhotos');
+const $      = id => document.getElementById(id);
 
 let _playerPhotos = {};
-let _winShown     = false;
-let _prevData     = null;
-let _epovTimer    = null;
+let _winShown = false;
+let _prevData = null;
+let _epovTimer = null;
 let _overPlayersTimer = null;
 
-// ════════════════════════════════════════════════════════════════
-// ═══ CHANGE: IFRAME DETECTION ════════════════════════════════
-// Detect if loaded inside admin.html's preview iframe.
-// If embedded, ALL audio is disabled — only standalone index.html speaks.
-// ════════════════════════════════════════════════════════════════
-const IS_EMBEDDED = (window.self !== window.top);
-
-// ════════════════════════════════════════════════════════════════
-// ═══ LIVE AUDIO COMMENTARY SYSTEM ════════════════════════════
-// ════════════════════════════════════════════════════════════════
-
-// CHANGE: Auto-enable audio. If not in iframe, pre-unlock.
-// Browsers require a user gesture before speech plays.
-// We set _audioUnlocked = true immediately and prime on first interaction.
-let _audioUnlocked   = !IS_EMBEDDED; // CHANGE: auto-true when standalone
-let _speechQueue     = [];
-let _isSpeaking      = false;
-let _selectedVoice   = null;
-let _lastCommId      = null;
-let _tickerTimer     = null;
-
-// ── CHANGE: Auto-prime speech synthesis on page load + first interaction ──
-if (!IS_EMBEDDED) {
-    // Try immediately (may be blocked, that's OK)
-    try {
-        const prime = new SpeechSynthesisUtterance(' ');
-        prime.volume = 0;
-        window.speechSynthesis.speak(prime);
-    } catch(e) { /* silent */ }
-
-    // Also prime on very first user touch/click (guaranteed to work)
-    const primeOnce = () => {
-        try {
-            const prime = new SpeechSynthesisUtterance(' ');
-            prime.volume = 0;
-            window.speechSynthesis.speak(prime);
-            _audioUnlocked = true;
-            if (_speechQueue.length) processQueue();
-        } catch(e) { /* silent */ }
-        document.removeEventListener('click',    primeOnce);
-        document.removeEventListener('touchstart', primeOnce);
-        document.removeEventListener('keydown',  primeOnce);
-    };
-    document.addEventListener('click',    primeOnce, { once: true });
-    document.addEventListener('touchstart', primeOnce, { once: true, passive: true });
-    document.addEventListener('keydown',  primeOnce, { once: true });
-}
-
-// ── CHANGE: Improved voice loader — prioritises Indian English & deep male voices ──
-function selectBestVoice(){
-    const all = window.speechSynthesis.getVoices();
-    if(!all.length) return null;
-
-    // Priority 1: Indian English voices (ideal for cricket commentary)
-    const INDIAN = ['rishi', 'lekha', 'veena', 'google hindi',
-                    'google indian english', 'heera', 'google uk english male'];
-    for(const pref of INDIAN){
-        const found = all.find(v => v.name.toLowerCase().includes(pref));
-        if(found) return found;
-    }
-
-    // Priority 2: Deep authoritative British/Commonwealth male voices
-    const BRITISH = ['daniel', 'arthur', 'oliver', 'google uk english male',
-                     'microsoft george', 'microsoft hazel'];
-    for(const pref of BRITISH){
-        const found = all.find(v => v.name.toLowerCase().includes(pref));
-        if(found) return found;
-    }
-
-    // Priority 3: US deep male voices
-    const US = ['google us english', 'microsoft david', 'aaron', 'alex',
-                'fred', 'mark', 'microsoft mark', 'brian', 'james'];
-    for(const pref of US){
-        const found = all.find(v => v.name.toLowerCase().includes(pref));
-        if(found) return found;
-    }
-
-    // Priority 4: Any English male-sounding voice
-    const enMale = all.find(v =>
-        v.lang.startsWith('en') &&
-        /male|man|david|mark|james|george|oliver|harry|ryan|brian|paul|richard|william|arthur|thomas/i.test(v.name)
-    );
-    if(enMale) return enMale;
-
-    // Priority 5: Any English voice
-    return all.find(v => v.lang.startsWith('en')) || all[0];
-}
-
-function initVoice(){
-    _selectedVoice = selectBestVoice();
-}
-window.speechSynthesis.onvoiceschanged = initVoice;
-setTimeout(initVoice, 600);
-
-// ── CHANGE: Unlock button kept for compatibility but overlay is CSS-hidden ──
-$('audioUnlockBtn').addEventListener('click', () => {
-    if(IS_EMBEDDED) return; // CHANGE: Never enable audio in iframe
-    _audioUnlocked = true;
-    try {
-        const prime = new SpeechSynthesisUtterance(' ');
-        prime.volume = 0;
-        window.speechSynthesis.speak(prime);
-    } catch(e) {}
-    if(_speechQueue.length) processQueue();
-    // Update hidden status elements (functional, not visible)
-    $('asdDot').className = 'asd-dot on';
-    $('asdLabel').textContent = 'COMMENTARY ON';
-});
-
-// ── Speech queue processor ─────────────────────────────────────
-function processQueue(){
-    // CHANGE: Never speak if embedded in iframe
-    if(IS_EMBEDDED || !_audioUnlocked || !_speechQueue.length){
-        _isSpeaking = false;
-        return;
-    }
-    _isSpeaking = true;
-    const item = _speechQueue.shift();
-    const text  = item.text;
-    const rate  = item.rate  || 1.0;
-    const pitch = item.pitch || 1.1;
-
-    // Update hidden ticker (functional but not visible)
-    showTicker(text);
-    $('asdDot').className     = 'asd-dot speaking';
-    $('asdLabel').textContent = 'SPEAKING…';
-
-    const utt = new SpeechSynthesisUtterance(text);
-    // CHANGE: Re-select voice each time in case voices loaded after init
-    if(!_selectedVoice) _selectedVoice = selectBestVoice();
-    if(_selectedVoice) utt.voice = _selectedVoice;
-    utt.rate   = rate;
-    utt.pitch  = pitch;
-    utt.volume = 1;
-    utt.onend  = () => { setTimeout(processQueue, 380); };
-    utt.onerror= () => { _isSpeaking = false; setTimeout(processQueue, 380); };
-    try {
-        window.speechSynthesis.speak(utt);
-    } catch(e) {
-        _isSpeaking = false;
-        setTimeout(processQueue, 500);
-    }
-}
-
-function enqueueCommentary(text, rate, pitch){
-    if(!text || IS_EMBEDDED) return; // CHANGE: Block if in iframe
-    _speechQueue.push({ text, rate: rate||1.0, pitch: pitch||1.1 });
-    if(!_isSpeaking) processQueue();
-}
-
-// ── Commentary ticker display (hidden visually, still functional) ──
-function showTicker(text){
-    $('ctText').textContent = `"${text}"`;
-    // Note: ticker is hidden via CSS but logic is preserved
-    const ticker = $('commentaryTicker');
-    ticker.classList.add('show');
-    clearTimeout(_tickerTimer);
-    _tickerTimer = setTimeout(() => ticker.classList.remove('show'), 12000);
-}
-
-// ── Firebase commentary listener ──────────────────────────────
-// CHANGE: Only listen and speak if NOT embedded in iframe
-if(!IS_EMBEDDED){
-    get(commRef).then(snap => {
-        _lastCommId = snap.val()?.id || null;
-        onValue(commRef, snap => {
-            const data = snap.val();
-            if(!data || data.id === _lastCommId) return;
-            _lastCommId = data.id;
-            // Don't enqueue if text is the stop signal
-            if(data.text && data.text !== '') {
-                enqueueCommentary(data.text, data.rate, data.pitch);
-            }
-        });
-    });
-}
-
-// ════════════════════════════════════════════════════════════════
-// ═══ END COMMENTARY SYSTEM ═══════════════════════════════════
-// ════════════════════════════════════════════════════════════════
-
-// ── Player photos ──────────────────────────────────────────────
+// ── Player photos ──────────────────────────────
 onValue(phRef, snap => {
     _playerPhotos = snap.val() || {};
+    // Refresh any visible photos
     document.querySelectorAll('[data-ph-name]').forEach(el => {
         const name = el.dataset.phName;
         if(name) el.src = getPhoto(name);
@@ -906,6 +685,7 @@ function showOverPlayers(d, overNum, overBalls){
     $('opNonStrikerStat').textContent = `${nonStrikerR}(${nonStrikerB})`;
     $('opBowlerStat').textContent = bowlerFig;
 
+    // Over summary
     $('overSummaryOvNum').textContent = `END OF OVER ${overNum}`;
     const ballsHtml = overBalls.map(v => {
         let cls = '';
@@ -920,6 +700,7 @@ function showOverPlayers(d, overNum, overBalls){
     const runsInOver = overBalls.reduce((s,v)=>s+(typeof v==='number'?v:0),0);
     $('overSummaryRuns').textContent = `${runsInOver} runs in this over`;
 
+    // Show
     clearTimeout(_overPlayersTimer);
     $('overPlayersWrap').classList.add('show');
     _overPlayersTimer = setTimeout(()=>{ $('overPlayersWrap').classList.remove('show'); }, 10000);
@@ -935,12 +716,13 @@ function showWinOverlay(d, winnerTeam, margin, winType){
     $('winOverlayDetail').textContent = `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`;
     $('winOverlay').querySelector('.win-trophy-big').textContent = winType === 'tie' ? '🤝' : '🏆';
 
-    const batRows  = (d.batRows||[]).sort((a,b)=>b.runs-a.runs).slice(0,2);
+    // Show top batting photos
+    const batRows = (d.batRows||[]).sort((a,b)=>b.runs-a.runs).slice(0,3);
     const bowlRows = (d.bowlRows||[]).sort((a,b)=>b.wkts-a.wkts||a.runs-b.runs).slice(0,1);
-    const stars    = [...batRows, ...bowlRows];
+    const stars = [...batRows.slice(0,2), ...bowlRows];
     const plHtml = stars.map(p => {
         const photo = getPhoto(p.name);
-        const stat  = p.wkts !== undefined && p.balls > 0 ? `${p.wkts}-${p.runs}` : `${p.runs}(${p.balls})`;
+        const stat = p.wkts !== undefined && p.balls > 0 ? `${p.wkts}-${p.runs}` : `${p.runs}(${p.balls})`;
         return `<div class="win-player-card">
             <img class="win-player-photo" src="${photo}" alt="${p.name}">
             <div class="win-player-name">${p.name}</div>
@@ -949,16 +731,21 @@ function showWinOverlay(d, winnerTeam, margin, winType){
     }).join('');
     $('winOverlayPlayers').innerHTML = plHtml;
 
+    // Confetti
     const burst = $('confettiBurst');
     burst.innerHTML = '';
     const cols = ['#f5c518','#06d6a0','#e63946','#9b72cf','#fff','#ffd700','#ff8c42'];
     for(let i=0;i<60;i++){
         const d2 = document.createElement('div');
         d2.className = 'wc-bit';
-        d2.style.cssText = `left:${Math.random()*100}%;top:${-5+Math.random()*10}%;background:${cols[Math.floor(Math.random()*cols.length)]};height:${8+Math.random()*12}px;animation-delay:${Math.random()*4}s;animation-duration:${4+Math.random()*4}s;transform:rotate(${Math.random()*360}deg);`;
+        const angle = Math.random()*360;
+        const dist  = 100 + Math.random()*200;
+        d2.style.cssText = `left:${Math.random()*100}%;top:${-5+Math.random()*10}%;background:${cols[Math.floor(Math.random()*cols.length)]};height:${8+Math.random()*12}px;animation-delay:${Math.random()*4}s;animation-duration:${4+Math.random()*4}s;transform:rotate(${angle}deg);`;
         burst.appendChild(d2);
     }
+
     $('winOverlay').classList.add('show');
+    // Auto-hide after 30 seconds
     setTimeout(()=>{ $('winOverlay').classList.remove('show'); }, 30000);
 }
 
@@ -1021,6 +808,7 @@ function showAnn(data){
     if(annTimer){clearTimeout(annTimer);annTimer=null;}
     toast.classList.remove('visible','leaving'); void toast.offsetWidth;
 
+    // Player photo in announcement (replace emoji ring with photo if available)
     const emojiRing = $('annEmojiRing');
     if(data.playerName && getPhoto(data.playerName) !== BLANK_AVATAR){
         emojiRing.innerHTML = `<img class="ann-player-photo" src="${getPhoto(data.playerName)}" alt="${data.playerName}" style="--ann-accent:${data.style==='red'?'#e63946':data.style==='purple'?'#9b72cf':data.style==='blue'?'#118ab2':'#f5c518'}">`;
@@ -1095,6 +883,7 @@ onValue(ref(db,'cricket'),snap=>{
     if(lastOverCount >= 0 && completedOvers > lastOverCount && ballsThisOver === 0 && uiSt.autoOverPopup === true && d.balls > 0){
         const dur = uiSt.overPopupDur || 8;
         triggerAutoPopup(dur);
+        // Show over player display
         const prevBalls = _prevData ? (_prevData.recentBalls || []) : [];
         showOverPlayers(d, completedOvers, prevBalls.length ? prevBalls : []);
         $('overBadge').textContent = `⬜ END OF OVER ${completedOvers}`;
@@ -1108,33 +897,43 @@ onValue(ref(db,'cricket'),snap=>{
         const strikerR = d.str===1 ? (d.p1r||0) : (d.p2r||0);
         const bowler   = prev.bwn || '';
 
+        // Wicket
         if(d.wkts > prev.wkts){
             showEventPlayer(bowler, '💥', `${bowler} — WICKET!`, `${striker} dismissed`, 'red');
-        } else if(lastBall === 6 && d.runs > prev.runs){
+        }
+        // Six
+        else if(lastBall === 6 && d.runs > prev.runs){
             showEventPlayer(striker, '🚀', `${strikerR} RUNS`, 'MAXIMUM SIX!', 'purple');
-        } else if(lastBall === 4 && d.runs > prev.runs){
+        }
+        // Four
+        else if(lastBall === 4 && d.runs > prev.runs){
             showEventPlayer(striker, '🔥', `${strikerR} RUNS`, 'BOUNDARY FOUR!', 'blue');
-        } else if(strikerR >= 50 && strikerR < 55){
+        }
+        // Fifty
+        else if(strikerR >= 50 && strikerR < 55 && (d.str===1 ? (d.p1r||0) : (d.p2r||0)) !== (prev.str===1?(prev.p1r||0):(prev.p2r||0))){
             const prevR = prev.str===1 ? (prev.p1r||0) : (prev.p2r||0);
             if(prevR < 50 && strikerR >= 50){
                 showEventPlayer(striker, '⭐', `${strikerR} RUNS`, 'HALF CENTURY! 50!', '');
             }
         }
+        // Century
         if(strikerR >= 100){
             const prevR = prev.str===1 ? (prev.p1r||0) : (prev.p2r||0);
             if(prevR < 100 && strikerR >= 100){
                 showEventPlayer(striker, '🏆', `${strikerR} RUNS`, 'CENTURY! 100!', '');
             }
         }
+        // Fifer
         const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
         const prevBowlerRow = (prev.bowlRows||[]).find(r=>r.name===bowler);
         if(bowlerRow && prevBowlerRow && bowlerRow.wkts === 5 && prevBowlerRow.wkts < 5){
             showEventPlayer(bowler, '🎩', `${bowler} — 5 WICKETS!`, 'BRILLIANT FIFER!', '');
         }
 
+        // Win detection
         if(d.innings === 2 && !_winShown){
-            const target  = d.target || 0;
-            const maxBalls= (d.maxOvers||20)*6;
+            const target = d.target || 0;
+            const maxBalls = (d.maxOvers||20)*6;
             const allOut  = d.wkts >= 10;
             const oversUp = d.balls >= maxBalls;
             const runsNeeded = target - d.runs;
@@ -1214,7 +1013,7 @@ onValue(ref(db,'cricket'),snap=>{
     $('scBwlExt').textContent=(d.bowlRows||[]).reduce((s,r)=>s+(r.wides||0)+(r.noballs||0),0);
     $('scBwlOv').textContent=oStr; $('scBwlTotal').textContent=`${d.runs}/${d.wkts}`;
 
-    // Batting rows
+    // Batting rows — with photos
     const batCont=$('scBatRows'); batCont.innerHTML='';
     let fowItems=[],fowCount=0;
     (d.batRows||[]).forEach((row,i)=>{
