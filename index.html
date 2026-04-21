@@ -333,34 +333,114 @@ body{
 .cb-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:cbFly ease-out forwards; opacity:0; }
 @keyframes cbFly{ 0%{opacity:1;transform:translate(0,0) scale(1);} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);} }
 
-<!-- Hidden overlay (kept for JS compatibility only) -->
-<div id="audioUnlockOverlay" style="display:none !important;"></div>
+/* ═══ AUDIO UNLOCK OVERLAY (commentary autoplay) ═══ */
+#audioUnlockOverlay{
+    position:fixed; inset:0; z-index:999;
+    background:rgba(4,4,10,0.92);
+    display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(8px);
+    transition:opacity .4s;
+}
+#audioUnlockOverlay.gone{ opacity:0; pointer-events:none; }
+.auo-box{
+    background:linear-gradient(135deg,#0c0c1a,#080810);
+    border:1px solid rgba(240,180,41,.3);
+    border-radius:14px; padding:36px 40px;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+    box-shadow:0 20px 60px rgba(0,0,0,.95), 0 0 0 1px rgba(240,180,41,.08);
+    max-width:380px; width:90%; text-align:center;
+}
+.auo-icon{ font-size:52px; animation:auoPulse 2s ease-in-out infinite; }
+@keyframes auoPulse{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+.auo-title{ font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:#f0b429; text-transform:uppercase; letter-spacing:3px; }
+.auo-sub{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#555566; letter-spacing:1px; line-height:1.7; }
+.auo-btn{
+    background:linear-gradient(135deg,#3a2800,#2a1e00);
+    color:#f0b429; border:1px solid #5a3c00;
+    border-radius:7px; padding:14px 36px;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:16px; font-weight:800; letter-spacing:2px;
+    cursor:pointer; width:100%; transition:all .15s;
+}
+.auo-btn:hover{ background:#f0b429; color:#000; }
+.auo-btn:active{ transform:scale(.96); }
 
-<!-- Hidden status dot -->
-<div id="audioStatusDot" style="display:none !important;"></div>
+/* ═══ COMMENTARY TICKER (bottom-left) ═══ */
+#commentaryTicker{
+    position:fixed; bottom:108px; left:16px; z-index:38;
+    max-width:420px; pointer-events:none;
+    opacity:0; transform:translateY(8px);
+    transition:opacity .4s, transform .4s;
+}
+#commentaryTicker.show{
+    opacity:1; transform:translateY(0);
+}
+.ct-inner{
+    background:linear-gradient(135deg,rgba(6,6,14,.96),rgba(10,10,22,.96));
+    border:1px solid rgba(240,180,41,.2); border-left:3px solid #f0b429;
+    border-radius:6px; padding:8px 14px;
+    box-shadow:0 4px 20px rgba(0,0,0,.8);
+}
+.ct-label{
+    font-family:'Barlow Condensed',sans-serif; font-size:9px;
+    color:#5a4a00; letter-spacing:2px; text-transform:uppercase; margin-bottom:3px;
+}
+.ct-text{
+    font-family:'Barlow Condensed',sans-serif; font-size:13px;
+    color:#c8b060; letter-spacing:.4px; line-height:1.5;
+    font-style:italic;
+}
 
-<!-- Hidden ticker -->
-<div id="commentaryTicker" style="display:none !important;"></div>
+/* ═══ AUDIO STATUS INDICATOR (top-left) ═══ */
+#audioStatusDot{
+    position:fixed; top:14px; left:14px; z-index:60;
+    display:flex; align-items:center; gap:7px;
+    background:rgba(6,6,14,.85); border:1px solid rgba(255,255,255,.06);
+    border-radius:20px; padding:5px 12px;
+    opacity:0; transition:opacity .4s;
+}
+#audioStatusDot.show{ opacity:1; }
+.asd-dot{
+    width:7px; height:7px; border-radius:50%;
+    background:#333; transition:.3s;
+}
+.asd-dot.on{ background:#06d6a0; box-shadow:0 0 6px #06d6a0; animation:asdPulse 1.5s infinite; }
+.asd-dot.speaking{ background:#f0b429; box-shadow:0 0 8px #f0b429; animation:asdPulse .6s infinite; }
+@keyframes asdPulse{ 0%,100%{opacity:1} 50%{opacity:.35} }
+.asd-label{
+    font-family:'Barlow Condensed',sans-serif; font-size:10px;
+    color:#444; letter-spacing:1px; text-transform:uppercase;
+}
 </style>
 </head>
 <body>
 
-<!-- ═══ AUTO ENABLE COMMENTARY (IMPORTANT) ═══ -->
-<script>
-window.addEventListener("load", () => {
-    // Force enable commentary system
-    localStorage.setItem("commentaryEnabled", "true");
+<!-- ═══ AUDIO UNLOCK OVERLAY ═══ -->
+<div id="audioUnlockOverlay">
+    <div class="auo-box">
+        <div class="auo-icon">🎙</div>
+        <div class="auo-title">Live Commentary</div>
+        <div class="auo-sub">
+            Tap to enable live ball-by-ball audio commentary.<br>
+            Powered by Ravi Shastri / Aakash Chopra style voice.
+        </div>
+        <button class="auo-btn" id="audioUnlockBtn">🔊 ENABLE COMMENTARY</button>
+    </div>
+</div>
 
-    // If your system uses internal flag
-    window._audioEnabled = true;
+<!-- ═══ AUDIO STATUS DOT ═══ -->
+<div id="audioStatusDot">
+    <div class="asd-dot" id="asdDot"></div>
+    <div class="asd-label" id="asdLabel">COMMENTARY</div>
+</div>
 
-    // Safety: prevent overlay from ever appearing
-    const el = document.getElementById("audioUnlockOverlay");
-    if (el) el.style.display = "none";
-
-    console.log("🎙 Commentary AUTO-ENABLED (Admin Controlled Mode)");
-});
-</script>
+<!-- ═══ COMMENTARY TICKER ═══ -->
+<div id="commentaryTicker">
+    <div class="ct-inner">
+        <div class="ct-label">🎙 Live Commentary</div>
+        <div class="ct-text" id="ctText">Initialising…</div>
+    </div>
+</div>
 
 <!-- ═══ EMOJI RAIN ═══ -->
 <div class="ann-rain" id="annRain"></div>
