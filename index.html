@@ -16,41 +16,14 @@
     --brd: rgba(255,255,255,0.08); --text: #e8e8f0; --muted: #888899;
 }
 *{ box-sizing:border-box; margin:0; padding:0; }
-body{
-    background:rgba(0,0,0,0);
-    font-family:'Barlow Condensed',sans-serif;
-    color:var(--text);
-    overflow:hidden;
-    height:100vh;
-    width:100vw;
-}
+body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color:var(--text); overflow:hidden; height:100vh; width:100vw; }
 
 /* ═══ ANNOUNCEMENT TOAST ═══ */
 .ann-rain{ position:fixed; inset:0; pointer-events:none; z-index:48; overflow:hidden; }
-.rain-emoji{
-    position:absolute; top:-80px; font-size:36px; opacity:0;
-    animation:rainFall linear forwards;
-    filter:drop-shadow(0 2px 6px rgba(0,0,0,.7)); user-select:none;
-}
-@keyframes rainFall{
-    0%  { opacity:0;   transform:translateY(0) rotate(0deg) scale(0.6); }
-    8%  { opacity:.95; transform:translateY(40px) rotate(10deg) scale(1.1); }
-    90% { opacity:.8;  transform:translateY(var(--fall-dist)) rotate(var(--spin)) scale(1); }
-    100%{ opacity:0;   transform:translateY(calc(var(--fall-dist)+60px)) rotate(var(--spin)) scale(0.8); }
-}
-.ann-wrap{
-    position:fixed; bottom:122px; left:50%; transform:translateX(-50%);
-    width:96%; max-width:1080px; pointer-events:none; z-index:50;
-    display:flex; justify-content:center;
-}
-.ann-toast{
-    display:flex; align-items:center; gap:22px;
-    padding:18px 40px 18px 28px; border-radius:8px;
-    position:relative; overflow:hidden; min-width:360px; max-width:780px;
-    box-shadow:0 12px 60px rgba(0,0,0,.98),0 0 0 1px rgba(255,255,255,.08);
-    opacity:0; transform:translateY(30px) scale(0.93);
-    transition:opacity .55s cubic-bezier(.175,.885,.32,1.275),transform .55s cubic-bezier(.175,.885,.32,1.275);
-}
+.rain-emoji{ position:absolute; top:-80px; font-size:36px; opacity:0; animation:rainFall linear forwards; filter:drop-shadow(0 2px 6px rgba(0,0,0,.7)); user-select:none; }
+@keyframes rainFall{ 0%{opacity:0;transform:translateY(0) rotate(0deg) scale(0.6);} 8%{opacity:.95;transform:translateY(40px) rotate(10deg) scale(1.1);} 90%{opacity:.8;transform:translateY(var(--fall-dist)) rotate(var(--spin)) scale(1);} 100%{opacity:0;transform:translateY(calc(var(--fall-dist)+60px)) rotate(var(--spin)) scale(0.8);} }
+.ann-wrap{ position:fixed; bottom:122px; left:50%; transform:translateX(-50%); width:96%; max-width:1080px; pointer-events:none; z-index:50; display:flex; justify-content:center; }
+.ann-toast{ display:flex; align-items:center; gap:22px; padding:18px 40px 18px 28px; border-radius:8px; position:relative; overflow:hidden; min-width:360px; max-width:780px; box-shadow:0 12px 60px rgba(0,0,0,.98),0 0 0 1px rgba(255,255,255,.08); opacity:0; transform:translateY(30px) scale(0.93); transition:opacity .55s cubic-bezier(.175,.885,.32,1.275),transform .55s cubic-bezier(.175,.885,.32,1.275); }
 .ann-toast.visible{ opacity:1; transform:translateY(0) scale(1); }
 .ann-toast.leaving{ opacity:0; transform:translateY(-20px) scale(0.94); transition:opacity .5s ease-in,transform .5s ease-in; }
 .ann-toast::after{ content:''; position:absolute; inset:0; background:linear-gradient(105deg,transparent 25%,rgba(255,255,255,.12) 50%,transparent 75%); animation:annShimmer 3s ease-in-out infinite; pointer-events:none; }
@@ -69,19 +42,10 @@ body{
 .ann-toast.style-blue .ann-progress{ background:linear-gradient(90deg,#118ab2,#a8dfff); }
 .ann-toast.style-custom{ --ann-accent:#06d6a0; background:linear-gradient(135deg,rgba(0,22,18,.98),rgba(0,8,6,.98)); border:1px solid rgba(6,214,160,.35); border-left:5px solid #06d6a0; }
 .ann-toast.style-custom .ann-progress{ background:linear-gradient(90deg,#06d6a0,#a0f5d5); }
-.ann-toast.style-win{
-    --ann-accent:#ffd700;
-    background:linear-gradient(135deg,rgba(40,30,0,.99) 0%,rgba(20,14,0,.99) 50%,rgba(8,4,0,.99) 100%);
-    border:2px solid rgba(255,215,0,.6); border-left:6px solid #ffd700;
-    box-shadow:0 12px 60px rgba(0,0,0,.98), 0 0 40px rgba(255,215,0,.15);
-}
+.ann-toast.style-win{ --ann-accent:#ffd700; background:linear-gradient(135deg,rgba(40,30,0,.99) 0%,rgba(20,14,0,.99) 50%,rgba(8,4,0,.99) 100%); border:2px solid rgba(255,215,0,.6); border-left:6px solid #ffd700; box-shadow:0 12px 60px rgba(0,0,0,.98), 0 0 40px rgba(255,215,0,.15); }
 .ann-toast.style-win .ann-progress{ background:linear-gradient(90deg,#ffd700,#fff9c4,#ffd700); }
 .ann-toast.style-win .ann-text{ color:#ffd700; font-size:30px; letter-spacing:2px; }
-.ann-toast.style-tie{
-    --ann-accent:#a0c4ff;
-    background:linear-gradient(135deg,rgba(0,14,38,.99) 0%,rgba(0,8,24,.99) 60%,rgba(0,4,14,.99) 100%);
-    border:2px solid rgba(100,180,255,.5); border-left:6px solid #a0c4ff;
-}
+.ann-toast.style-tie{ --ann-accent:#a0c4ff; background:linear-gradient(135deg,rgba(0,14,38,.99) 0%,rgba(0,8,24,.99) 60%,rgba(0,4,14,.99) 100%); border:2px solid rgba(100,180,255,.5); border-left:6px solid #a0c4ff; }
 .ann-toast.style-tie .ann-progress{ background:linear-gradient(90deg,#a0c4ff,#e8f4ff,#a0c4ff); }
 .ann-toast.style-tie .ann-text{ color:#a0c4ff; font-size:30px; }
 .ann-emoji{ font-size:56px; line-height:1; filter:drop-shadow(0 3px 12px rgba(0,0,0,.9)); animation:annEmojiBounce .7s cubic-bezier(.36,.07,.19,.97) both; flex-shrink:0; }
@@ -104,23 +68,10 @@ body{
 .ann-particles{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
 .ann-p{ position:absolute; border-radius:50%; opacity:0; animation:annParticle ease-out forwards; }
 @keyframes annParticle{ 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)} }
-
-/* ── PLAYER PHOTO in announcement ── */
-.ann-player-photo{
-    width:60px; height:60px; border-radius:50%; object-fit:cover;
-    border:3px solid var(--ann-accent,#f5c518);
-    flex-shrink:0; box-shadow:0 4px 20px rgba(0,0,0,.8);
-    animation:annEmojiBounce .7s cubic-bezier(.36,.07,.19,.97) both;
-}
+.ann-player-photo{ width:60px; height:60px; border-radius:50%; object-fit:cover; border:3px solid var(--ann-accent,#f5c518); flex-shrink:0; box-shadow:0 4px 20px rgba(0,0,0,.8); animation:annEmojiBounce .7s cubic-bezier(.36,.07,.19,.97) both; }
 
 /* ═══ SCORE BAR ═══ */
-.sb-wrap{
-    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:96%; max-width:1080px;
-    display:flex; flex-direction:column; align-items:center;
-    filter:drop-shadow(0 8px 40px rgba(0,0,0,.95));
-    transition:opacity .5s,transform .5s; z-index:40;
-}
+.sb-wrap{ position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:96%; max-width:1080px; display:flex; flex-direction:column; align-items:center; filter:drop-shadow(0 8px 40px rgba(0,0,0,.95)); transition:opacity .5s,transform .5s; z-index:40; }
 .sb-wrap.hidden{ opacity:0; transform:translateX(-50%) translateY(24px); pointer-events:none; }
 .sb-badges{ display:flex; gap:0; align-items:flex-end; }
 .tgt-badge{ background:linear-gradient(90deg,#b8860b,var(--gold)); color:#000; padding:4px 20px 4px 14px; font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; border-radius:5px 5px 0 0; clip-path:polygon(0 0,96% 0,100% 100%,0 100%); display:none; }
@@ -172,16 +123,7 @@ body{
 @keyframes sbflash{ 0%{opacity:.6} 100%{opacity:1} }
 
 /* ═══ SCORECARD ═══ */
-.sc-wrap{
-    position:fixed; bottom:0; left:50%; width:96%; max-width:1080px;
-    transform:translateX(-50%) translateY(0);
-    display:flex; flex-direction:column;
-    background:rgba(6,6,14,0.97);
-    border-top:2px solid rgba(255,255,255,.08);
-    border-radius:8px 8px 0 0;
-    transition:opacity .45s cubic-bezier(.4,0,.2,1), transform .45s cubic-bezier(.4,0,.2,1);
-    z-index:45; overflow:hidden;
-}
+.sc-wrap{ position:fixed; bottom:0; left:50%; width:96%; max-width:1080px; transform:translateX(-50%) translateY(0); display:flex; flex-direction:column; background:rgba(6,6,14,0.97); border-top:2px solid rgba(255,255,255,.08); border-radius:8px 8px 0 0; transition:opacity .45s cubic-bezier(.4,0,.2,1), transform .45s cubic-bezier(.4,0,.2,1); z-index:45; overflow:hidden; }
 .sc-wrap.hidden{ opacity:0; transform:translateX(-50%) translateY(60px); pointer-events:none; }
 .sc-auto-bar{ height:3px; flex-shrink:0; background:rgba(255,255,255,.06); display:none; position:relative; overflow:hidden; }
 .sc-auto-bar.running{ display:block; }
@@ -248,51 +190,15 @@ body{
 .over-badge.show{ opacity:1; transform:translateY(0) scale(1); }
 
 /* ═══ AFTER-OVER PLAYER DISPLAY ═══ */
-.over-players-wrap{
-    position:fixed; top:16px; left:50%; transform:translateX(-50%);
-    width:96%; max-width:760px; z-index:55; pointer-events:none;
-    opacity:0; transition:opacity .4s;
-}
+.over-players-wrap{ position:fixed; top:16px; left:50%; transform:translateX(-50%); width:96%; max-width:760px; z-index:55; pointer-events:none; opacity:0; transition:opacity .4s; }
 .over-players-wrap.show{ opacity:1; }
-.over-players-box{
-    background:linear-gradient(135deg,rgba(10,10,22,.97),rgba(6,6,14,.98));
-    border:1px solid rgba(255,255,255,.08); border-radius:10px;
-    padding:14px 20px; display:flex; align-items:center; gap:20px;
-    box-shadow:0 8px 40px rgba(0,0,0,.9);
-}
+.over-players-box{ background:linear-gradient(135deg,rgba(10,10,22,.97),rgba(6,6,14,.98)); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:14px 20px; display:flex; align-items:center; gap:20px; box-shadow:0 8px 40px rgba(0,0,0,.9); }
 .over-players-title{ font-size:10px; font-weight:800; color:#555; text-transform:uppercase; letter-spacing:3px; margin-bottom:8px; }
-.over-player-card{
-    display:flex; flex-direction:column; align-items:center;
-    gap:6px; min-width:80px;
-}
-
-/* ══ ID-CARD SIZED PHOTOS — shared across all three overlays ══ */
-.over-player-photo,
-.epov-photo,
-.win-player-photo {
-    width: 70px;
-    height: 95px;
-    border-radius: 8px;
-    object-fit: cover;
-    border: 2px solid rgba(255,255,255,.15);
-    background: #111;
-    box-shadow: 0 3px 10px rgba(0,0,0,.6);
-}
-
-/* Striker tint */
-.over-player-photo.striker { border-color: var(--gold); box-shadow: 0 0 14px rgba(240,180,41,.35); }
-/* Bowler tint */
-.over-player-photo.bowler  { border-color: #06d6a0; box-shadow: 0 0 14px rgba(6,214,160,.3); }
-
-/* Event player overlay photo tints */
-.epov-photo          { border-color: var(--gold); box-shadow: 0 0 24px rgba(240,180,41,.4); }
-.epov-photo.red      { border-color: #e63946;     box-shadow: 0 0 24px rgba(230,57,70,.4); }
-.epov-photo.purple   { border-color: #9b72cf;     box-shadow: 0 0 24px rgba(155,114,207,.4); }
-.epov-photo.blue     { border-color: #118ab2;     box-shadow: 0 0 24px rgba(17,138,178,.4); }
-
-/* Win overlay photo tint */
-.win-player-photo    { border-color: var(--gold); box-shadow: 0 0 20px rgba(240,180,41,.3); }
-
+.over-player-card{ display:flex; flex-direction:column; align-items:center; gap:6px; min-width:80px; }
+/* ID-CARD SIZED PHOTOS (portrait, rounded rectangle 70x95) */
+.over-player-photo{ width:70px; height:95px; border-radius:8px; object-fit:cover; border:2px solid rgba(255,255,255,.15); background:#111; box-shadow:0 3px 10px rgba(0,0,0,.6); }
+.over-player-photo.striker{ border-color:var(--gold); box-shadow:0 0 14px rgba(240,180,41,.35); }
+.over-player-photo.bowler{  border-color:#06d6a0; box-shadow:0 0 14px rgba(6,214,160,.3); }
 .over-player-name{ font-size:12px; font-weight:700; color:#ddd; text-align:center; max-width:90px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .over-player-stat{ font-size:11px; color:#888; }
 .over-player-role{ font-size:9px; color:#555; text-transform:uppercase; letter-spacing:1px; }
@@ -303,20 +209,14 @@ body{
 .over-summary-runs{ font-size:12px; color:#888; margin-top:4px; }
 
 /* ═══ EVENT PLAYER OVERLAY ═══ */
-.event-player-overlay{
-    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-    z-index:52; pointer-events:none;
-    opacity:0; transition:opacity .4s;
-}
+.event-player-overlay{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:52; pointer-events:none; opacity:0; transition:opacity .4s; }
 .event-player-overlay.show{ opacity:1; }
-.epov-box{
-    background:linear-gradient(135deg,rgba(10,8,0,.97),rgba(20,16,0,.97));
-    border:2px solid var(--gold); border-radius:14px;
-    padding:24px 32px; display:flex; flex-direction:column; align-items:center; gap:12px;
-    box-shadow:0 0 60px rgba(240,180,41,.2),0 20px 60px rgba(0,0,0,.98);
-    min-width:260px; text-align:center; position:relative; overflow:hidden;
-}
+.epov-box{ background:linear-gradient(135deg,rgba(10,8,0,.97),rgba(20,16,0,.97)); border:2px solid var(--gold); border-radius:14px; padding:24px 32px; display:flex; flex-direction:column; align-items:center; gap:12px; box-shadow:0 0 60px rgba(240,180,41,.2),0 20px 60px rgba(0,0,0,.98); min-width:260px; text-align:center; position:relative; overflow:hidden; }
 .epov-box::before{ content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(240,180,41,.06) 0%,transparent 70%); pointer-events:none; }
+.epov-photo{ width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid var(--gold); box-shadow:0 0 24px rgba(240,180,41,.4); }
+.epov-photo.red{ border-color:#e63946; box-shadow:0 0 24px rgba(230,57,70,.4); }
+.epov-photo.purple{ border-color:#9b72cf; box-shadow:0 0 24px rgba(155,114,207,.4); }
+.epov-photo.blue{ border-color:#118ab2; box-shadow:0 0 24px rgba(17,138,178,.4); }
 .epov-emoji{ font-size:40px; }
 .epov-name{ font-size:22px; font-weight:900; color:#fff; letter-spacing:1px; }
 .epov-stat{ font-size:14px; color:var(--gold); font-weight:700; letter-spacing:1px; }
@@ -328,12 +228,7 @@ body{
 @keyframes epovShine{ 0%{transform:translateX(-120%)} 100%{transform:translateX(220%)} }
 
 /* ═══ WIN OVERLAY ═══ */
-.win-overlay{
-    position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center;
-    background:radial-gradient(ellipse at center,rgba(30,20,0,.96) 0%,rgba(4,4,8,.98) 100%);
-    opacity:0; pointer-events:none; transition:opacity .6s;
-    flex-direction:column; gap:0;
-}
+.win-overlay{ position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center; background:radial-gradient(ellipse at center,rgba(30,20,0,.96) 0%,rgba(4,4,8,.98) 100%); opacity:0; pointer-events:none; transition:opacity .6s; flex-direction:column; gap:0; }
 .win-overlay.show{ opacity:1; pointer-events:all; }
 .win-overlay-content{ display:flex; flex-direction:column; align-items:center; gap:16px; padding:40px; max-width:720px; width:100%; }
 .win-trophy-big{ font-size:100px; animation:trophyMegaBounce 1s cubic-bezier(.36,.07,.19,.97) both; }
@@ -343,6 +238,7 @@ body{
 .win-overlay-detail{ font-size:14px; color:#888; letter-spacing:1px; text-align:center; }
 .win-overlay-players{ display:flex; gap:24px; margin-top:8px; flex-wrap:wrap; justify-content:center; }
 .win-player-card{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+.win-player-photo{ width:70px; height:70px; border-radius:50%; object-fit:cover; border:3px solid var(--gold); box-shadow:0 0 20px rgba(240,180,41,.3); }
 .win-player-name{ font-size:13px; color:#ddd; font-weight:700; }
 .win-player-stat{ font-size:11px; color:var(--gold); }
 .win-confetti-layer{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:-1; }
@@ -350,39 +246,50 @@ body{
 @keyframes wcfall{ 0%{opacity:1;transform:translateY(-40px) rotate(0deg);} 100%{opacity:0;transform:translateY(110vh) rotate(720deg);} }
 .win-celebration-emojis{ display:flex; gap:20px; font-size:36px; animation:floatUpDown 2s ease-in-out infinite alternate; margin-top:8px; }
 @keyframes floatUpDown{ 0%{transform:translateY(0) scale(1)} 100%{transform:translateY(-12px) scale(1.06)} }
-
-/* ── floating confetti dots ── */
 .confetti-burst{ position:fixed; inset:0; pointer-events:none; z-index:69; overflow:hidden; }
 .cb-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:cbFly ease-out forwards; opacity:0; }
 @keyframes cbFly{ 0%{opacity:1;transform:translate(0,0) scale(1);} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);} }
 
-/* ═══ AUDIO UI — hidden on overlay (kept in DOM for script refs) ═══ */
-#audioUnlockOverlay,
-#audioStatusDot,
-#commentaryTicker{
-    display:none !important;
+/* AUDIO UI HIDDEN (commentary still works) */
+#audioStatusDot, #commentaryTicker{ display:none !important; }
+
+/* ═══ TAP-TO-START GATE
+   Hidden by default. Appears only if autoplay is blocked and
+   a real event gets queued. Dismisses itself on any tap.
+   Never shows in OBS (autoplay works there). ═══ */
+#tapStartGate{
+    position:fixed; bottom:20px; right:20px; z-index:100;
+    background:linear-gradient(135deg,rgba(20,14,0,.98),rgba(8,4,0,.98));
+    border:2px solid var(--gold); border-radius:30px;
+    padding:12px 24px; display:none; align-items:center; gap:10px;
+    cursor:pointer;
+    box-shadow:0 8px 40px rgba(0,0,0,.9),0 0 30px rgba(240,180,41,.3);
+    animation:tapGatePulse 1.6s ease-in-out infinite;
+    font-family:'Barlow Condensed',sans-serif;
+    user-select:none; -webkit-tap-highlight-color:transparent;
+}
+#tapStartGate.show{ display:flex; }
+#tapStartGate .tsg-icon{ font-size:22px; }
+#tapStartGate .tsg-text{ font-size:14px; font-weight:800; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
+@keyframes tapGatePulse{
+    0%,100%{ transform:scale(1);    box-shadow:0 8px 40px rgba(0,0,0,.9),0 0 30px rgba(240,180,41,.3); }
+    50%    { transform:scale(1.04); box-shadow:0 8px 40px rgba(0,0,0,.9),0 0 40px rgba(240,180,41,.6); }
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ AUDIO UNLOCK OVERLAY (hidden — kept in DOM for script refs) ═══ -->
-<div id="audioUnlockOverlay">
-    <div class="auo-box">
-        <div class="auo-icon">🎙</div>
-        <div class="auo-title">Live Commentary</div>
-        <div class="auo-sub">Audio enabled automatically.</div>
-        <button class="auo-btn" id="audioUnlockBtn">🔊 ENABLE COMMENTARY</button>
-    </div>
+<!-- TAP-TO-START GATE (auto-hiding, only shows if autoplay is blocked) -->
+<div id="tapStartGate">
+    <div class="tsg-icon">🔊</div>
+    <div class="tsg-text">Tap to Enable Audio</div>
 </div>
 
-<!-- ═══ AUDIO STATUS DOT (hidden — kept in DOM) ═══ -->
+<!-- AUDIO STATUS (hidden but kept in DOM for script refs) -->
 <div id="audioStatusDot">
     <div class="asd-dot" id="asdDot"></div>
     <div class="asd-label" id="asdLabel">COMMENTARY</div>
 </div>
-
-<!-- ═══ COMMENTARY TICKER (hidden — kept in DOM) ═══ -->
 <div id="commentaryTicker">
     <div class="ct-inner">
         <div class="ct-label">🎙 Live Commentary</div>
@@ -390,10 +297,10 @@ body{
     </div>
 </div>
 
-<!-- ═══ EMOJI RAIN ═══ -->
+<!-- EMOJI RAIN -->
 <div class="ann-rain" id="annRain"></div>
 
-<!-- ═══ ANNOUNCEMENT TOAST ═══ -->
+<!-- ANNOUNCEMENT TOAST -->
 <div class="ann-wrap" id="annWrap">
     <div class="ann-toast" id="annToast">
         <div class="ann-particles" id="annParticles"></div>
@@ -407,10 +314,9 @@ body{
     </div>
 </div>
 
-<!-- ═══ OVER-END BADGE ═══ -->
 <div class="over-badge" id="overBadge">⬜ END OF OVER</div>
 
-<!-- ═══ AFTER-OVER PLAYER DISPLAY (ID-card portrait photos) ═══ -->
+<!-- AFTER-OVER PLAYER DISPLAY (ID-card photos) -->
 <div class="over-players-wrap" id="overPlayersWrap">
     <div class="over-players-box">
         <div style="flex:1">
@@ -445,7 +351,7 @@ body{
     </div>
 </div>
 
-<!-- ═══ EVENT PLAYER OVERLAY (wicket/four/six/fifty/century) ═══ -->
+<!-- EVENT PLAYER OVERLAY -->
 <div class="event-player-overlay" id="eventPlayerOverlay">
     <div class="epov-box" id="epovBox">
         <div class="epov-shine"></div>
@@ -457,7 +363,7 @@ body{
     </div>
 </div>
 
-<!-- ═══ WIN OVERLAY ═══ -->
+<!-- WIN OVERLAY -->
 <div class="win-overlay" id="winOverlay">
     <div class="confetti-burst" id="confettiBurst"></div>
     <div class="win-overlay-content">
@@ -470,7 +376,7 @@ body{
     </div>
 </div>
 
-<!-- ═══ SCORE BAR ═══ -->
+<!-- SCORE BAR -->
 <div class="sb-wrap" id="sbWrap">
     <div class="sb-badges">
         <div id="tgtBadge" class="tgt-badge">TARGET <span id="dTgt">0</span> · NEED <span id="dNeed">0</span> OFF <span id="dNeedOv">0</span></div>
@@ -515,11 +421,9 @@ body{
     </div>
 </div>
 
-<!-- ═══ SCORECARD ═══ -->
+<!-- SCORECARD -->
 <div class="sc-wrap hidden" id="scWrap">
-    <div class="sc-auto-bar" id="scAutoBar">
-        <div class="sc-auto-bar-fill" id="scAutoBarFill"></div>
-    </div>
+    <div class="sc-auto-bar" id="scAutoBar"><div class="sc-auto-bar-fill" id="scAutoBarFill"></div></div>
     <div class="sc-team-hdr" id="scTeamHdr">
         <div class="sc-hdr-color" id="scHdrColor"></div>
         <div class="sc-hdr-main" id="scHdrMain">
@@ -604,7 +508,7 @@ const commRef  = ref(db,'commentary');
 const cSettingsRef = ref(db,'commentarySettings');
 const $        = id => document.getElementById(id);
 
-// ══ PREVIEW-MODE DETECTION ══════════════════════════════════════
+// Preview-mode (admin iframe loads ?preview=1 → no audio)
 const IS_PREVIEW = new URLSearchParams(window.location.search).get('preview') === '1';
 
 let _playerPhotos = {};
@@ -614,55 +518,54 @@ let _epovTimer    = null;
 let _overPlayersTimer = null;
 
 // ════════════════════════════════════════════════════════════════
-// ══ AUDIO COMMENTARY SYSTEM ═════════════════════════════════════
-// ══ FIX: _audioUnlocked starts TRUE so speech fires immediately.
-// ══ Browser errors are caught silently; queue retries on next
-// ══ user interaction as fallback.
+// ══ AUDIO COMMENTARY SYSTEM
+// ══
+// ══ FIXES vs previous version:
+// ══   1. Removed the _audioUnlocked boolean gate. The engine itself
+// ══      is the only gatekeeper now. speak() is ALWAYS called for
+// ══      every event; if the browser blocks it we detect and
+// ══      surface the tap-to-start pill.
+// ══   2. Voice-loading retry is capped at 4 (≈2 seconds). After
+// ══      that we speak with the browser default voice — speech
+// ══      never gets stuck forever waiting for a voice.
+// ══   3. Chrome speech stall watchdog (pause/resume every 10s).
+// ══   4. Tap-to-start pill shows automatically if an utterance
+// ══      fails to start within 1.5s. Hides itself on any tap.
+// ══      OBS / environments that allow autoplay never see it.
 // ════════════════════════════════════════════════════════════════
 
-// ── Start unlocked — no gate blocking speech ──────────────────
-let _audioUnlocked   = true;   // ← KEY FIX: was false, blocked all speech
 let _speechQueue     = [];
 let _isSpeaking      = false;
 let _selectedVoice   = null;
 let _lastCommId      = null;
 let _tickerTimer     = null;
+let _voiceRetries    = 0;
+let _audioGestured   = false;   // true once we've seen a real user gesture
+let _lastSpeakAt     = 0;
 
 let _commentarySettings = {
     enabled: true,
-    style:   'shastri',
+    style:   'shastri',   // 'standard' | 'shastri' | 'chopra'
     rate:    1.0,
     pitch:   1.05,
 };
 
-// ── Voice loader ───────────────────────────────────────────────
 function selectBestVoice(styleHint){
     const all = window.speechSynthesis.getVoices();
     if(!all.length) return null;
-
     if(styleHint === 'chopra'){
         const chopraPrefs = [
-            'google hindi', 'rishi', 'veena',
-            'google uk english male', 'daniel',
-            'microsoft ravi', 'microsoft neerja',
+            'google hindi','rishi','veena','google uk english male','daniel',
+            'microsoft ravi','microsoft neerja',
         ];
         for(const pref of chopraPrefs){
             const found = all.find(v => v.name.toLowerCase().includes(pref));
             if(found) return found;
         }
     }
-
     const PREFERRED = [
-        'google hindi',
-        'google uk english male',
-        'rishi',
-        'aaron',
-        'daniel',
-        'google us english',
-        'microsoft david',
-        'microsoft mark',
-        'alex',
-        'fred',
+        'google hindi','google uk english male','rishi','aaron','daniel',
+        'google us english','microsoft david','microsoft mark','alex','fred',
     ];
     for(const pref of PREFERRED){
         const found = all.find(v => v.name.toLowerCase().includes(pref));
@@ -676,48 +579,51 @@ function selectBestVoice(styleHint){
     const en = all.find(v => v.lang.startsWith('en'));
     return en || all[0];
 }
-
-function initVoice(){
-    _selectedVoice = selectBestVoice(_commentarySettings.style);
-}
+function initVoice(){ _selectedVoice = selectBestVoice(_commentarySettings.style); }
 
 if(!IS_PREVIEW){
     window.speechSynthesis.onvoiceschanged = initVoice;
-    // Try immediately and after a short delay (Chrome loads voices async)
     initVoice();
     setTimeout(initVoice, 400);
     setTimeout(initVoice, 1200);
 }
 
-// ── Warm-up: fire a zero-volume utterance as early as possible ─
-// This primes the speech engine without waiting for user gesture.
+// Warm-up primer: silent utterance that wakes the engine.
+// On browsers that allow autoplay this is enough; elsewhere it's
+// harmless and the first real user gesture completes the unlock.
 function warmUpSpeech(){
     if(IS_PREVIEW) return;
     try {
         const u = new SpeechSynthesisUtterance(' ');
         u.volume = 0; u.rate = 1;
-        window.speechSynthesis.cancel(); // clear any stale queue
         window.speechSynthesis.speak(u);
     } catch(e){ /* ignore */ }
 }
 
-// ── Also unlock on any user interaction (belt & braces) ────────
-function wireInteractionUnlock(){
-    if(IS_PREVIEW) return;
-    const handler = () => {
+// Tap-to-start pill management
+const tapGate = $('tapStartGate');
+function showTapGate(){ if(!IS_PREVIEW && tapGate) tapGate.classList.add('show'); }
+function hideTapGate(){ if(tapGate) tapGate.classList.remove('show'); }
+if(!IS_PREVIEW && tapGate){
+    tapGate.addEventListener('click', () => {
+        _audioGestured = true;
         warmUpSpeech();
+        hideTapGate();
         if(_speechQueue.length && !_isSpeaking) processQueue();
-        ['click','touchstart','keydown','pointerdown'].forEach(ev =>
-            document.removeEventListener(ev, handler, true)
-        );
-    };
-    ['click','touchstart','keydown','pointerdown'].forEach(ev =>
-        document.addEventListener(ev, handler, true)
-    );
+    });
 }
 
+// Any user gesture anywhere also unlocks audio
+function onFirstGesture(){
+    _audioGestured = true;
+    warmUpSpeech();
+    hideTapGate();
+    if(_speechQueue.length && !_isSpeaking) processQueue();
+}
 if(!IS_PREVIEW){
-    // Warm up at DOMContentLoaded, on load, and again after 1s
+    ['click','touchstart','keydown','pointerdown'].forEach(ev =>
+        document.addEventListener(ev, onFirstGesture, { capture:true, passive:true })
+    );
     if(document.readyState === 'loading'){
         document.addEventListener('DOMContentLoaded', warmUpSpeech);
     } else {
@@ -726,28 +632,37 @@ if(!IS_PREVIEW){
     window.addEventListener('load', warmUpSpeech);
     setTimeout(warmUpSpeech, 1000);
     setTimeout(warmUpSpeech, 3000);
-
-    wireInteractionUnlock();
-
-    // Hidden button fallback
-    $('audioUnlockBtn').addEventListener('click', () => {
-        warmUpSpeech();
-        $('audioUnlockOverlay').style.display = 'none';
-    });
 }
 
-// ── Speech queue processor ─────────────────────────────────────
+// Chrome speech-synthesis stall watchdog (known bug: engine freezes
+// after ~15s of speech). Pause+resume every 10s keeps it alive.
+if(!IS_PREVIEW){
+    setInterval(() => {
+        try {
+            if(window.speechSynthesis.speaking){
+                window.speechSynthesis.pause();
+                window.speechSynthesis.resume();
+            }
+            // If we think we're speaking but engine disagrees for >5s, reset
+            if(_isSpeaking && !window.speechSynthesis.speaking && !window.speechSynthesis.pending){
+                if(Date.now() - _lastSpeakAt > 5000){
+                    _isSpeaking = false;
+                    processQueue();
+                }
+            }
+        } catch(e){}
+    }, 10000);
+}
+
 function processQueue(){
     if(IS_PREVIEW) return;
-    if(!_speechQueue.length){
-        _isSpeaking = false;
-        return;
-    }
+    if(!_speechQueue.length){ _isSpeaking = false; return; }
 
-    // If voices not yet loaded, wait a tick and retry
-    if(!_selectedVoice){
+    // Wait up to ~2s for voices, then fall through with browser default
+    if(!_selectedVoice && _voiceRetries < 4){
         initVoice();
         if(!_selectedVoice){
+            _voiceRetries++;
             setTimeout(processQueue, 500);
             return;
         }
@@ -767,35 +682,35 @@ function processQueue(){
     utt.pitch  = pitch;
     utt.volume = 1;
 
+    let actuallyStarted = false;
+    utt.onstart = () => { actuallyStarted = true; hideTapGate(); };
     utt.onend   = () => { _isSpeaking = false; setTimeout(processQueue, 380); };
     utt.onerror = (e) => {
-        console.warn('TTS error:', e.error);
+        console.warn('TTS error:', e && e.error);
         _isSpeaking = false;
-        // If browser blocked it, try once more after interaction
-        wireInteractionUnlock();
+        if(e && (e.error === 'not-allowed' || e.error === 'interrupted')){
+            if(!_audioGestured) showTapGate();
+        }
         setTimeout(processQueue, 500);
     };
 
+    _lastSpeakAt = Date.now();
     try {
-        // Chrome bug: cancel any stuck utterance first
-        if(window.speechSynthesis.speaking || window.speechSynthesis.pending){
-            // Only cancel if queue is backed up — don't cancel a live utterance
-        }
         window.speechSynthesis.speak(utt);
     } catch(e){
         console.warn('TTS speak() threw:', e);
         _isSpeaking = false;
         setTimeout(processQueue, 500);
+        return;
     }
-}
 
-// Watchdog: Chrome sometimes stalls speechSynthesis — kick it every 10s
-if(!IS_PREVIEW){
-    setInterval(() => {
-        if(window.speechSynthesis.speaking && !_isSpeaking){
-            window.speechSynthesis.cancel();
+    // Autoplay-block detection: if onstart doesn't fire within 1.5s
+    // AND engine isn't speaking, show tap gate.
+    setTimeout(() => {
+        if(!actuallyStarted && !window.speechSynthesis.speaking && !_audioGestured){
+            showTapGate();
         }
-    }, 10000);
+    }, 1500);
 }
 
 function enqueueCommentary(text, rate, pitch){
@@ -807,7 +722,6 @@ function enqueueCommentary(text, rate, pitch){
     if(!_isSpeaking) processQueue();
 }
 
-// ── Commentary ticker ──────────────────────────────────────────
 function showTicker(text){
     $('ctText').textContent = `"${text}"`;
     const ticker = $('commentaryTicker');
@@ -817,9 +731,8 @@ function showTicker(text){
 }
 
 // ════════════════════════════════════════════════════════════════
-// ══ COMMENTARY GENERATION ════════════════════════════════════════
+// ══ COMMENTARY GENERATION (Standard / Shastri / Chopra)
 // ════════════════════════════════════════════════════════════════
-
 function buildStandardCommentary(d, prevD, eventType){
     const striker    = d.str===1 ? d.p1n : d.p2n;
     const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
@@ -884,7 +797,7 @@ function buildStandardCommentary(d, prevD, eventType){
             `No ball from ${bowler}! Free hit coming up for ${striker}!`,
             `Overstepping! No ball called, and it's a free hit!`,
         ],
-        bye: [ `Byes! The ball gets past the keeper.` ],
+        bye:    [ `Byes! The ball gets past the keeper.` ],
         legbye: [ `Leg byes! Deflects off the pad, they run.` ],
     };
 
@@ -975,7 +888,7 @@ function buildShastriCommentary(d, prevD, eventType){
             `NO BALL! ${bowler} has overstepped and that means a FREE HIT is coming up! What a gift for ${striker}!`,
             `NO BALL called! And now there is a FREE HIT! The crowd is buzzing! ${striker}, this is your moment!`,
         ],
-        bye: [ `Byes! The keeper is beaten! They take the runs and ${team} will accept every run they can get!` ],
+        bye:    [ `Byes! The keeper is beaten! They take the runs and ${team} will accept every run they can get!` ],
         legbye: [ `Leg byes! Deflects off the pad and they scamper through! That is what you call opportunistic cricket!` ],
     };
 
@@ -1068,7 +981,7 @@ function buildChopraCommentary(d, prevD, eventType){
             `No ball. Free hit coming up — and that's a massive opportunity for ${striker} to cash in.`,
             `NO BALL! Big moment — free hit follows. ${striker} can play with complete freedom now.`,
         ],
-        bye: [ `Byes. Through to the boundary — ${team} takes what they can get.` ],
+        bye:    [ `Byes. Through to the boundary — ${team} takes what they can get.` ],
         legbye: [ `Leg byes. Off the pad — smart running made that possible.` ],
     };
 
@@ -1104,14 +1017,13 @@ function buildCommentaryForEvent(d, prevD, eventType, style){
     if(style === 'chopra')  return buildChopraCommentary(d, prevD, eventType);
     return buildStandardCommentary(d, prevD, eventType);
 }
-
 function adjustedRatePitch(baseRate, basePitch, style){
     if(style === 'shastri') return { rate: baseRate * 0.95, pitch: basePitch * 0.90 };
     if(style === 'chopra')  return { rate: baseRate * 1.05, pitch: basePitch * 1.05 };
     return { rate: baseRate, pitch: basePitch };
 }
 
-// ── Commentary settings listener ──────────────────────────────
+// Settings sync + legacy /commentary channel
 if(!IS_PREVIEW){
     onValue(cSettingsRef, snap => {
         const v = snap.val();
@@ -1124,10 +1036,7 @@ if(!IS_PREVIEW){
         };
         initVoice();
     });
-}
 
-// ── Legacy commentary channel ──────────────────────────────────
-if(!IS_PREVIEW){
     get(commRef).then(snap => {
         _lastCommId = snap.val()?.id || null;
         onValue(commRef, snap => {
@@ -1141,9 +1050,8 @@ if(!IS_PREVIEW){
 }
 
 // ════════════════════════════════════════════════════════════════
-// ══ PLAYER PHOTOS ════════════════════════════════════════════════
+// ══ PLAYER PHOTOS
 // ════════════════════════════════════════════════════════════════
-
 onValue(phRef, snap => {
     _playerPhotos = snap.val() || {};
     document.querySelectorAll('[data-ph-name]').forEach(el => {
@@ -1151,22 +1059,10 @@ onValue(phRef, snap => {
         if(name) el.src = getPhoto(name);
     });
 });
-
 const BLANK_AVATAR = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Ccircle cx='30' cy='30' r='30' fill='%23111'/%3E%3Ccircle cx='30' cy='22' r='10' fill='%23333'/%3E%3Cellipse cx='30' cy='52' rx='16' ry='12' fill='%23333'/%3E%3C/svg%3E`;
 const BLANK_IDCARD = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 95'%3E%3Crect width='70' height='95' fill='%23111' rx='8'/%3E%3Ccircle cx='35' cy='34' r='14' fill='%23333'/%3E%3Cellipse cx='35' cy='74' rx='22' ry='16' fill='%23333'/%3E%3C/svg%3E`;
-
-function getPhoto(name){
-    if(!name) return BLANK_AVATAR;
-    const key = name.replace(/[^a-zA-Z0-9]/g,'_');
-    return _playerPhotos[key] || BLANK_AVATAR;
-}
-
-function setPhoto(el, name){
-    if(!el) return;
-    el.src = getPhoto(name);
-    el.dataset.phName = name || '';
-}
-
+function getPhoto(name){ if(!name) return BLANK_AVATAR; const key = name.replace(/[^a-zA-Z0-9]/g,'_'); return _playerPhotos[key] || BLANK_AVATAR; }
+function setPhoto(el, name){ if(!el) return; el.src = getPhoto(name); el.dataset.phName = name || ''; }
 function setIdCardPhoto(el, name){
     if(!el) return;
     if(!name){ el.src = BLANK_IDCARD; el.dataset.phName=''; return; }
@@ -1175,7 +1071,7 @@ function setIdCardPhoto(el, name){
     el.dataset.phName = name;
 }
 
-// ── Reconnect watchdog ──
+// Reconnect watchdog
 let rTimer=null;
 onValue(ref(db,'.info/connected'),s=>{
     if(s.val()===false) rTimer=setTimeout(()=>location.reload(),4000);
@@ -1183,7 +1079,7 @@ onValue(ref(db,'.info/connected'),s=>{
 });
 setTimeout(()=>location.reload(),5*60*1000);
 
-// ── Tab switching ──
+// Tabs
 let currentTab='bat';
 window.setTab=(t)=>{
     currentTab=t;
@@ -1193,7 +1089,7 @@ window.setTab=(t)=>{
     $('tabBwl').className=t==='bwl'?'sc-tab active':'sc-tab';
 };
 
-// ── Keyboard shortcuts ──
+// Keyboard shortcuts + UI state
 let uiSt={scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8};
 onValue(uiRef,s=>{ uiSt=s.val()||{scorebar:true,scorecard:false}; });
 document.addEventListener('keydown',e=>{
@@ -1203,7 +1099,6 @@ document.addEventListener('keydown',e=>{
     if(e.key==='2') window.setTab('bwl');
     if(e.key==='Escape'){ $('winOverlay').classList.remove('show'); }
 });
-
 onValue(uiRef,snap=>{
     const ui=snap.val()||{};
     $('sbWrap').className = ui.scorebar===false ? 'sb-wrap hidden' : 'sb-wrap';
@@ -1212,12 +1107,11 @@ onValue(uiRef,snap=>{
     }
 });
 
-// ══ AUTO OVER-END POPUP ══
+// AUTO OVER-END POPUP
 let autoPopupActive  = false;
 let autoPopupTimer   = null;
 let autoBarTimer     = null;
 let lastOverCount    = -1;
-
 function triggerAutoPopup(dur){
     if(autoPopupTimer) clearTimeout(autoPopupTimer);
     if(autoBarTimer)   clearTimeout(autoBarTimer);
@@ -1244,11 +1138,10 @@ function triggerAutoPopup(dur){
     }, dur * 1000);
 }
 
-// ══ EVENT PLAYER OVERLAY ════════════════════════════════════════
+// EVENT PLAYER OVERLAY
 function showEventPlayer(name, emoji, statText, subText, colorClass){
     clearTimeout(_epovTimer);
-    // Use ID-card photo (portrait) for event overlay
-    const photo = _playerPhotos[(name||'').replace(/[^a-zA-Z0-9]/g,'_')] || BLANK_IDCARD;
+    const photo = getPhoto(name);
     $('epovEmoji').textContent = emoji;
     $('epovPhoto').src = photo;
     $('epovPhoto').className = `epov-photo ${colorClass||''}`;
@@ -1260,7 +1153,7 @@ function showEventPlayer(name, emoji, statText, subText, colorClass){
     _epovTimer = setTimeout(()=>{ $('eventPlayerOverlay').classList.remove('show'); }, 5000);
 }
 
-// ══ AFTER-OVER PLAYER DISPLAY ═══════════════════════════════════
+// AFTER-OVER PLAYER DISPLAY (ID-card photos)
 function showOverPlayers(d, overNum, overBalls){
     const striker    = d.str===1 ? d.p1n : d.p2n;
     const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
@@ -1302,11 +1195,10 @@ function showOverPlayers(d, overNum, overBalls){
     _overPlayersTimer = setTimeout(()=>{ $('overPlayersWrap').classList.remove('show'); }, 10000);
 }
 
-// ══ WIN OVERLAY ══════════════════════════════════════════════════
+// WIN OVERLAY
 function showWinOverlay(d, winnerTeam, margin, winType){
     if(_winShown) return;
     _winShown = true;
-
     $('winOverlayTitle').textContent = winType === 'tie' ? "IT'S A TIE!" : `${winnerTeam} WIN!`;
     $('winOverlaySub').textContent = margin;
     $('winOverlayDetail').textContent = `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`;
@@ -1316,8 +1208,7 @@ function showWinOverlay(d, winnerTeam, margin, winType){
     const bowlRows = (d.bowlRows||[]).sort((a,b)=>b.wkts-a.wkts||a.runs-b.runs).slice(0,1);
     const stars    = [...batRows, ...bowlRows];
     const plHtml = stars.map(p => {
-        // Use ID-card portrait photo
-        const photo = _playerPhotos[(p.name||'').replace(/[^a-zA-Z0-9]/g,'_')] || BLANK_IDCARD;
+        const photo = getPhoto(p.name);
         const stat  = p.wkts !== undefined && p.balls > 0 ? `${p.wkts}-${p.runs}` : `${p.runs}(${p.balls})`;
         return `<div class="win-player-card">
             <img class="win-player-photo" src="${photo}" alt="${p.name}">
@@ -1340,7 +1231,7 @@ function showWinOverlay(d, winnerTeam, margin, winType){
     setTimeout(()=>{ $('winOverlay').classList.remove('show'); }, 30000);
 }
 
-// ══ ANNOUNCEMENT SYSTEM ══════════════════════════════════════════
+// ANNOUNCEMENT SYSTEM
 let annTimer=null, lastAnnId=null;
 const PARTICLE_COLORS={
     gold:['#f5c518','#ffd54f','#fff176','#ffe082','#ffca28'],
@@ -1431,7 +1322,7 @@ get(annRef).then(snap=>{
     });
 });
 
-// ── Team color ──
+// Team color
 function teamColor(name){
     const n=(name||'').toUpperCase();
     if(n.includes('INDIA'))        return '#003893';
@@ -1458,9 +1349,7 @@ function ballCls(v){
     return '';
 }
 
-// ════════════════════════════════════════════════════════════════
-// ══ EVENT DETECTION ══════════════════════════════════════════════
-// ════════════════════════════════════════════════════════════════
+// Event detection
 function detectEventType(d, prev){
     if(!prev) return null;
     const newBalls  = d.recentBalls || [];
@@ -1470,12 +1359,9 @@ function detectEventType(d, prev){
                  || (d.runs !== prev.runs)
                  || (d.balls !== prev.balls);
     if(!changed) return null;
-
     if(d.wkts > prev.wkts) return 'wicket';
-
     const lastBall = newBalls.slice(-1)[0];
     if(lastBall === undefined || lastBall === null) return null;
-
     if(lastBall === 4) return '4';
     if(lastBall === 6) return '6';
     if(lastBall === 1) return '1';
@@ -1492,9 +1378,7 @@ function detectEventType(d, prev){
     return null;
 }
 
-// ════════════════════════════════════════════════════════════════
-// ══ MAIN DATA LISTENER ════════════════════════════════════════════
-// ════════════════════════════════════════════════════════════════
+// MAIN DATA LISTENER
 onValue(ref(db,'cricket'),snap=>{
     const d=snap.val(); if(!d) return;
 
@@ -1503,7 +1387,7 @@ onValue(ref(db,'cricket'),snap=>{
     document.documentElement.style.setProperty('--ta',batColor);
     document.documentElement.style.setProperty('--tb',bowlColor);
 
-    /* ── GENERATE & PLAY COMMENTARY ── */
+    // GENERATE & PLAY COMMENTARY (overlay only)
     if(!IS_PREVIEW && _prevData && _commentarySettings.enabled){
         const evType = detectEventType(d, _prevData);
         if(evType){
@@ -1518,7 +1402,7 @@ onValue(ref(db,'cricket'),snap=>{
         }
     }
 
-    /* ── OVER-END AUTO POPUP ── */
+    // OVER-END AUTO POPUP
     const completedOvers = Math.floor(d.balls/6);
     const ballsThisOver  = d.balls%6;
     if(lastOverCount >= 0 && completedOvers > lastOverCount && ballsThisOver === 0 && uiSt.autoOverPopup === true && d.balls > 0){
@@ -1529,7 +1413,7 @@ onValue(ref(db,'cricket'),snap=>{
         $('overBadge').textContent = `⬜ END OF OVER ${completedOvers}`;
     }
 
-    /* ── EVENT-BASED PHOTO OVERLAYS ── */
+    // EVENT-BASED PHOTO OVERLAYS
     if(_prevData){
         const prev = _prevData;
         const lastBall = (d.recentBalls||[]).slice(-1)[0];
@@ -1580,7 +1464,7 @@ onValue(ref(db,'cricket'),snap=>{
     lastOverCount = completedOvers;
     _prevData = JSON.parse(JSON.stringify(d));
 
-    /* ── SCORE BAR ── */
+    // SCORE BAR
     $('dTeam').textContent=d.batTeam||'TEAM';
     $('dRuns').textContent=d.runs; $('dWkts').textContent=d.wkts;
     const oStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
@@ -1619,7 +1503,7 @@ onValue(ref(db,'cricket'),snap=>{
     }
     const bar=$('scoreBar'); bar.classList.remove('uf'); void bar.offsetWidth; bar.classList.add('uf');
 
-    /* ── SCORECARD ── */
+    // SCORECARD
     $('scTeamName').textContent=d.batTeam||'TEAM';
     $('scTournament').textContent=d.inn1Score?`After ${d.inn1Bat}: ${d.inn1Score}`:(d.maxOvers?`${d.maxOvers} OVERS MATCH`:'T20 MATCH');
     $('scInnLbl').textContent=d.innings===2?'2ND INNINGS':'1ST INNINGS';
