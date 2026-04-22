@@ -82,6 +82,7 @@ button:active{ opacity:.65; transform:scale(.95); }
 .note{ font-size:10px; color:#333344; margin-top:10px; line-height:1.7; border-top:1px solid var(--brd); padding-top:8px; }
 .note b{ color:#555566; }
 
+/* ── PLAYER INPUTS (11 per team) ── */
 .squad-grid{ display:flex; flex-direction:column; gap:5px; margin-top:6px; }
 .player-row{ display:flex; align-items:center; gap:8px; }
 .player-num{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--muted); width:18px; flex-shrink:0; text-align:right; }
@@ -92,7 +93,10 @@ button:active{ opacity:.65; transform:scale(.95); }
 .player-photo-btn{ position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .2s; font-size:14px; border:none; padding:0; width:32px; }
 .player-avatar-wrap:hover .player-photo-btn{ opacity:1; }
 .player-name-input{ flex:1; padding:7px 10px; font-size:13px; }
+.player-cap-badge{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--y); border:1px solid var(--y); border-radius:2px; padding:1px 5px; cursor:pointer; white-space:nowrap; flex-shrink:0; opacity:.5; transition:.2s; }
+.player-cap-badge.on{ opacity:1; background:rgba(240,180,41,.1); }
 
+/* modals */
 .modal-bg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
 .modal-bg.open{ display:flex; }
 .modal{ background:var(--card); border:1px solid var(--brd2); border-radius:10px; padding:22px; width:94%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,.9),0 0 0 1px rgba(240,180,41,.1); }
@@ -126,6 +130,7 @@ button:active{ opacity:.65; transform:scale(.95); }
 .auto-dur-wrap select{ width:80px; padding:6px 10px; font-size:12px; }
 .auto-popup-note{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#2a3a2a; letter-spacing:.5px; width:100%; line-height:1.6; margin-top:4px; }
 
+/* bowler / batsman picker modal */
 .bpk-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:300; align-items:center; justify-content:center; backdrop-filter:blur(6px); }
 .bpk-overlay.open{ display:flex; }
 .bpk-box{ background:#0c0c1a; border:1px solid #252535; border-radius:12px; padding:20px; width:94%; max-width:420px; box-shadow:0 24px 80px rgba(0,0,0,.95),0 0 0 1px rgba(240,180,41,.12); }
@@ -143,6 +148,7 @@ button:active{ opacity:.65; transform:scale(.95); }
 .qf-rain-chk{ width:13px!important; height:13px!important; cursor:pointer; flex-shrink:0; margin:0!important; }
 .qf-rain-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; cursor:pointer; margin:0; }
 
+/* match history */
 .hist-empty{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#333; text-align:center; padding:20px; letter-spacing:1px; }
 .hist-count{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); margin-bottom:10px; letter-spacing:1px; }
 .hist-list{ max-height:420px; overflow-y:auto; }
@@ -164,8 +170,10 @@ button:active{ opacity:.65; transform:scale(.95); }
 .b-save-db{ background:linear-gradient(135deg,#003a28,#002018); color:#06d6a0; border:1px solid #0a5038; font-size:15px; }
 .b-save-db:hover{ background:#06d6a0; color:#000; }
 
+/* auto-save toast */
 #autoSaveToast{ position:fixed; bottom:80px; right:16px; z-index:9999; background:#032212; color:#06d6a0; border:1px solid #0a4030; border-radius:6px; padding:8px 16px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; opacity:0; transition:opacity .3s; pointer-events:none; }
 
+/* password gate */
 #pwGate{ position:fixed; inset:0; background:#080810; display:flex; align-items:center; justify-content:center; z-index:9999; }
 #pwGate.gone{ display:none; }
 .pw-box{ background:#0e0e1a; border:1px solid #252535; border-radius:10px; padding:36px 32px 30px; display:flex; flex-direction:column; align-items:center; gap:16px; width:320px; box-shadow:0 20px 60px rgba(0,0,0,.9),0 0 0 1px rgba(240,180,41,.08); }
@@ -180,6 +188,7 @@ button:active{ opacity:.65; transform:scale(.95); }
 #pwBtn{ width:100%; padding:12px; background:linear-gradient(135deg,#3a2800,#2a1e00); color:#f0b429; border:1px solid #5a3c00; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; }
 #pwErr{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:#e63946; letter-spacing:1px; min-height:16px; text-align:center; }
 
+/* ── PLAYER POPUP MODAL ── */
 .player-popup-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.94); z-index:400; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
 .player-popup-overlay.open{ display:flex; }
 .player-popup-box{ background:#0c0c1a; border:1px solid #252535; border-radius:14px; padding:24px; width:96%; max-width:700px; max-height:90vh; overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,.98); }
@@ -194,6 +203,7 @@ button:active{ opacity:.65; transform:scale(.95); }
 .player-card-popup .pcp-name{ font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:#ddd; }
 .player-card-popup .pcp-role{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#555; letter-spacing:1px; text-transform:uppercase; }
 
+/* ── WIN POPUP MODAL (non-alert) ── */
 .win-popup-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.96); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
 .win-popup-overlay.open{ display:flex; }
 .win-popup-box{ background:linear-gradient(135deg,#0e0a00,#0a0600); border:2px solid var(--y); border-radius:16px; padding:36px 32px; width:96%; max-width:500px; text-align:center; box-shadow:0 0 80px rgba(240,180,41,.25),0 24px 80px rgba(0,0,0,.98); position:relative; overflow:hidden; }
@@ -209,19 +219,21 @@ button:active{ opacity:.65; transform:scale(.95); }
 .win-popup-close{ background:linear-gradient(135deg,#3a2800,#2a1e00); color:var(--y); border:1px solid #5a3c00; border-radius:6px; padding:14px 32px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; width:auto; margin-top:4px; }
 .win-popup-close:hover{ background:var(--y); color:#000; }
 
+/* ── AUDIO COMMENTARY ── */
 .audio-panel{ background:var(--card2); border:1px solid var(--brd); border-radius:6px; padding:12px 14px; margin-top:12px; }
 .audio-status{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .audio-indicator{ width:10px; height:10px; border-radius:50%; background:#333; flex-shrink:0; transition:.3s; }
 .audio-indicator.on{ background:var(--green); box-shadow:0 0 8px var(--green); animation:audioP 1.5s infinite; }
+.audio-indicator.speaking{ background:var(--y); box-shadow:0 0 10px var(--y); animation:audioP .6s infinite; }
 @keyframes audioP{ 0%,100%{opacity:1}50%{opacity:.4} }
 .audio-label{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#888; letter-spacing:1px; text-transform:uppercase; }
+.audio-current{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:#555; letter-spacing:.5px; flex:1; min-width:200px; font-style:italic; margin-top:6px; width:100%; }
 .audio-toggle{ background:#0a0a18; color:#888; border:1px solid #252535; border-radius:4px; padding:6px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; letter-spacing:1px; transition:.2s; }
 .audio-toggle.on{ background:#032212; color:#06d6a0; border-color:#0a4030; }
 .audio-voice-sel{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:center; }
 .audio-voice-sel label{ margin:0; }
 .audio-voice-sel select{ width:auto; padding:6px 10px; font-size:12px; }
-.audio-relay-note{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#2a4a3a; letter-spacing:.5px; margin-top:8px; padding:6px 10px; background:#03120a; border:1px solid #0a3020; border-radius:4px; }
-.audio-relay-note b{ color:#3a7a5a; }
+
 </style>
 </head>
 <body>
@@ -260,9 +272,8 @@ button:active{ opacity:.65; transform:scale(.95); }
     <span>THIS OVER <b id="iOvB">—</b></span>
     <span class="fh-pill" id="iFH">FREE HIT</span>
 </div>
-<div class="pv-lbl">▶ LIVE PREVIEW · index.html (muted — audio only plays on full overlay)</div>
-<!-- CHANGED: iframe now has ?preview=1 so index.html knows to suppress audio -->
-<div class="pv"><iframe src="index.html?preview=1"></iframe></div>
+<div class="pv-lbl">▶ LIVE PREVIEW · index.html</div>
+<div class="pv"><iframe src="index.html"></iframe></div>
 
 <div class="body">
 
@@ -407,7 +418,7 @@ button:active{ opacity:.65; transform:scale(.95); }
                 <option value="20">20 sec</option>
             </select>
         </div>
-        <div class="auto-popup-note">Scorecard auto-slides up after every completed over, then hides itself. Shows ID-card sized player photos.</div>
+        <div class="auto-popup-note">Scorecard auto-slides up after every completed over, then hides itself.</div>
     </div>
     <div style="font-size:10px;color:#2a2a3a;text-align:center;margin-top:8px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">
         KEYBOARD ON OVERLAY — S = SCORECARD · B = SCORE BAR · 1 = BATTING · 2 = BOWLING
@@ -424,12 +435,9 @@ button:active{ opacity:.65; transform:scale(.95); }
             <button class="audio-toggle" id="audioToggleBtn" onclick="toggleAudio()">ENABLE</button>
         </div>
         <div class="audio-voice-sel">
-            <!-- Commentator style selector -->
-            <label>Commentator:</label>
-            <select id="commentaryStyleSel" title="Commentary style">
-                <option value="standard">Standard</option>
-                <option value="shastri">🎙 Ravi Shastri (dramatic)</option>
-                <option value="chopra">🎙 Akash Chopra (analytical)</option>
+            <label>Voice:</label>
+            <select id="voiceSel" onchange="updateVoice()">
+                <option value="">Loading voices...</option>
             </select>
             <label style="margin-left:8px">Rate:</label>
             <select id="rateSel" style="width:80px">
@@ -446,11 +454,7 @@ button:active{ opacity:.65; transform:scale(.95); }
                 <option value="1.2">High</option>
             </select>
         </div>
-        <div class="audio-relay-note">
-            🔊 <b>Audio plays ONLY on the live overlay (index.html)</b> — the admin panel never plays audio.
-            The overlay auto-enables commentary on load so it works with <b>PRISM Live, CameraFi Live, OBS</b> and other broadcast apps without any click.
-            Settings below are saved to Firebase and applied on the overlay in real-time.
-        </div>
+        <div class="audio-current" id="audioCurrentText">No commentary yet — initialize a match to begin.</div>
     </div>
 </div>
 
@@ -620,16 +624,13 @@ const hRef    = ref(db,'undoStack');
 const aRef    = ref(db,'announcement');
 const histRef = ref(db,'matchHistory');
 const phRef   = ref(db,'playerPhotos');
-// ══ Commentary settings ref — admin writes, index.html reads & plays audio ══
-const cSettingsRef = ref(db,'commentarySettings');
-
-const $ = id => document.getElementById(id);
+const $       = id => document.getElementById(id);
 
 let _squads = { bat:[], bowl:[] };
 let _match  = null;
 let _autoOn = false;
 let _currentMatchKey = null;
-let _playerPhotos = {};
+let _playerPhotos = {}; // name -> dataURL
 
 // ══ PLAYER PHOTOS ═════════════════════════════════
 onValue(phRef, snap => {
@@ -653,7 +654,7 @@ function refreshAvatars(){
     });
 }
 
-// ══ SQUAD BUILDER ═════════════════════════════════
+// ══ SQUAD BUILDER — 11 INPUTS PER TEAM ═══════════
 function buildSquadInputs(){
     ['A','B'].forEach(team => {
         const cont = $(`squad${team}`);
@@ -676,6 +677,7 @@ function buildSquadInputs(){
             `;
             cont.appendChild(row);
 
+            // File upload handler
             setTimeout(() => {
                 const fileInput = $(`file${team}${i}`);
                 if(!fileInput) return;
@@ -702,6 +704,7 @@ function buildSquadInputs(){
 }
 
 function onPlayerNameChange(team, idx){
+    // Update avatar data-name
     const nameEl = $(`player${team}${idx}`);
     const avatarEl = $(`avatar${team}${idx}`);
     if(nameEl && avatarEl){
@@ -768,6 +771,7 @@ function showWinPopup(title, sub, detail, isWin){
     $('winPopupTitle').textContent = title;
     $('winPopupSub').textContent = sub;
     $('winPopupDetail').textContent = detail || '';
+    // Confetti
     const conf = $('winConfetti');
     conf.innerHTML = '';
     const cols = ['#f5c518','#06d6a0','#e63946','#9b72cf','#118ab2','#fff'];
@@ -781,59 +785,182 @@ function showWinPopup(title, sub, detail, isWin){
 }
 window.closeWinPopup = () => $('winPopupOverlay').classList.remove('open');
 
-// ══════════════════════════════════════════════════
-// ══ AUDIO COMMENTARY — SETTINGS ONLY ══════════════
-// ══ Admin NEVER plays or generates audio locally. ═
-// ══ It just writes settings to Firebase. ═════════
-// ══ All audio playback happens in index.html.  ═══
-// ══════════════════════════════════════════════════
+// ══ AUDIO COMMENTARY SYSTEM ══════════════════════
 let _audioEnabled = false;
+let _speechQueue  = [];
+let _speaking     = false;
+let _selectedVoice = null;
+let _lastBallState = null;
 
-// Write current UI-selected settings to Firebase so index.html picks them up
-function writeCommentarySettings(){
-    update(cSettingsRef, {
-        enabled: _audioEnabled,
-        style:   $('commentaryStyleSel') ? $('commentaryStyleSel').value : 'standard',
-        rate:    $('rateSel')  ? parseFloat($('rateSel').value)  || 1.0 : 1.0,
-        pitch:   $('pitchSel') ? parseFloat($('pitchSel').value) || 1.1 : 1.1,
+// Load voices
+function loadVoices(){
+    const voices = window.speechSynthesis.getVoices();
+    const sel = $('voiceSel');
+    if(!voices.length){ sel.innerHTML = '<option value="">No voices found</option>'; return; }
+    sel.innerHTML = '';
+    // Prefer energetic female English voices
+    const preferred = voices.filter(v => v.lang.startsWith('en'));
+    const all = preferred.length ? preferred : voices;
+    all.forEach((v,i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${v.name} (${v.lang})`;
+        sel.appendChild(opt);
     });
+    // Auto-pick a female/energetic voice if possible
+    const female = all.findIndex(v => /female|woman|zira|samantha|victoria|karen|moira|fiona|tessa|susan|hazel|heera/i.test(v.name));
+    if(female >= 0) sel.value = female;
+    _selectedVoice = all[parseInt(sel.value)||0] || all[0];
 }
+window.speechSynthesis.onvoiceschanged = loadVoices;
+setTimeout(loadVoices, 800);
 
-// Toggle commentary from the admin UI (sends command to overlay)
-window.toggleAudio = () => {
-    _audioEnabled = !_audioEnabled;
-    updateAudioUI();
-    writeCommentarySettings();
+window.updateVoice = () => {
+    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+    const all = voices.length ? voices : window.speechSynthesis.getVoices();
+    const idx = parseInt($('voiceSel').value) || 0;
+    _selectedVoice = all[idx] || all[0];
 };
 
-function updateAudioUI(){
+window.toggleAudio = () => {
+    _audioEnabled = !_audioEnabled;
     const btn = $('audioToggleBtn');
     const ind = $('audioIndicator');
     const lbl = $('audioStatusLabel');
-    if(!btn || !ind || !lbl) return;
     btn.textContent = _audioEnabled ? 'DISABLE' : 'ENABLE';
-    btn.className   = _audioEnabled ? 'audio-toggle on' : 'audio-toggle';
-    ind.className   = _audioEnabled ? 'audio-indicator on' : 'audio-indicator';
-    lbl.textContent = _audioEnabled
-        ? 'COMMENTARY ACTIVE — audio plays on overlay (index.html)'
-        : 'COMMENTARY OFF';
+    btn.className = _audioEnabled ? 'audio-toggle on' : 'audio-toggle';
+    ind.className = _audioEnabled ? 'audio-indicator on' : 'audio-indicator';
+    lbl.textContent = _audioEnabled ? 'COMMENTARY ACTIVE' : 'COMMENTARY OFF';
+    if(!_audioEnabled){ window.speechSynthesis.cancel(); _speechQueue = []; _speaking = false; }
+};
+
+function speakText(text){
+    if(!_audioEnabled) return;
+    _speechQueue.push(text);
+    if(!_speaking) processQueue();
 }
 
-// Wire up selector change handlers (style/rate/pitch)
-['commentaryStyleSel','rateSel','pitchSel'].forEach(id => {
-    const el = $(id);
-    if(el) el.addEventListener('change', writeCommentarySettings);
-});
+function processQueue(){
+    if(!_speechQueue.length){ _speaking=false; $('audioIndicator').className='audio-indicator on'; return; }
+    _speaking = true;
+    const text = _speechQueue.shift();
+    $('audioCurrentText').textContent = `"${text}"`;
+    $('audioIndicator').className = 'audio-indicator speaking';
+    const utt = new SpeechSynthesisUtterance(text);
+    if(_selectedVoice) utt.voice = _selectedVoice;
+    utt.rate  = parseFloat($('rateSel').value)  || 1.0;
+    utt.pitch = parseFloat($('pitchSel').value) || 1.1;
+    utt.volume = 1;
+    utt.onend  = () => { setTimeout(processQueue, 400); };
+    utt.onerror= () => { _speaking=false; };
+    window.speechSynthesis.speak(utt);
+}
 
-// On load: pull current settings from Firebase and restore UI state
-onValue(cSettingsRef, snap => {
-    const s = snap.val() || {};
-    if(typeof s.enabled === 'boolean') _audioEnabled = s.enabled;
-    if(s.style && $('commentaryStyleSel')) $('commentaryStyleSel').value = s.style;
-    if(s.rate  && $('rateSel'))  $('rateSel').value  = String(s.rate);
-    if(s.pitch && $('pitchSel')) $('pitchSel').value = String(s.pitch);
-    updateAudioUI();
-});
+function buildCommentary(d, prevD, eventType){
+    const striker    = d.str===1 ? d.p1n : d.p2n;
+    const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
+    const nonStriker = d.str===1 ? d.p2n : d.p1n;
+    const bowler     = d.bwn || 'the bowler';
+    const team       = d.batTeam || 'the batting side';
+    const overs      = `${Math.floor(d.balls/6)} point ${d.balls%6}`;
+    const maxOv      = d.maxOvers || 20;
+    const ballsLeft  = maxOv*6 - d.balls;
+    const runsNeeded = d.target > 0 ? d.target - d.runs : null;
+    const isChase    = d.target > 0;
+    const isFinalOvers = Math.floor(d.balls/6) >= maxOv - 3;
+    const crr        = d.balls > 0 ? (d.runs/(d.balls/6)).toFixed(1) : '0';
+    const wktsLeft   = 10 - d.wkts;
+
+    // Tone detection
+    let tone = 'normal';
+    if(d.wkts >= 6) tone = 'collapse';
+    else if(isChase && runsNeeded && ballsLeft > 0 && (runsNeeded/(ballsLeft/6)) > 12) tone = 'tough';
+    else if(isChase && runsNeeded && ballsLeft > 0 && (runsNeeded/(ballsLeft/6)) < 7) tone = 'dominating';
+    else if(isFinalOvers) tone = 'tension';
+    else if(strikerR >= 70) tone = 'hype';
+
+    const commentary = {
+        dot: [
+            `Dot ball! ${bowler} keeps it tight, ${striker} couldn't find the gap.`,
+            `No run! ${bowler} beats ${striker} outside off stump.`,
+            `Good length delivery, ${striker} defends solidly. Dot ball.`,
+            `${bowler} gets one through, ${striker} plays and misses! Dot.`,
+            `Tight line from ${bowler}, nothing doing for ${striker}.`,
+        ],
+        1: [
+            `${striker} clips it for a single, rotates the strike well.`,
+            `One run, nudged away by ${striker} off ${bowler}.`,
+            `Pushed to mid-on, they run a quick single.`,
+            `${striker} works it around the corner, one run.`,
+        ],
+        2: [
+            `Two runs! ${striker} plays it down to deep, good running between the wickets.`,
+            `${striker} and ${nonStriker} come back for the second, two runs.`,
+            `Nicely placed, two runs for ${team}!`,
+        ],
+        3: [
+            `Three runs! Great running from ${striker} and ${nonStriker}!`,
+            `Three! They've turned it around brilliantly for three runs.`,
+        ],
+        4: [
+            `FOUR! ${striker} drives it through the covers, stunning shot!`,
+            `BOUNDARY! ${striker} pulls ${bowler} to the square leg fence!`,
+            `FOUR! Cracking shot from ${striker}, pierces the gap perfectly!`,
+            `That's gone for FOUR! ${striker} deposits it through extra cover!`,
+            `Beautiful FOUR from ${striker}, the timing was absolutely sublime!`,
+        ],
+        6: [
+            `SIX! What a shot! ${striker} sends ${bowler} into the stands!`,
+            `MAXIMUM! ${striker} launches it way into the crowd! Six runs!`,
+            `That's GONE! ${striker} muscles ${bowler} over the midwicket boundary!`,
+            `ENORMOUS SIX from ${striker}! This is spectacular cricket!`,
+            `Six! ${striker} picked the length early and absolutely smoked it!`,
+        ],
+        wicket: [
+            `WICKET! ${striker} is OUT! ${bowler} gets the breakthrough!`,
+            `OH! ${striker} has to go! ${bowler} is pumped up!`,
+            `That's OUT! ${bowler} claims the wicket of ${striker}!`,
+            `GONE! The stumps are disturbed, ${striker} walks back to the pavilion!`,
+        ],
+        wide: [
+            `Wide ball, costly from ${bowler}. One extra added.`,
+            `That's a wide! ${bowler} strays down the leg side.`,
+        ],
+        noball: [
+            `No ball from ${bowler}! Free hit coming up for ${striker}!`,
+            `Overstepping! No ball called, and it's a free hit!`,
+        ],
+        bye: [ `Byes! The ball gets past the keeper.` ],
+        legbye: [ `Leg byes! Deflects off the pad, they run.` ],
+    };
+
+    // Milestone additions
+    let milestone = '';
+    if(eventType !== 'wicket' && eventType !== 'wide' && eventType !== 'noball'){
+        if(strikerR === 50) milestone = ` And what a moment — ${striker} brings up the HALF CENTURY! Fifty runs for this outstanding batsman!`;
+        else if(strikerR === 100) milestone = ` Unbelievable! ${striker} reaches ONE HUNDRED RUNS! A century for the ages!`;
+    }
+
+    // Check for fifer
+    const bowlerRow = (d.bowlRows||[]).find(r=>r.name===bowler);
+    if(bowlerRow && bowlerRow.wkts === 5 && eventType === 'wicket'){
+        milestone = ` And that's FIVE wickets for ${bowler}! A brilliant FIFER! Outstanding bowling!`;
+    }
+
+    // Context additions based on tone
+    let context = '';
+    if(isFinalOvers && isChase && runsNeeded){
+        context = ` ${team} need ${runsNeeded} runs off ${ballsLeft} balls!`;
+    } else if(tone === 'collapse'){
+        context = ` ${team} are in real trouble here with ${wktsLeft} wickets remaining.`;
+    } else if(tone === 'tension' && !isChase){
+        context = ` We're in the final overs, every ball is crucial!`;
+    }
+
+    const pool = commentary[eventType] || commentary.dot;
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    return line + milestone + context;
+}
 
 // ══ Toast helper ──────────────────────────────────
 function showToast(msg){
@@ -921,10 +1048,35 @@ function fillSel(bat,bowl,p1n,p2n,bwn){
 }
 
 // ══ MATCH DATA LISTENER ═══════════════════════════
-// NOTE: All commentary generation/audio code has been removed from this listener.
-// The overlay (index.html) now watches the same 'cricket' ref and handles audio itself.
+let _prevMatchState = null;
 onValue(mRef,snap=>{
     const d=snap.val(); _match=d; if(!d) return;
+
+    // Audio commentary — detect what changed
+    if(_audioEnabled && _prevMatchState){
+        const prev = _prevMatchState;
+        const newBalls = d.recentBalls || [];
+        const prevBalls = prev.recentBalls || [];
+        if(newBalls.length !== prevBalls.length || d.wkts !== prev.wkts || d.runs !== prev.runs){
+            let evType = 'dot';
+            const lastBall = newBalls.slice(-1)[0];
+            if(d.wkts > prev.wkts) evType = 'wicket';
+            else if(lastBall === 4) evType = '4';
+            else if(lastBall === 6) evType = '6';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('Wd')) evType = 'wide';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('Nb')) evType = 'noball';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('By')) evType = 'bye';
+            else if(typeof lastBall === 'string' && lastBall.startsWith('Lb')) evType = 'legbye';
+            else if(lastBall === 1) evType = '1';
+            else if(lastBall === 2) evType = '2';
+            else if(lastBall === 3) evType = '3';
+            else if(lastBall === 0) evType = 'dot';
+            const commentKey = { '4':'4','6':'6','1':'1','2':'2','3':'3','dot':'dot','wicket':'wicket','wide':'wide','noball':'noball','bye':'bye','legbye':'legbye' };
+            const cLine = buildCommentary(d, prev, commentKey[evType] || 'dot');
+            speakText(cLine);
+        }
+    }
+    _prevMatchState = JSON.parse(JSON.stringify(d));
 
     $('iBat').textContent=d.batTeam||'—';
     $('iSc').textContent=`${d.runs}/${d.wkts}`;
@@ -1005,6 +1157,7 @@ window.openBowlerInjury=async()=>{
     openBowlerPicker(d.bowlRows||[],d.bwn,Math.floor(d.balls/6),true);
 };
 
+// Main Firebase listener — handles over-end, win detection, innings end
 onValue(mRef,async snap=>{
     const d=snap.val(); if(!d) return;
     const completedOvers = Math.floor(d.balls/6);
@@ -1067,16 +1220,16 @@ window.initMatch=async()=>{
         p1n:batSq[0],p1r:0,p1b:0,p1fours:0,p1sixes:0,
         p2n:batSq[1]||batSq[0],p2r:0,p2b:0,p2fours:0,p2sixes:0,
         bwn:bowlSq[0],bwr:0,bww:0,bwb:0,recentBalls:[],nextBatIdx:2,
-        freeHit:false,innings:1,maxOvers:fmt,batRows,bowlRows,
-        matchStartedAt: Date.now()  // timestamp lets overlay detect a fresh match
-    });
+        freeHit:false,innings:1,maxOvers:fmt,batRows,bowlRows});
     await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n')});
     await update(uRef,{scorebar:true,scorecard:false});
     _adminLastOver=0;
     _currentMatchKey=null;
     _winFired=false;
     _inn1EndFired=false;
+    _prevMatchState=null;
     await saveMatchToDb(true);
+    if(_audioEnabled) speakText(`Match initialized! ${batNm} will bat first against ${bowlNm}. Let's get this game started!`);
     alert('✅ Match Initialized!');
 };
 
@@ -1132,6 +1285,7 @@ async function checkMatchEvents(d){
         _winFired = true;
         await set(aRef,{ ...winMsg, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
         setTimeout(()=>{ saveMatchToDb(true); }, 1500);
+        // Show win popup (not alert!)
         setTimeout(()=>{
             showWinPopup(
                 winMsg.text,
@@ -1139,6 +1293,10 @@ async function checkMatchEvents(d){
                 `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,
                 winMsg.type === 'tie' ? 'tie' : 'win'
             );
+            if(_audioEnabled){
+                const ovStr = `${Math.floor(d.balls/6)} overs`;
+                speakText(`${winMsg.text} ${winMsg.sub}. What an incredible match! The crowd is on their feet!`);
+            }
         }, 800);
     }
 }
@@ -1224,6 +1382,8 @@ window.swapInnings=async()=>{
     _adminLastOver=0;
     _winFired=false;
     _inn1EndFired=false;
+    _prevMatchState=null;
+    if(_audioEnabled) speakText(`Second innings underway! ${d.bowlTeam} need ${d.runs+1} runs to win. The chase is on!`);
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
@@ -1236,13 +1396,12 @@ window.fullReset=async()=>{
     await set(mRef,null);
     await set(sRef,null);
     await set(hRef,null);
-    // Clear any legacy commentary channel
-    await set(ref(db,'commentary'),null);
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
     _adminLastOver=-1;
     _currentMatchKey=null;
     _winFired=false;
     _inn1EndFired=false;
+    _prevMatchState=null;
     location.reload();
 };
 
@@ -1377,12 +1536,6 @@ buildSquadInputs();
 // init UI
 const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8});
-
-// Initialize commentarySettings in Firebase if not present — default ENABLED so overlay auto-plays
-const cSnap = await get(cSettingsRef);
-if(!cSnap.val()){
-    await set(cSettingsRef, { enabled:true, style:'standard', rate:1.0, pitch:1.1 });
-}
 </script>
 
 </div><!-- /mainContent -->
