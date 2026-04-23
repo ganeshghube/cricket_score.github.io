@@ -38,7 +38,7 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .ann-toast.style-red .ann-progress{ background:linear-gradient(90deg,#e63946,#ff8080); }
 .ann-toast.style-purple{ --ann-accent:#9b72cf; background:linear-gradient(135deg,rgba(22,8,44,.98),rgba(8,2,18,.98)); border:1px solid rgba(155,114,207,.4); border-left:5px solid #9b72cf; }
 .ann-toast.style-purple .ann-progress{ background:linear-gradient(90deg,#9b72cf,#e8d5ff); }
-.ann-toast.style-blue{ --ann-accent:#118ab2; background:linear-gradient(135deg,rgba(0,18,38,.98),rgba(0,6,16,.98)); border:1px solid rgba(17,138,178,.4); border-left:5px solid #118ab2; }
+.ann-toast.style-blue{ --ann-accent:#118ab2; background:linear-gradient(135deg,rgba(0,18,38,.98),rgba(6,6,18,.98)); border:1px solid rgba(17,138,178,.4); border-left:5px solid #118ab2; }
 .ann-toast.style-blue .ann-progress{ background:linear-gradient(90deg,#118ab2,#a8dfff); }
 .ann-toast.style-custom{ --ann-accent:#06d6a0; background:linear-gradient(135deg,rgba(0,22,18,.98),rgba(0,8,6,.98)); border:1px solid rgba(6,214,160,.35); border-left:5px solid #06d6a0; }
 .ann-toast.style-custom .ann-progress{ background:linear-gradient(90deg,#06d6a0,#a0f5d5); }
@@ -195,7 +195,6 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .over-players-box{ background:linear-gradient(135deg,rgba(10,10,22,.97),rgba(6,6,14,.98)); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:14px 20px; display:flex; align-items:center; gap:20px; box-shadow:0 8px 40px rgba(0,0,0,.9); }
 .over-players-title{ font-size:10px; font-weight:800; color:#555; text-transform:uppercase; letter-spacing:3px; margin-bottom:8px; }
 .over-player-card{ display:flex; flex-direction:column; align-items:center; gap:6px; min-width:80px; }
-/* ID-CARD SIZED PHOTOS (portrait, rounded rectangle 70x95) */
 .over-player-photo{ width:70px; height:95px; border-radius:8px; object-fit:cover; border:2px solid rgba(255,255,255,.15); background:#111; box-shadow:0 3px 10px rgba(0,0,0,.6); }
 .over-player-photo.striker{ border-color:var(--gold); box-shadow:0 0 14px rgba(240,180,41,.35); }
 .over-player-photo.bowler{  border-color:#06d6a0; box-shadow:0 0 14px rgba(6,214,160,.3); }
@@ -250,36 +249,25 @@ body{ background:rgba(0,0,0,0); font-family:'Barlow Condensed',sans-serif; color
 .cb-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:cbFly ease-out forwards; opacity:0; }
 @keyframes cbFly{ 0%{opacity:1;transform:translate(0,0) scale(1);} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);} }
 
-/* AUDIO UI HIDDEN (commentary still works) */
+/* AUDIO UI HIDDEN */
 #audioStatusDot, #commentaryTicker{ display:none !important; }
 
-/* ═══ TAP-TO-START GATE
-   Hidden by default. Appears only if autoplay is blocked and
-   a real event gets queued. Dismisses itself on any tap.
-   Never shows in OBS (autoplay works there). ═══ */
-#tapStartGate{
-    position:fixed; bottom:20px; right:20px; z-index:100;
-    background:linear-gradient(135deg,rgba(20,14,0,.98),rgba(8,4,0,.98));
-    border:2px solid var(--gold); border-radius:30px;
-    padding:12px 24px; display:none; align-items:center; gap:10px;
-    cursor:pointer;
-    box-shadow:0 8px 40px rgba(0,0,0,.9),0 0 30px rgba(240,180,41,.3);
-    animation:tapGatePulse 1.6s ease-in-out infinite;
-    font-family:'Barlow Condensed',sans-serif;
-    user-select:none; -webkit-tap-highlight-color:transparent;
-}
-#tapStartGate.show{ display:flex; }
-#tapStartGate .tsg-icon{ font-size:22px; }
-#tapStartGate .tsg-text{ font-size:14px; font-weight:800; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
-@keyframes tapGatePulse{
-    0%,100%{ transform:scale(1);    box-shadow:0 8px 40px rgba(0,0,0,.9),0 0 30px rgba(240,180,41,.3); }
-    50%    { transform:scale(1.04); box-shadow:0 8px 40px rgba(0,0,0,.9),0 0 40px rgba(240,180,41,.6); }
+/* ═══ TAP-TO-START GATE — PERMANENTLY HIDDEN ═══
+   Audio is auto-unlocked on page load. This element is kept
+   in the DOM only because scripts reference it, but it will
+   never be shown. The .show class is also suppressed. */
+#tapStartGate,
+#tapStartGate.show {
+    display: none !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 </style>
 </head>
 <body>
 
-<!-- TAP-TO-START GATE (auto-hiding, only shows if autoplay is blocked) -->
+<!-- TAP-TO-START GATE (permanently hidden — kept for script refs only) -->
 <div id="tapStartGate">
     <div class="tsg-icon">🔊</div>
     <div class="tsg-text">Tap to Enable Audio</div>
@@ -520,18 +508,15 @@ let _overPlayersTimer = null;
 // ════════════════════════════════════════════════════════════════
 // ══ AUDIO COMMENTARY SYSTEM
 // ══
-// ══ FIXES vs previous version:
-// ══   1. Removed the _audioUnlocked boolean gate. The engine itself
-// ══      is the only gatekeeper now. speak() is ALWAYS called for
-// ══      every event; if the browser blocks it we detect and
-// ══      surface the tap-to-start pill.
-// ══   2. Voice-loading retry is capped at 4 (≈2 seconds). After
-// ══      that we speak with the browser default voice — speech
-// ══      never gets stuck forever waiting for a voice.
-// ══   3. Chrome speech stall watchdog (pause/resume every 10s).
-// ══   4. Tap-to-start pill shows automatically if an utterance
-// ══      fails to start within 1.5s. Hides itself on any tap.
-// ══      OBS / environments that allow autoplay never see it.
+// ══ AUTO-UNLOCK STRATEGY (no tap required):
+// ══   1. _audioGestured starts TRUE — we never gate on a click.
+// ══   2. autoUnlockAudio() runs immediately and at intervals
+// ══      using the AudioContext silent-buffer trick that works
+// ══      in Prism Live Studio's WebView and OBS browser source.
+// ══   3. showTapGate() is a permanent no-op — the button is
+// ══      hidden via CSS and will never appear.
+// ══   4. Chrome speech stall watchdog: pause/resume every 10s.
+// ══   5. Voice-loading retry capped at 8 attempts (~4 seconds).
 // ════════════════════════════════════════════════════════════════
 
 let _speechQueue     = [];
@@ -540,16 +525,60 @@ let _selectedVoice   = null;
 let _lastCommId      = null;
 let _tickerTimer     = null;
 let _voiceRetries    = 0;
-let _audioGestured   = false;   // true once we've seen a real user gesture
+
+// ── Start as TRUE so we never wait for a gesture ──
+let _audioGestured   = true;
+let _audioCtxUnlocked = false;
 let _lastSpeakAt     = 0;
 
 let _commentarySettings = {
     enabled: true,
-    style:   'shastri',   // 'standard' | 'shastri' | 'chopra'
+    style:   'shastri',
     rate:    1.0,
     pitch:   1.05,
 };
 
+// ── Tap-gate: permanent no-op (hidden via CSS) ──
+const tapGate = $('tapStartGate');
+function showTapGate(){ /* permanently disabled — button hidden via CSS */ }
+function hideTapGate(){ /* no-op */ }
+
+// ── AudioContext silent-buffer unlock ──
+// Works in Prism Live Studio WebView & OBS. Creates a near-zero-
+// duration silent oscillator which registers as "user audio" and
+// unblocks speechSynthesis in Chromium's autoplay policy.
+async function autoUnlockAudio(){
+    if(_audioCtxUnlocked) return;
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(AudioCtx){
+            const ctx = new AudioCtx();
+            // Resume if suspended (required in some Chromium builds)
+            if(ctx.state === 'suspended'){
+                await ctx.resume();
+            }
+            // Play a silent 1-frame buffer
+            const buf = ctx.createBuffer(1, 1, 22050);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+            src.onended = () => { try{ ctx.close(); }catch(e){} };
+            _audioCtxUnlocked = true;
+        }
+    } catch(e){ /* silently ignore */ }
+
+    // Also warm up speechSynthesis with a zero-volume utterance
+    try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance('\u200B'); // zero-width space
+        u.volume = 0;
+        u.rate   = 10;
+        window.speechSynthesis.speak(u);
+    } catch(e){ /* silently ignore */ }
+}
+
+// ── Voice selection ──
 function selectBestVoice(styleHint){
     const all = window.speechSynthesis.getVoices();
     if(!all.length) return null;
@@ -584,59 +613,23 @@ function initVoice(){ _selectedVoice = selectBestVoice(_commentarySettings.style
 if(!IS_PREVIEW){
     window.speechSynthesis.onvoiceschanged = initVoice;
     initVoice();
-    setTimeout(initVoice, 400);
+
+    // Aggressive early unlock: run immediately, then at staggered delays
+    // to catch Prism/OBS WebViews that finish initialising slightly late
+    autoUnlockAudio();
+    setTimeout(autoUnlockAudio,  300);
+    setTimeout(autoUnlockAudio,  800);
+    setTimeout(autoUnlockAudio, 1500);
+    setTimeout(autoUnlockAudio, 3000);
+
+    // Voice init retries
+    setTimeout(initVoice,  400);
     setTimeout(initVoice, 1200);
-}
+    setTimeout(initVoice, 2500);
 
-// Warm-up primer: silent utterance that wakes the engine.
-// On browsers that allow autoplay this is enough; elsewhere it's
-// harmless and the first real user gesture completes the unlock.
-function warmUpSpeech(){
-    if(IS_PREVIEW) return;
-    try {
-        const u = new SpeechSynthesisUtterance(' ');
-        u.volume = 0; u.rate = 1;
-        window.speechSynthesis.speak(u);
-    } catch(e){ /* ignore */ }
-}
-
-// Tap-to-start pill management
-const tapGate = $('tapStartGate');
-function showTapGate(){ if(!IS_PREVIEW && tapGate) tapGate.classList.add('show'); }
-function hideTapGate(){ if(tapGate) tapGate.classList.remove('show'); }
-if(!IS_PREVIEW && tapGate){
-    tapGate.addEventListener('click', () => {
-        _audioGestured = true;
-        warmUpSpeech();
-        hideTapGate();
-        if(_speechQueue.length && !_isSpeaking) processQueue();
-    });
-}
-
-// Any user gesture anywhere also unlocks audio
-function onFirstGesture(){
-    _audioGestured = true;
-    warmUpSpeech();
-    hideTapGate();
-    if(_speechQueue.length && !_isSpeaking) processQueue();
-}
-if(!IS_PREVIEW){
-    ['click','touchstart','keydown','pointerdown'].forEach(ev =>
-        document.addEventListener(ev, onFirstGesture, { capture:true, passive:true })
-    );
-    if(document.readyState === 'loading'){
-        document.addEventListener('DOMContentLoaded', warmUpSpeech);
-    } else {
-        warmUpSpeech();
-    }
-    window.addEventListener('load', warmUpSpeech);
-    setTimeout(warmUpSpeech, 1000);
-    setTimeout(warmUpSpeech, 3000);
-}
-
-// Chrome speech-synthesis stall watchdog (known bug: engine freezes
-// after ~15s of speech). Pause+resume every 10s keeps it alive.
-if(!IS_PREVIEW){
+    // Chrome speech-synthesis stall watchdog (known bug: engine
+    // freezes after ~15s of continuous speech). Pause+resume every
+    // 10s keeps it alive.
     setInterval(() => {
         try {
             if(window.speechSynthesis.speaking){
@@ -652,20 +645,39 @@ if(!IS_PREVIEW){
             }
         } catch(e){}
     }, 10000);
+
+    // Also re-run unlock whenever the page becomes visible (e.g. tab
+    // focus changes in Prism's overlay browser)
+    document.addEventListener('visibilitychange', () => {
+        if(document.visibilityState === 'visible') autoUnlockAudio();
+    });
+
+    // Any genuine user gesture also triggers unlock (belt-and-braces)
+    ['click','touchstart','keydown','pointerdown'].forEach(ev =>
+        document.addEventListener(ev, autoUnlockAudio, { capture:true, passive:true })
+    );
 }
 
 function processQueue(){
     if(IS_PREVIEW) return;
     if(!_speechQueue.length){ _isSpeaking = false; return; }
 
-    // Wait up to ~2s for voices, then fall through with browser default
-    if(!_selectedVoice && _voiceRetries < 4){
+    // Wait up to ~4s for voices (8 retries × 500ms), then fall
+    // through with whatever the browser offers
+    if(!_selectedVoice && _voiceRetries < 8){
         initVoice();
         if(!_selectedVoice){
             _voiceRetries++;
             setTimeout(processQueue, 500);
             return;
         }
+    }
+
+    // Ensure audio is unlocked before speaking
+    if(!_audioCtxUnlocked){
+        autoUnlockAudio();
+        setTimeout(processQueue, 400);
+        return;
     }
 
     _isSpeaking = true;
@@ -682,14 +694,15 @@ function processQueue(){
     utt.pitch  = pitch;
     utt.volume = 1;
 
-    let actuallyStarted = false;
-    utt.onstart = () => { actuallyStarted = true; hideTapGate(); };
+    utt.onstart = () => { hideTapGate(); };
     utt.onend   = () => { _isSpeaking = false; setTimeout(processQueue, 380); };
     utt.onerror = (e) => {
         console.warn('TTS error:', e && e.error);
         _isSpeaking = false;
-        if(e && (e.error === 'not-allowed' || e.error === 'interrupted')){
-            if(!_audioGestured) showTapGate();
+        // On not-allowed: re-unlock and retry once
+        if(e && e.error === 'not-allowed'){
+            _audioCtxUnlocked = false;
+            autoUnlockAudio();
         }
         setTimeout(processQueue, 500);
     };
@@ -701,16 +714,7 @@ function processQueue(){
         console.warn('TTS speak() threw:', e);
         _isSpeaking = false;
         setTimeout(processQueue, 500);
-        return;
     }
-
-    // Autoplay-block detection: if onstart doesn't fire within 1.5s
-    // AND engine isn't speaking, show tap gate.
-    setTimeout(() => {
-        if(!actuallyStarted && !window.speechSynthesis.speaking && !_audioGestured){
-            showTapGate();
-        }
-    }, 1500);
 }
 
 function enqueueCommentary(text, rate, pitch){
