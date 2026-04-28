@@ -113,6 +113,7 @@ body{
     animation:annEmojiBounce .7s cubic-bezier(.36,.07,.19,.97) both;
 }
 
+
 /* ═══ SCORE BAR ═══ */
 .sb-wrap{
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
@@ -200,97 +201,77 @@ body{
 .sc-auto-bar.running{ display:block; }
 .sc-auto-bar-fill{ position:absolute; top:0; left:0; height:100%; background:linear-gradient(90deg,var(--gold),#06d6a0); width:100%; animation:autoBarShrink linear forwards; transform-origin:left; }
 @keyframes autoBarShrink{ from{width:100%} to{width:0%} }
-.sc-team-hdr{ display:flex; align-items:stretch; height:64px; flex-shrink:0; }
+.sc-team-hdr{ display:flex; align-items:stretch; height:60px; flex-shrink:0; }
 .sc-hdr-color{ width:8px; background:var(--ta); flex-shrink:0; }
 .sc-hdr-main{ flex:1; background:linear-gradient(90deg,var(--ta) 0%,rgba(12,12,28,.98) 45%,rgba(12,12,28,.98) 100%); display:flex; align-items:center; gap:14px; padding:0 24px; position:relative; overflow:hidden; }
 .sc-hdr-main::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg,rgba(255,255,255,.04) 0%,transparent 60%); }
-/* ↑ sc-team-name: 32→38px */
-.sc-team-name{ font-size:38px; font-weight:900; color:#fff; text-transform:uppercase; letter-spacing:3px; text-shadow:0 2px 12px rgba(0,0,0,.8); z-index:1; }
-/* ↑ tournament label: 13→14px */
-.sc-tournament{ font-size:14px; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:2px; font-family:'Barlow',sans-serif; font-weight:500; z-index:1; }
-.sc-hdr-right{ display:flex; align-items:center; gap:10px; padding:0 24px; background:rgba(10,10,22,.98); border-left:1px solid var(--brd); min-width:210px; flex-shrink:0; }
-.sc-total-lbl{ font-size:12px; color:#888; text-transform:uppercase; letter-spacing:2px; }
-/* ↑ sc-total-val: 36→42px */
-.sc-total-val{ font-size:42px; font-weight:900; color:var(--gold); letter-spacing:1px; line-height:1; }
-/* ↑ sc-total-detail: 13→15px */
-.sc-total-detail{ font-size:15px; color:#aaa; margin-top:2px; }
+.sc-team-name{ font-size:32px; font-weight:900; color:#fff; text-transform:uppercase; letter-spacing:3px; text-shadow:0 2px 12px rgba(0,0,0,.8); z-index:1; }
+.sc-tournament{ font-size:13px; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:2px; font-family:'Barlow',sans-serif; font-weight:500; z-index:1; }
+.sc-hdr-right{ display:flex; align-items:center; gap:10px; padding:0 24px; background:rgba(10,10,22,.98); border-left:1px solid var(--brd); min-width:200px; flex-shrink:0; }
+.sc-total-lbl{ font-size:11px; color:#888; text-transform:uppercase; letter-spacing:2px; }
+.sc-total-val{ font-size:36px; font-weight:900; color:var(--gold); letter-spacing:1px; line-height:1; }
+.sc-total-detail{ font-size:13px; color:#aaa; margin-top:2px; }
 .sc-tabs{ display:flex; background:rgba(0,0,0,.5); border-bottom:1px solid var(--brd); flex-shrink:0; }
-/* ↑ sc-tab: 13→15px */
-.sc-tab{ flex:1; padding:8px 14px; cursor:pointer; font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
+.sc-tab{ flex:1; padding:7px 14px; cursor:pointer; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
 .sc-tab.active{ color:var(--gold); border-bottom-color:var(--gold); background:rgba(240,180,41,.05); }
-/* ↑ need-bar: 12→14px */
-.need-bar{ display:none; flex-shrink:0; background:linear-gradient(90deg,#4a0000,rgba(0,0,0,0) 80%); padding:6px 20px; border-bottom:1px solid rgba(230,57,70,.2); font-size:14px; color:#e63946; font-weight:700; letter-spacing:1px; }
+.need-bar{ display:none; flex-shrink:0; background:linear-gradient(90deg,#4a0000,rgba(0,0,0,0) 80%); padding:5px 20px; border-bottom:1px solid rgba(230,57,70,.2); font-size:12px; color:#e63946; font-weight:700; letter-spacing:1px; }
 .need-bar.on{ display:block; }
 .sc-body{ flex:1; display:flex; flex-direction:column; overflow-y:auto; overflow-x:hidden; background:var(--panel); max-height:580px; }
 .sc-body::-webkit-scrollbar{ width:4px; }
 .sc-body::-webkit-scrollbar-track{ background:rgba(0,0,0,.3); }
 .sc-body::-webkit-scrollbar-thumb{ background:#2a2a3a; border-radius:2px; }
-
-/* ↑ Column header: 12→13px */
-.sc-col-hdr{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; background:rgba(0,0,0,.6); border-bottom:1px solid rgba(255,255,255,.12); padding:9px 20px; position:sticky; top:0; z-index:2; flex-shrink:0; }
-.sc-col-hdr span{ font-size:13px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:2px; text-align:right; }
+.sc-col-hdr{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; background:rgba(0,0,0,.6); border-bottom:1px solid rgba(255,255,255,.12); padding:8px 20px; position:sticky; top:0; z-index:2; flex-shrink:0; }
+.sc-col-hdr span{ font-size:12px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:2px; text-align:right; }
 .sc-col-hdr span:first-child{ text-align:left; }
-.sc-col-hdr.bat-hdr{ grid-template-columns:42px 1fr 180px 68px 68px 58px 58px 68px; }
-
-/* ↑ sc-row: 17→19px cells, padding 9→11px */
-.sc-row{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; padding:11px 20px; border-bottom:1px solid rgba(255,255,255,.06); align-items:center; transition:background .15s; }
+.sc-col-hdr.bat-hdr{ grid-template-columns:40px 1fr 180px 65px 65px 55px 55px 65px; }
+.sc-row{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; padding:9px 20px; border-bottom:1px solid rgba(255,255,255,.06); align-items:center; transition:background .15s; }
 .sc-row:hover{ background:var(--rowh); }
-.sc-row.bat-row-sc{ grid-template-columns:42px 1fr 180px 68px 68px 58px 58px 68px; }
+.sc-row.bat-row-sc{ grid-template-columns:40px 1fr 180px 65px 65px 55px 55px 65px; }
 .sc-row.alt{ background:var(--row); }
 .sc-row.hlt{ background:rgba(240,180,41,.07); }
 .sc-row.dis-row{ opacity:.6; }
 .sc-row.dis-row > span:first-child{ color:#444; text-decoration:line-through; }
 .sc-row.dnb-row{ opacity:.3; }
-/* ↑ cells: 17→19px */
-.sc-cell{ font-size:19px; color:#ccc; text-align:right; }
-.sc-cell.left{ text-align:left; font-size:19px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-/* ↑ how out text: 13→14px */
-.sc-cell.how{ text-align:left; font-size:14px; color:#888; font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sc-cell{ font-size:17px; color:#ccc; text-align:right; }
+.sc-cell.left{ text-align:left; font-size:17px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sc-cell.how{ text-align:left; font-size:13px; color:#888; font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sc-cell.gold{ color:var(--gold); font-weight:700; }
 .sc-cell.green{ color:#06d6a0; font-weight:600; }
 .sc-cell.red{ color:#e63946; font-weight:600; }
 .sc-cell.strike{ color:var(--gold); font-weight:700; }
-/* ↑ player photo in batting rows: 32→36px */
-.sc-player-photo{ width:36px; height:36px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,.1); background:#111; }
+.sc-player-photo{ width:32px; height:32px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,.1); background:#111; }
 .sc-row.hlt .sc-player-photo{ border-color:var(--gold); }
-
-.sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.45); border-top:1px solid rgba(255,255,255,.08); padding:5px 16px; flex-wrap:wrap; gap:4px; flex-shrink:0; }
-.sc-fow-lbl{ font-size:12px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:8px; white-space:nowrap; }
-/* ↑ fow items: 13→15px */
-.sc-fow-item{ font-size:15px; color:#aaa; padding:2px 10px; border-right:1px solid rgba(255,255,255,.08); }
+.sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.45); border-top:1px solid rgba(255,255,255,.08); padding:4px 16px; flex-wrap:wrap; gap:4px; flex-shrink:0; }
+.sc-fow-lbl{ font-size:11px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:8px; white-space:nowrap; }
+.sc-fow-item{ font-size:13px; color:#aaa; padding:2px 10px; border-right:1px solid rgba(255,255,255,.08); }
 .sc-fow-item:last-child{ border-right:none; }
 .sc-fow-item b{ color:var(--gold); }
-
-/* ↑ sc-footer cells: 22→26px */
 .sc-footer{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; background:rgba(0,0,0,.75); border-top:1px solid rgba(255,255,255,.14); flex-shrink:0; }
-.sc-footer-cell{ padding:9px 16px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:2px; }
+.sc-footer-cell{ padding:8px 16px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:2px; }
 .sc-footer-cell:last-child{ border-right:none; }
-/* ↑ footer label: 12→13px */
-.sc-footer-lbl{ font-size:13px; color:#888; text-transform:uppercase; letter-spacing:2px; }
-/* ↑ footer value: 22→26px */
-.sc-footer-val{ font-size:26px; font-weight:900; color:#e8e8f0; letter-spacing:1px; }
+.sc-footer-lbl{ font-size:12px; color:#888; text-transform:uppercase; letter-spacing:2px; }
+.sc-footer-val{ font-size:22px; font-weight:900; color:#e8e8f0; letter-spacing:1px; }
 .sc-footer-val.gold{ color:var(--gold); }
-
 .sc-bowl-hdr .sc-hdr-color{ background:var(--tb); }
 .sc-bowl-hdr .sc-hdr-main{ background:linear-gradient(90deg,var(--tb) 0%,rgba(12,12,28,.98) 45%,rgba(12,12,28,.98) 100%); }
 .kbd-hint{ text-align:center; font-size:9px; color:#222; letter-spacing:1px; padding:3px; background:rgba(0,0,0,.6); flex-shrink:0; }
 .kbd-hint span{ background:#111; border:1px solid #2a2a2a; border-radius:2px; padding:1px 5px; color:#444; font-size:9px; }
-.live-badge{ background:#e63946; color:#fff; padding:2px 9px; border-radius:2px; font-size:10px; font-weight:800; letter-spacing:2px; animation:lpulse 1.5s infinite; white-space:nowrap; }
+.live-badge{ background:#e63946; color:#fff; padding:2px 8px; border-radius:2px; font-size:9px; font-weight:800; letter-spacing:2px; animation:lpulse 1.5s infinite; white-space:nowrap; }
 @keyframes lpulse{ 0%,100%{opacity:1} 50%{opacity:.55} }
-.over-badge{ position:fixed; top:16px; right:16px; z-index:60; background:linear-gradient(135deg,#2a1e00,#1a1200); border:1px solid var(--gold); border-radius:6px; padding:8px 16px; font-size:13px; font-weight:700; color:var(--gold); letter-spacing:1px; text-transform:uppercase; opacity:0; transform:translateY(-10px) scale(.9); transition:opacity .3s,transform .3s; pointer-events:none; white-space:nowrap; }
+.over-badge{ position:fixed; top:16px; right:16px; z-index:60; background:linear-gradient(135deg,#2a1e00,#1a1200); border:1px solid var(--gold); border-radius:6px; padding:8px 16px; font-size:12px; font-weight:700; color:var(--gold); letter-spacing:1px; text-transform:uppercase; opacity:0; transform:translateY(-10px) scale(.9); transition:opacity .3s,transform .3s; pointer-events:none; white-space:nowrap; }
 .over-badge.show{ opacity:1; transform:translateY(0) scale(1); }
 
 /* ═══════════════════════════════════════════
    ID-CARD PHOTO — shared utility
-   Now 90 × 120 px portrait for all overlays
-   object-fit: contain so FULL photo is always shown
+   70 × 95 px portrait, slight rounded corners,
+   accent border that glows on the card colour
 ═══════════════════════════════════════════ */
 .id-card-photo{
-    width:90px;
-    height:120px;
-    border-radius:6px;
+    width:70px;
+    height:95px;
+    border-radius:5px;
     object-fit:contain;           /* ← full photo, no crop */
-    object-position:center center;
+    object-position:top center;
     display:block;
     flex-shrink:0;
     background:#111;
@@ -300,29 +281,29 @@ body{
 /* ═══ AFTER-OVER PLAYER DISPLAY ═══ */
 .over-players-wrap{
     position:fixed; top:16px; left:50%; transform:translateX(-50%);
-    width:96%; max-width:760px; z-index:55; pointer-events:none;
+    width:96%; max-width:720px; z-index:55; pointer-events:none;
     opacity:0; transition:opacity .4s;
 }
 .over-players-wrap.show{ opacity:1; }
 .over-players-box{
     background:linear-gradient(135deg,rgba(10,10,22,.97),rgba(6,6,14,.98));
     border:1px solid rgba(255,255,255,.08); border-radius:10px;
-    padding:16px 22px; display:flex; align-items:center; gap:20px;
+    padding:14px 20px; display:flex; align-items:center; gap:20px;
     box-shadow:0 8px 40px rgba(0,0,0,.9);
 }
 .over-players-title{
-    font-size:11px; font-weight:800; color:#555;
-    text-transform:uppercase; letter-spacing:3px; margin-bottom:12px;
+    font-size:10px; font-weight:800; color:#555;
+    text-transform:uppercase; letter-spacing:3px; margin-bottom:10px;
 }
 
-/* ↑ Player card in after-over display — uses bigger id-card frame */
+/* ID-card player card used in after-over display */
 .over-player-card{
     display:flex; flex-direction:column; align-items:center; gap:0;
-    min-width:90px;
+    min-width:70px;
 }
 .over-id-wrap{
-    position:relative; width:90px; height:120px; flex-shrink:0;
-    border-radius:6px; overflow:hidden;
+    position:relative; width:70px; height:95px; flex-shrink:0;
+    border-radius:5px; overflow:hidden;
 }
 .over-id-wrap .id-card-photo{
     border:2px solid rgba(255,255,255,.12);
@@ -338,33 +319,30 @@ body{
 /* role ribbon at bottom of photo */
 .over-id-role{
     position:absolute; bottom:0; left:0; right:0;
-    padding:4px 4px;
-    font-size:9px; font-weight:800; text-align:center;
+    padding:3px 4px;
+    font-size:8px; font-weight:800; text-align:center;
     letter-spacing:1.5px; text-transform:uppercase;
     backdrop-filter:blur(4px);
 }
-.over-id-role.striker{ background:rgba(240,180,41,.88); color:#000; }
-.over-id-role.nonstriker{ background:rgba(0,0,0,.78); color:#888; }
-.over-id-role.bowler{ background:rgba(6,214,160,.88); color:#000; }
+.over-id-role.striker{ background:rgba(240,180,41,.85); color:#000; }
+.over-id-role.nonstriker{ background:rgba(0,0,0,.75); color:#888; }
+.over-id-role.bowler{ background:rgba(6,214,160,.85); color:#000; }
 
-/* ↑ over-player-name: 11→13px, stat: 11→12px */
 .over-player-name{
-    font-size:13px; font-weight:700; color:#ddd;
-    text-align:center; margin-top:6px;
-    max-width:95px; white-space:nowrap;
+    font-size:11px; font-weight:700; color:#ddd;
+    text-align:center; margin-top:5px;
+    max-width:78px; white-space:nowrap;
     overflow:hidden; text-overflow:ellipsis;
 }
-.over-player-stat{ font-size:12px; color:#888; text-align:center; margin-top:2px; }
+.over-player-stat{ font-size:11px; color:#888; text-align:center; margin-top:1px; }
 
-.over-divider{ width:1px; height:100px; background:rgba(255,255,255,.08); flex-shrink:0; }
+.over-divider{ width:1px; height:80px; background:rgba(255,255,255,.08); flex-shrink:0; }
 .over-summary{ flex:1; }
-/* ↑ over-summary: 13→15px */
-.over-summary-ovnum{ font-size:15px; font-weight:800; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
-.over-summary-balls{ display:flex; gap:5px; margin-top:8px; flex-wrap:wrap; }
-/* ↑ over-summary-runs: 12→14px */
-.over-summary-runs{ font-size:14px; color:#888; margin-top:5px; }
+.over-summary-ovnum{ font-size:13px; font-weight:800; color:var(--gold); letter-spacing:2px; text-transform:uppercase; }
+.over-summary-balls{ display:flex; gap:4px; margin-top:6px; flex-wrap:wrap; }
+.over-summary-runs{ font-size:12px; color:#888; margin-top:4px; }
 
-/* ═══ EVENT PLAYER OVERLAY ═══ */
+/* ═══ EVENT PLAYER OVERLAY (wicket/four/six/fifty/century) ═══ */
 .event-player-overlay{
     position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
     z-index:52; pointer-events:none;
@@ -374,16 +352,16 @@ body{
 .epov-box{
     background:linear-gradient(135deg,rgba(10,8,0,.97),rgba(20,16,0,.97));
     border:2px solid var(--gold); border-radius:14px;
-    padding:26px 36px; display:flex; flex-direction:column; align-items:center; gap:14px;
+    padding:24px 32px; display:flex; flex-direction:column; align-items:center; gap:12px;
     box-shadow:0 0 60px rgba(240,180,41,.2),0 20px 60px rgba(0,0,0,.98);
-    min-width:240px; text-align:center; position:relative; overflow:hidden;
+    min-width:220px; text-align:center; position:relative; overflow:hidden;
 }
 .epov-box::before{ content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(240,180,41,.06) 0%,transparent 70%); pointer-events:none; }
 
-/* ↑ Event overlay ID-card: 70×95 → 110×148 */
+/* ID-card photo wrapper inside event overlay */
 .epov-id-wrap{
-    position:relative; width:110px; height:148px;
-    border-radius:8px; overflow:hidden;
+    position:relative; width:70px; height:95px;
+    border-radius:6px; overflow:hidden;
     flex-shrink:0;
     animation:epovCardIn .7s cubic-bezier(.36,.07,.19,.97) both;
 }
@@ -393,9 +371,7 @@ body{
     80%{transform:scale(0.97) rotateY(-2deg)}
     100%{transform:scale(1) rotateY(0)}
 }
-/* Override id-card-photo size inside epov */
 .epov-id-wrap .id-card-photo{
-    width:110px; height:148px;
     border:2px solid var(--gold);
     box-shadow:0 0 20px rgba(240,180,41,.35);
 }
@@ -413,21 +389,20 @@ body{
 }
 /* accent stripe at bottom of ID photo */
 .epov-id-accent{
-    position:absolute; bottom:0; left:0; right:0; height:4px;
+    position:absolute; bottom:0; left:0; right:0; height:3px;
     background:var(--gold);
 }
 .epov-id-accent.red{ background:#e63946; }
 .epov-id-accent.purple{ background:#9b72cf; }
 .epov-id-accent.blue{ background:#118ab2; }
 
-/* ↑ epov text sizes */
-.epov-emoji{ font-size:40px; }
-.epov-name{ font-size:23px; font-weight:900; color:#fff; letter-spacing:1px; }
-.epov-stat{ font-size:17px; color:var(--gold); font-weight:700; letter-spacing:1px; }
+.epov-emoji{ font-size:36px; }
+.epov-name{ font-size:20px; font-weight:900; color:#fff; letter-spacing:1px; }
+.epov-stat{ font-size:14px; color:var(--gold); font-weight:700; letter-spacing:1px; }
 .epov-stat.red{ color:#ff8080; }
 .epov-stat.purple{ color:#c4a0ff; }
 .epov-stat.blue{ color:#7ec8ff; }
-.epov-sub{ font-size:14px; color:#888; }
+.epov-sub{ font-size:12px; color:#888; }
 .epov-shine{ position:absolute; inset:0; background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.08) 50%,transparent 70%); animation:epovShine 2.5s ease-in-out infinite; pointer-events:none; }
 @keyframes epovShine{ 0%{transform:translateX(-120%)} 100%{transform:translateX(220%)} }
 
@@ -439,15 +414,15 @@ body{
     flex-direction:column; gap:0;
 }
 .win-overlay.show{ opacity:1; pointer-events:all; }
-.win-overlay-content{ display:flex; flex-direction:column; align-items:center; gap:16px; padding:40px; max-width:760px; width:100%; }
+.win-overlay-content{ display:flex; flex-direction:column; align-items:center; gap:16px; padding:40px; max-width:720px; width:100%; }
 .win-trophy-big{ font-size:100px; animation:trophyMegaBounce 1s cubic-bezier(.36,.07,.19,.97) both; }
 @keyframes trophyMegaBounce{ 0%{transform:scale(0) rotate(-30deg);opacity:0} 60%{transform:scale(1.15) rotate(6deg);opacity:1} 80%{transform:scale(.94) rotate(-3deg)} 100%{transform:scale(1) rotate(0)} }
-.win-overlay-title{ font-size:60px; font-weight:900; color:var(--gold); text-transform:uppercase; letter-spacing:6px; text-shadow:0 4px 30px rgba(240,180,41,.5); text-align:center; }
-.win-overlay-sub{ font-size:24px; color:#ddd; font-weight:600; letter-spacing:2px; text-align:center; }
-.win-overlay-detail{ font-size:15px; color:#888; letter-spacing:1px; text-align:center; }
-.win-overlay-players{ display:flex; gap:24px; margin-top:8px; flex-wrap:wrap; justify-content:center; }
+.win-overlay-title{ font-size:56px; font-weight:900; color:var(--gold); text-transform:uppercase; letter-spacing:6px; text-shadow:0 4px 30px rgba(240,180,41,.5); text-align:center; }
+.win-overlay-sub{ font-size:22px; color:#ddd; font-weight:600; letter-spacing:2px; text-align:center; }
+.win-overlay-detail{ font-size:14px; color:#888; letter-spacing:1px; text-align:center; }
+.win-overlay-players{ display:flex; gap:20px; margin-top:8px; flex-wrap:wrap; justify-content:center; }
 
-/* ↑ Win overlay player card — ID card: 70×95 → 100×134 */
+/* ID-card style for win overlay player cards */
 .win-player-card{
     display:flex; flex-direction:column; align-items:center; gap:0;
     animation:winCardDrop .6s cubic-bezier(.175,.885,.32,1.275) both;
@@ -461,32 +436,30 @@ body{
     100%{opacity:1;transform:translateY(0) scale(1);}
 }
 .win-id-wrap{
-    position:relative; width:100px; height:134px;
-    border-radius:7px; overflow:hidden; flex-shrink:0;
+    position:relative; width:70px; height:95px;
+    border-radius:6px; overflow:hidden; flex-shrink:0;
 }
 .win-id-wrap .id-card-photo{
-    width:100px; height:134px;
     border:2px solid var(--gold);
     box-shadow:0 0 18px rgba(240,180,41,.3);
 }
 /* coloured position tag at bottom of win ID card */
 .win-id-tag{
     position:absolute; bottom:0; left:0; right:0;
-    padding:4px 2px;
-    font-size:9px; font-weight:800; text-align:center;
+    padding:3px 2px;
+    font-size:8px; font-weight:800; text-align:center;
     letter-spacing:1.2px; text-transform:uppercase;
-    background:rgba(240,180,41,.9); color:#000;
+    background:rgba(240,180,41,.88); color:#000;
 }
-.win-id-tag.bowler{ background:rgba(6,214,160,.9); color:#000; }
+.win-id-tag.bowler{ background:rgba(6,214,160,.88); color:#000; }
 
-/* ↑ win player name/stat: 12→14px, 11→13px */
 .win-player-name{
-    font-size:14px; color:#ddd; font-weight:700;
-    margin-top:7px; text-align:center;
-    max-width:105px; white-space:nowrap;
+    font-size:12px; color:#ddd; font-weight:700;
+    margin-top:6px; text-align:center;
+    max-width:80px; white-space:nowrap;
     overflow:hidden; text-overflow:ellipsis;
 }
-.win-player-stat{ font-size:13px; color:var(--gold); text-align:center; margin-top:2px; }
+.win-player-stat{ font-size:11px; color:var(--gold); text-align:center; margin-top:1px; }
 
 .win-confetti-layer{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:-1; }
 .wc-bit{ position:absolute; width:10px; border-radius:2px; animation:wcfall linear forwards; opacity:0; }
@@ -527,7 +500,7 @@ body{
     <div class="over-players-box">
         <div style="flex:1">
             <div class="over-players-title">End of Over</div>
-            <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+            <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
 
                 <!-- Striker -->
                 <div class="over-player-card" id="opStriker">
@@ -576,7 +549,7 @@ body{
     <div class="epov-box" id="epovBox">
         <div class="epov-shine"></div>
         <div class="epov-emoji" id="epovEmoji">🏆</div>
-        <!-- ID-card photo -->
+        <!-- ID-card photo replaces the old circle -->
         <div class="epov-id-wrap" id="epovIdWrap">
             <img class="id-card-photo" id="epovPhoto" src="" alt="">
             <div class="epov-id-accent" id="epovIdAccent"></div>
@@ -659,7 +632,7 @@ body{
             </div>
             <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
                 <div class="live-badge">● LIVE</div>
-                <span style="font-size:12px;color:rgba(255,255,255,.5);letter-spacing:1px" id="scInnLbl">1ST INNINGS</span>
+                <span style="font-size:11px;color:rgba(255,255,255,.5);letter-spacing:1px" id="scInnLbl">1ST INNINGS</span>
             </div>
         </div>
         <div class="sc-hdr-right">
@@ -683,7 +656,7 @@ body{
         <div id="scBatRows"></div>
         <div class="sc-fow" id="scFow">
             <span class="sc-fow-lbl">Fall of Wickets</span>
-            <span style="color:#555;font-style:italic;font-size:12px">—</span>
+            <span style="color:#555;font-style:italic;font-size:11px">—</span>
         </div>
         <div class="sc-footer">
             <div class="sc-footer-cell"><span class="sc-footer-lbl">Extras</span><span class="sc-footer-val" id="scExtVal">0</span></div>
@@ -747,7 +720,7 @@ onValue(phRef, snap => {
     });
 });
 
-const BLANK_AVATAR = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 120'%3E%3Crect width='90' height='120' fill='%23111' rx='5'/%3E%3Ccircle cx='45' cy='44' r='18' fill='%23333'/%3E%3Cellipse cx='45' cy='100' rx='28' ry='22' fill='%23333'/%3E%3C/svg%3E`;
+const BLANK_AVATAR = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 95'%3E%3Crect width='70' height='95' fill='%23111' rx='4'/%3E%3Ccircle cx='35' cy='34' r='14' fill='%23333'/%3E%3Cellipse cx='35' cy='80' rx='22' ry='18' fill='%23333'/%3E%3C/svg%3E`;
 
 function getPhoto(name){
     if(!name) return BLANK_AVATAR;
@@ -927,7 +900,7 @@ function showWinOverlay(d, winnerTeam, margin, winType){
         const tagLbl  = isBowler ? 'Bowler' : 'Batter';
         return `<div class="win-player-card">
             <div class="win-id-wrap">
-                <img class="id-card-photo" src="${photo}" alt="${p.name}" style="width:100px;height:134px;">
+                <img class="id-card-photo" src="${photo}" alt="${p.name}">
                 <div class="win-id-tag ${tagCls}">${tagLbl}</div>
             </div>
             <div class="win-player-name">${p.name}</div>
@@ -1214,10 +1187,10 @@ onValue(ref(db,'cricket'),snap=>{
         const playerPhoto = getPhoto(row.name);
         const div=document.createElement('div');
         div.className=['sc-row bat-row-sc',row.out?'dis-row':'',isStr?'hlt':'',i%2===0?'alt':''].filter(Boolean).join(' ');
-        div.innerHTML=`<img class="sc-player-photo" src="${playerPhoto}" alt="${row.name}"><span class="sc-cell left ${isStr?'strike':''}">${isStr?'● ':''}${row.name}</span><span class="sc-cell how" style="${howStyle}">${howOut}</span><span class="sc-cell ${isStr?'gold':''}">${row.runs}</span><span class="sc-cell">${row.balls}</span><span class="sc-cell">${row.fours||0}</span><span class="sc-cell">${row.sixes||0}</span><span class="sc-cell" style="font-size:17px;color:#888">${sr}</span>`;
+        div.innerHTML=`<img class="sc-player-photo" src="${playerPhoto}" alt="${row.name}"><span class="sc-cell left ${isStr?'strike':''}">${isStr?'● ':''}${row.name}</span><span class="sc-cell how" style="${howStyle}">${howOut}</span><span class="sc-cell ${isStr?'gold':''}">${row.runs}</span><span class="sc-cell">${row.balls}</span><span class="sc-cell">${row.fours||0}</span><span class="sc-cell">${row.sixes||0}</span><span class="sc-cell" style="font-size:16px;color:#888">${sr}</span>`;
         batCont.appendChild(div);
     });
-    $('scFow').innerHTML=`<span class="sc-fow-lbl">Fall of Wickets</span>`+(fowItems.length?fowItems.join(''):`<span style="color:#444;font-style:italic;font-size:12px">—</span>`);
+    $('scFow').innerHTML=`<span class="sc-fow-lbl">Fall of Wickets</span>`+(fowItems.length?fowItems.join(''):`<span style="color:#444;font-style:italic;font-size:11px">—</span>`);
 
     // Bowling rows
     const bwlCont=$('scBwlRows'); bwlCont.innerHTML='';
