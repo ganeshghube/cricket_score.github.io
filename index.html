@@ -86,34 +86,51 @@ body{
 .fh-badge{ background:linear-gradient(90deg,#d35400,#e67e22); color:#fff; padding:4px 20px 4px 14px; font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase; border-radius:5px 5px 0 0; display:none; }
 .fh-badge.on{ display:inline-block; animation:fhp .9s infinite; }
 @keyframes fhp{ 0%,100%{opacity:1} 50%{opacity:.45} }
-/* Score bar: 84px height */
+
+/* Score bar: 84px height — unchanged */
 .score-bar{ display:flex; width:100%; height:84px; background:var(--dark); border-top:3px solid var(--ta); border-radius:3px 3px 0 0; overflow:hidden; box-shadow:0 0 0 1px rgba(255,255,255,.06); }
+
+/* Team block */
 .sb-team{ flex:0 0 235px; min-width:235px; background:linear-gradient(135deg,var(--ta) 0%,rgba(0,0,0,0) 100%); border-right:1px solid var(--brd); padding:0 18px; display:flex; flex-direction:column; justify-content:center; position:relative; }
 .sb-team::after{ content:''; position:absolute; right:-1px; top:0; bottom:0; width:40px; background:linear-gradient(90deg,transparent,var(--dark)); }
 .sb-tm-name{ font-size:17px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:2px; line-height:1; text-shadow:0 1px 8px rgba(0,0,0,.6); }
 .sb-score{ font-size:42px; font-weight:900; line-height:1; margin-top:3px; display:flex; align-items:baseline; gap:1px; text-shadow:0 2px 12px rgba(0,0,0,.8); }
 .sb-score-wkts{ font-size:33px; color:rgba(255,255,255,.85); }
 .sb-score-ovs{ font-size:15px; color:rgba(255,255,255,.65); font-weight:500; margin-left:6px; }
-.sb-bat{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:5px; padding:0 16px; }
-.bat-row{ display:flex; justify-content:space-between; align-items:center; width:225px; gap:8px; }
+
+/* Batting section — increased fonts for highlighted elements */
+.sb-bat{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:4px; padding:0 14px; }
+.bat-row{ display:flex; justify-content:space-between; align-items:center; width:240px; gap:7px; }
 .bat-row-photo{ width:28px; height:28px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,.15); background:#111; flex-shrink:0; }
 .bat-row.on .bat-row-photo{ border-color:var(--gold); }
-.bat-name{ font-size:18px; font-weight:600; color:#bbb; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:118px; letter-spacing:.3px; flex:1; }
+
+/* ★ FONT INCREASE: bat names 18→22px */
+.bat-name{ font-size:22px; font-weight:600; color:#bbb; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:128px; letter-spacing:.3px; flex:1; }
 .bat-row.on .bat-name{ color:var(--gold); font-weight:700; }
-.bat-row.on .bat-name::before{ content:'● '; font-size:8px; vertical-align:middle; color:var(--gold); }
-.bat-stat{ font-size:18px; color:#e0e0e0; font-weight:700; white-space:nowrap; }
+.bat-row.on .bat-name::before{ content:'● '; font-size:9px; vertical-align:middle; color:var(--gold); }
+
+/* ★ FONT INCREASE: bat score 18→22px, balls 13→16px */
+.bat-stat{ font-size:22px; color:#e0e0e0; font-weight:700; white-space:nowrap; }
 .bat-row.on .bat-stat{ color:#fff; }
-.bat-stat .sb{ color:#999; font-size:13px; font-weight:400; }
-.sb-bwl{ flex:0 0 290px; background:linear-gradient(225deg,rgba(0,80,55,.55) 0%,rgba(6,6,18,.98) 55%); border-left:3px solid rgba(0,103,71,.9); padding:0 20px 0 18px; display:flex; flex-direction:column; justify-content:center; align-items:flex-end; text-align:right; position:relative; }
+.bat-stat .sb{ color:#999; font-size:16px; font-weight:400; }
+
+/* Bowling section — increased fonts for highlighted elements */
+.sb-bwl{ flex:0 0 300px; background:linear-gradient(225deg,rgba(0,80,55,.55) 0%,rgba(6,6,18,.98) 55%); border-left:3px solid rgba(0,103,71,.9); padding:0 18px 0 16px; display:flex; flex-direction:column; justify-content:center; align-items:flex-end; text-align:right; position:relative; }
 .sb-bwl::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:30px; background:linear-gradient(90deg,rgba(6,6,18,.6),transparent); }
 .sb-bwl-inner{ display:flex; align-items:center; gap:10px; }
 .sb-bwl-photo{ width:34px; height:34px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(0,103,71,.8); background:#111; flex-shrink:0; }
 .sb-bwl-text{ display:flex; flex-direction:column; align-items:flex-end; }
-.bwl-name{ font-size:18px; color:#fff; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:165px; letter-spacing:.3px; text-shadow:0 1px 6px rgba(0,0,0,.9); }
-.bwl-stat{ font-size:18px; color:var(--gold); font-weight:800; margin:2px 0; letter-spacing:.5px; }
-.bwl-stat .bwl-ov{ color:#aaa; font-size:13px; font-weight:400; }
-.og{ display:flex; gap:4px; justify-content:flex-end; margin-top:3px; }
-.ball{ min-width:24px; height:24px; padding:0 3px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; border:1px solid rgba(255,255,255,.1); color:#888; background:rgba(255,255,255,.05); }
+
+/* ★ FONT INCREASE: bowler name 18→22px */
+.bwl-name{ font-size:22px; color:#fff; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px; letter-spacing:.3px; text-shadow:0 1px 6px rgba(0,0,0,.9); }
+
+/* ★ FONT INCREASE: bowler figures 18→22px, overs 13→16px */
+.bwl-stat{ font-size:22px; color:var(--gold); font-weight:800; margin:1px 0; letter-spacing:.5px; }
+.bwl-stat .bwl-ov{ color:#aaa; font-size:16px; font-weight:400; }
+
+/* ★ FONT INCREASE: recent balls — bigger boxes */
+.og{ display:flex; gap:4px; justify-content:flex-end; margin-top:3px; flex-wrap:nowrap; }
+.ball{ min-width:26px; height:26px; padding:0 4px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; border:1px solid rgba(255,255,255,.1); color:#888; background:rgba(255,255,255,.05); }
 .bW{ background:#7b1e1e; border-color:#e63946; color:#ff8080; }
 .b4{ background:#0a3d2e; border-color:#06d6a0; color:#06d6a0; }
 .b6{ background:#2a1560; border-color:#9b72cf; color:#c4a0ff; }
@@ -122,6 +139,7 @@ body{
 .bNb{ background:#3d1400; border-color:#e67e22; color:#e67e22; }
 .bBy{ background:#00233d; border-color:#118ab2; color:#6ec6e8; }
 .bLb{ background:#0a2e0a; border-color:#2ecc71; color:#7fff7f; }
+
 .rates{ background:rgba(0,0,0,.9); display:flex; width:100%; font-size:14px; letter-spacing:.5px; border-radius:0 0 3px 3px; border:1px solid rgba(255,255,255,.08); border-top:none; }
 .ri{ padding:5px 18px; color:#aaa; border-right:1px solid rgba(255,255,255,.07); }
 .ri b{ color:var(--gold); font-weight:700; }
@@ -161,7 +179,7 @@ body{
 .sc-col-hdr span{ font-size:13px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:2px; text-align:right; }
 .sc-col-hdr span:first-child{ text-align:left; }
 .sc-col-hdr.bat-hdr{ grid-template-columns:36px 1fr 170px 60px 60px 52px 52px 60px; }
-/* Rows: compact 6px padding — row height ~34px with 19px font */
+/* Rows */
 .sc-row{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; padding:6px 20px; border-bottom:1px solid rgba(255,255,255,.05); align-items:center; transition:background .15s; }
 .sc-row:hover{ background:var(--rowh); }
 .sc-row.bat-row-sc{ grid-template-columns:36px 1fr 170px 60px 60px 52px 52px 60px; }
@@ -170,7 +188,6 @@ body{
 .sc-row.dis-row{ opacity:.6; }
 .sc-row.dis-row > span:first-child{ color:#444; text-decoration:line-through; }
 .sc-row.dnb-row{ opacity:.3; }
-/* Data cells 19px */
 .sc-cell{ font-size:19px; color:#ccc; text-align:right; line-height:1.1; }
 .sc-cell.left{ text-align:left; font-size:19px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sc-cell.how{ text-align:left; font-size:14px; color:#888; font-weight:400; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -180,13 +197,13 @@ body{
 .sc-cell.strike{ color:var(--gold); font-weight:700; }
 .sc-player-photo{ width:32px; height:32px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,.1); background:#111; }
 .sc-row.hlt .sc-player-photo{ border-color:var(--gold); }
-/* FOW 26px */
+/* FOW */
 .sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.45); border-top:1px solid rgba(255,255,255,.08); padding:3px 14px; flex-wrap:wrap; gap:3px; flex-shrink:0; }
 .sc-fow-lbl{ font-size:12px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:6px; white-space:nowrap; }
 .sc-fow-item{ font-size:14px; color:#aaa; padding:1px 8px; border-right:1px solid rgba(255,255,255,.08); }
 .sc-fow-item:last-child{ border-right:none; }
 .sc-fow-item b{ color:var(--gold); }
-/* Footer 42px */
+/* Footer */
 .sc-footer{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; background:rgba(0,0,0,.75); border-top:1px solid rgba(255,255,255,.14); flex-shrink:0; }
 .sc-footer-cell{ padding:6px 14px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:1px; }
 .sc-footer-cell:last-child{ border-right:none; }
