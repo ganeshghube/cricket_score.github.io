@@ -39,6 +39,14 @@ iframe{ width:1100px; height:360px; border:none; position:absolute; top:0; left:
 .g4{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
 @media(min-width:540px){ .g4{ grid-template-columns:repeat(4,1fr); } .g3{ grid-template-columns:repeat(3,1fr); } }
 
+/* ── SQUAD COLUMNS — flex so order can swap ── */
+.squads-flex{ display:flex; gap:10px; }
+.squad-col{ flex:1; min-width:0; }
+.squad-col-header{ display:flex; align-items:center; gap:7px; margin-top:10px; margin-bottom:3px; }
+.squad-role-tag{ font-family:'Barlow Condensed',sans-serif; font-size:9px; font-weight:800; padding:2px 8px; border-radius:3px; letter-spacing:1.5px; white-space:nowrap; flex-shrink:0; transition:background .2s,color .2s; }
+.squad-role-tag.batting{ background:#052212; color:#06d6a0; border:1px solid #0a4a2a; }
+.squad-role-tag.bowling{ background:#200000; color:#ff8080; border:1px solid #500000; }
+
 h4{ margin:0 0 12px; font-family:'Barlow Condensed',sans-serif; color:var(--y); text-transform:uppercase; font-size:11px; font-weight:800; letter-spacing:3px; border-bottom:1px solid var(--brd2); padding-bottom:8px; display:flex; align-items:center; gap:8px; }
 h4 .hico{ font-size:14px; }
 label{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-top:8px; margin-bottom:3px; }
@@ -128,11 +136,7 @@ button:active{ opacity:.65; transform:scale(.95); }
 
 /* ── EVENT OVERLAY TOGGLES ── */
 .event-toggle-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
-.evt-toggle-card{
-    background:var(--card2); border:1px solid var(--brd); border-radius:6px;
-    padding:10px 12px; display:flex; flex-direction:column; gap:6px;
-    transition:border-color .2s;
-}
+.evt-toggle-card{ background:var(--card2); border:1px solid var(--brd); border-radius:6px; padding:10px 12px; display:flex; flex-direction:column; gap:6px; transition:border-color .2s; }
 .evt-toggle-card.active{ border-color:#3a3a00; }
 .evt-toggle-top{ display:flex; align-items:center; gap:8px; }
 .evt-toggle-icon{ font-size:18px; flex-shrink:0; }
@@ -294,18 +298,34 @@ button:active{ opacity:.65; transform:scale(.95); }
 <!-- 1. SQUADS -->
 <div class="card">
     <h4><span class="hico">🏟</span> Team Squads &amp; Match Setup</h4>
-    <div class="g2">
-        <div>
-            <label>Batting Team Name</label><input id="tNA" placeholder="India" value="India">
-            <label style="margin-top:10px">Batting XI</label>
+
+    <!-- ── SQUAD COLUMNS: flex so CSS order can swap them on toss change ── -->
+    <div class="squads-flex" id="squadsGrid">
+
+        <!-- COLUMN A -->
+        <div class="squad-col" id="colA">
+            <label>Team A — Name</label>
+            <input id="tNA" placeholder="India" value="India" oninput="updateTossUI()">
+            <div class="squad-col-header">
+                <label style="margin:0" id="lblSquadA">SQUAD A</label>
+                <span id="roleTagA" class="squad-role-tag batting">🏏 BATTING</span>
+            </div>
             <div class="squad-grid" id="squadA"></div>
         </div>
-        <div>
-            <label>Bowling Team Name</label><input id="tNB" placeholder="Australia" value="Australia">
-            <label style="margin-top:10px">Bowling XI</label>
+
+        <!-- COLUMN B -->
+        <div class="squad-col" id="colB">
+            <label>Team B — Name</label>
+            <input id="tNB" placeholder="Australia" value="Australia" oninput="updateTossUI()">
+            <div class="squad-col-header">
+                <label style="margin:0" id="lblSquadB">SQUAD B</label>
+                <span id="roleTagB" class="squad-role-tag bowling">⚾ BOWLING</span>
+            </div>
             <div class="squad-grid" id="squadB"></div>
         </div>
-    </div>
+
+    </div><!-- /squadsGrid -->
+
     <div class="g2" style="margin-top:10px">
         <div>
             <label>Format</label>
@@ -323,9 +343,10 @@ button:active{ opacity:.65; transform:scale(.95); }
         </div>
         <div>
             <label>Batting First</label>
-            <select id="tossSel">
-                <option value="A">Team A (top squad)</option>
-                <option value="B">Team B (bottom squad)</option>
+            <!-- Options are updated dynamically by updateTossUI() with real team names -->
+            <select id="tossSel" onchange="updateTossUI()">
+                <option value="A" id="tossOptA">Team A</option>
+                <option value="B" id="tossOptB">Team B</option>
             </select>
         </div>
     </div>
@@ -413,7 +434,6 @@ button:active{ opacity:.65; transform:scale(.95); }
         </div>
     </div>
 
-    <!-- AUTO SCORECARD EVERY OVER -->
     <div class="auto-popup-panel">
         <div class="auto-popup-toggle">
             <div class="toggle-track" id="autoToggleTrack" onclick="toggleAutoPopup()">
@@ -437,15 +457,13 @@ button:active{ opacity:.65; transform:scale(.95); }
         <div class="auto-popup-note">Scorecard auto-slides up after every completed over, then hides itself.</div>
     </div>
 
-    <!-- AUTO EVENT OVERLAYS — new section -->
+    <!-- AUTO EVENT OVERLAYS -->
     <div style="margin-top:14px">
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:8px">
             Auto Event Overlays
             <span style="flex:1;height:1px;background:var(--brd);display:block"></span>
         </div>
         <div class="event-toggle-grid">
-
-            <!-- WICKET toggle -->
             <div class="evt-toggle-card" id="evtCardWicket">
                 <div class="evt-toggle-top">
                     <span class="evt-toggle-icon">💥</span>
@@ -456,8 +474,6 @@ button:active{ opacity:.65; transform:scale(.95); }
                 </div>
                 <div class="evt-toggle-desc" id="evtDescWicket">Auto pop-up when wicket falls</div>
             </div>
-
-            <!-- SIX toggle -->
             <div class="evt-toggle-card" id="evtCardSix">
                 <div class="evt-toggle-top">
                     <span class="evt-toggle-icon">🚀</span>
@@ -468,8 +484,6 @@ button:active{ opacity:.65; transform:scale(.95); }
                 </div>
                 <div class="evt-toggle-desc" id="evtDescSix">Auto pop-up on maximum six</div>
             </div>
-
-            <!-- FOUR toggle -->
             <div class="evt-toggle-card" id="evtCardFour">
                 <div class="evt-toggle-top">
                     <span class="evt-toggle-icon">🔥</span>
@@ -480,7 +494,6 @@ button:active{ opacity:.65; transform:scale(.95); }
                 </div>
                 <div class="evt-toggle-desc" id="evtDescFour">Auto pop-up on boundary four</div>
             </div>
-
         </div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#222;margin-top:8px;letter-spacing:.5px;line-height:1.6">
             When OFF — the overlay will NOT show the automatic player card for that event. Turn OFF if you want to control those manually via Announcements.
@@ -705,9 +718,41 @@ let _match  = null;
 let _autoOn = false;
 let _currentMatchKey = null;
 let _playerPhotos = {};
-
-// ── Event overlay state (mirrors ui ref) ──
 let _evtState = { autoWicketOverlay:true, autoSixOverlay:true, autoFourOverlay:true };
+
+// ══ TOSS UI — swap columns + show real team names in dropdown ══════════
+window.updateTossUI = () => {
+    const toss   = $('tossSel').value;
+    const nameA  = $('tNA').value.trim() || 'Team A';
+    const nameB  = $('tNB').value.trim() || 'Team B';
+
+    // Update dropdown options with real team names
+    const optA = $('tossOptA'), optB = $('tossOptB');
+    if(optA) optA.textContent = `${nameA} (left squad)`;
+    if(optB) optB.textContent = `${nameB} (right squad)`;
+
+    const colA   = $('colA'),   colB   = $('colB');
+    const roleA  = $('roleTagA'), roleB = $('roleTagB');
+    const lblA   = $('lblSquadA'), lblB = $('lblSquadB');
+
+    if(toss === 'A'){
+        // Team A bats — show on left (natural order)
+        if(colA){ colA.style.order=''; }
+        if(colB){ colB.style.order=''; }
+        if(lblA) lblA.textContent = `${nameA} XI`;
+        if(lblB) lblB.textContent = `${nameB} XI`;
+        if(roleA){ roleA.textContent='🏏 BATTING'; roleA.className='squad-role-tag batting'; }
+        if(roleB){ roleB.textContent='⚾ BOWLING'; roleB.className='squad-role-tag bowling'; }
+    } else {
+        // Team B bats — push colB to left visually using flex order
+        if(colA){ colA.style.order='2'; }
+        if(colB){ colB.style.order='1'; }
+        if(lblA) lblA.textContent = `${nameA} XI`;
+        if(lblB) lblB.textContent = `${nameB} XI`;
+        if(roleA){ roleA.textContent='⚾ BOWLING'; roleA.className='squad-role-tag bowling'; }
+        if(roleB){ roleB.textContent='🏏 BATTING'; roleB.className='squad-role-tag batting'; }
+    }
+};
 
 // ══ PLAYER PHOTOS ═════════════════════════════════
 onValue(phRef, snap => {
@@ -732,7 +777,6 @@ function refreshAvatars(){
 }
 
 // ══ EVENT OVERLAY TOGGLES ════════════════════════
-// Sync UI state from Firebase on load
 onValue(uRef, snap => {
     const ui = snap.val() || {};
     _evtState.autoWicketOverlay = ui.autoWicketOverlay !== false;
@@ -756,7 +800,6 @@ function updateEvtToggleUI(key, trackId, cardId, activeClass, descId, onText){
 window.toggleEvtOverlay = (key, trackId, cardId, activeClass) => {
     _evtState[key] = !_evtState[key];
     update(uRef, { [key]: _evtState[key] });
-    // UI will update via onValue listener above
 };
 
 // ══ SQUAD BUILDER ═════════════════════════════════
@@ -767,12 +810,11 @@ function buildSquadInputs(){
         for(let i=1;i<=11;i++){
             const row = document.createElement('div');
             row.className = 'player-row';
-            const num = `<span class="player-num">${i}</span>`;
             const avatarId = `avatar${team}${i}`;
             const inputId  = `player${team}${i}`;
             const fileId   = `file${team}${i}`;
             row.innerHTML = `
-                ${num}
+                <span class="player-num">${i}</span>
                 <div class="player-avatar-wrap">
                     <img class="player-avatar" id="${avatarId}" data-team="${team}" data-idx="${i}" src="${getPhoto('')}">
                     <input type="file" class="player-avatar-upload" id="${fileId}" accept="image/*">
@@ -781,7 +823,6 @@ function buildSquadInputs(){
                 <input class="player-name-input" id="${inputId}" placeholder="Player ${i}" oninput="onPlayerNameChange('${team}',${i})">
             `;
             cont.appendChild(row);
-
             setTimeout(() => {
                 const fileInput = $(`file${team}${i}`);
                 if(!fileInput) return;
@@ -795,16 +836,14 @@ function buildSquadInputs(){
                         const name = nameEl ? nameEl.value.trim() : '';
                         const avatarImg = $(`avatar${team}${i}`);
                         if(avatarImg) avatarImg.src = dataUrl;
-                        if(name){
-                            const key = name.replace(/[^a-zA-Z0-9]/g,'_');
-                            await update(phRef, {[key]: dataUrl});
-                        }
+                        if(name){ const key = name.replace(/[^a-zA-Z0-9]/g,'_'); await update(phRef, {[key]: dataUrl}); }
                     };
                     reader.readAsDataURL(file);
                 });
             }, 0);
         }
     });
+    updateTossUI(); // refresh labels after building
 }
 
 function onPlayerNameChange(team, idx){
@@ -847,21 +886,14 @@ window.openPlayerPopup = async () => {
     const sA = getSquadNames('A'); const sB = getSquadNames('B');
     const batNm = ($('tNA').value||'Team A').toUpperCase();
     const bowlNm = ($('tNB').value||'Team B').toUpperCase();
-
     function teamHtml(name, players){
         if(!players.length) return '';
         const cards = players.map(p => {
             const key = p.replace(/[^a-zA-Z0-9]/g,'_');
             const photo = _playerPhotos[key] || getPhoto('');
-            return `<div class="player-card-popup">
-                <img src="${photo}" alt="${p}">
-                <div class="pcp-name">${p}</div>
-            </div>`;
+            return `<div class="player-card-popup"><img src="${photo}" alt="${p}"><div class="pcp-name">${p}</div></div>`;
         }).join('');
-        return `<div class="team-section">
-            <div class="team-section-title">🏏 ${name}</div>
-            <div class="player-grid-popup">${cards}</div>
-        </div>`;
+        return `<div class="team-section"><div class="team-section-title">🏏 ${name}</div><div class="player-grid-popup">${cards}</div></div>`;
     }
     cont.innerHTML = teamHtml(batNm, sA) + teamHtml(bowlNm, sB);
     $('playerPopupOverlay').classList.add('open');
@@ -889,7 +921,6 @@ window.closeWinPopup = () => $('winPopupOverlay').classList.remove('open');
 
 // ══ AUDIO COMMENTARY ══════════════════════════════
 let _audioEnabled = false;
-
 function writeCommentarySettings(){
     update(cSettingsRef, {
         enabled: _audioEnabled,
@@ -898,31 +929,18 @@ function writeCommentarySettings(){
         pitch:   $('pitchSel') ? parseFloat($('pitchSel').value) || 1.1 : 1.1,
     });
 }
-
-window.toggleAudio = () => {
-    _audioEnabled = !_audioEnabled;
-    updateAudioUI();
-    writeCommentarySettings();
-};
-
+window.toggleAudio = () => { _audioEnabled = !_audioEnabled; updateAudioUI(); writeCommentarySettings(); };
 function updateAudioUI(){
-    const btn = $('audioToggleBtn');
-    const ind = $('audioIndicator');
-    const lbl = $('audioStatusLabel');
-    if(!btn || !ind || !lbl) return;
+    const btn = $('audioToggleBtn'), ind = $('audioIndicator'), lbl = $('audioStatusLabel');
+    if(!btn||!ind||!lbl) return;
     btn.textContent = _audioEnabled ? 'DISABLE' : 'ENABLE';
     btn.className   = _audioEnabled ? 'audio-toggle on' : 'audio-toggle';
     ind.className   = _audioEnabled ? 'audio-indicator on' : 'audio-indicator';
-    lbl.textContent = _audioEnabled
-        ? 'COMMENTARY ACTIVE — audio plays on overlay (index.html)'
-        : 'COMMENTARY OFF';
+    lbl.textContent = _audioEnabled ? 'COMMENTARY ACTIVE — audio plays on overlay (index.html)' : 'COMMENTARY OFF';
 }
-
 ['commentaryStyleSel','rateSel','pitchSel'].forEach(id => {
-    const el = $(id);
-    if(el) el.addEventListener('change', writeCommentarySettings);
+    const el = $(id); if(el) el.addEventListener('change', writeCommentarySettings);
 });
-
 onValue(cSettingsRef, snap => {
     const s = snap.val() || {};
     if(typeof s.enabled === 'boolean') _audioEnabled = s.enabled;
@@ -935,19 +953,17 @@ onValue(cSettingsRef, snap => {
 // ══ Toast ══════════════════════════════════════
 function showToast(msg){
     const t = $('autoSaveToast');
-    t.textContent = msg;
-    t.style.opacity = '1';
+    t.textContent = msg; t.style.opacity = '1';
     clearTimeout(t._timer);
     t._timer = setTimeout(()=>{ t.style.opacity='0'; }, 2500);
 }
 
-// ══ UNDO — keep up to 20 snapshots ════════════════
+// ══ UNDO ══════════════════════════════════════════
 async function saveSnapshot(d){
     await push(hRef,{ state:JSON.parse(JSON.stringify(d)), savedAt:Date.now() });
     const all = await get(hRef); const val = all.val();
     if(val){
         const keys = Object.keys(val).sort();
-        // CHANGED: keep last 20 (was 5)
         if(keys.length>20) for(const k of keys.slice(0,keys.length-20)) await remove(ref(db,`undoStack/${k}`));
     }
 }
@@ -1040,6 +1056,7 @@ onValue(mRef,snap=>{
     } else if(_squads.bat.length||_squads.bowl.length){
         fillSel(_squads.bat,_squads.bowl,d.p1n,d.p2n,d.bwn);
     }
+    updateTossUI(); // keep dropdown names in sync with loaded team names
 });
 onValue(sRef,snap=>{
     const s=snap.val(); if(!s) return;
@@ -1049,6 +1066,7 @@ onValue(sRef,snap=>{
         _squads.bat=getSquadNames('A'); _squads.bowl=getSquadNames('B');
         fillSel(_squads.bat,_squads.bowl,_match?.p1n||null,_match?.p2n||null,_match?.bwn||null);
     }
+    updateTossUI();
 });
 
 // ══ AUTO POPUP TOGGLE ═════════════════════════════
@@ -1192,8 +1210,8 @@ window.ball=async(r,type)=>{
 };
 
 // ══ INNINGS END & WIN DETECTION ══════════════════
-let _winFired      = false;
-let _inn1EndFired  = false;
+let _winFired     = false;
+let _inn1EndFired = false;
 
 async function checkMatchEvents(d){
     if(!d) return;
@@ -1228,11 +1246,7 @@ async function checkMatchEvents(d){
         await set(aRef,{ ...winMsg, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
         setTimeout(()=>{ saveMatchToDb(true); }, 1500);
         setTimeout(()=>{
-            showWinPopup(
-                winMsg.text, winMsg.sub,
-                `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,
-                winMsg.type === 'tie' ? 'tie' : 'win'
-            );
+            showWinPopup(winMsg.text, winMsg.sub, `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`, winMsg.type==='tie'?'tie':'win');
         }, 800);
     }
 }
@@ -1323,9 +1337,7 @@ window.mu=(f,v)=>{ const n=parseInt(v); if(!isNaN(n)) update(mRef,{[f]:n}); };
 window.setV=(k,v)=>update(uRef,{[k]:v});
 window.fullReset=async()=>{
     if(!confirm('⚠ Clear ALL match data?')) return;
-    await set(mRef,null);
-    await set(sRef,null);
-    await set(hRef,null);
+    await set(mRef,null); await set(sRef,null); await set(hRef,null);
     await set(ref(db,'commentary'),null);
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
     _adminLastOver=-1; _currentMatchKey=null; _winFired=false; _inn1EndFired=false;
@@ -1409,8 +1421,7 @@ window.downloadSavedMatch=(key,encoded)=>{
     const inn1Bat=data.innings===2?data.bowlTeam:data.batTeam;
     const inn1Bowl=data.innings===2?data.batTeam:data.bowlTeam;
     const i1hdr=data.inn1Score?`<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.inn1Bat} — ${data.inn1Score}</span></div>`:'';
-    const i2hdr=data.innings===2?`<div class="is i2"><span class="il">2ND INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span>${data.target>0?`<span class="it">Target ${data.target}</span>`:''}</div>`:
-        `<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span></div>`;
+    const i2hdr=data.innings===2?`<div class="is i2"><span class="il">2ND INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span>${data.target>0?`<span class="it">Target ${data.target}</span>`:''}</div>`:`<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span></div>`;
     const inn1Sec=(data.inn1BatRows&&data.inn1BatRows.length)?`<div class="sec-hdr">1ST INNINGS — ${inn1Bat}</div><div class="sec">${batHtml(data.inn1BatRows,inn1Bat,data.inn1BowlRows)}${bwlHtml(data.inn1BowlRows||[],inn1Bowl)}</div>`:'';
     const inn2Sec=data.innings===2?`<div class="sec-hdr">2ND INNINGS — ${data.batTeam}</div><div class="sec">${batHtml(data.batRows,data.batTeam,data.bowlRows)}${bwlHtml(data.bowlRows,data.bowlTeam)}</div>`:`<div class="sec">${batHtml(data.batRows,data.batTeam,data.bowlRows)}${bwlHtml(data.bowlRows,data.bowlTeam)}</div>`;
     const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${data.title}</title><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap" rel="stylesheet"><style>${CSS}</style></head><body><div class="hdr"><div class="htitle">${data.title}</div><div class="hmeta"><span><b>Date:</b> ${data.dateLabel}</span>${data.venue?`<span><b>Venue:</b> ${data.venue}</span>`:''}<span><b>Format:</b> ${fmt}</span></div></div>${i1hdr}${i2hdr}${inn1Sec}${inn2Sec}<div class="ftr">Cricket Overlay · ${data.dateLabel}</div></body></html>`;
@@ -1457,18 +1468,15 @@ window.saveMatch=async()=>{
     downloadSavedMatch('current',enc);
 };
 
-// Build squad inputs on load
+// ── Build squad inputs & init ────────────────────
 buildSquadInputs();
+updateTossUI(); // initial render
 
-// init UI
 const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
 
-// Initialize commentarySettings
 const cSnap = await get(cSettingsRef);
-if(!cSnap.val()){
-    await set(cSettingsRef, { enabled:true, style:'standard', rate:1.0, pitch:1.1 });
-}
+if(!cSnap.val()){ await set(cSettingsRef, { enabled:true, style:'standard', rate:1.0, pitch:1.1 }); }
 </script>
 
 </div><!-- /mainContent -->
