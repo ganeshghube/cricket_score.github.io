@@ -126,6 +126,32 @@ button:active{ opacity:.65; transform:scale(.95); }
 .auto-dur-wrap select{ width:80px; padding:6px 10px; font-size:12px; }
 .auto-popup-note{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#2a3a2a; letter-spacing:.5px; width:100%; line-height:1.6; margin-top:4px; }
 
+/* ── EVENT OVERLAY TOGGLES ── */
+.event-toggle-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
+.evt-toggle-card{
+    background:var(--card2); border:1px solid var(--brd); border-radius:6px;
+    padding:10px 12px; display:flex; flex-direction:column; gap:6px;
+    transition:border-color .2s;
+}
+.evt-toggle-card.active{ border-color:#3a3a00; }
+.evt-toggle-top{ display:flex; align-items:center; gap:8px; }
+.evt-toggle-icon{ font-size:18px; flex-shrink:0; }
+.evt-toggle-title{ font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:1px; flex:1; }
+.evt-toggle-track{ width:38px; height:20px; border-radius:10px; background:#1a1a2e; border:1px solid #252535; position:relative; cursor:pointer; flex-shrink:0; transition:background .2s,border-color .2s; }
+.evt-toggle-track.on{ background:#1a3a1a; border-color:#06d6a0; }
+.evt-toggle-track.on-red{ background:#2a0a0a; border-color:#e63946; }
+.evt-toggle-track.on-purple{ background:#1a0a2a; border-color:#9b72cf; }
+.evt-toggle-track.on-blue{ background:#0a1a2a; border-color:#118ab2; }
+.evt-toggle-thumb{ position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#555; transition:transform .2s,background .2s; }
+.evt-toggle-track.on .evt-toggle-thumb,
+.evt-toggle-track.on-red .evt-toggle-thumb,
+.evt-toggle-track.on-purple .evt-toggle-thumb,
+.evt-toggle-track.on-blue .evt-toggle-thumb{ transform:translateX(18px); background:var(--green); }
+.evt-toggle-track.on-red .evt-toggle-thumb{ background:#e63946; }
+.evt-toggle-track.on-purple .evt-toggle-thumb{ background:#9b72cf; }
+.evt-toggle-track.on-blue .evt-toggle-thumb{ background:#118ab2; }
+.evt-toggle-desc{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:#2a2a3a; letter-spacing:.5px; line-height:1.5; }
+
 .bpk-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:300; align-items:center; justify-content:center; backdrop-filter:blur(6px); }
 .bpk-overlay.open{ display:flex; }
 .bpk-box{ background:#0c0c1a; border:1px solid #252535; border-radius:12px; padding:20px; width:94%; max-width:420px; box-shadow:0 24px 80px rgba(0,0,0,.95),0 0 0 1px rgba(240,180,41,.12); }
@@ -261,7 +287,6 @@ button:active{ opacity:.65; transform:scale(.95); }
     <span class="fh-pill" id="iFH">FREE HIT</span>
 </div>
 <div class="pv-lbl">▶ LIVE PREVIEW · index.html (muted — audio only plays on full overlay)</div>
-<!-- CHANGED: iframe now has ?preview=1 so index.html knows to suppress audio -->
 <div class="pv"><iframe src="index.html?preview=1"></iframe></div>
 
 <div class="body">
@@ -369,7 +394,7 @@ button:active{ opacity:.65; transform:scale(.95); }
         <button class="b-swp" onclick="swapStrike()">⇄ SWAP STRIKE</button>
         <button class="b-undo" id="undoBtn" onclick="undoLast()" disabled>↩ UNDO <span class="undo-badge" id="undoCount">0</span></button>
     </div>
-    <div class="note"><b>Rules:</b> Wide/No-Ball = illegal — over count unchanged. No-Ball → FREE HIT. Byes/Leg-Byes = extras only. Odd runs → striker rotates. End of 6 legal balls → auto strike swap. <b>Undo</b> reverts last ball/wicket (up to 5).</div>
+    <div class="note"><b>Rules:</b> Wide/No-Ball = illegal — over count unchanged. No-Ball → FREE HIT. Byes/Leg-Byes = extras only. Odd runs → striker rotates. End of 6 legal balls → auto strike swap. <b>Undo</b> reverts last ball/wicket (up to 20).</div>
 </div>
 
 <!-- 4. OVERLAY CONTROLS -->
@@ -387,6 +412,8 @@ button:active{ opacity:.65; transform:scale(.95); }
             <button class="b-hide" onclick="setV('scorecard',false)">HIDE</button>
         </div>
     </div>
+
+    <!-- AUTO SCORECARD EVERY OVER -->
     <div class="auto-popup-panel">
         <div class="auto-popup-toggle">
             <div class="toggle-track" id="autoToggleTrack" onclick="toggleAutoPopup()">
@@ -407,9 +434,60 @@ button:active{ opacity:.65; transform:scale(.95); }
                 <option value="20">20 sec</option>
             </select>
         </div>
-        <div class="auto-popup-note">Scorecard auto-slides up after every completed over, then hides itself. Shows ID-card sized player photos.</div>
+        <div class="auto-popup-note">Scorecard auto-slides up after every completed over, then hides itself.</div>
     </div>
-    <div style="font-size:10px;color:#2a2a3a;text-align:center;margin-top:8px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">
+
+    <!-- AUTO EVENT OVERLAYS — new section -->
+    <div style="margin-top:14px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+            Auto Event Overlays
+            <span style="flex:1;height:1px;background:var(--brd);display:block"></span>
+        </div>
+        <div class="event-toggle-grid">
+
+            <!-- WICKET toggle -->
+            <div class="evt-toggle-card" id="evtCardWicket">
+                <div class="evt-toggle-top">
+                    <span class="evt-toggle-icon">💥</span>
+                    <span class="evt-toggle-title">Wicket</span>
+                    <div class="evt-toggle-track on-red" id="evtTrackWicket" onclick="toggleEvtOverlay('autoWicketOverlay','evtTrackWicket','evtCardWicket','on-red')">
+                        <div class="evt-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="evt-toggle-desc" id="evtDescWicket">Auto pop-up when wicket falls</div>
+            </div>
+
+            <!-- SIX toggle -->
+            <div class="evt-toggle-card" id="evtCardSix">
+                <div class="evt-toggle-top">
+                    <span class="evt-toggle-icon">🚀</span>
+                    <span class="evt-toggle-title">Six</span>
+                    <div class="evt-toggle-track on-purple" id="evtTrackSix" onclick="toggleEvtOverlay('autoSixOverlay','evtTrackSix','evtCardSix','on-purple')">
+                        <div class="evt-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="evt-toggle-desc" id="evtDescSix">Auto pop-up on maximum six</div>
+            </div>
+
+            <!-- FOUR toggle -->
+            <div class="evt-toggle-card" id="evtCardFour">
+                <div class="evt-toggle-top">
+                    <span class="evt-toggle-icon">🔥</span>
+                    <span class="evt-toggle-title">Four</span>
+                    <div class="evt-toggle-track on-blue" id="evtTrackFour" onclick="toggleEvtOverlay('autoFourOverlay','evtTrackFour','evtCardFour','on-blue')">
+                        <div class="evt-toggle-thumb"></div>
+                    </div>
+                </div>
+                <div class="evt-toggle-desc" id="evtDescFour">Auto pop-up on boundary four</div>
+            </div>
+
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#222;margin-top:8px;letter-spacing:.5px;line-height:1.6">
+            When OFF — the overlay will NOT show the automatic player card for that event. Turn OFF if you want to control those manually via Announcements.
+        </div>
+    </div>
+
+    <div style="font-size:10px;color:#2a2a3a;text-align:center;margin-top:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">
         KEYBOARD ON OVERLAY — S = SCORECARD · B = SCORE BAR · 1 = BATTING · 2 = BOWLING
     </div>
 </div>
@@ -424,7 +502,6 @@ button:active{ opacity:.65; transform:scale(.95); }
             <button class="audio-toggle" id="audioToggleBtn" onclick="toggleAudio()">ENABLE</button>
         </div>
         <div class="audio-voice-sel">
-            <!-- Commentator style selector -->
             <label>Commentator:</label>
             <select id="commentaryStyleSel" title="Commentary style">
                 <option value="standard">Standard</option>
@@ -449,7 +526,6 @@ button:active{ opacity:.65; transform:scale(.95); }
         <div class="audio-relay-note">
             🔊 <b>Audio plays ONLY on the live overlay (index.html)</b> — the admin panel never plays audio.
             The overlay auto-enables commentary on load so it works with <b>PRISM Live, CameraFi Live, OBS</b> and other broadcast apps without any click.
-            Settings below are saved to Firebase and applied on the overlay in real-time.
         </div>
     </div>
 </div>
@@ -620,7 +696,6 @@ const hRef    = ref(db,'undoStack');
 const aRef    = ref(db,'announcement');
 const histRef = ref(db,'matchHistory');
 const phRef   = ref(db,'playerPhotos');
-// ══ Commentary settings ref — admin writes, index.html reads & plays audio ══
 const cSettingsRef = ref(db,'commentarySettings');
 
 const $ = id => document.getElementById(id);
@@ -630,6 +705,9 @@ let _match  = null;
 let _autoOn = false;
 let _currentMatchKey = null;
 let _playerPhotos = {};
+
+// ── Event overlay state (mirrors ui ref) ──
+let _evtState = { autoWicketOverlay:true, autoSixOverlay:true, autoFourOverlay:true };
 
 // ══ PLAYER PHOTOS ═════════════════════════════════
 onValue(phRef, snap => {
@@ -652,6 +730,34 @@ function refreshAvatars(){
         img.src = _playerPhotos[key] || getPhoto(name);
     });
 }
+
+// ══ EVENT OVERLAY TOGGLES ════════════════════════
+// Sync UI state from Firebase on load
+onValue(uRef, snap => {
+    const ui = snap.val() || {};
+    _evtState.autoWicketOverlay = ui.autoWicketOverlay !== false;
+    _evtState.autoSixOverlay    = ui.autoSixOverlay    !== false;
+    _evtState.autoFourOverlay   = ui.autoFourOverlay   !== false;
+    updateEvtToggleUI('autoWicketOverlay','evtTrackWicket','evtCardWicket','on-red',   'evtDescWicket',  'Auto pop-up when wicket falls');
+    updateEvtToggleUI('autoSixOverlay',   'evtTrackSix',   'evtCardSix',  'on-purple','evtDescSix',     'Auto pop-up on maximum six');
+    updateEvtToggleUI('autoFourOverlay',  'evtTrackFour',  'evtCardFour', 'on-blue',  'evtDescFour',    'Auto pop-up on boundary four');
+});
+
+function updateEvtToggleUI(key, trackId, cardId, activeClass, descId, onText){
+    const on = _evtState[key];
+    const track = $(trackId), card = $(cardId), desc = $(descId);
+    if(!track) return;
+    track.className = on ? `evt-toggle-track ${activeClass}` : 'evt-toggle-track';
+    if(card) card.style.borderColor = on ? '' : '#1a1a2a';
+    if(desc) desc.textContent = on ? onText : '⚫ DISABLED — overlay suppressed';
+    if(desc) desc.style.color = on ? '' : '#e63946';
+}
+
+window.toggleEvtOverlay = (key, trackId, cardId, activeClass) => {
+    _evtState[key] = !_evtState[key];
+    update(uRef, { [key]: _evtState[key] });
+    // UI will update via onValue listener above
+};
 
 // ══ SQUAD BUILDER ═════════════════════════════════
 function buildSquadInputs(){
@@ -781,15 +887,9 @@ function showWinPopup(title, sub, detail, isWin){
 }
 window.closeWinPopup = () => $('winPopupOverlay').classList.remove('open');
 
-// ══════════════════════════════════════════════════
-// ══ AUDIO COMMENTARY — SETTINGS ONLY ══════════════
-// ══ Admin NEVER plays or generates audio locally. ═
-// ══ It just writes settings to Firebase. ═════════
-// ══ All audio playback happens in index.html.  ═══
-// ══════════════════════════════════════════════════
+// ══ AUDIO COMMENTARY ══════════════════════════════
 let _audioEnabled = false;
 
-// Write current UI-selected settings to Firebase so index.html picks them up
 function writeCommentarySettings(){
     update(cSettingsRef, {
         enabled: _audioEnabled,
@@ -799,7 +899,6 @@ function writeCommentarySettings(){
     });
 }
 
-// Toggle commentary from the admin UI (sends command to overlay)
 window.toggleAudio = () => {
     _audioEnabled = !_audioEnabled;
     updateAudioUI();
@@ -819,13 +918,11 @@ function updateAudioUI(){
         : 'COMMENTARY OFF';
 }
 
-// Wire up selector change handlers (style/rate/pitch)
 ['commentaryStyleSel','rateSel','pitchSel'].forEach(id => {
     const el = $(id);
     if(el) el.addEventListener('change', writeCommentarySettings);
 });
 
-// On load: pull current settings from Firebase and restore UI state
 onValue(cSettingsRef, snap => {
     const s = snap.val() || {};
     if(typeof s.enabled === 'boolean') _audioEnabled = s.enabled;
@@ -835,7 +932,7 @@ onValue(cSettingsRef, snap => {
     updateAudioUI();
 });
 
-// ══ Toast helper ──────────────────────────────────
+// ══ Toast ══════════════════════════════════════
 function showToast(msg){
     const t = $('autoSaveToast');
     t.textContent = msg;
@@ -844,13 +941,14 @@ function showToast(msg){
     t._timer = setTimeout(()=>{ t.style.opacity='0'; }, 2500);
 }
 
-// ══ UNDO ══════════════════════════════════════════
+// ══ UNDO — keep up to 20 snapshots ════════════════
 async function saveSnapshot(d){
     await push(hRef,{ state:JSON.parse(JSON.stringify(d)), savedAt:Date.now() });
     const all = await get(hRef); const val = all.val();
     if(val){
         const keys = Object.keys(val).sort();
-        if(keys.length>5) for(const k of keys.slice(0,keys.length-5)) await remove(ref(db,`undoStack/${k}`));
+        // CHANGED: keep last 20 (was 5)
+        if(keys.length>20) for(const k of keys.slice(0,keys.length-20)) await remove(ref(db,`undoStack/${k}`));
     }
 }
 window.undoLast = async () => {
@@ -921,11 +1019,8 @@ function fillSel(bat,bowl,p1n,p2n,bwn){
 }
 
 // ══ MATCH DATA LISTENER ═══════════════════════════
-// NOTE: All commentary generation/audio code has been removed from this listener.
-// The overlay (index.html) now watches the same 'cricket' ref and handles audio itself.
 onValue(mRef,snap=>{
     const d=snap.val(); _match=d; if(!d) return;
-
     $('iBat').textContent=d.batTeam||'—';
     $('iSc').textContent=`${d.runs}/${d.wkts}`;
     $('iOv').textContent=`${Math.floor(d.balls/6)}.${d.balls%6}`;
@@ -1068,7 +1163,7 @@ window.initMatch=async()=>{
         p2n:batSq[1]||batSq[0],p2r:0,p2b:0,p2fours:0,p2sixes:0,
         bwn:bowlSq[0],bwr:0,bww:0,bwb:0,recentBalls:[],nextBatIdx:2,
         freeHit:false,innings:1,maxOvers:fmt,batRows,bowlRows,
-        matchStartedAt: Date.now()  // timestamp lets overlay detect a fresh match
+        matchStartedAt: Date.now()
     });
     await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n')});
     await update(uRef,{scorebar:true,scorecard:false});
@@ -1134,8 +1229,7 @@ async function checkMatchEvents(d){
         setTimeout(()=>{ saveMatchToDb(true); }, 1500);
         setTimeout(()=>{
             showWinPopup(
-                winMsg.text,
-                winMsg.sub,
+                winMsg.text, winMsg.sub,
                 `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,
                 winMsg.type === 'tie' ? 'tie' : 'win'
             );
@@ -1217,13 +1311,9 @@ window.swapInnings=async()=>{
         recentBalls:[], nextBatIdx:2, freeHit:false,
         innings:2, maxOvers:d.maxOvers, batRows, bowlRows,
         inn1Score:`${d.runs}/${d.wkts} (${Math.floor(d.balls/6)}.${d.balls%6} ovs)`,
-        inn1Bat:d.batTeam,
-        inn1BatRows:d.batRows||[],
-        inn1BowlRows:d.bowlRows||[],
+        inn1Bat:d.batTeam, inn1BatRows:d.batRows||[], inn1BowlRows:d.bowlRows||[],
     });
-    _adminLastOver=0;
-    _winFired=false;
-    _inn1EndFired=false;
+    _adminLastOver=0; _winFired=false; _inn1EndFired=false;
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
@@ -1236,13 +1326,9 @@ window.fullReset=async()=>{
     await set(mRef,null);
     await set(sRef,null);
     await set(hRef,null);
-    // Clear any legacy commentary channel
     await set(ref(db,'commentary'),null);
-    await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false});
-    _adminLastOver=-1;
-    _currentMatchKey=null;
-    _winFired=false;
-    _inn1EndFired=false;
+    await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
+    _adminLastOver=-1; _currentMatchKey=null; _winFired=false; _inn1EndFired=false;
     location.reload();
 };
 
@@ -1376,9 +1462,9 @@ buildSquadInputs();
 
 // init UI
 const uSnap=await get(uRef);
-if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8});
+if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
 
-// Initialize commentarySettings in Firebase if not present — default ENABLED so overlay auto-plays
+// Initialize commentarySettings
 const cSnap = await get(cSettingsRef);
 if(!cSnap.val()){
     await set(cSettingsRef, { enabled:true, style:'standard', rate:1.0, pitch:1.1 });
