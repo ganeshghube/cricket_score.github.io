@@ -791,13 +791,13 @@ onValue(ref(db,'cricket'),snap=>{
         const striker=prev.str===1?prev.p1n:prev.p2n;
         const strikerR=d.str===1?(d.p1r||0):(d.p2r||0);
         const bowler=prev.bwn||'';
-        if(d.wkts>prev.wkts){
-            showEventPlayer(bowler,'💥',`${bowler} — WICKET!`,`${striker} dismissed`,'red');
-        } else if(lastBall===6&&d.runs>prev.runs){
-            showEventPlayer(striker,'🚀',`${strikerR} RUNS`,'MAXIMUM SIX!','purple');
-        } else if(lastBall===4&&d.runs>prev.runs){
-            showEventPlayer(striker,'🔥',`${strikerR} RUNS`,'BOUNDARY FOUR!','blue');
-        } else if(strikerR>=50&&strikerR<55){
+if(d.wkts>prev.wkts && uiSt.autoWicketOverlay!==false){
+        showEventPlayer(bowler,'💥',`${bowler} — WICKET!`,`${striker} dismissed`,'red');
+    } else if(lastBall===6&&d.runs>prev.runs && uiSt.autoSixOverlay!==false){
+        showEventPlayer(striker,'🚀',`${strikerR} RUNS`,'MAXIMUM SIX!','purple');
+    } else if(lastBall===4&&d.runs>prev.runs && uiSt.autoFourOverlay!==false){
+        showEventPlayer(striker,'🔥',`${strikerR} RUNS`,'BOUNDARY FOUR!','blue');
+    } else if(strikerR>=50&&strikerR<55){
             const prevR=prev.str===1?(prev.p1r||0):(prev.p2r||0);
             if(prevR<50) showEventPlayer(striker,'⭐',`${strikerR} RUNS`,'HALF CENTURY! 50!','');
         }
