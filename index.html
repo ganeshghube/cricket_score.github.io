@@ -77,23 +77,6 @@ body{
 @keyframes annParticle{ 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)} }
 .ann-player-photo{ width:60px; height:60px; border-radius:50%; object-fit:cover; border:3px solid var(--ann-accent,#f5c518); flex-shrink:0; box-shadow:0 4px 20px rgba(0,0,0,.8); animation:annEmojiBounce .7s cubic-bezier(.36,.07,.19,.97) both; }
 
-/* ═══ AUDIO UNLOCK HINT — visible only when not yet unlocked, tap anywhere to start ═══ */
-#audioUnlockHint{
-    position:fixed; top:0; left:0; right:0; bottom:0; z-index:999;
-    display:flex; align-items:center; justify-content:center;
-    background:rgba(0,0,0,0.01); /* nearly invisible — just catches the tap */
-    cursor:pointer;
-}
-#audioUnlockHint.gone{ display:none; }
-#audioUnlockBadge{
-    background:rgba(6,6,14,0.88); border:1px solid rgba(240,180,41,.3);
-    border-radius:8px; padding:10px 20px; pointer-events:none;
-    font-family:'Barlow Condensed',sans-serif; font-size:13px;
-    color:rgba(240,180,41,.7); letter-spacing:2px; text-transform:uppercase;
-    animation:hintPulse 2s ease-in-out infinite;
-}
-@keyframes hintPulse{ 0%,100%{opacity:.5} 50%{opacity:1} }
-
 /* ═══ SCORE BAR ═══ */
 .sb-wrap{ position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:96%; max-width:1080px; display:flex; flex-direction:column; align-items:center; filter:drop-shadow(0 8px 40px rgba(0,0,0,.95)); transition:opacity .5s,transform .5s; z-index:40; }
 .sb-wrap.hidden{ opacity:0; transform:translateX(-50%) translateY(24px); pointer-events:none; }
@@ -284,11 +267,6 @@ body{
 </style>
 </head>
 <body>
-
-<!-- Audio unlock tap target — nearly invisible, shown only until audio unlocks -->
-<div id="audioUnlockHint" onclick="unlockAudio()">
-    <div id="audioUnlockBadge">🎙 TAP TO ENABLE AUDIO</div>
-</div>
 
 <div class="ann-rain" id="annRain"></div>
 <div class="ann-wrap" id="annWrap">
@@ -501,171 +479,125 @@ const uiRef=ref(db,'ui'), annRef=ref(db,'announcement'), phRef=ref(db,'playerPho
 const cSettingsRef=ref(db,'commentarySettings');
 const $=id=>document.getElementById(id);
 
-// ══ AUDIO COMMENTARY ENGINE ═══════════════════════════════════════════
-/*
- *  AUTOPLAY STRATEGY FOR PRISM / CAMERAFIX WEBVIEWS
- *  ─────────────────────────────────────────────────
- *  1. On load: try a silent 0-volume utterance to warm up the TTS engine.
- *     Many Android WebViews (Prism, CameraFi) allow this without gesture.
- *  2. If that fails: queue pending commentary lines.
- *  3. A nearly-invisible tap target covers the whole screen — first tap
- *     unlocks audio and drains the queue (fallback for strict WebViews).
- *  4. visibilitychange + focus also attempt unlock (covers app-switch back).
- *  5. Once unlocked the hint disappears permanently.
- */
-
-let _audioUnlocked  = false;
-let _audioEnabled   = true;   // mirrors Firebase commentarySettings.enabled
-let _speechQueue    = [];     // lines waiting for unlock
-let _isSpeaking     = false;
-let _voicesReady    = false;
+/* ══════════════════════════════════════════════════════════════════════
+   AUDIO ENGINE — fully automatic, no button required
+   Strategy for Prism / CameraFi / OBS Browser / Android WebView:
+   • Speak immediately on voices-ready — Prism's WebView allows this
+   • If blocked, the pending line is stored and replayed on ANY
+     interaction (scroll, resize, visibilitychange, focus)
+   • speechSynthesis.cancel() before each new speak() prevents queue
+     buildup across sessions / refreshes
+   ══════════════════════════════════════════════════════════════════════ */
+let _audioEnabled   = true;
 let _cSettings      = { enabled:true, style:'standard', rate:1.0, pitch:1.1 };
+let _pendingLine    = null;   // one pending line max
+let _ttsReady       = false;  // voices loaded flag
 
-// Pick best Indian-English voice available, fall back gracefully
 function pickVoice(){
     const voices = speechSynthesis.getVoices();
-    const prefs  = [
+    const prefs = [
         v => /en[-_]IN/i.test(v.lang),
         v => /ravi|veena|aditi/i.test(v.name),
         v => /en[-_]GB/i.test(v.lang),
         v => /en/i.test(v.lang),
     ];
     for(const pref of prefs){
-        const match = voices.find(pref);
-        if(match) return match;
+        const m = voices.find(pref);
+        if(m) return m;
     }
     return voices[0] || null;
 }
 
-// Speak a line — if not unlocked yet, queue it
-function speakLine(text){
-    if(!_audioEnabled || !text) return;
-    if(!_audioUnlocked){
-        // Keep queue small — max 2 pending lines
-        _speechQueue.push(text);
-        if(_speechQueue.length > 2) _speechQueue.shift();
-        return;
-    }
-    _doSpeak(text);
-}
-
 function _doSpeak(text){
-    if(!text) return;
+    if(!text || !_audioEnabled || _cSettings.enabled === false) return;
     try{
-        if(speechSynthesis.speaking) speechSynthesis.cancel();
+        speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
         const v = pickVoice();
         if(v) u.voice = v;
-        u.lang  = 'en-IN';
-        u.rate  = parseFloat(_cSettings.rate)  || 1.0;
-        u.pitch = parseFloat(_cSettings.pitch) || 1.1;
+        u.lang   = 'en-IN';
+        u.rate   = parseFloat(_cSettings.rate)  || 1.0;
+        u.pitch  = parseFloat(_cSettings.pitch) || 1.1;
         u.volume = 1.0;
+        u.onerror = () => { _pendingLine = text; }; // store for retry on interaction
         speechSynthesis.speak(u);
-    } catch(e){ console.warn('TTS error:', e); }
+    } catch(e){ _pendingLine = text; }
 }
 
-// Drain anything queued while we waited for unlock
-function _drainQueue(){
-    if(!_speechQueue.length) return;
-    const next = _speechQueue.pop(); // just speak the most recent line
-    _speechQueue = [];
-    _doSpeak(next);
+// Public: called for every commentary event
+function speakLine(text){
+    if(!text || !_audioEnabled || _cSettings.enabled === false) return;
+    _pendingLine = text;   // always store latest so interaction can replay it
+    _doSpeak(text);
 }
 
-// THE UNLOCK — called by tap, visibilitychange, etc.
-window.unlockAudio = function(){
-    if(_audioUnlocked) return;
+// Drain pending line — called on any interaction or visibility change
+function _drainPending(){
+    if(_pendingLine && (_audioEnabled && _cSettings.enabled !== false)){
+        const t = _pendingLine; _pendingLine = null;
+        _doSpeak(t);
+    }
+}
+
+// Warm up TTS engine silently — works in Prism WebView on load
+function _warmUp(){
     try{
         speechSynthesis.cancel();
-        const warm = new SpeechSynthesisUtterance(' ');
-        warm.volume = 0;
-        warm.onend  = () => {
-            _audioUnlocked = true;
-            $('audioUnlockHint').classList.add('gone');
-            _drainQueue();
+        const u = new SpeechSynthesisUtterance('');
+        u.volume = 0; u.rate = 1;
+        u.onend = () => { _ttsReady = true; _drainPending(); };
+        speechSynthesis.speak(u);
+    } catch(e){ _ttsReady = true; }
+}
+
+// Wait for voices, then warm up
+function _initTTS(){
+    const voices = speechSynthesis.getVoices();
+    if(voices.length > 0){
+        _ttsReady = true;
+        _warmUp();
+    } else {
+        speechSynthesis.onvoiceschanged = () => {
+            if(!_ttsReady){ _ttsReady = true; _warmUp(); }
         };
-        warm.onerror = () => {
-            // Treat as unlocked anyway — the warm-up may fail on some engines
-            // but real speak() calls may still work
-            _audioUnlocked = true;
-            $('audioUnlockHint').classList.add('gone');
-            _drainQueue();
-        };
-        speechSynthesis.speak(warm);
-    } catch(e){
-        _audioUnlocked = true;
-        $('audioUnlockHint').classList.add('gone');
+        // Fallback: try after 1s regardless (Prism may not fire onvoiceschanged)
+        setTimeout(()=>{ if(!_ttsReady){ _ttsReady = true; _warmUp(); } }, 1000);
     }
-};
-
-// Attempt silent auto-unlock on page load (works in most mobile WebViews)
-function _attemptAutoUnlock(){
-    try{
-        const warm = new SpeechSynthesisUtterance(' ');
-        warm.volume = 0;
-        warm.onend  = () => {
-            if(!_audioUnlocked){
-                _audioUnlocked = true;
-                $('audioUnlockHint').classList.add('gone');
-                _drainQueue();
-            }
-        };
-        speechSynthesis.speak(warm);
-        // If still not confirmed after 2s, assume it worked silently
-        setTimeout(()=>{
-            if(!_audioUnlocked && !speechSynthesis.speaking){
-                _audioUnlocked = true;
-                $('audioUnlockHint').classList.add('gone');
-            }
-        }, 2000);
-    } catch(e){}
 }
 
-// Voices may load async — try unlock once they arrive
-if(speechSynthesis.onvoiceschanged !== undefined){
-    speechSynthesis.onvoiceschanged = () => {
-        if(!_voicesReady){ _voicesReady = true; _attemptAutoUnlock(); }
-    };
-}
+// ANY page event retries a pending line — covers strict WebViews
+['visibilitychange','focus','resize','scroll'].forEach(evt =>
+    document.addEventListener(evt, ()=>{ if(!document.hidden) _drainPending(); }, {passive:true})
+);
+window.addEventListener('focus', _drainPending, {passive:true});
 
-// Also try immediately (voices may already be loaded)
-if(speechSynthesis.getVoices().length > 0){
-    _voicesReady = true;
-    setTimeout(_attemptAutoUnlock, 300);
-} else {
-    // Fallback: try after a short delay regardless
-    setTimeout(_attemptAutoUnlock, 800);
-}
+// Kick off immediately
+_initTTS();
 
-// visibilitychange — when user switches back to Prism the overlay refocuses
+// Re-init on page visibility (covers Prism switching streams in / out)
 document.addEventListener('visibilitychange', ()=>{
-    if(!document.hidden && !_audioUnlocked) unlockAudio();
+    if(!document.hidden){ speechSynthesis.cancel(); _warmUp(); }
 });
 
-// Any interaction on the page also unlocks (tap-through from Prism UI)
-['touchstart','touchend','click','pointerdown'].forEach(evt=>{
-    document.addEventListener(evt, ()=>{ if(!_audioUnlocked) unlockAudio(); }, {passive:true});
-});
-
-// ── Firebase sync for commentary settings
+/* ── Firebase sync for commentary settings ─────────────────────────── */
 onValue(cSettingsRef, snap=>{
     const s = snap.val();
     if(!s) return;
-    _cSettings = s;
+    _cSettings  = s;
     _audioEnabled = s.enabled !== false;
 });
 
-// ── Commentary text generators
+/* ── Commentary text generators ──────────────────────────────────────── */
 const COMMENTARY = {
     standard:{
         dot:   (b,bw)  => [`Dot ball from ${bw}. Good tight bowling.`, `${bw} keeps it tight. Dot ball.`, `No run. Excellent delivery from ${bw}.`],
         one:   (b,bw)  => [`${b} works it away for a single.`, `One run to ${b}.`, `Rotates the strike — ${b} gets one.`],
-        two:   (b,bw)  => [`${b} pushes for two runs!`, `Two runs — good running between the wickets!`, `${b} and the partner scamper through for two.`],
+        two:   (b,bw)  => [`${b} pushes for two runs!`, `Two runs — good running between the wickets!`],
         three: (b,bw)  => [`Three runs! Smart cricket from ${b}!`, `${b} runs hard and gets three!`],
         four:  (b,bw)  => [`FOUR! Beautifully struck by ${b}!`, `That races away to the boundary — four runs!`, `${b} drives it to the fence — four!`],
         six:   (b,bw)  => [`SIX! ${b} launches it over the ropes!`, `MAXIMUM! That has gone all the way! Six from ${b}!`, `${b} clears the boundary — six!`],
-        wide:  (b,bw)  => [`Wide ball. Extra run added.`, `${bw} strays down the leg side — wide called.`, `Wide — the umpire signals and one extra is added.`],
-        noBall:(b,bw)  => [`No ball from ${bw}! Free hit coming up!`, `Overstepped! No ball — free hit for the batter!`, `${bw} oversteps and it's a no ball. Free hit!`],
+        wide:  (b,bw)  => [`Wide ball. Extra run added.`, `${bw} strays down the leg side — wide called.`],
+        noBall:(b,bw)  => [`No ball from ${bw}! Free hit coming up!`, `Overstepped! No ball — free hit for the batter!`],
         wicket:(b,bw)  => [`WICKET! ${b} is OUT! A huge breakthrough for ${bw}!`, `GONE! ${bw} gets the big wicket of ${b}!`, `${b} is dismissed! ${bw} strikes!`],
         fifty: (b)     => [`FIFTY! ${b} brings up a brilliant half century!`, `What a knock! ${b} reaches fifty runs!`],
         century:(b)    => [`CENTURY! Magnificent hundred from ${b}! What an innings!`, `${b} has scored a century! Wonderful batting!`],
@@ -674,30 +606,30 @@ const COMMENTARY = {
     shastri:{
         dot:   (b,bw)  => [`And that is SOME delivery from ${bw}! Dot ball, and the pressure builds!`, `Tight tight tight from ${bw}. Absolutely no room there. Dot ball!`],
         one:   (b,bw)  => [`${b} rotates the strike! That is what good batsmen DO!`, `One run and ${b} keeps the scoreboard ticking. Momentum is key!`],
-        two:   (b,bw)  => [`Running HARD between the wickets — two runs! This is what cricket is all about!`, `${b} hits it into the gap and they are running hard — two!`],
-        three: (b,bw)  => [`Three runs and they have run themselves into a brilliant position!`, `HARD RUNNING and they get three! What a display of intent from ${b}!`],
+        two:   (b,bw)  => [`Running HARD between the wickets — two runs! This is what cricket is all about!`],
+        three: (b,bw)  => [`Three runs and they have run themselves into a brilliant position!`],
         four:  (b,bw)  => [`FOUR RUNS and the ball is hammered to the BOUNDARY! ${b} is in the ZONE!`, `That is SOME shot from ${b}! The ball has absolutely RACED to the fence — FOUR!`],
-        six:   (b,bw)  => [`He's GONE for the BIG ONE! ${b} sends it into ORBIT! THAT IS A MAXIMUM!`, `SIX! ${b} has hit that out of the stadium! What a SHOT! What a PLAYER!`, `Into the crowd and GONE! ${b} has hit that with ABSOLUTE disdain — SIX!`],
-        wide:  (b,bw)  => [`Wide ball! ${bw} has lost it completely there. One extra to the batting side!`, `That is DOWN THE LEG SIDE! Wide ball called and extra runs on the board!`],
-        noBall:(b,bw)  => [`NO BALL! ${bw} has overstepped and it is a FREE HIT coming up! The batting side will be LICKING THEIR LIPS!`],
-        wicket:(b,bw)  => [`OUT! He's GONE! ${bw} has produced an ABSOLUTE JAFFA and ${b} is on his way back to the pavilion!`, `BOWLED OVER! What a BEAUTY from ${bw}! ${b} has no answer and is OUT!`],
+        six:   (b,bw)  => [`He's GONE for the BIG ONE! ${b} sends it into ORBIT! THAT IS A MAXIMUM!`, `SIX! ${b} has hit that out of the stadium! What a SHOT!`],
+        wide:  (b,bw)  => [`Wide ball! ${bw} has lost it completely there. One extra to the batting side!`],
+        noBall:(b,bw)  => [`NO BALL! ${bw} has overstepped and it is a FREE HIT coming up!`],
+        wicket:(b,bw)  => [`OUT! He's GONE! ${bw} has produced an ABSOLUTE JAFFA and ${b} is on his way back to the pavilion!`],
         fifty: (b)     => [`FIFTY for ${b}! And what a FIFTY it is! Half century up and the crowd is on their feet!`],
-        century:(b)    => [`ONE HUNDRED! ${b} has done it! A MAGNIFICENT century! This is what DREAMS are made of!`],
-        over:  (ov,r)  => [`End of an ENTHRALLING over ${ov}! ${r} runs came from it and the game is firmly in the balance!`],
+        century:(b)    => [`ONE HUNDRED! ${b} has done it! A MAGNIFICENT century!`],
+        over:  (ov,r)  => [`End of an ENTHRALLING over ${ov}! ${r} runs came from it!`],
     },
     chopra:{
-        dot:   (b,bw)  => [`Analytically speaking, that is a very well directed delivery from ${bw}. Dot ball — keeps the pressure on.`, `${bw} hits the hard length. Nothing there for ${b} to work with. Dot ball, as expected.`],
-        one:   (b,bw)  => [`One run. ${b} looks to milk the singles — that is the intelligent option here.`, `Single to ${b}. Sensible cricket — keeps the run rate ticking while preserving the wicket.`],
-        two:   (b,bw)  => [`Two runs — ${b} finds the gap in the field. That was calculated placement.`, `Quick running and they get two. ${b} had read the field setting perfectly.`],
-        three: (b,bw)  => [`Three! ${b} sprints through and you can see the physical fitness paying off there.`, `Three runs — the fielder was mispositioned and ${b} capitalised on that instantly.`],
-        four:  (b,bw)  => [`FOUR! That was textbook shot selection from ${b} — picked the right ball and executed to perfection!`, `Boundary! The numbers say ${b} has a very high scoring percentage on deliveries in that area — no surprise there.`],
-        six:   (b,bw)  => [`SIX! The trajectory analysis would confirm this was a massive hit. ${b} has absolutely cleared the ropes!`, `Into the stands! ${b} got under it, generated maximum power — pure hitting ability on display. SIX!`],
-        wide:  (b,bw)  => [`Wide ball. ${bw} has gone outside the corridor, line discipline breaks down momentarily.`, `The umpire extends both arms — wide. ${bw} needs to re-calibrate the line immediately.`],
-        noBall:(b,bw)  => [`No ball! ${bw} has overstepped the crease. The pressure of the moment gets to bowlers — and now a free hit follows.`],
-        wicket:(b,bw)  => [`OUT! Textbook dismissal from ${bw} — drew ${b} into the false stroke and the result was inevitable.`, `${b} is OUT! That was superb tactical bowling from ${bw} — set up beautifully over multiple deliveries.`],
+        dot:   (b,bw)  => [`Analytically speaking, that is a very well directed delivery from ${bw}. Dot ball.`, `${bw} hits the hard length. Nothing there for ${b} to work with. Dot ball, as expected.`],
+        one:   (b,bw)  => [`One run. ${b} looks to milk the singles — that is the intelligent option here.`],
+        two:   (b,bw)  => [`Two runs — ${b} finds the gap in the field. That was calculated placement.`],
+        three: (b,bw)  => [`Three! ${b} sprints through and you can see the physical fitness paying off there.`],
+        four:  (b,bw)  => [`FOUR! That was textbook shot selection from ${b} — picked the right ball and executed to perfection!`],
+        six:   (b,bw)  => [`SIX! The trajectory analysis would confirm this was a massive hit. ${b} has absolutely cleared the ropes!`],
+        wide:  (b,bw)  => [`Wide ball. ${bw} has gone outside the corridor, line discipline breaks down momentarily.`],
+        noBall:(b,bw)  => [`No ball! ${bw} has overstepped the crease. Free hit follows.`],
+        wicket:(b,bw)  => [`OUT! Textbook dismissal from ${bw} — drew ${b} into the false stroke and the result was inevitable.`],
         fifty: (b)     => [`Fifty for ${b}! The strike rate and the timing of this innings — this is a class act in motion.`],
         century:(b)    => [`A CENTURY for ${b}! Statistically rare, contextually priceless — this has been a masterly innings.`],
-        over:  (ov,r)  => [`Over ${ov} complete. ${r} runs — the run-rate arithmetic shifts slightly. Let us see how both sides respond.`],
+        over:  (ov,r)  => [`Over ${ov} complete. ${r} runs — the run-rate arithmetic shifts slightly.`],
     }
 };
 
@@ -706,24 +638,25 @@ function rnd(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 function buildCommentaryLine(event, batter, bowler, runs, style){
     const C = COMMENTARY[style] || COMMENTARY.standard;
     switch(event){
-        case 'dot':    return rnd(C.dot(batter, bowler));
-        case 'one':    return rnd(C.one(batter, bowler));
-        case 'two':    return rnd(C.two(batter, bowler));
-        case 'three':  return rnd(C.three(batter, bowler));
-        case 'four':   return rnd(C.four(batter, bowler));
-        case 'six':    return rnd(C.six(batter, bowler));
-        case 'wide':   return rnd(C.wide(batter, bowler));
-        case 'noBall': return rnd(C.noBall(batter, bowler));
-        case 'wicket': return rnd(C.wicket(batter, bowler));
-        case 'fifty':  return rnd(C.fifty(batter));
-        case 'century':return rnd(C.century(batter));
-        case 'over':   return rnd(C.over(runs, bowler)); // runs=overNum, bowler=runsInOver
-        default:       return null;
+        case 'dot':     return rnd(C.dot(batter, bowler));
+        case 'one':     return rnd(C.one(batter, bowler));
+        case 'two':     return rnd(C.two(batter, bowler));
+        case 'three':   return rnd(C.three(batter, bowler));
+        case 'four':    return rnd(C.four(batter, bowler));
+        case 'six':     return rnd(C.six(batter, bowler));
+        case 'wide':    return rnd(C.wide(batter, bowler));
+        case 'noBall':  return rnd(C.noBall(batter, bowler));
+        case 'wicket':  return rnd(C.wicket(batter, bowler));
+        case 'fifty':   return rnd(C.fifty(batter));
+        case 'century': return rnd(C.century(batter));
+        case 'over':    return rnd(C.over(runs, bowler));
+        default:        return null;
     }
 }
 
-// ══ END AUDIO ENGINE ══════════════════════════════
-
+/* ══════════════════════════════════════════════════════════════════════
+   REST OF APP
+   ══════════════════════════════════════════════════════════════════════ */
 let _playerPhotos={}, _winShown=false, _prevData=null, _epovTimer=null, _overPlayersTimer=null;
 
 onValue(phRef,snap=>{
@@ -994,9 +927,8 @@ onValue(ref(db,'cricket'),snap=>{
         const prevBalls=_prevData?(_prevData.recentBalls||[]):[];
         showOverPlayers(d,completedOvers,prevBalls.length?prevBalls:[]);
         $('overBadge').textContent=`⬜ END OF OVER ${completedOvers}`;
-        // Commentary: end of over
         if(_cSettings.enabled){
-            const runsInOver = prevBalls.reduce((s,v)=>s+(typeof v==='number'?v:0),0);
+            const runsInOver=prevBalls.reduce((s,v)=>s+(typeof v==='number'?v:0),0);
             speakLine(buildCommentaryLine('over', completedOvers, String(runsInOver), null, _cSettings.style));
         }
     }
@@ -1009,7 +941,7 @@ onValue(ref(db,'cricket'),snap=>{
         const bowler=prev.bwn||'';
         const style=_cSettings.style||'standard';
 
-        // ── Auto event overlays (respects toggles from admin)
+        // Auto event overlays
         if(d.wkts>prev.wkts && uiSt.autoWicketOverlay!==false){
             showEventPlayer(bowler,'💥',`${bowler} — WICKET!`,`${striker} dismissed`,'red');
         } else if(lastBall===6&&d.runs>prev.runs && uiSt.autoSixOverlay!==false){
@@ -1018,7 +950,7 @@ onValue(ref(db,'cricket'),snap=>{
             showEventPlayer(striker,'🔥',`${strikerR} RUNS`,'BOUNDARY FOUR!','blue');
         }
 
-        // ── Milestones
+        // Milestones
         if(strikerR>=50&&strikerR<55){
             const prevR=prev.str===1?(prev.p1r||0):(prev.p2r||0);
             if(prevR<50){
@@ -1039,45 +971,28 @@ onValue(ref(db,'cricket'),snap=>{
             showEventPlayer(bowler,'🎩',`${bowler} — 5 WICKETS!`,'BRILLIANT FIFER!','');
         }
 
-        // ── Ball-by-ball commentary (only for legal/illegal deliveries)
+        // Ball-by-ball commentary
         if(_cSettings.enabled && d.balls !== prev.balls){
-            // A new delivery was bowled — determine what happened
-            let evt = null;
-            if(d.wkts > prev.wkts){
-                evt = 'wicket';
-            } else if(lastBall === 6){
-                evt = 'six';
-            } else if(lastBall === 4){
-                evt = 'four';
-            } else if(typeof lastBall === 'string' && lastBall.startsWith('Wd')){
-                evt = 'wide';
-            } else if(typeof lastBall === 'string' && lastBall.startsWith('Nb')){
-                evt = 'noBall';
-            } else if(lastBall === 0){
-                evt = 'dot';
-            } else if(lastBall === 1){
-                evt = 'one';
-            } else if(lastBall === 2){
-                evt = 'two';
-            } else if(lastBall === 3){
-                evt = 'three';
-            }
-            if(evt){
-                const line = buildCommentaryLine(evt, striker, bowler, lastBall, style);
-                speakLine(line);
-            }
-        } else if(_cSettings.enabled && d.balls === prev.balls){
-            // Wide or No-ball (ball count unchanged)
-            const lb = lastBall;
-            if(typeof lb === 'string'){
-                let evt = lb.startsWith('Wd') ? 'wide' : lb.startsWith('Nb') ? 'noBall' : null;
-                if(evt){
-                    speakLine(buildCommentaryLine(evt, striker, bowler, null, style));
-                }
+            let evt=null;
+            if(d.wkts>prev.wkts)            evt='wicket';
+            else if(lastBall===6)            evt='six';
+            else if(lastBall===4)            evt='four';
+            else if(lastBall===0)            evt='dot';
+            else if(lastBall===1)            evt='one';
+            else if(lastBall===2)            evt='two';
+            else if(lastBall===3)            evt='three';
+            else if(typeof lastBall==='string'&&lastBall.startsWith('By'))  evt=null;
+            else if(typeof lastBall==='string'&&lastBall.startsWith('Lb'))  evt=null;
+            if(evt) speakLine(buildCommentaryLine(evt,striker,bowler,lastBall,style));
+        } else if(_cSettings.enabled && d.balls===prev.balls){
+            const lb=lastBall;
+            if(typeof lb==='string'){
+                const evt=lb.startsWith('Wd')?'wide':lb.startsWith('Nb')?'noBall':null;
+                if(evt) speakLine(buildCommentaryLine(evt,striker,bowler,null,style));
             }
         }
 
-        // ── Win detection
+        // Win detection
         if(d.innings===2&&!_winShown){
             const target=d.target||0, maxBalls=(d.maxOvers||20)*6;
             const allOut=d.wkts>=10, oversUp=d.balls>=maxBalls, runsNeeded=target-d.runs;
