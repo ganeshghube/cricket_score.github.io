@@ -1,268 +1,383 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cricket Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cricket Admin — Play-Cricket Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Barlow+Condensed:wght@500;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{
-    --y:#f0b429; --y2:#ffd166;
-    --bg:#080810; --card:#0e0e1a; --card2:#13131f;
-    --brd:#1e1e2e; --brd2:#252535;
-    --green:#06d6a0; --red:#e63946; --blue:#118ab2;
-    --text:#c8c8d8; --muted:#555566;
+/* ══ DESIGN TOKENS ══ */
+:root {
+    --navy:    #1a3a5c;
+    --navy2:   #264a70;
+    --navy3:   #0d2238;
+    --red:     #c41e3a;
+    --red2:    #e63946;
+    --green:   #1a7a3c;
+    --green2:  #06d6a0;
+    --gold:    #d4920a;
+    --gold2:   #f0b429;
+    --purple:  #6d3bb5;
+    --orange:  #d35400;
+    --bg:      #eef1f5;
+    --card:    #ffffff;
+    --card2:   #f8fafc;
+    --border:  #d1d9e0;
+    --border2: #b8c5d0;
+    --text:    #1a2535;
+    --text2:   #4a5568;
+    --muted:   #8090a0;
+    --stripe:  #f4f7fa;
+    --active-bat: #fffbeb;
+    --active-bat-brd: #f59e0b;
+    --wicket-bg: #fff5f5;
+    --four-bg:  #f0fff4;
+    --six-bg:   #f5f0ff;
+    --dot-bg:   #f8fafc;
 }
-*{ box-sizing:border-box; }
-body{ font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text); margin:0; min-height:100vh; }
+*{ box-sizing:border-box; margin:0; padding:0; }
+body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; font-size:14px; }
 
-.topbar{ background:linear-gradient(90deg,#0c0c18,#111120); padding:10px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid var(--y); position:sticky; top:0; z-index:99; box-shadow:0 4px 20px rgba(0,0,0,.8); }
-.topbar h1{ margin:0; font-family:'Barlow Condensed',sans-serif; font-size:16px; color:var(--y); letter-spacing:3px; text-transform:uppercase; }
-.live-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; margin-right:8px; box-shadow:0 0 8px var(--green); animation:ldot 1.5s infinite; }
-@keyframes ldot{ 0%,100%{opacity:1}50%{opacity:.3} }
-.fmt-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--muted); letter-spacing:1px; }
-
-.infobar{ background:#0a0a16; padding:7px 16px; display:flex; gap:16px; flex-wrap:wrap; align-items:center; font-family:'Barlow Condensed',sans-serif; font-size:12px; color:var(--muted); letter-spacing:.5px; border-bottom:1px solid var(--brd); }
-.infobar b{ color:var(--y); }
-.fh-pill{ background:linear-gradient(90deg,#d35400,#e67e22); color:#000; padding:1px 9px; border-radius:3px; font-size:10px; font-weight:800; letter-spacing:2px; display:none; }
-.fh-pill.on{ display:inline-block; animation:fhp .8s infinite; }
-@keyframes fhp{ 0%,100%{opacity:1}50%{opacity:.4} }
-
-.pv-lbl{ background:#070710; padding:5px 16px; font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#2a2a3a; text-align:center; letter-spacing:2px; }
-.pv{ width:100%; height:155px; background:#000; position:relative; overflow:hidden; border-bottom:2px solid var(--brd); }
-iframe{ width:1100px; height:360px; border:none; position:absolute; top:0; left:50%; transform:translateX(-50%) scale(0.3); transform-origin:top center; pointer-events:none; }
-@media(min-width:700px){ iframe{ transform:translateX(-50%) scale(.62); } .pv{ height:255px; } }
-
-.body{ padding:14px; display:grid; gap:14px; max-width:980px; margin:auto; }
-.card{ background:var(--card); padding:16px; border-radius:8px; border:1px solid var(--brd); box-shadow:0 4px 20px rgba(0,0,0,.4); }
-.g2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.g3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
-.g4{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
-@media(min-width:540px){ .g4{ grid-template-columns:repeat(4,1fr); } .g3{ grid-template-columns:repeat(3,1fr); } }
-
-/* ── SQUAD COLUMNS — flex so order can swap ── */
-.squads-flex{ display:flex; gap:10px; }
-.squad-col{ flex:1; min-width:0; }
-.squad-col-header{ display:flex; align-items:center; gap:7px; margin-top:10px; margin-bottom:3px; }
-.squad-role-tag{ font-family:'Barlow Condensed',sans-serif; font-size:9px; font-weight:800; padding:2px 8px; border-radius:3px; letter-spacing:1.5px; white-space:nowrap; flex-shrink:0; transition:background .2s,color .2s; }
-.squad-role-tag.batting{ background:#052212; color:#06d6a0; border:1px solid #0a4a2a; }
-.squad-role-tag.bowling{ background:#200000; color:#ff8080; border:1px solid #500000; }
-
-h4{ margin:0 0 12px; font-family:'Barlow Condensed',sans-serif; color:var(--y); text-transform:uppercase; font-size:11px; font-weight:800; letter-spacing:3px; border-bottom:1px solid var(--brd2); padding-bottom:8px; display:flex; align-items:center; gap:8px; }
-h4 .hico{ font-size:14px; }
-label{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; display:block; margin-top:8px; margin-bottom:3px; }
-input,textarea,select{ width:100%; padding:9px 12px; background:#0a0a18; border:1px solid var(--brd2); color:#ddd; border-radius:5px; font-size:13px; font-family:'Barlow',sans-serif; transition:border-color .2s; }
-input:focus,textarea:focus,select:focus{ outline:none; border-color:var(--y); box-shadow:0 0 0 2px rgba(240,180,41,.1); }
-select option{ background:#111; }
-
-button{ padding:13px 8px; border:none; border-radius:5px; font-family:'Barlow Condensed',sans-serif; font-weight:700; cursor:pointer; transition:all .12s; font-size:14px; letter-spacing:.5px; width:100%; }
-button:active{ opacity:.65; transform:scale(.95); }
-.b-dot { background:#0d0d1a; color:#888;    border:1px solid #252535; }
-.b-run { background:#052212; color:#7fff7f; border:1px solid #0a4a2a; }
-.b-4   { background:#051428; color:#7ec8ff; border:1px solid #0a2a50; }
-.b-6   { background:#180838; color:#c4a0ff; border:1px solid #2e1060; }
-.b-wd  { background:#2a1400; color:#ffd680; border:1px solid #5a3000; }
-.b-nb  { background:#280800; color:#ffb060; border:1px solid #5a1a00; }
-.b-by  { background:#00101e; color:#7ec8ff; border:1px solid #00284a; }
-.b-lb  { background:#041404; color:#a0ffa0; border:1px solid #0a300a; }
-.b-wkt { background:#200000; color:#ff8080; border:1px solid #500000; font-size:15px; }
-.b-swp { background:#080820; color:#9090ff; border:1px solid #1a1a40; }
-.b-gold{ background:linear-gradient(135deg,#3a2800,#2a1e00); color:var(--y); border:1px solid #5a3c00; }
-.b-show{ background:#032212; color:#06d6a0; border:1px solid #0a4030; }
-.b-hide{ background:#200008; color:#ff8080; border:1px solid #500015; }
-.b-inn { background:#100828; color:#c4a0ff; border:1px solid #281050; }
-.b-rst { background:#0a0008; color:#ff4d4d; border:1px solid #400010; }
-.b-undo{ background:#0d0820; color:#9090ff; border:1px solid #1a1a40; }
-.b-undo:hover{ background:#7c3aed; color:#fff; border-color:#7c3aed; }
-.b-undo:disabled{ opacity:.3; cursor:not-allowed; }
-.undo-badge{ display:inline-block; background:#1a1a40; color:#9090ff; border-radius:3px; padding:1px 6px; font-size:11px; margin-left:4px; font-family:'Barlow Condensed',sans-serif; }
-.b-injury{ background:#1a0a00; color:#ffaa44; border:1px solid #4a2800; font-size:12px; padding:10px 8px; }
-.b-injury:hover{ background:#e67e22; color:#000; border-color:#e67e22; }
-.b-ann-century { background:linear-gradient(135deg,#2a1e00,#1e1400); color:#ffd700; border:1px solid #8a6000; font-size:15px; }
-.b-ann-fifty   { background:linear-gradient(135deg,#1a1a00,#141400); color:#e0c040; border:1px solid #6a5a00; }
-.b-ann-wkt     { background:linear-gradient(135deg,#1a0000,#200000); color:#ff7070; border:1px solid #600000; }
-.b-ann-six     { background:linear-gradient(135deg,#120a28,#180838); color:#c4a0ff; border:1px solid #3e1868; }
-.b-ann-four    { background:linear-gradient(135deg,#001428,#001e38); color:#7ec8ff; border:1px solid #0a3060; }
-.b-ann-custom  { background:linear-gradient(135deg,#081818,#0a2020); color:#06d6a0; border:1px solid #0a4030; }
-.ann-preview{ background:#06060f; border:1px solid var(--brd2); border-radius:5px; padding:10px 14px; margin-top:10px; min-height:40px; font-family:'Barlow Condensed',sans-serif; font-size:14px; color:#555; letter-spacing:.5px; text-align:center; transition:color .2s; }
-.ann-preview.has-msg{ color:#ddd; }
-.sep{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin:10px 0 5px; display:flex; align-items:center; gap:8px; }
-.sep::after{ content:''; flex:1; height:1px; background:var(--brd); }
-.note{ font-size:10px; color:#333344; margin-top:10px; line-height:1.7; border-top:1px solid var(--brd); padding-top:8px; }
-.note b{ color:#555566; }
-
-.squad-grid{ display:flex; flex-direction:column; gap:5px; margin-top:6px; }
-.player-row{ display:flex; align-items:center; gap:8px; }
-.player-num{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--muted); width:18px; flex-shrink:0; text-align:right; }
-.player-avatar-wrap{ position:relative; width:32px; height:32px; flex-shrink:0; }
-.player-avatar{ width:32px; height:32px; border-radius:50%; object-fit:cover; background:#111; border:2px solid var(--brd2); cursor:pointer; }
-.player-avatar:hover{ border-color:var(--y); }
-.player-avatar-upload{ display:none; }
-.player-photo-btn{ position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.5); display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:opacity .2s; font-size:14px; border:none; padding:0; width:32px; }
-.player-avatar-wrap:hover .player-photo-btn{ opacity:1; }
-.player-name-input{ flex:1; padding:7px 10px; font-size:13px; }
-
-.modal-bg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
-.modal-bg.open{ display:flex; }
-.modal{ background:var(--card); border:1px solid var(--brd2); border-radius:10px; padding:22px; width:94%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,.9),0 0 0 1px rgba(240,180,41,.1); }
-.modal h3{ font-family:'Barlow Condensed',sans-serif; color:var(--y); font-size:15px; text-transform:uppercase; letter-spacing:3px; margin:0 0 14px; border-bottom:1px solid var(--brd2); padding-bottom:10px; }
-.modal-meta{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--muted); margin-bottom:12px; letter-spacing:.5px; }
-.modal-meta b{ color:#aaa; }
-.dis-grid{ display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:14px; }
-.dm{ padding:10px 8px; border:1px solid var(--brd2); border-radius:5px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; background:#0a0a18; color:#777; transition:all .12s; width:100%; letter-spacing:.5px; }
-.dm:hover{ border-color:var(--y); color:var(--y); }
-.dm.sel{ background:#2a1e00; border-color:var(--y); color:var(--y); }
-.modal-field{ margin-bottom:12px; }
-.modal-field label{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:4px; display:block; }
-.modal-btns{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
-.m-confirm{ background:#200000; color:#ff8080; border:1px solid #500000; border-radius:5px; padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:1px; }
-.m-confirm:hover{ background:var(--red); color:#fff; }
-.m-cancel{ background:#0a0a18; color:#555; border:1px solid var(--brd2); border-radius:5px; padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
-.m-cancel:hover{ background:#111; color:#aaa; }
-
-.ov-panel{ display:flex; flex-direction:column; gap:6px; background:var(--card2); padding:10px; border-radius:6px; border:1px solid var(--brd); }
-.ov-panel .panel-label{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:2px; }
-
-.auto-popup-panel{ margin-top:12px; background:var(--card2); border:1px solid var(--brd); border-radius:6px; padding:12px 14px; display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-.auto-popup-toggle{ display:flex; align-items:center; gap:10px; flex:1; min-width:200px; }
-.toggle-track{ width:46px; height:24px; border-radius:12px; background:#1a1a2e; border:1px solid #252535; position:relative; cursor:pointer; flex-shrink:0; transition:background .2s,border-color .2s; }
-.toggle-track.on{ background:#1a3a1a; border-color:#06d6a0; }
-.toggle-thumb{ position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#555; transition:transform .2s,background .2s; }
-.toggle-track.on .toggle-thumb{ transform:translateX(22px); background:var(--green); }
-.toggle-label{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#888; letter-spacing:1px; text-transform:uppercase; }
-.auto-dur-wrap{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
-.auto-dur-wrap label{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); letter-spacing:1px; margin:0; white-space:nowrap; }
-.auto-dur-wrap select{ width:80px; padding:6px 10px; font-size:12px; }
-.auto-popup-note{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#2a3a2a; letter-spacing:.5px; width:100%; line-height:1.6; margin-top:4px; }
-
-/* ── EVENT OVERLAY TOGGLES ── */
-.event-toggle-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
-.evt-toggle-card{ background:var(--card2); border:1px solid var(--brd); border-radius:6px; padding:10px 12px; display:flex; flex-direction:column; gap:6px; transition:border-color .2s; }
-.evt-toggle-card.active{ border-color:#3a3a00; }
-.evt-toggle-top{ display:flex; align-items:center; gap:8px; }
-.evt-toggle-icon{ font-size:18px; flex-shrink:0; }
-.evt-toggle-title{ font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; color:#888; text-transform:uppercase; letter-spacing:1px; flex:1; }
-.evt-toggle-track{ width:38px; height:20px; border-radius:10px; background:#1a1a2e; border:1px solid #252535; position:relative; cursor:pointer; flex-shrink:0; transition:background .2s,border-color .2s; }
-.evt-toggle-track.on{ background:#1a3a1a; border-color:#06d6a0; }
-.evt-toggle-track.on-red{ background:#2a0a0a; border-color:#e63946; }
-.evt-toggle-track.on-purple{ background:#1a0a2a; border-color:#9b72cf; }
-.evt-toggle-track.on-blue{ background:#0a1a2a; border-color:#118ab2; }
-.evt-toggle-thumb{ position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#555; transition:transform .2s,background .2s; }
-.evt-toggle-track.on .evt-toggle-thumb,
-.evt-toggle-track.on-red .evt-toggle-thumb,
-.evt-toggle-track.on-purple .evt-toggle-thumb,
-.evt-toggle-track.on-blue .evt-toggle-thumb{ transform:translateX(18px); background:var(--green); }
-.evt-toggle-track.on-red .evt-toggle-thumb{ background:#e63946; }
-.evt-toggle-track.on-purple .evt-toggle-thumb{ background:#9b72cf; }
-.evt-toggle-track.on-blue .evt-toggle-thumb{ background:#118ab2; }
-.evt-toggle-desc{ font-family:'Barlow Condensed',sans-serif; font-size:9px; color:#2a2a3a; letter-spacing:.5px; line-height:1.5; }
-
-.bpk-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:300; align-items:center; justify-content:center; backdrop-filter:blur(6px); }
-.bpk-overlay.open{ display:flex; }
-.bpk-box{ background:#0c0c1a; border:1px solid #252535; border-radius:12px; padding:20px; width:94%; max-width:420px; box-shadow:0 24px 80px rgba(0,0,0,.95),0 0 0 1px rgba(240,180,41,.12); }
-.bpk-title{ font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:900; color:var(--y); text-transform:uppercase; letter-spacing:3px; margin-bottom:4px; }
-.bpk-sub{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); letter-spacing:1px; margin-bottom:14px; }
-.bpk-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
-.bpk-btn{ padding:14px 10px; background:#07070f; border:1px solid #1e1e2e; border-radius:7px; color:#bbb; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; cursor:pointer; text-align:center; letter-spacing:.5px; transition:all .12s; width:100%; }
-.bpk-btn:hover:not(:disabled){ background:#1a1a2e; border-color:var(--y); color:var(--y); }
-.bpk-btn:disabled{ border-color:#1a1a1a; color:#333; opacity:.4; cursor:not-allowed; background:#050508; }
-.bpk-cancel{ width:100%; padding:11px; background:transparent; border:1px solid #252535; border-radius:6px; color:#555; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; letter-spacing:1px; }
-.bpk-cancel:hover{ color:#aaa; border-color:#444; }
-
-.qf-item{ display:flex; flex-direction:column; gap:5px; }
-.qf-rain-row{ display:flex; align-items:center; gap:6px; padding:3px 0 0; }
-.qf-rain-chk{ width:13px!important; height:13px!important; cursor:pointer; flex-shrink:0; margin:0!important; }
-.qf-rain-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; cursor:pointer; margin:0; }
-
-.hist-empty{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#333; text-align:center; padding:20px; letter-spacing:1px; }
-.hist-count{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:var(--muted); margin-bottom:10px; letter-spacing:1px; }
-.hist-list{ max-height:420px; overflow-y:auto; }
-.hist-list::-webkit-scrollbar{ width:4px; }
-.hist-list::-webkit-scrollbar-thumb{ background:#2a2a3a; border-radius:2px; }
-.hist-item{ background:#07070f; border:1px solid var(--brd); border-radius:6px; padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-.hist-item:last-child{ margin-bottom:0; }
-.hist-info{ flex:1; min-width:160px; }
-.hist-title{ font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:800; color:#ddd; }
-.hist-meta{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:var(--muted); margin-top:3px; }
-.hist-score{ font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:900; color:var(--y); white-space:nowrap; }
-.hist-actions{ display:flex; gap:6px; flex-shrink:0; flex-wrap:wrap; }
-.b-hist-rl { background:#100828; color:#c4a0ff; border:1px solid #281050; border-radius:4px; padding:8px 12px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; }
-.b-hist-rl:hover{ background:#7c3aed; color:#fff; }
-.b-hist-dl { background:#032212; color:#06d6a0; border:1px solid #0a4030; border-radius:4px; padding:8px 12px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; }
-.b-hist-dl:hover{ background:#06d6a0; color:#000; }
-.b-hist-del{ background:#200000; color:#ff6060; border:1px solid #500000; border-radius:4px; padding:8px 12px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; }
-.b-hist-del:hover{ background:#e63946; color:#fff; }
-.b-save-db{ background:linear-gradient(135deg,#003a28,#002018); color:#06d6a0; border:1px solid #0a5038; font-size:15px; }
-.b-save-db:hover{ background:#06d6a0; color:#000; }
-
-#autoSaveToast{ position:fixed; bottom:80px; right:16px; z-index:9999; background:#032212; color:#06d6a0; border:1px solid #0a4030; border-radius:6px; padding:8px 16px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; opacity:0; transition:opacity .3s; pointer-events:none; }
-
-#pwGate{ position:fixed; inset:0; background:#080810; display:flex; align-items:center; justify-content:center; z-index:9999; }
+/* ══ PASSWORD GATE ══ */
+#pwGate{ position:fixed; inset:0; background:#1a3a5c; display:flex; align-items:center; justify-content:center; z-index:9999; }
 #pwGate.gone{ display:none; }
-.pw-box{ background:#0e0e1a; border:1px solid #252535; border-radius:10px; padding:36px 32px 30px; display:flex; flex-direction:column; align-items:center; gap:16px; width:320px; box-shadow:0 20px 60px rgba(0,0,0,.9),0 0 0 1px rgba(240,180,41,.08); }
-.pw-logo{ font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; color:#f0b429; letter-spacing:4px; text-transform:uppercase; }
-.pw-sub{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:#555566; letter-spacing:2px; text-transform:uppercase; margin-top:-8px; }
+.pw-box{ background:#fff; border-radius:12px; padding:40px 36px; width:340px; box-shadow:0 20px 60px rgba(0,0,0,.3); display:flex; flex-direction:column; align-items:center; gap:18px; }
+.pw-logo{ font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; color:var(--navy); letter-spacing:3px; text-transform:uppercase; display:flex; align-items:center; gap:10px; }
+.pw-sub{ font-size:12px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-top:-10px; }
 .pw-input-wrap{ position:relative; width:100%; }
-#pwInput{ width:100%; padding:11px 40px 11px 14px; background:#06060f; border:1px solid #252535; border-radius:6px; color:#ddd; font-size:15px; font-family:'Barlow',sans-serif; text-align:center; letter-spacing:2px; transition:border-color .2s; }
-#pwInput:focus{ outline:none; border-color:#f0b429; }
-#pwInput.error{ border-color:#e63946; animation:pwShake .3s ease; }
-@keyframes pwShake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
-.pw-eye{ position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#555; font-size:16px; padding:0; width:auto; }
-#pwBtn{ width:100%; padding:12px; background:linear-gradient(135deg,#3a2800,#2a1e00); color:#f0b429; border:1px solid #5a3c00; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; }
-#pwErr{ font-family:'Barlow Condensed',sans-serif; font-size:11px; color:#e63946; letter-spacing:1px; min-height:16px; text-align:center; }
+#pwInput{ width:100%; padding:12px 42px 12px 14px; border:2px solid var(--border); border-radius:8px; font-size:15px; text-align:center; letter-spacing:2px; background:#f8fafc; transition:border-color .2s; }
+#pwInput:focus{ outline:none; border-color:var(--navy); background:#fff; }
+#pwInput.error{ border-color:var(--red); animation:shake .3s ease; }
+@keyframes shake{ 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} 100%{transform:translateX(0)} }
+.pw-eye{ position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:16px; color:var(--muted); padding:0; width:auto; }
+#pwBtn{ width:100%; padding:13px; background:var(--navy); color:#fff; border:none; border-radius:8px; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:800; letter-spacing:2px; cursor:pointer; transition:background .15s; }
+#pwBtn:hover{ background:var(--navy2); }
+#pwErr{ font-size:12px; color:var(--red); min-height:16px; }
 
-.player-popup-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.94); z-index:400; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
-.player-popup-overlay.open{ display:flex; }
-.player-popup-box{ background:#0c0c1a; border:1px solid #252535; border-radius:14px; padding:24px; width:96%; max-width:700px; max-height:90vh; overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,.98); }
-.player-popup-box h3{ font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:900; color:var(--y); text-transform:uppercase; letter-spacing:3px; margin:0 0 18px; border-bottom:1px solid #252535; padding-bottom:12px; display:flex; justify-content:space-between; align-items:center; }
-.player-popup-close{ background:none; border:1px solid #333; border-radius:4px; color:#555; font-size:16px; cursor:pointer; padding:4px 10px; width:auto; font-family:'Barlow Condensed',sans-serif; }
-.player-popup-close:hover{ color:#aaa; border-color:#555; }
-.team-section{ margin-bottom:20px; }
-.team-section-title{ font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:800; color:var(--y); text-transform:uppercase; letter-spacing:3px; margin-bottom:10px; }
-.player-grid-popup{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; }
-.player-card-popup{ background:#07070f; border:1px solid #1e1e2e; border-radius:8px; padding:12px 10px; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; }
-.player-card-popup img{ width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #252535; background:#111; }
-.player-card-popup .pcp-name{ font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:#ddd; }
-.player-card-popup .pcp-role{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#555; letter-spacing:1px; text-transform:uppercase; }
+/* ══ TOP BAR ══ */
+.topbar{
+    background:var(--navy); color:#fff; padding:0 20px;
+    display:flex; align-items:center; gap:16px; height:54px;
+    position:sticky; top:0; z-index:80; box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.tb-logo{ font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:900; letter-spacing:3px; text-transform:uppercase; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+.tb-live{ background:var(--red2); color:#fff; padding:2px 8px; border-radius:3px; font-size:10px; font-weight:700; letter-spacing:2px; animation:livepulse 1.5s infinite; }
+@keyframes livepulse{ 0%,100%{opacity:1}50%{opacity:.4} }
+.tb-sep{ width:1px; height:28px; background:rgba(255,255,255,.2); flex-shrink:0; }
+.tb-match{ font-size:14px; font-weight:600; color:rgba(255,255,255,.9); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tb-score{ font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; color:#fff; white-space:nowrap; }
+.tb-score span{ font-size:15px; color:rgba(255,255,255,.7); font-weight:500; margin-left:6px; }
+.tb-right{ display:flex; align-items:center; gap:10px; margin-left:auto; }
+.tb-btn{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); color:#fff; padding:6px 14px; border-radius:5px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; cursor:pointer; width:auto; transition:.15s; }
+.tb-btn:hover{ background:rgba(255,255,255,.22); }
 
-.win-popup-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.96); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
-.win-popup-overlay.open{ display:flex; }
-.win-popup-box{ background:linear-gradient(135deg,#0e0a00,#0a0600); border:2px solid var(--y); border-radius:16px; padding:36px 32px; width:96%; max-width:500px; text-align:center; box-shadow:0 0 80px rgba(240,180,41,.25),0 24px 80px rgba(0,0,0,.98); position:relative; overflow:hidden; }
-.win-popup-box::before{ content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(240,180,41,.07) 0%,transparent 70%); pointer-events:none; }
-.win-trophy{ font-size:72px; animation:trophyBounce .8s cubic-bezier(.36,.07,.19,.97) both; display:block; }
-@keyframes trophyBounce{ 0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg);opacity:1} 80%{transform:scale(.92) rotate(-2deg)} 100%{transform:scale(1) rotate(0)} }
-.win-popup-title{ font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:var(--y); text-transform:uppercase; letter-spacing:4px; margin:12px 0 6px; }
-.win-popup-sub{ font-family:'Barlow Condensed',sans-serif; font-size:16px; color:#ddd; letter-spacing:1px; margin-bottom:20px; }
-.win-popup-detail{ font-family:'Barlow Condensed',sans-serif; font-size:13px; color:#888; margin-bottom:24px; }
+/* ══ INFO BAR ══ */
+.infobar{ background:var(--navy3); padding:6px 20px; display:flex; gap:0; align-items:center; font-family:'Barlow Condensed',sans-serif; font-size:13px; color:rgba(255,255,255,.7); letter-spacing:.5px; flex-wrap:wrap; }
+.ib{ padding:3px 14px; border-right:1px solid rgba(255,255,255,.1); }
+.ib:last-child{ border-right:none; }
+.ib b{ color:#fff; font-weight:700; }
+.ib.fh{ background:rgba(211,84,0,.3); color:#ffd68a; }
+.fh-tag{ display:none; }
+.fh-tag.on{ display:inline; animation:livepulse .8s infinite; }
+
+/* ══ PREVIEW ══ */
+.pv-bar{ background:#111; padding:4px 20px; font-size:10px; color:#444; letter-spacing:2px; font-family:'Barlow Condensed',sans-serif; text-align:center; }
+.pv{ width:100%; height:140px; background:#000; position:relative; overflow:hidden; border-bottom:2px solid var(--border); }
+.pv iframe{ width:1100px; height:360px; border:none; position:absolute; top:0; left:50%; transform:translateX(-50%) scale(0.28); transform-origin:top center; pointer-events:none; }
+@media(min-width:700px){ .pv iframe{ transform:translateX(-50%) scale(.58); } .pv{ height:230px; } }
+
+/* ══ BODY GRID ══ */
+.body{ padding:16px 20px; max-width:1200px; margin:auto; display:grid; gap:14px; }
+
+/* ══ CARDS ══ */
+.card{ background:var(--card); border-radius:8px; border:1px solid var(--border); box-shadow:0 1px 4px rgba(0,0,0,.06); }
+.card-hdr{ background:var(--navy); color:#fff; padding:9px 16px; border-radius:8px 8px 0 0; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:800; letter-spacing:3px; text-transform:uppercase; display:flex; align-items:center; justify-content:space-between; }
+.card-hdr.green{ background:var(--green); }
+.card-hdr.red{ background:var(--red); }
+.card-body{ padding:12px 16px; }
+
+/* ══ PLAY-CRICKET SCORING VIEW ══ */
+.scoring-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media(min-width:900px){ .scoring-grid{ grid-template-columns:5fr 4fr; } }
+
+/* ── Batting Table ── */
+.pc-table{ width:100%; border-collapse:collapse; font-size:14px; }
+.pc-table th{ background:var(--navy); color:#fff; padding:8px 10px; text-align:right; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; }
+.pc-table th:first-child{ text-align:left; }
+.pc-table td{ padding:8px 10px; text-align:right; border-bottom:1px solid var(--border); color:var(--text2); }
+.pc-table td:first-child{ text-align:left; font-weight:600; color:var(--text); max-width:140px; }
+.pc-table tr:last-child td{ border-bottom:none; }
+.pc-table tr.striker{ background:var(--active-bat); }
+.pc-table tr.striker td{ color:var(--text); font-weight:700; }
+.pc-table tr.striker td:first-child::before{ content:'● '; color:var(--gold2); font-size:9px; }
+.pc-table tr.alt{ background:var(--stripe); }
+.pc-table tr.out-row{ opacity:.5; }
+.pc-table tr.out-row td:first-child{ text-decoration:line-through; }
+.pc-table .howout{ font-size:11px; color:var(--muted); font-weight:400; max-width:160px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pc-table .extra-row td{ color:var(--muted); font-size:13px; }
+.pc-table .total-row{ background:var(--navy); }
+.pc-table .total-row td{ color:#fff; font-weight:800; font-family:'Barlow Condensed',sans-serif; font-size:15px; border-bottom:none; }
+.pc-table .cr-label{ background:var(--green); color:#fff; font-size:9px; padding:1px 5px; border-radius:2px; font-weight:700; letter-spacing:1px; margin-left:5px; vertical-align:middle; }
+.pc-table .bat-label{ background:var(--gold2); color:#000; font-size:9px; padding:1px 5px; border-radius:2px; font-weight:700; letter-spacing:1px; margin-left:5px; vertical-align:middle; }
+
+/* ── Ball Display ── */
+.over-display{ display:flex; flex-direction:column; gap:10px; }
+.over-title{ font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:800; color:var(--muted); letter-spacing:3px; text-transform:uppercase; }
+.ball-row{ display:flex; gap:6px; flex-wrap:wrap; }
+.ball-sq{
+    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:800;
+    border:2px solid var(--border); background:var(--dot-bg); color:var(--muted);
+    flex-shrink:0;
+}
+.ball-sq.b4{ background:var(--four-bg); border-color:#34d399; color:var(--green); }
+.ball-sq.b6{ background:var(--six-bg); border-color:#a78bfa; color:var(--purple); }
+.ball-sq.bW{ background:var(--wicket-bg); border-color:#fca5a5; color:var(--red); }
+.ball-sq.b0{ background:#f1f5f9; border-color:#cbd5e1; color:#94a3b8; }
+.ball-sq.bWd{ background:#fffbeb; border-color:#fcd34d; color:var(--gold); }
+.ball-sq.bNb{ background:#fff7ed; border-color:#fdba74; color:var(--orange); }
+.ball-sq.bBy,.ball-sq.bLb{ background:#eff6ff; border-color:#93c5fd; color:#3b82f6; }
+.ball-sq.empty{ background:#f8fafc; border-color:#e2e8f0; opacity:.35; }
+
+/* ── Bowler Table ── */
+.bwl-table{ width:100%; border-collapse:collapse; font-size:14px; }
+.bwl-table th{ background:var(--navy); color:#fff; padding:7px 10px; text-align:right; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; }
+.bwl-table th:first-child{ text-align:left; }
+.bwl-table td{ padding:7px 10px; text-align:right; border-bottom:1px solid var(--border); color:var(--text2); }
+.bwl-table td:first-child{ text-align:left; font-weight:600; color:var(--text); }
+.bwl-table tr:last-child td{ border-bottom:none; }
+.bwl-table tr.current-bwl{ background:#f0f9f4; }
+.bwl-table tr.current-bwl td{ color:var(--green); font-weight:700; }
+.bwl-table tr.current-bwl td:first-child::before{ content:'▶ '; font-size:9px; }
+.bwl-table tr.alt{ background:var(--stripe); }
+.bwl-table .eco-good{ color:var(--green); font-weight:600; }
+.bwl-table .eco-bad{ color:var(--red); font-weight:600; }
+.bwl-table tr.dnb-row{ opacity:.3; }
+
+/* ══ SCORING BUTTONS ══ */
+.scoring-card{ background:var(--card); border-radius:8px; border:1px solid var(--border); }
+.scoring-section{ padding:12px 14px; border-bottom:1px solid var(--border); }
+.scoring-section:last-child{ border-bottom:none; }
+.scoring-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:800; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.btn-grid{ display:grid; gap:6px; }
+.btn-grid.cols4{ grid-template-columns:repeat(4,1fr); }
+.btn-grid.cols3{ grid-template-columns:repeat(3,1fr); }
+.btn-grid.cols2{ grid-template-columns:repeat(2,1fr); }
+.btn-grid.cols6{ grid-template-columns:repeat(6,1fr); }
+.btn-grid.cols3m{ grid-template-columns:repeat(3,1fr); }
+@media(min-width:600px){ .btn-grid.cols6{ grid-template-columns:repeat(6,1fr); } .btn-grid.cols3m{ grid-template-columns:repeat(3,1fr); } }
+
+/* Base button */
+.sb{ padding:12px 6px; border:2px solid; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:15px; cursor:pointer; transition:all .1s; width:100%; letter-spacing:.5px; line-height:1.2; }
+.sb:active{ transform:scale(.94); opacity:.7; }
+.sb-dot { background:#f1f5f9; color:#64748b; border-color:#cbd5e1; }
+.sb-run { background:#f0fdf4; color:#16a34a; border-color:#86efac; }
+.sb-4   { background:#eff6ff; color:#2563eb; border-color:#93c5fd; }
+.sb-6   { background:#f5f3ff; color:#7c3aed; border-color:#c4b5fd; }
+.sb-wd  { background:#fffbeb; color:#d97706; border-color:#fcd34d; }
+.sb-nb  { background:#fff7ed; color:#ea580c; border-color:#fed7aa; }
+.sb-bye { background:#f0f9ff; color:#0369a1; border-color:#bae6fd; }
+.sb-lb  { background:#f0fdf4; color:#15803d; border-color:#86efac; }
+.sb-wkt { background:#fff1f2; color:#be123c; border-color:#fda4af; font-size:17px; }
+.sb-wkt:hover{ background:var(--red); color:#fff; border-color:var(--red); }
+.sb-swap{ background:#f8fafc; color:#475569; border-color:#cbd5e1; }
+.sb-undo{ background:#f5f0ff; color:#6d28d9; border-color:#c4b5fd; }
+.sb-undo:disabled{ opacity:.3; cursor:not-allowed; }
+.sb-gold{ background:var(--navy); color:#fff; border-color:var(--navy); font-size:16px; }
+.sb-gold:hover{ background:var(--navy2); }
+.sb-show{ background:#f0fdf4; color:var(--green); border-color:#86efac; }
+.sb-hide{ background:#fff1f2; color:var(--red); border-color:#fda4af; }
+.sb-inn{ background:#f5f0ff; color:var(--purple); border-color:#c4b5fd; }
+.sb-rst{ background:#fff1f2; color:var(--red2); border-color:#fca5a5; }
+.undo-badge{ background:#e9d5ff; color:#6d28d9; border-radius:3px; padding:1px 6px; font-size:11px; margin-left:3px; }
+.injury-btn{ background:#fff7ed; color:#c2410c; border:2px solid #fed7aa; border-radius:6px; padding:9px 8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:12px; cursor:pointer; width:100%; letter-spacing:.5px; }
+.injury-btn:hover{ background:#c2410c; color:#fff; border-color:#c2410c; }
+
+/* ══ SECTION DIVIDER ══ */
+.sec-div{ display:flex; align-items:center; gap:10px; padding:2px 0; font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
+.sec-div::after{ content:''; flex:1; height:1px; background:var(--border); }
+
+/* ══ SETUP / SQUAD ══ */
+.g2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.g3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+@media(max-width:540px){ .g2{ grid-template-columns:1fr; } .g3{ grid-template-columns:1fr; } }
+.lbl{ font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:4px; margin-top:10px; }
+.inp{ width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:6px; font-size:13px; font-family:'Inter',sans-serif; background:#fff; color:var(--text); transition:border-color .2s; }
+.inp:focus{ outline:none; border-color:var(--navy); }
+.inp-sm{ padding:7px 10px; font-size:13px; }
+select.inp option{ background:#fff; }
+.squad-grid{ display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+.player-row{ display:flex; align-items:center; gap:7px; }
+.player-num{ font-size:11px; color:var(--muted); width:18px; text-align:right; flex-shrink:0; }
+.player-av-wrap{ position:relative; width:30px; height:30px; flex-shrink:0; }
+.player-av{ width:30px; height:30px; border-radius:50%; object-fit:cover; background:#eef1f5; border:2px solid var(--border); cursor:pointer; }
+.player-av:hover{ border-color:var(--navy); }
+.player-av-upload{ display:none; }
+.player-photo-btn{ position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:.2s; font-size:12px; border:none; padding:0; width:30px; }
+.player-av-wrap:hover .player-photo-btn{ opacity:1; }
+.player-name-inp{ flex:1; padding:6px 9px; font-size:13px; border:1.5px solid var(--border); border-radius:5px; background:#fff; color:var(--text); font-family:'Inter',sans-serif; }
+.player-name-inp:focus{ outline:none; border-color:var(--navy); }
+
+/* role badges */
+.role-bat{ background:#fef3c7; color:#92400e; border:1px solid #fcd34d; padding:2px 8px; border-radius:3px; font-size:9px; font-weight:700; letter-spacing:1px; }
+.role-bowl{ background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; padding:2px 8px; border-radius:3px; font-size:9px; font-weight:700; letter-spacing:1px; }
+.squad-col-hdr{ display:flex; align-items:center; gap:8px; margin-bottom:4px; margin-top:10px; }
+
+/* ══ OVERLAY CONTROLS ══ */
+.toggle-row{ display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+.toggle-row:last-child{ border-bottom:none; }
+.toggle-track{ width:44px; height:22px; border-radius:11px; background:#e2e8f0; border:1px solid var(--border2); position:relative; cursor:pointer; flex-shrink:0; transition:.2s; }
+.toggle-track.on{ background:#d1fae5; border-color:#34d399; }
+.toggle-track.on-red{ background:#fee2e2; border-color:#fca5a5; }
+.toggle-track.on-purple{ background:#ede9fe; border-color:#c4b5fd; }
+.toggle-track.on-blue{ background:#dbeafe; border-color:#93c5fd; }
+.toggle-thumb{ position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#94a3b8; transition:.2s; }
+.toggle-track.on .toggle-thumb{ transform:translateX(22px); background:var(--green2); }
+.toggle-track.on-red .toggle-thumb{ transform:translateX(22px); background:var(--red2); }
+.toggle-track.on-purple .toggle-thumb{ transform:translateX(22px); background:var(--purple); }
+.toggle-track.on-blue .toggle-thumb{ transform:translateX(22px); background:#3b82f6; }
+.toggle-info{ flex:1; }
+.toggle-title{ font-size:13px; font-weight:600; color:var(--text); }
+.toggle-sub{ font-size:11px; color:var(--muted); margin-top:1px; }
+.toggle-sub.on{ color:var(--green); }
+.evt-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
+.evt-card{ background:var(--card2); border:1.5px solid var(--border); border-radius:7px; padding:10px 12px; }
+.evt-card-top{ display:flex; align-items:center; gap:8px; }
+.evt-icon{ font-size:18px; }
+.evt-name{ flex:1; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; color:var(--text2); letter-spacing:1px; text-transform:uppercase; }
+.evt-desc{ font-size:10px; color:var(--muted); margin-top:5px; }
+.evt-desc.off{ color:var(--red2); }
+
+/* ══ ANNOUNCEMENTS ══ */
+.ann-preview{ background:var(--card2); border:1.5px solid var(--border); border-radius:6px; padding:10px 14px; margin-top:8px; font-size:14px; color:var(--muted); text-align:center; min-height:36px; }
+.ann-preview.has{ color:var(--text); font-weight:600; }
+.ann-btn-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
+.ann-btn{ padding:11px 8px; border:2px solid; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-weight:700; cursor:pointer; font-size:14px; width:100%; }
+.ab-gold{ background:#fef3c7; color:#92400e; border-color:#fcd34d; }
+.ab-red{ background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
+.ab-purple{ background:#ede9fe; color:#5b21b6; border-color:#c4b5fd; }
+.ab-blue{ background:#dbeafe; color:#1d4ed8; border-color:#93c5fd; }
+.ab-green{ background:#d1fae5; color:#065f46; border-color:#6ee7b7; }
+.rain-row{ display:flex; align-items:center; gap:6px; margin-top:4px; }
+.rain-chk{ width:13px!important; height:13px!important; accent-color:var(--navy); cursor:pointer; }
+.rain-lbl{ font-size:11px; color:var(--muted); cursor:pointer; }
+
+/* ══ MATCH HISTORY ══ */
+.hist-list{ display:flex; flex-direction:column; gap:8px; }
+.hist-item{ background:var(--card2); border:1.5px solid var(--border); border-radius:7px; padding:12px 14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.hist-item.active{ border-color:var(--navy); background:#eff6ff; }
+.hist-info{ flex:1; min-width:150px; }
+.hist-title{ font-weight:700; font-size:14px; color:var(--text); }
+.hist-meta{ font-size:11px; color:var(--muted); margin-top:2px; }
+.hist-score{ font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:var(--navy); white-space:nowrap; }
+.hist-actions{ display:flex; gap:6px; flex-shrink:0; }
+.hist-act-btn{ padding:7px 12px; border:2px solid; border-radius:5px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; }
+.hb-load{ background:var(--navy); color:#fff; border-color:var(--navy); }
+.hb-dl{ background:#d1fae5; color:var(--green); border-color:#6ee7b7; }
+.hb-del{ background:#fee2e2; color:var(--red); border-color:#fca5a5; }
+.badge{ display:inline-block; padding:1px 7px; border-radius:3px; font-size:10px; font-weight:700; letter-spacing:1px; margin-left:5px; vertical-align:middle; }
+.badge-live{ background:var(--navy); color:#fff; }
+.badge-both{ background:#d1fae5; color:var(--green); border:1px solid #6ee7b7; }
+.badge-inn1{ background:#f1f5f9; color:var(--muted); border:1px solid var(--border); }
+
+/* ══ MODALS ══ */
+.modal-bg{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.modal-bg.open{ display:flex; }
+.modal{ background:#fff; border-radius:10px; padding:24px; width:94%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+.modal h3{ font-family:'Barlow Condensed',sans-serif; color:var(--navy); font-size:17px; text-transform:uppercase; letter-spacing:3px; margin:0 0 14px; border-bottom:2px solid var(--border); padding-bottom:10px; }
+.modal-meta{ font-size:12px; color:var(--muted); margin-bottom:12px; }
+.modal-meta b{ color:var(--text); }
+.dis-grid{ display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:14px; }
+.dm{ padding:10px 8px; border:2px solid var(--border); border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; background:var(--card2); color:var(--muted); width:100%; letter-spacing:.5px; transition:.1s; }
+.dm:hover{ border-color:var(--navy); color:var(--navy); }
+.dm.sel{ background:var(--navy); border-color:var(--navy); color:#fff; }
+.modal-btns{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:6px; }
+.m-confirm{ background:var(--red); color:#fff; border:none; border-radius:6px; padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+.m-cancel{ background:var(--card2); color:var(--muted); border:1.5px solid var(--border); border-radius:6px; padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+
+/* ══ BOWLER PICKER ══ */
+.bpk-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:300; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.bpk-overlay.open{ display:flex; }
+.bpk-box{ background:#fff; border-radius:12px; padding:22px; width:94%; max-width:460px; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+.bpk-title{ font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:900; color:var(--navy); text-transform:uppercase; letter-spacing:3px; margin-bottom:4px; }
+.bpk-sub{ font-size:12px; color:var(--muted); margin-bottom:14px; }
+.bpk-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.bpk-btn{ padding:13px 10px; background:var(--card2); border:2px solid var(--border); border-radius:7px; color:var(--text); font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; cursor:pointer; text-align:center; width:100%; transition:.12s; }
+.bpk-btn:hover:not(:disabled){ background:var(--navy); color:#fff; border-color:var(--navy); }
+.bpk-btn:disabled{ opacity:.35; cursor:not-allowed; }
+.bpk-cancel{ width:100%; padding:11px; background:transparent; border:1.5px solid var(--border); border-radius:6px; color:var(--muted); font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+
+/* ══ PLAYER POPUP ══ */
+.pp-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:400; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+.pp-overlay.open{ display:flex; }
+.pp-box{ background:#fff; border-radius:12px; padding:24px; width:96%; max-width:700px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+.pp-hdr{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; padding-bottom:12px; border-bottom:2px solid var(--border); }
+.pp-hdr h3{ font-family:'Barlow Condensed',sans-serif; color:var(--navy); font-size:15px; text-transform:uppercase; letter-spacing:3px; margin:0; }
+.pp-close{ background:none; border:1.5px solid var(--border); border-radius:5px; color:var(--muted); font-size:15px; cursor:pointer; padding:4px 10px; width:auto; font-family:'Barlow Condensed',sans-serif; }
+.pp-close:hover{ color:var(--text); }
+.team-sec-title{ font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:800; color:var(--navy); text-transform:uppercase; letter-spacing:3px; margin-bottom:10px; }
+.player-card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-bottom:20px; }
+.player-card{ background:var(--card2); border:1.5px solid var(--border); border-radius:8px; padding:12px 8px; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; }
+.player-card img{ width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid var(--border); background:var(--card2); }
+.player-card .pc-name{ font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:var(--text); }
+
+/* ══ WIN POPUP ══ */
+.win-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
+.win-overlay.open{ display:flex; }
+.win-box{ background:linear-gradient(135deg,#fff9f0,#ffffff); border:3px solid var(--gold2); border-radius:16px; padding:36px 32px; width:96%; max-width:480px; text-align:center; box-shadow:0 0 60px rgba(240,180,41,.3),0 20px 60px rgba(0,0,0,.3); position:relative; overflow:hidden; }
 .win-confetti{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
-.wc-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:wconfetti linear forwards; opacity:0; }
-@keyframes wconfetti{ 0%{opacity:1;transform:translateY(-20px) rotate(0deg);} 100%{opacity:0;transform:translateY(120vh) rotate(720deg);} }
-.win-popup-close{ background:linear-gradient(135deg,#3a2800,#2a1e00); color:var(--y); border:1px solid #5a3c00; border-radius:6px; padding:14px 32px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; width:auto; margin-top:4px; }
-.win-popup-close:hover{ background:var(--y); color:#000; }
+.wc-dot{ position:absolute; width:8px; height:8px; border-radius:50%; animation:wfall linear forwards; opacity:0; }
+@keyframes wfall{ 0%{opacity:1;transform:translateY(-20px) rotate(0)} 100%{opacity:0;transform:translateY(120vh) rotate(720deg)} }
+.win-trophy{ font-size:72px; display:block; margin-bottom:10px; animation:winBounce .8s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes winBounce{ 0%{transform:scale(0) rotate(-20deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg);opacity:1} 80%{transform:scale(.92) rotate(-2deg)} 100%{transform:scale(1) rotate(0)} }
+.win-title{ font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:var(--navy); text-transform:uppercase; letter-spacing:4px; margin-bottom:6px; }
+.win-sub{ font-size:16px; color:var(--text2); margin-bottom:20px; }
+.win-close{ background:var(--navy); color:#fff; border:none; border-radius:7px; padding:13px 32px; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:800; letter-spacing:2px; cursor:pointer; }
 
-.audio-panel{ background:var(--card2); border:1px solid var(--brd); border-radius:6px; padding:12px 14px; margin-top:12px; }
-.audio-status{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-.audio-indicator{ width:10px; height:10px; border-radius:50%; background:#333; flex-shrink:0; transition:.3s; }
-.audio-indicator.on{ background:var(--green); box-shadow:0 0 8px var(--green); animation:audioP 1.5s infinite; }
-@keyframes audioP{ 0%,100%{opacity:1}50%{opacity:.4} }
-.audio-label{ font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#888; letter-spacing:1px; text-transform:uppercase; }
-.audio-toggle{ background:#0a0a18; color:#888; border:1px solid #252535; border-radius:4px; padding:6px 14px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; letter-spacing:1px; transition:.2s; }
-.audio-toggle.on{ background:#032212; color:#06d6a0; border-color:#0a4030; }
-.audio-voice-sel{ display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; align-items:center; }
-.audio-voice-sel label{ margin:0; }
-.audio-voice-sel select{ width:auto; padding:6px 10px; font-size:12px; }
-.audio-relay-note{ font-family:'Barlow Condensed',sans-serif; font-size:10px; color:#2a4a3a; letter-spacing:.5px; margin-top:8px; padding:6px 10px; background:#03120a; border:1px solid #0a3020; border-radius:4px; }
-.audio-relay-note b{ color:#3a7a5a; }
+/* ══ AUDIO ══ */
+.audio-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.audio-dot{ width:10px; height:10px; border-radius:50%; background:var(--border2); flex-shrink:0; transition:.3s; }
+.audio-dot.on{ background:var(--green2); box-shadow:0 0 8px var(--green2); animation:livepulse 1.5s infinite; }
+.audio-lbl{ font-size:13px; color:var(--muted); font-weight:600; }
+.audio-tog{ background:var(--card2); border:1.5px solid var(--border); color:var(--muted); padding:6px 14px; border-radius:5px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; }
+.audio-tog.on{ background:#d1fae5; color:var(--green); border-color:#34d399; }
+
+/* ══ SAVE TOAST ══ */
+#saveToast{ position:fixed; bottom:24px; right:20px; z-index:9999; background:var(--navy); color:#fff; border-radius:7px; padding:10px 18px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; opacity:0; transition:opacity .3s; pointer-events:none; box-shadow:0 4px 20px rgba(0,0,0,.2); }
+
+/* ══ FOW ══ */
+.fow-row{ font-size:12px; color:var(--muted); padding:6px 0; border-top:1px solid var(--border); flex-wrap:wrap; display:flex; gap:3px 8px; }
+.fow-item{ white-space:nowrap; }
+.fow-item b{ color:var(--navy); }
+
+/* ══ TABS ══ */
+.sc-tabs{ display:flex; border-bottom:2px solid var(--border); margin-bottom:0; }
+.sc-tab{ padding:8px 16px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; color:var(--muted); letter-spacing:1px; text-transform:uppercase; border-bottom:3px solid transparent; margin-bottom:-2px; }
+.sc-tab.active{ color:var(--navy); border-bottom-color:var(--navy); }
+.tab-panel{ display:none; } .tab-panel.active{ display:block; }
+
+/* ══ NEED BAR ══ */
+.need-bar{ display:none; background:linear-gradient(90deg,#fee2e2,#fff); padding:6px 16px; border-bottom:1px solid #fca5a5; font-family:'Barlow Condensed',sans-serif; font-size:13px; color:var(--red); font-weight:700; letter-spacing:.5px; }
+.need-bar.on{ display:block; }
+
+/* ══ MISC ══ */
+.note-box{ background:var(--card2); border:1.5px solid var(--border); border-radius:6px; padding:10px 14px; font-size:11px; color:var(--muted); line-height:1.7; }
+.note-box b{ color:var(--text2); }
+.dur-sel{ width:auto!important; padding:6px 10px!important; font-size:12px!important; }
+.match-title-bar{ background:linear-gradient(90deg,var(--navy),var(--navy2)); color:#fff; padding:8px 16px; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
+.mt-score{ font-size:20px; font-weight:900; }
+.mt-detail{ font-size:11px; opacity:.7; }
 </style>
 </head>
 <body>
 
-<div id="autoSaveToast"></div>
+<div id="saveToast"></div>
 
 <!-- PASSWORD GATE -->
 <div id="pwGate">
     <div class="pw-box">
         <div class="pw-logo">🏏 Cricket Admin</div>
-        <div class="pw-sub">Restricted Access</div>
+        <div class="pw-sub">Secure Scoring Console</div>
         <div class="pw-input-wrap">
             <input id="pwInput" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPw()">
             <button class="pw-eye" onclick="togglePwEye()">👁</button>
@@ -272,343 +387,411 @@ button:active{ opacity:.65; transform:scale(.95); }
     </div>
 </div>
 
-<div id="mainContent" style="filter:blur(6px);pointer-events:none;user-select:none">
+<div id="mc" style="filter:blur(6px);pointer-events:none;user-select:none">
 
+<!-- TOP BAR -->
 <div class="topbar">
-    <h1><span class="live-dot"></span>Cricket Admin</h1>
-    <div style="display:flex;gap:10px;align-items:center">
-        <button onclick="openPlayerPopup()" style="width:auto;padding:6px 14px;background:#0a0a18;color:var(--y);border:1px solid #3a2800;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px">👥 PLAYERS</button>
-        <span class="fmt-lbl" id="fmtLbl">T20 · 20 OVERS</span>
+    <div class="tb-logo">🏏 Cricket Admin <span class="tb-live">● LIVE</span></div>
+    <div class="tb-sep"></div>
+    <div class="tb-match" id="tbMatch">No match in progress</div>
+    <div class="tb-score" id="tbScore">0/0 <span id="tbOvs">0.0</span></div>
+    <div class="tb-right">
+        <button class="tb-btn" onclick="openPlayerPopup()">👥 Players</button>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:rgba(255,255,255,.5);letter-spacing:1px" id="fmtLbl">T20</span>
     </div>
 </div>
+
+<!-- INFO BAR -->
 <div class="infobar">
-    <span>INN <b id="iInn">1ST</b></span>
-    <span>BAT <b id="iBat">—</b></span>
-    <span>SCORE <b id="iSc">0/0</b></span>
-    <span>OV <b id="iOv">0.0</b></span>
-    <span>CRR <b id="iCRR">0.00</b></span>
-    <span>THIS OVER <b id="iOvB">—</b></span>
-    <span class="fh-pill" id="iFH">FREE HIT</span>
+    <div class="ib">INN <b id="iInn">1ST</b></div>
+    <div class="ib">CRR <b id="iCRR">0.00</b></div>
+    <div class="ib" id="iRRRWrap" style="display:none">RRR <b id="iRRR">—</b></div>
+    <div class="ib" id="iTgtWrap" style="display:none">TARGET <b id="iTgt">—</b> · NEED <b id="iNeed">—</b> OFF <b id="iNeedOv">—</b></div>
+    <div class="ib">THIS OVER <b id="iOvB">—</b></div>
+    <div class="ib fh"><span class="fh-tag" id="iFH">🟠 FREE HIT</span><span id="iFHOff">Free Hit OFF</span></div>
 </div>
-<div class="pv-lbl">▶ LIVE PREVIEW · index.html (muted — audio only plays on full overlay)</div>
+
+<!-- PREVIEW -->
+<div class="pv-bar">▶ LIVE PREVIEW — overlay.html (muted — full audio on overlay only)</div>
 <div class="pv"><iframe src="index.html?preview=1"></iframe></div>
 
 <div class="body">
 
-<!-- 1. SQUADS -->
+<!-- ══ SQUAD SETUP ══ -->
 <div class="card">
-    <h4><span class="hico">🏟</span> Team Squads &amp; Match Setup</h4>
-
-    <!-- ── SQUAD COLUMNS: flex so CSS order can swap them on toss change ── -->
-    <div class="squads-flex" id="squadsGrid">
-
-        <!-- COLUMN A -->
-        <div class="squad-col" id="colA">
-            <label>Team A — Name</label>
-            <input id="tNA" placeholder="India" value="India" oninput="updateTossUI()">
-            <div class="squad-col-header">
-                <label style="margin:0" id="lblSquadA">SQUAD A</label>
-                <span id="roleTagA" class="squad-role-tag batting">🏏 BATTING</span>
+    <div class="card-hdr">
+        🏟 Team Squads &amp; Match Setup
+        <span id="matchStatusBadge" style="font-size:10px;font-weight:700;background:rgba(255,255,255,.15);padding:2px 10px;border-radius:3px;">NOT STARTED</span>
+    </div>
+    <div class="card-body">
+        <div class="g2">
+            <!-- Column A -->
+            <div>
+                <span class="lbl">Team A Name</span>
+                <input class="inp" id="tNA" placeholder="India" value="India" oninput="updateTossUI()">
+                <div class="squad-col-hdr">
+                    <span class="lbl" style="margin:0" id="lblSqA">Squad A</span>
+                    <span class="role-bat" id="roleTagA">🏏 BATTING</span>
+                </div>
+                <div class="squad-grid" id="squadA"></div>
             </div>
-            <div class="squad-grid" id="squadA"></div>
-        </div>
-
-        <!-- COLUMN B -->
-        <div class="squad-col" id="colB">
-            <label>Team B — Name</label>
-            <input id="tNB" placeholder="Australia" value="Australia" oninput="updateTossUI()">
-            <div class="squad-col-header">
-                <label style="margin:0" id="lblSquadB">SQUAD B</label>
-                <span id="roleTagB" class="squad-role-tag bowling">⚾ BOWLING</span>
-            </div>
-            <div class="squad-grid" id="squadB"></div>
-        </div>
-
-    </div><!-- /squadsGrid -->
-
-    <div class="g2" style="margin-top:10px">
-        <div>
-            <label>Format</label>
-            <select id="fmtSel" onchange="toggleCustomOvers()">
-                <option value="20">T20 (20 overs)</option>
-                <option value="50">ODI (50 overs)</option>
-                <option value="40">40 Overs</option>
-                <option value="10">T10 (10 overs)</option>
-                <option value="0">Custom / Club</option>
-            </select>
-            <div id="customOversWrap" style="display:none;margin-top:6px">
-                <label>Number of Overs</label>
-                <input type="number" id="customOvers" min="1" max="100" value="15" style="text-align:center;font-size:16px;font-weight:700;color:var(--y)">
+            <!-- Column B -->
+            <div>
+                <span class="lbl">Team B Name</span>
+                <input class="inp" id="tNB" placeholder="Australia" value="Australia" oninput="updateTossUI()">
+                <div class="squad-col-hdr">
+                    <span class="lbl" style="margin:0" id="lblSqB">Squad B</span>
+                    <span class="role-bowl" id="roleTagB">⚾ BOWLING</span>
+                </div>
+                <div class="squad-grid" id="squadB"></div>
             </div>
         </div>
-        <div>
-            <label>Batting First</label>
-            <!-- Options are updated dynamically by updateTossUI() with real team names -->
-            <select id="tossSel" onchange="updateTossUI()">
-                <option value="A" id="tossOptA">Team A</option>
-                <option value="B" id="tossOptB">Team B</option>
-            </select>
-        </div>
-    </div>
-    <button class="b-gold" style="margin-top:12px" onclick="initMatch()">⚡ INITIALIZE MATCH</button>
-</div>
-
-<!-- 2. FIELD -->
-<div class="card">
-    <h4><span class="hico">🏏</span> Field Management</h4>
-    <div class="g2">
-        <div><label>Striker ●</label><select id="selP1" onchange="chg('p1n',this.value)"></select></div>
-        <div><label>Non-Striker</label><select id="selP2" onchange="chg('p2n',this.value)"></select></div>
-    </div>
-    <div class="g2" style="margin-top:6px">
-        <button class="b-injury" onclick="openBatInjury('striker')">🚑 STRIKER INJURED</button>
-        <button class="b-injury" onclick="openBatInjury('nonstriker')">🚑 NON-STRIKER INJ.</button>
-    </div>
-    <label style="margin-top:10px">Current Bowler</label>
-    <select id="selBw" onchange="chg('bwn',this.value)"></select>
-    <button class="b-injury" style="margin-top:8px" onclick="openBowlerInjury()">🚑 BOWLER INJURED / CHANGE MID-OVER</button>
-</div>
-
-<!-- 3. SCORING -->
-<div class="card">
-    <h4><span class="hico">📊</span> Live Scoring</h4>
-    <div class="sep">Legal deliveries</div>
-    <div class="g4">
-        <button class="b-dot" onclick="ball(0)">● DOT</button>
-        <button class="b-run" onclick="ball(1)">1 RUN</button>
-        <button class="b-run" onclick="ball(2)">2 RUNS</button>
-        <button class="b-run" onclick="ball(3)">3 RUNS</button>
-    </div>
-    <div class="g2" style="margin-top:8px">
-        <button class="b-4" onclick="ball(4)" style="font-size:16px">FOUR ▪ 4</button>
-        <button class="b-6" onclick="ball(6)" style="font-size:16px">SIX ▪ 6</button>
-    </div>
-    <div class="sep">Wide</div>
-    <div class="g4">
-        <button class="b-wd" onclick="ball(1,'WD')">WIDE +1</button>
-        <button class="b-wd" onclick="ball(2,'WD')">WIDE +2</button>
-        <button class="b-wd" onclick="ball(3,'WD')">WIDE +3</button>
-        <button class="b-wd" onclick="ball(4,'WD')">WIDE +4</button>
-    </div>
-    <div class="sep">No Ball</div>
-    <div class="g4">
-        <button class="b-nb" onclick="ball(1,'NB')">NB +1</button>
-        <button class="b-nb" onclick="ball(2,'NB')">NB +2</button>
-        <button class="b-nb" onclick="ball(4,'NB')">NB +4</button>
-        <button class="b-nb" onclick="ball(6,'NB')">NB +6</button>
-    </div>
-    <div class="sep">Byes</div>
-    <div class="g4">
-        <button class="b-by" onclick="ball(1,'BY')">BYE +1</button>
-        <button class="b-by" onclick="ball(2,'BY')">BYE +2</button>
-        <button class="b-by" onclick="ball(3,'BY')">BYE +3</button>
-        <button class="b-by" onclick="ball(4,'BY')">BYE +4</button>
-    </div>
-    <div class="sep">Leg Byes</div>
-    <div class="g3">
-        <button class="b-lb" onclick="ball(1,'LB')">LB +1</button>
-        <button class="b-lb" onclick="ball(2,'LB')">LB +2</button>
-        <button class="b-lb" onclick="ball(3,'LB')">LB +3</button>
-    </div>
-    <div class="g3" style="margin-top:12px">
-        <button class="b-wkt" onclick="openWicket()">🏏 WICKET</button>
-        <button class="b-swp" onclick="swapStrike()">⇄ SWAP STRIKE</button>
-        <button class="b-undo" id="undoBtn" onclick="undoLast()" disabled>↩ UNDO <span class="undo-badge" id="undoCount">0</span></button>
-    </div>
-    <div class="note"><b>Rules:</b> Wide/No-Ball = illegal — over count unchanged. No-Ball → FREE HIT. Byes/Leg-Byes = extras only. Odd runs → striker rotates. End of 6 legal balls → auto strike swap. <b>Undo</b> reverts last ball/wicket (up to 20).</div>
-</div>
-
-<!-- 4. OVERLAY CONTROLS -->
-<div class="card">
-    <h4><span class="hico">📺</span> Overlay Controls</h4>
-    <div class="g2">
-        <div class="ov-panel">
-            <div class="panel-label">Score Bar</div>
-            <button class="b-show" onclick="setV('scorebar',true)">SHOW</button>
-            <button class="b-hide" onclick="setV('scorebar',false)">HIDE</button>
-        </div>
-        <div class="ov-panel">
-            <div class="panel-label">Full Scorecard</div>
-            <button class="b-show" onclick="setV('scorecard',true)">SHOW</button>
-            <button class="b-hide" onclick="setV('scorecard',false)">HIDE</button>
-        </div>
-    </div>
-
-    <div class="auto-popup-panel">
-        <div class="auto-popup-toggle">
-            <div class="toggle-track" id="autoToggleTrack" onclick="toggleAutoPopup()">
-                <div class="toggle-thumb" id="autoToggleThumb"></div>
+        <div class="g2" style="margin-top:12px">
+            <div>
+                <span class="lbl">Format</span>
+                <select class="inp" id="fmtSel" onchange="toggleCustomOvers()">
+                    <option value="20">T20 (20 overs)</option>
+                    <option value="50">ODI (50 overs)</option>
+                    <option value="40">40 Overs</option>
+                    <option value="10">T10 (10 overs)</option>
+                    <option value="0">Custom</option>
+                </select>
+                <div id="customOversWrap" style="display:none;margin-top:6px">
+                    <span class="lbl">Custom Overs</span>
+                    <input class="inp" type="number" id="customOvers" min="1" max="100" value="15" style="text-align:center;font-size:16px;font-weight:700;color:var(--navy)">
+                </div>
             </div>
             <div>
-                <div class="toggle-label" id="autoToggleLabel">AUTO SCORECARD EVERY OVER</div>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#333;letter-spacing:.5px;margin-top:2px" id="autoToggleSub">OFF — scorecard will not auto-popup</div>
+                <span class="lbl">Batting First (Toss)</span>
+                <select class="inp" id="tossSel" onchange="updateTossUI()">
+                    <option value="A" id="tossOptA">Team A</option>
+                    <option value="B" id="tossOptB">Team B</option>
+                </select>
             </div>
         </div>
-        <div class="auto-dur-wrap">
-            <label>Show for</label>
-            <select id="overPopupDurSel" onchange="setOverPopupDur(this.value)">
-                <option value="5">5 sec</option>
-                <option value="8" selected>8 sec</option>
-                <option value="10">10 sec</option>
-                <option value="15">15 sec</option>
-                <option value="20">20 sec</option>
-            </select>
-        </div>
-        <div class="auto-popup-note">Scorecard auto-slides up after every completed over, then hides itself.</div>
-    </div>
-
-    <!-- AUTO EVENT OVERLAYS -->
-    <div style="margin-top:14px">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:8px">
-            Auto Event Overlays
-            <span style="flex:1;height:1px;background:var(--brd);display:block"></span>
-        </div>
-        <div class="event-toggle-grid">
-            <div class="evt-toggle-card" id="evtCardWicket">
-                <div class="evt-toggle-top">
-                    <span class="evt-toggle-icon">💥</span>
-                    <span class="evt-toggle-title">Wicket</span>
-                    <div class="evt-toggle-track on-red" id="evtTrackWicket" onclick="toggleEvtOverlay('autoWicketOverlay','evtTrackWicket','evtCardWicket','on-red')">
-                        <div class="evt-toggle-thumb"></div>
-                    </div>
-                </div>
-                <div class="evt-toggle-desc" id="evtDescWicket">Auto pop-up when wicket falls</div>
-            </div>
-            <div class="evt-toggle-card" id="evtCardSix">
-                <div class="evt-toggle-top">
-                    <span class="evt-toggle-icon">🚀</span>
-                    <span class="evt-toggle-title">Six</span>
-                    <div class="evt-toggle-track on-purple" id="evtTrackSix" onclick="toggleEvtOverlay('autoSixOverlay','evtTrackSix','evtCardSix','on-purple')">
-                        <div class="evt-toggle-thumb"></div>
-                    </div>
-                </div>
-                <div class="evt-toggle-desc" id="evtDescSix">Auto pop-up on maximum six</div>
-            </div>
-            <div class="evt-toggle-card" id="evtCardFour">
-                <div class="evt-toggle-top">
-                    <span class="evt-toggle-icon">🔥</span>
-                    <span class="evt-toggle-title">Four</span>
-                    <div class="evt-toggle-track on-blue" id="evtTrackFour" onclick="toggleEvtOverlay('autoFourOverlay','evtTrackFour','evtCardFour','on-blue')">
-                        <div class="evt-toggle-thumb"></div>
-                    </div>
-                </div>
-                <div class="evt-toggle-desc" id="evtDescFour">Auto pop-up on boundary four</div>
-            </div>
-        </div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#222;margin-top:8px;letter-spacing:.5px;line-height:1.6">
-            When OFF — the overlay will NOT show the automatic player card for that event. Turn OFF if you want to control those manually via Announcements.
-        </div>
-    </div>
-
-    <div style="font-size:10px;color:#2a2a3a;text-align:center;margin-top:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px">
-        KEYBOARD ON OVERLAY — S = SCORECARD · B = SCORE BAR · 1 = BATTING · 2 = BOWLING
+        <button class="sb sb-gold" style="margin-top:14px;font-size:16px" onclick="initMatch()">⚡ INITIALIZE MATCH</button>
     </div>
 </div>
 
-<!-- 5. AUDIO COMMENTARY -->
+<!-- ══ LIVE SCORING ══ -->
 <div class="card">
-    <h4><span class="hico">🎙</span> Live Ball-by-Ball Audio Commentary</h4>
-    <div class="audio-panel">
-        <div class="audio-status">
-            <div class="audio-indicator" id="audioIndicator"></div>
-            <div class="audio-label" id="audioStatusLabel">COMMENTARY OFF</div>
-            <button class="audio-toggle" id="audioToggleBtn" onclick="toggleAudio()">ENABLE</button>
+    <div class="card-hdr green">🏏 Live Scoring</div>
+    <div class="card-body" style="padding:0">
+
+        <!-- Score summary banner -->
+        <div class="match-title-bar" id="matchBanner">
+            <div>
+                <div style="font-size:14px;font-weight:700" id="bannerTeam">—</div>
+                <div class="mt-detail" id="bannerDetail">—</div>
+            </div>
+            <div style="text-align:right">
+                <div class="mt-score" id="bannerScore">0/0</div>
+                <div class="mt-detail" id="bannerOvs">0.0 overs · CRR 0.00</div>
+            </div>
         </div>
-        <div class="audio-voice-sel">
-            <label>Commentator:</label>
-            <select id="commentaryStyleSel" title="Commentary style">
+
+        <!-- Current batters + this over + bowler -->
+        <div class="scoring-grid" style="padding:12px 14px;gap:12px">
+
+            <!-- BATTING TABLE -->
+            <div>
+                <div class="sec-div" style="margin-bottom:8px">Current Batters</div>
+                <table class="pc-table">
+                    <thead>
+                        <tr>
+                            <th>Batter</th>
+                            <th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th>
+                        </tr>
+                    </thead>
+                    <tbody id="livePatBatters">
+                        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:12px">No match in progress</td></tr>
+                    </tbody>
+                </table>
+                <div class="sec-div" style="margin-top:12px;margin-bottom:8px">Field Management</div>
+                <div class="g2" style="gap:8px">
+                    <div><span class="lbl">Striker ●</span><select class="inp inp-sm" id="selP1" onchange="chg('p1n',this.value)"></select></div>
+                    <div><span class="lbl">Non-Striker</span><select class="inp inp-sm" id="selP2" onchange="chg('p2n',this.value)"></select></div>
+                </div>
+                <div class="g2" style="gap:8px;margin-top:7px">
+                    <button class="injury-btn" onclick="openBatInjury('striker')">🚑 Striker Injured</button>
+                    <button class="injury-btn" onclick="openBatInjury('nonstriker')">🚑 Non-Striker Inj.</button>
+                </div>
+            </div>
+
+            <!-- THIS OVER + BOWLER -->
+            <div>
+                <div class="over-display">
+                    <div class="over-title" id="overTitle">OVER 0</div>
+                    <div class="ball-row" id="liveBallRow">
+                        <div class="ball-sq empty">·</div>
+                        <div class="ball-sq empty">·</div>
+                        <div class="ball-sq empty">·</div>
+                        <div class="ball-sq empty">·</div>
+                        <div class="ball-sq empty">·</div>
+                        <div class="ball-sq empty">·</div>
+                    </div>
+                </div>
+                <div class="sec-div" style="margin-top:12px;margin-bottom:8px">Current Bowler</div>
+                <span class="lbl">Bowler</span>
+                <select class="inp inp-sm" id="selBw" onchange="chg('bwn',this.value)" style="margin-bottom:8px"></select>
+                <table class="bwl-table" id="liveBwlTable">
+                    <thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+                    <tbody id="liveBwlBody">
+                        <tr><td colspan="6" style="text-align:center;color:var(--muted)">—</td></tr>
+                    </tbody>
+                </table>
+                <button class="injury-btn" style="margin-top:8px;font-size:11px" onclick="openBowlerInjury()">🚑 Bowler Injured / Change Mid-Over</button>
+            </div>
+        </div>
+
+        <!-- SCORING BUTTONS -->
+        <div class="scoring-card" style="border:none;border-top:2px solid var(--border);border-radius:0">
+            <div class="scoring-section">
+                <div class="scoring-lbl">Legal Deliveries</div>
+                <div class="btn-grid cols4">
+                    <button class="sb sb-dot" onclick="ball(0)">● DOT</button>
+                    <button class="sb sb-run" onclick="ball(1)">1</button>
+                    <button class="sb sb-run" onclick="ball(2)">2</button>
+                    <button class="sb sb-run" onclick="ball(3)">3</button>
+                </div>
+                <div class="btn-grid cols2" style="margin-top:6px">
+                    <button class="sb sb-4" onclick="ball(4)" style="font-size:18px;padding:14px">FOUR ● 4</button>
+                    <button class="sb sb-6" onclick="ball(6)" style="font-size:18px;padding:14px">SIX ● 6</button>
+                </div>
+            </div>
+            <div class="scoring-section">
+                <div class="scoring-lbl">Extras (Illegal)</div>
+                <div class="btn-grid cols4">
+                    <button class="sb sb-wd" onclick="ball(1,'WD')">Wd +1</button>
+                    <button class="sb sb-wd" onclick="ball(2,'WD')">Wd +2</button>
+                    <button class="sb sb-wd" onclick="ball(3,'WD')">Wd +3</button>
+                    <button class="sb sb-wd" onclick="ball(4,'WD')">Wd +4</button>
+                </div>
+                <div class="btn-grid cols4" style="margin-top:6px">
+                    <button class="sb sb-nb" onclick="ball(1,'NB')">Nb +1</button>
+                    <button class="sb sb-nb" onclick="ball(2,'NB')">Nb +2</button>
+                    <button class="sb sb-nb" onclick="ball(4,'NB')">Nb +4</button>
+                    <button class="sb sb-nb" onclick="ball(6,'NB')">Nb +6</button>
+                </div>
+            </div>
+            <div class="scoring-section">
+                <div class="scoring-lbl">Byes &amp; Leg Byes</div>
+                <div class="btn-grid cols4">
+                    <button class="sb sb-bye" onclick="ball(1,'BY')">By +1</button>
+                    <button class="sb sb-bye" onclick="ball(2,'BY')">By +2</button>
+                    <button class="sb sb-bye" onclick="ball(3,'BY')">By +3</button>
+                    <button class="sb sb-bye" onclick="ball(4,'BY')">By +4</button>
+                </div>
+                <div class="btn-grid cols3" style="margin-top:6px">
+                    <button class="sb sb-lb" onclick="ball(1,'LB')">LB +1</button>
+                    <button class="sb sb-lb" onclick="ball(2,'LB')">LB +2</button>
+                    <button class="sb sb-lb" onclick="ball(3,'LB')">LB +3</button>
+                </div>
+            </div>
+            <div class="scoring-section">
+                <div class="btn-grid cols3m">
+                    <button class="sb sb-wkt" onclick="openWicket()">🏏 WICKET</button>
+                    <button class="sb sb-swap" onclick="swapStrike()">⇄ SWAP STRIKE</button>
+                    <button class="sb sb-undo" id="undoBtn" onclick="undoLast()" disabled>↩ UNDO <span class="undo-badge" id="undoCount">0</span></button>
+                </div>
+                <div class="note-box" style="margin-top:10px"><b>Rules:</b> Wide/No-Ball = illegal, over count unchanged. No-Ball → FREE HIT. Byes/Leg-Byes = legal ball extras. Odd runs → striker rotates. End of 6 legal balls → auto strike swap. Undo reverts last ball (up to 20).</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ FULL SCORECARD ══ -->
+<div class="card">
+    <div class="card-hdr">📋 Full Scorecard</div>
+    <div class="card-body" style="padding:0">
+        <div id="scMatchBanner" style="padding:10px 16px;background:var(--card2);border-bottom:1px solid var(--border)">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--navy)" id="scBannerTitle">—</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px" id="scBannerSub">—</div>
+        </div>
+        <div class="need-bar" id="needBar">TARGET <span id="scTgtV">0</span> &nbsp;·&nbsp; NEED <span id="scNdV">0</span> OFF <span id="scNdOvV">0</span> &nbsp;·&nbsp; RRR <span id="scRRRV">—</span></div>
+        <div class="sc-tabs" style="padding:0 16px">
+            <div class="sc-tab active" id="tabBat" onclick="setScTab('bat')">🏏 Batting</div>
+            <div class="sc-tab" id="tabBwl" onclick="setScTab('bwl')">⚾ Bowling</div>
+        </div>
+        <div id="panBat" class="tab-panel active" style="padding:12px 16px">
+            <div id="scBatContent"><p style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No match in progress</p></div>
+        </div>
+        <div id="panBwl" class="tab-panel" style="padding:12px 16px">
+            <div id="scBwlContent"><p style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No match in progress</p></div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ OVERLAY CONTROLS ══ -->
+<div class="card">
+    <div class="card-hdr">📺 Overlay Controls</div>
+    <div class="card-body">
+        <div class="g2">
+            <div style="border:1.5px solid var(--border);border-radius:7px;padding:10px;display:flex;flex-direction:column;gap:7px">
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Score Bar</span>
+                <button class="sb sb-show" onclick="setV('scorebar',true)" style="padding:9px">SHOW</button>
+                <button class="sb sb-hide" onclick="setV('scorebar',false)" style="padding:9px">HIDE</button>
+            </div>
+            <div style="border:1.5px solid var(--border);border-radius:7px;padding:10px;display:flex;flex-direction:column;gap:7px">
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Scorecard Overlay</span>
+                <button class="sb sb-show" onclick="setV('scorecard',true)" style="padding:9px">SHOW</button>
+                <button class="sb sb-hide" onclick="setV('scorecard',false)" style="padding:9px">HIDE</button>
+            </div>
+        </div>
+
+        <!-- Auto popup toggle -->
+        <div style="background:var(--card2);border:1.5px solid var(--border);border-radius:7px;padding:12px;margin-top:12px">
+            <div class="toggle-row">
+                <div class="toggle-track" id="autoToggle" onclick="toggleAutoPopup()"><div class="toggle-thumb"></div></div>
+                <div class="toggle-info">
+                    <div class="toggle-title">Auto Scorecard Every Over</div>
+                    <div class="toggle-sub" id="autoToggleSub">OFF — scorecard will not auto-popup</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                    <span style="font-size:11px;color:var(--muted)">Show for</span>
+                    <select class="inp dur-sel" id="overPopupDurSel" onchange="setOverPopupDur(this.value)">
+                        <option value="5">5s</option>
+                        <option value="8" selected>8s</option>
+                        <option value="10">10s</option>
+                        <option value="15">15s</option>
+                        <option value="20">20s</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event overlays -->
+        <div style="margin-top:12px">
+            <div class="sec-div">Auto Event Overlays</div>
+            <div class="evt-grid">
+                <div class="evt-card">
+                    <div class="evt-card-top">
+                        <span class="evt-icon">💥</span>
+                        <span class="evt-name">Wicket</span>
+                        <div class="toggle-track on-red" id="evtTrackWicket" onclick="toggleEvt('autoWicketOverlay','evtTrackWicket','evtDescWicket','on-red','Wicket fall pop-up active')"><div class="toggle-thumb"></div></div>
+                    </div>
+                    <div class="evt-desc" id="evtDescWicket">Wicket fall pop-up active</div>
+                </div>
+                <div class="evt-card">
+                    <div class="evt-card-top">
+                        <span class="evt-icon">🚀</span>
+                        <span class="evt-name">Six</span>
+                        <div class="toggle-track on-purple" id="evtTrackSix" onclick="toggleEvt('autoSixOverlay','evtTrackSix','evtDescSix','on-purple','Max six pop-up active')"><div class="toggle-thumb"></div></div>
+                    </div>
+                    <div class="evt-desc" id="evtDescSix">Max six pop-up active</div>
+                </div>
+                <div class="evt-card">
+                    <div class="evt-card-top">
+                        <span class="evt-icon">🔥</span>
+                        <span class="evt-name">Four</span>
+                        <div class="toggle-track on-blue" id="evtTrackFour" onclick="toggleEvt('autoFourOverlay','evtTrackFour','evtDescFour','on-blue','Boundary four pop-up active')"><div class="toggle-thumb"></div></div>
+                    </div>
+                    <div class="evt-desc" id="evtDescFour">Boundary four pop-up active</div>
+                </div>
+            </div>
+            <div class="note-box" style="margin-top:8px">When OFF — overlay suppresses that automatic player card. Use Announcements section to trigger manually.</div>
+        </div>
+        <div style="text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--muted);margin-top:10px;letter-spacing:1px">KEYBOARD ON OVERLAY — S = SCORECARD · B = SCORE BAR · 1 = BATTING · 2 = BOWLING</div>
+    </div>
+</div>
+
+<!-- ══ AUDIO ══ -->
+<div class="card">
+    <div class="card-hdr">🎙 Live Commentary Audio</div>
+    <div class="card-body">
+        <div class="audio-bar">
+            <div class="audio-dot" id="audioDot"></div>
+            <div class="audio-lbl" id="audioLbl">Commentary Off</div>
+            <button class="audio-tog" id="audioTogBtn" onclick="toggleAudio()">ENABLE</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
+            <span class="lbl" style="margin:0">Style:</span>
+            <select class="inp dur-sel" id="commentaryStyleSel">
                 <option value="standard">Standard</option>
-                <option value="shastri">🎙 Ravi Shastri (dramatic)</option>
-                <option value="chopra">🎙 Akash Chopra (analytical)</option>
+                <option value="shastri">🎙 Ravi Shastri</option>
+                <option value="chopra">🎙 Akash Chopra</option>
             </select>
-            <label style="margin-left:8px">Rate:</label>
-            <select id="rateSel" style="width:80px">
-                <option value="0.9">0.9x</option>
-                <option value="1.0" selected>1.0x</option>
-                <option value="1.1">1.1x</option>
-                <option value="1.2">1.2x</option>
+            <span class="lbl" style="margin:0">Rate:</span>
+            <select class="inp dur-sel" id="rateSel">
+                <option value="0.9">0.9x</option><option value="1.0" selected>1.0x</option>
+                <option value="1.1">1.1x</option><option value="1.2">1.2x</option>
             </select>
-            <label style="margin-left:8px">Pitch:</label>
-            <select id="pitchSel" style="width:80px">
-                <option value="0.9">Low</option>
-                <option value="1.0">Normal</option>
-                <option value="1.1" selected>Energetic</option>
-                <option value="1.2">High</option>
+            <span class="lbl" style="margin:0">Pitch:</span>
+            <select class="inp dur-sel" id="pitchSel">
+                <option value="0.9">Low</option><option value="1.0">Normal</option>
+                <option value="1.1" selected>Energetic</option><option value="1.2">High</option>
             </select>
         </div>
-        <div class="audio-relay-note">
-            🔊 <b>Audio plays ONLY on the live overlay (index.html)</b> — the admin panel never plays audio.
-            The overlay auto-enables commentary on load so it works with <b>PRISM Live, CameraFi Live, OBS</b> and other broadcast apps without any click.
-        </div>
+        <div class="note-box" style="margin-top:10px;background:#f0fdf4;border-color:#86efac">🔊 Audio plays on the overlay (index.html) only. Admin panel never plays audio. Works with OBS, PRISM Live, CameraFi Live.</div>
     </div>
 </div>
 
-<!-- 6. ANNOUNCEMENTS -->
+<!-- ══ ANNOUNCEMENTS ══ -->
 <div class="card">
-    <h4><span class="hico">📣</span> Announcements &amp; Celebrations</h4>
-    <div class="sep">Quick fire</div>
-    <div class="g3">
-        <button class="b-ann-century" onclick="sendQuickAnn('century')">🏆 CENTURY</button>
-        <button class="b-ann-fifty"   onclick="sendQuickAnn('fifty')">⭐ HALF CENTURY</button>
-        <button class="b-ann-custom"  onclick="sendQuickAnn('hattrick')">🎩 HAT TRICK!</button>
-    </div>
-    <div class="g3" style="margin-top:8px">
-        <div class="qf-item">
-            <button class="b-ann-wkt" onclick="sendQuickAnn('wicket')">💥 WICKET TAKEN</button>
-            <div class="qf-rain-row"><input type="checkbox" id="rain_wicket" class="qf-rain-chk" style="accent-color:var(--y)"><label for="rain_wicket" class="qf-rain-lbl">Emoji Rain 🌧️</label></div>
+    <div class="card-hdr">📣 Announcements</div>
+    <div class="card-body">
+        <div class="sec-div" style="margin-bottom:10px">Quick Fire</div>
+        <div class="ann-btn-grid">
+            <button class="ann-btn ab-gold" onclick="sendQuickAnn('century')">🏆 CENTURY</button>
+            <button class="ann-btn ab-gold" onclick="sendQuickAnn('fifty')">⭐ HALF CENTURY</button>
+            <button class="ann-btn ab-gold" onclick="sendQuickAnn('hattrick')">🎩 HAT TRICK</button>
         </div>
-        <div class="qf-item">
-            <button class="b-ann-six" onclick="sendQuickAnn('six')">🚀 MAXIMUM SIX</button>
-            <div class="qf-rain-row"><input type="checkbox" id="rain_six" class="qf-rain-chk" style="accent-color:var(--y)"><label for="rain_six" class="qf-rain-lbl">Emoji Rain 🌧️</label></div>
-        </div>
-        <div class="qf-item">
-            <button class="b-ann-four" onclick="sendQuickAnn('four')">🔥 BOUNDARY FOUR</button>
-            <div class="qf-rain-row"><input type="checkbox" id="rain_four" class="qf-rain-chk" style="accent-color:var(--y)"><label for="rain_four" class="qf-rain-lbl">Emoji Rain 🌧️</label></div>
-        </div>
-    </div>
-    <div class="sep">Custom message</div>
-    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
-        <div style="flex:0 0 70px"><label>Emoji(s)</label><input id="annEmoji" placeholder="🎉" value="🎉" style="font-size:18px;text-align:center"></div>
-        <div style="flex:4;min-width:160px"><label>Message text</label><input id="annMsg" placeholder="Enter custom announcement..." oninput="updateAnnPreview()"></div>
-        <div style="flex:0 0 90px"><label>Duration</label>
-            <select id="annDur"><option value="5">5s</option><option value="10">10s</option><option value="15">15s</option><option value="20" selected>20s</option><option value="30">30s</option></select>
-        </div>
-        <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:2px">
-            <label style="margin-bottom:6px">Emoji Rain</label>
-            <div style="display:flex;align-items:center;gap:6px;height:36px">
-                <input type="checkbox" id="annRainToggle" checked style="width:auto;margin:0;accent-color:var(--y);width:16px;height:16px;cursor:pointer">
-                <label for="annRainToggle" style="font-size:11px;color:#888;margin:0;text-transform:none;letter-spacing:0;cursor:pointer">Enable 🌧️</label>
+        <div class="ann-btn-grid" style="margin-top:8px">
+            <div>
+                <button class="ann-btn ab-red" onclick="sendQuickAnn('wicket')">💥 WICKET TAKEN</button>
+                <div class="rain-row"><input type="checkbox" id="rain_wicket" class="rain-chk" style="accent-color:var(--navy)"><label for="rain_wicket" class="rain-lbl">Emoji Rain 🌧️</label></div>
+            </div>
+            <div>
+                <button class="ann-btn ab-purple" onclick="sendQuickAnn('six')">🚀 MAXIMUM SIX</button>
+                <div class="rain-row"><input type="checkbox" id="rain_six" class="rain-chk" style="accent-color:var(--navy)"><label for="rain_six" class="rain-lbl">Emoji Rain 🌧️</label></div>
+            </div>
+            <div>
+                <button class="ann-btn ab-blue" onclick="sendQuickAnn('four')">🔥 BOUNDARY FOUR</button>
+                <div class="rain-row"><input type="checkbox" id="rain_four" class="rain-chk" style="accent-color:var(--navy)"><label for="rain_four" class="rain-lbl">Emoji Rain 🌧️</label></div>
             </div>
         </div>
-    </div>
-    <div class="ann-preview" id="annPreview">Preview will appear here…</div>
-    <button class="b-ann-custom" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND ANNOUNCEMENT TO OVERLAY</button>
-</div>
-
-<!-- 7. SAVE SCORECARD -->
-<div class="card">
-    <h4><span class="hico">💾</span> Save Match Scorecard</h4>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.7">Save to database (last 10 kept) or download as a file.</div>
-    <div class="g2">
-        <div><label>Match Title</label><input id="matchTitle" placeholder="Club Final · Ground Name"></div>
-        <div><label>Venue</label><input id="matchVenue" placeholder="Eden Gardens, Kolkata"></div>
-    </div>
-    <div class="g2" style="margin-top:10px">
-        <button class="b-save-db" onclick="saveMatchToDb()">☁ SAVE TO DATABASE</button>
-        <button class="b-show"    onclick="saveMatch()">💾 DOWNLOAD FILE</button>
+        <div class="sec-div" style="margin-top:14px;margin-bottom:10px">Custom Message</div>
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+            <div style="flex:0 0 70px"><span class="lbl">Emoji</span><input class="inp" id="annEmoji" value="🎉" style="font-size:18px;text-align:center"></div>
+            <div style="flex:4;min-width:160px"><span class="lbl">Message</span><input class="inp" id="annMsg" placeholder="Enter announcement..." oninput="updateAnnPreview()"></div>
+            <div style="flex:0 0 80px"><span class="lbl">Duration</span><select class="inp" id="annDur"><option value="5">5s</option><option value="10">10s</option><option value="15">15s</option><option value="20" selected>20s</option><option value="30">30s</option></select></div>
+            <div style="flex:0 0 auto"><span class="lbl">Rain</span><div style="display:flex;align-items:center;gap:6px;height:40px"><input type="checkbox" id="annRainToggle" checked style="width:auto;margin:0;accent-color:var(--navy);width:16px;height:16px;cursor:pointer"><label for="annRainToggle" style="font-size:11px;color:var(--muted);cursor:pointer">Enable</label></div></div>
+        </div>
+        <div class="ann-preview" id="annPreview">Preview will appear here…</div>
+        <button class="sb sb-gold" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND TO OVERLAY</button>
     </div>
 </div>
 
-<!-- 8. MATCH HISTORY -->
+<!-- ══ SAVE / HISTORY ══ -->
 <div class="card">
-    <h4><span class="hico">📚</span> Match History</h4>
-    <div class="hist-list" id="histList"><div class="hist-empty">No saved matches yet.</div></div>
+    <div class="card-hdr">💾 Save Scorecard</div>
+    <div class="card-body">
+        <div class="g2">
+            <div><span class="lbl">Match Title</span><input class="inp" id="matchTitle" placeholder="Club Final · Ground Name"></div>
+            <div><span class="lbl">Venue</span><input class="inp" id="matchVenue" placeholder="Eden Gardens, Kolkata"></div>
+        </div>
+        <div class="btn-grid cols2" style="margin-top:12px">
+            <button class="sb sb-show" style="font-size:14px" onclick="saveMatchToDb()">☁ SAVE TO DATABASE</button>
+            <button class="sb sb-navy" style="font-size:14px;background:var(--card2);color:var(--navy);border:2px solid var(--navy)" onclick="saveMatch()">💾 DOWNLOAD FILE</button>
+        </div>
+    </div>
 </div>
 
-<!-- 9. INNINGS / RESET -->
 <div class="card">
-    <button class="b-inn" style="margin-bottom:10px" onclick="swapInnings()">🔄 START 2ND INNINGS</button>
-    <button class="b-rst" onclick="fullReset()">⚠ RESET ALL DATA</button>
+    <div class="card-hdr">📚 Match History</div>
+    <div class="card-body">
+        <div class="hist-list" id="histList"><p style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No saved matches yet.</p></div>
+    </div>
+</div>
+
+<!-- ══ INNINGS / RESET ══ -->
+<div class="card">
+    <div class="card-body">
+        <div class="btn-grid cols2">
+            <button class="sb sb-inn" onclick="swapInnings()">🔄 START 2ND INNINGS</button>
+            <button class="sb sb-rst" onclick="fullReset()">⚠ RESET ALL DATA</button>
+        </div>
+    </div>
 </div>
 
 </div><!-- /body -->
@@ -617,76 +800,81 @@ button:active{ opacity:.65; transform:scale(.95); }
 <div class="bpk-overlay" id="bowlerModal">
     <div class="bpk-box">
         <div class="bpk-title" id="bpkTitle">⚾ Select Next Bowler</div>
-        <div class="bpk-sub"   id="bpkSub">END OF OVER — choose the next bowler</div>
-        <div class="bpk-grid"  id="bpkGrid"></div>
-        <button class="bpk-cancel" onclick="closeBowlerPicker()">✕ DISMISS (keep current)</button>
+        <div class="bpk-sub" id="bpkSub">End of over — choose next bowler</div>
+        <div class="bpk-grid" id="bpkGrid"></div>
+        <button class="bpk-cancel" onclick="closeBowlerPicker()">✕ Dismiss (keep current)</button>
     </div>
 </div>
 
-<!-- BATSMAN INJURY PICKER -->
-<div class="bpk-overlay" id="batInjuryModal">
+<!-- BAT INJURY PICKER -->
+<div class="bpk-overlay" id="batInjModal">
     <div class="bpk-box">
         <div class="bpk-title">🚑 Select Replacement Batsman</div>
         <div class="bpk-sub" id="batInjSub">Choose who comes in</div>
         <div class="bpk-grid" id="batInjGrid"></div>
-        <button class="bpk-cancel" onclick="document.getElementById('batInjuryModal').classList.remove('open')">✕ CANCEL</button>
+        <button class="bpk-cancel" onclick="document.getElementById('batInjModal').classList.remove('open')">✕ Cancel</button>
     </div>
 </div>
 
 <!-- WICKET MODAL -->
 <div class="modal-bg" id="wktModal">
-<div class="modal">
-    <h3>🏏 Dismissal</h3>
-    <div class="modal-meta">Batsman: <b id="mBatsman">—</b> &nbsp;·&nbsp; Bowler: <b id="mBowler">—</b></div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">How Out</div>
-    <div class="dis-grid">
-        <button class="dm" data-dt="b"   onclick="selDis(this,'b')">Bowled</button>
-        <button class="dm" data-dt="c"   onclick="selDis(this,'c')">Caught</button>
-        <button class="dm" data-dt="lbw" onclick="selDis(this,'lbw')">LBW</button>
-        <button class="dm" data-dt="ro"  onclick="selDis(this,'ro')">Run Out</button>
-        <button class="dm" data-dt="st"  onclick="selDis(this,'st')">Stumped</button>
-        <button class="dm" data-dt="hb"  onclick="selDis(this,'hb')">Hit Wicket</button>
-        <button class="dm" data-dt="mo"  onclick="selDis(this,'mo')">Mankad</button>
-        <button class="dm" data-dt="ob"  onclick="selDis(this,'ob')">Other</button>
+    <div class="modal">
+        <h3>🏏 Dismissal</h3>
+        <div class="modal-meta">Batsman: <b id="mBatsman">—</b> &nbsp;·&nbsp; Bowler: <b id="mBowler">—</b></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">How Out</div>
+        <div class="dis-grid">
+            <button class="dm" data-dt="b"   onclick="selDis(this,'b')">Bowled</button>
+            <button class="dm" data-dt="c"   onclick="selDis(this,'c')">Caught</button>
+            <button class="dm" data-dt="lbw" onclick="selDis(this,'lbw')">LBW</button>
+            <button class="dm" data-dt="ro"  onclick="selDis(this,'ro')">Run Out</button>
+            <button class="dm" data-dt="st"  onclick="selDis(this,'st')">Stumped</button>
+            <button class="dm" data-dt="hb"  onclick="selDis(this,'hb')">Hit Wicket</button>
+            <button class="dm" data-dt="mo"  onclick="selDis(this,'mo')">Mankad</button>
+            <button class="dm" data-dt="ob"  onclick="selDis(this,'ob')">Other</button>
+        </div>
+        <div id="mFielderRow" style="display:none;margin-bottom:12px">
+            <span class="lbl" id="mFielderLbl">Fielder</span>
+            <select class="inp" id="mFielder"></select>
+        </div>
+        <div style="margin-bottom:12px">
+            <span class="lbl">Runs scored on this ball</span>
+            <input class="inp" type="number" id="mRuns" value="0" min="0" max="6">
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <input type="checkbox" id="mCredit" checked style="width:auto;margin:0;accent-color:var(--navy)">
+            <label style="font-size:13px;color:var(--text2);cursor:pointer" for="mCredit">Credit wicket to bowler</label>
+        </div>
+        <div class="modal-btns">
+            <button class="m-confirm" onclick="confirmWicket()">✓ CONFIRM</button>
+            <button class="m-cancel" onclick="closeWicket()">✕ CANCEL</button>
+        </div>
     </div>
-    <div class="modal-field" id="mFielderRow" style="display:none">
-        <label id="mFielderLbl">Fielder</label>
-        <select id="mFielder"></select>
-    </div>
-    <div class="modal-field">
-        <label>Runs scored on this ball</label>
-        <input type="number" id="mRuns" value="0" min="0" max="6">
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <input type="checkbox" id="mCredit" checked style="width:auto;margin:0;accent-color:var(--y)">
-        <label style="font-size:12px;color:#888;margin:0;text-transform:none;letter-spacing:0;cursor:pointer" for="mCredit">Credit wicket to bowler</label>
-    </div>
-    <div class="modal-btns">
-        <button class="m-confirm" onclick="confirmWicket()">✓ CONFIRM</button>
-        <button class="m-cancel"  onclick="closeWicket()">✕ CANCEL</button>
-    </div>
-</div>
 </div>
 
 <!-- PLAYER POPUP -->
-<div class="player-popup-overlay" id="playerPopupOverlay">
-    <div class="player-popup-box">
-        <h3>👥 Match Players <button class="player-popup-close" onclick="closePlayerPopup()">✕ CLOSE</button></h3>
-        <div id="playerPopupContent"></div>
+<div class="pp-overlay" id="ppOverlay">
+    <div class="pp-box">
+        <div class="pp-hdr">
+            <h3>👥 Match Players</h3>
+            <button class="pp-close" onclick="closePlayerPopup()">✕ Close</button>
+        </div>
+        <div id="ppContent"></div>
     </div>
 </div>
 
 <!-- WIN POPUP -->
-<div class="win-popup-overlay" id="winPopupOverlay">
-    <div class="win-popup-box">
+<div class="win-overlay" id="winOverlay">
+    <div class="win-box">
         <div class="win-confetti" id="winConfetti"></div>
         <span class="win-trophy" id="winTrophy">🏆</span>
-        <div class="win-popup-title" id="winPopupTitle">TEAM WIN!</div>
-        <div class="win-popup-sub" id="winPopupSub">Won by X wickets</div>
-        <div class="win-popup-detail" id="winPopupDetail"></div>
-        <button class="win-popup-close" onclick="closeWinPopup()">✓ CONTINUE</button>
+        <div class="win-title" id="winTitle">TEAM WIN!</div>
+        <div class="win-sub" id="winSub">Won by X wickets</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px" id="winDetail"></div>
+        <button class="win-close" onclick="document.getElementById('winOverlay').classList.remove('open')">✓ Continue</button>
     </div>
 </div>
+
+</div><!-- /mc -->
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
@@ -695,337 +883,102 @@ import { getDatabase, ref, set, get, update, onValue, push, remove }
 
 const cfg = {
     apiKey:"AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
-    authDomain:"cricket-8e338.firebaseapp.com",
-    projectId:"cricket-8e338",
+    authDomain:"cricket-8e338.firebaseapp.com", projectId:"cricket-8e338",
     storageBucket:"cricket-8e338.firebasestorage.app",
-    messagingSenderId:"41064243639",
-    appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
+    messagingSenderId:"41064243639", appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
 };
-const db      = getDatabase(initializeApp(cfg));
-const mRef    = ref(db,'cricket');
-const sRef    = ref(db,'squads');
-const uRef    = ref(db,'ui');
-const hRef    = ref(db,'undoStack');
-const aRef    = ref(db,'announcement');
-const histRef = ref(db,'matchHistory');
-const phRef   = ref(db,'playerPhotos');
-const cSettingsRef = ref(db,'commentarySettings');
+const db=getDatabase(initializeApp(cfg));
+const mRef=ref(db,'cricket'), sRef=ref(db,'squads'), uRef=ref(db,'ui'),
+      hRef=ref(db,'undoStack'), aRef=ref(db,'announcement'),
+      histRef=ref(db,'matchHistory'), phRef=ref(db,'playerPhotos'),
+      cRef=ref(db,'commentarySettings');
+const $=id=>document.getElementById(id);
 
-const $ = id => document.getElementById(id);
+let _ph={}, _match=null, _autoOn=false, _curMatchKey=null,
+    _winFired=false, _inn1EndFired=false, _adminLastOver=-1,
+    _midOver=false, _audioEnabled=false;
+let _evtState={autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true};
 
-let _squads = { bat:[], bowl:[] };
-let _match  = null;
-let _autoOn = false;
-let _currentMatchKey = null;
-let _playerPhotos = {};
-let _evtState = { autoWicketOverlay:true, autoSixOverlay:true, autoFourOverlay:true };
+// ── Photos ──────────────────────────────────────
+onValue(phRef,snap=>{
+    _ph=snap.val()||{};
+    document.querySelectorAll('[data-phn]').forEach(el=>{ if(el.dataset.phn) el.src=ph(el.dataset.phn); });
+});
+const BLANK=`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23eef1f5'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23b0bec5'/%3E%3Cellipse cx='16' cy='28' rx='10' ry='7' fill='%23b0bec5'/%3E%3C/svg%3E`;
+function ph(name){ if(!name) return BLANK; const k=name.replace(/[^a-zA-Z0-9]/g,'_'); return _ph[k]||BLANK; }
+function setph(el,name){ if(!el)return; el.src=ph(name); el.dataset.phn=name||''; }
 
-// ══ TOSS UI — swap columns + show real team names in dropdown ══════════
-window.updateTossUI = () => {
-    const toss   = $('tossSel').value;
-    const nameA  = $('tNA').value.trim() || 'Team A';
-    const nameB  = $('tNB').value.trim() || 'Team B';
-
-    // Update dropdown options with real team names
-    const optA = $('tossOptA'), optB = $('tossOptB');
-    if(optA) optA.textContent = `${nameA} (left squad)`;
-    if(optB) optB.textContent = `${nameB} (right squad)`;
-
-    const colA   = $('colA'),   colB   = $('colB');
-    const roleA  = $('roleTagA'), roleB = $('roleTagB');
-    const lblA   = $('lblSquadA'), lblB = $('lblSquadB');
-
-    if(toss === 'A'){
-        // Team A bats — show on left (natural order)
-        if(colA){ colA.style.order=''; }
-        if(colB){ colB.style.order=''; }
-        if(lblA) lblA.textContent = `${nameA} XI`;
-        if(lblB) lblB.textContent = `${nameB} XI`;
-        if(roleA){ roleA.textContent='🏏 BATTING'; roleA.className='squad-role-tag batting'; }
-        if(roleB){ roleB.textContent='⚾ BOWLING'; roleB.className='squad-role-tag bowling'; }
+// ── Toss UI ──────────────────────────────────────
+window.updateTossUI=()=>{
+    const toss=$('tossSel').value;
+    const nA=$('tNA').value.trim()||'Team A', nB=$('tNB').value.trim()||'Team B';
+    $('tossOptA').textContent=`${nA} (left squad)`;
+    $('tossOptB').textContent=`${nB} (right squad)`;
+    $('lblSqA').textContent=`${nA} XI`;
+    $('lblSqB').textContent=`${nB} XI`;
+    if(toss==='A'){
+        $('roleTagA').textContent='🏏 BATTING'; $('roleTagA').className='role-bat';
+        $('roleTagB').textContent='⚾ BOWLING'; $('roleTagB').className='role-bowl';
     } else {
-        // Team B bats — push colB to left visually using flex order
-        if(colA){ colA.style.order='2'; }
-        if(colB){ colB.style.order='1'; }
-        if(lblA) lblA.textContent = `${nameA} XI`;
-        if(lblB) lblB.textContent = `${nameB} XI`;
-        if(roleA){ roleA.textContent='⚾ BOWLING'; roleA.className='squad-role-tag bowling'; }
-        if(roleB){ roleB.textContent='🏏 BATTING'; roleB.className='squad-role-tag batting'; }
+        $('roleTagA').textContent='⚾ BOWLING'; $('roleTagA').className='role-bowl';
+        $('roleTagB').textContent='🏏 BATTING'; $('roleTagB').className='role-bat';
     }
 };
 
-// ══ PLAYER PHOTOS ═════════════════════════════════
-onValue(phRef, snap => {
-    _playerPhotos = snap.val() || {};
-    refreshAvatars();
-});
-
-function getPhoto(name){ return _playerPhotos[name] || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%23111"/><circle cx="16" cy="12" r="6" fill="%23333"/><ellipse cx="16" cy="28" rx="10" ry="7" fill="%23333"/></svg>'; }
-
-async function savePhoto(name, dataUrl){
-    const key = name.replace(/[^a-zA-Z0-9]/g,'_');
-    await update(phRef, { [key]: dataUrl });
-    _playerPhotos[key] = dataUrl;
-}
-
-function refreshAvatars(){
-    document.querySelectorAll('.player-avatar[data-name]').forEach(img => {
-        const name = img.dataset.name;
-        const key = name.replace(/[^a-zA-Z0-9]/g,'_');
-        img.src = _playerPhotos[key] || getPhoto(name);
-    });
-}
-
-// ══ EVENT OVERLAY TOGGLES ════════════════════════
-onValue(uRef, snap => {
-    const ui = snap.val() || {};
-    _evtState.autoWicketOverlay = ui.autoWicketOverlay !== false;
-    _evtState.autoSixOverlay    = ui.autoSixOverlay    !== false;
-    _evtState.autoFourOverlay   = ui.autoFourOverlay   !== false;
-    updateEvtToggleUI('autoWicketOverlay','evtTrackWicket','evtCardWicket','on-red',   'evtDescWicket',  'Auto pop-up when wicket falls');
-    updateEvtToggleUI('autoSixOverlay',   'evtTrackSix',   'evtCardSix',  'on-purple','evtDescSix',     'Auto pop-up on maximum six');
-    updateEvtToggleUI('autoFourOverlay',  'evtTrackFour',  'evtCardFour', 'on-blue',  'evtDescFour',    'Auto pop-up on boundary four');
-});
-
-function updateEvtToggleUI(key, trackId, cardId, activeClass, descId, onText){
-    const on = _evtState[key];
-    const track = $(trackId), card = $(cardId), desc = $(descId);
-    if(!track) return;
-    track.className = on ? `evt-toggle-track ${activeClass}` : 'evt-toggle-track';
-    if(card) card.style.borderColor = on ? '' : '#1a1a2a';
-    if(desc) desc.textContent = on ? onText : '⚫ DISABLED — overlay suppressed';
-    if(desc) desc.style.color = on ? '' : '#e63946';
-}
-
-window.toggleEvtOverlay = (key, trackId, cardId, activeClass) => {
-    _evtState[key] = !_evtState[key];
-    update(uRef, { [key]: _evtState[key] });
-};
-
-// ══ SQUAD BUILDER ═════════════════════════════════
-function buildSquadInputs(){
-    ['A','B'].forEach(team => {
-        const cont = $(`squad${team}`);
-        cont.innerHTML = '';
+// ── Squad builder ────────────────────────────────
+function buildSquads(){
+    ['A','B'].forEach(t=>{
+        const c=$(`squad${t}`); c.innerHTML='';
         for(let i=1;i<=11;i++){
-            const row = document.createElement('div');
-            row.className = 'player-row';
-            const avatarId = `avatar${team}${i}`;
-            const inputId  = `player${team}${i}`;
-            const fileId   = `file${team}${i}`;
-            row.innerHTML = `
+            const r=document.createElement('div'); r.className='player-row';
+            r.innerHTML=`
                 <span class="player-num">${i}</span>
-                <div class="player-avatar-wrap">
-                    <img class="player-avatar" id="${avatarId}" data-team="${team}" data-idx="${i}" src="${getPhoto('')}">
-                    <input type="file" class="player-avatar-upload" id="${fileId}" accept="image/*">
-                    <button class="player-photo-btn" onclick="document.getElementById('${fileId}').click()">📷</button>
+                <div class="player-av-wrap">
+                    <img class="player-av" id="av${t}${i}" src="${BLANK}">
+                    <input type="file" class="player-av-upload" id="fl${t}${i}" accept="image/*">
+                    <button class="player-photo-btn" onclick="document.getElementById('fl${t}${i}').click()">📷</button>
                 </div>
-                <input class="player-name-input" id="${inputId}" placeholder="Player ${i}" oninput="onPlayerNameChange('${team}',${i})">
-            `;
-            cont.appendChild(row);
-            setTimeout(() => {
-                const fileInput = $(`file${team}${i}`);
-                if(!fileInput) return;
-                fileInput.addEventListener('change', async e => {
-                    const file = e.target.files[0];
-                    if(!file) return;
-                    const reader = new FileReader();
-                    reader.onload = async ev => {
-                        const dataUrl = ev.target.result;
-                        const nameEl = $(`player${team}${i}`);
-                        const name = nameEl ? nameEl.value.trim() : '';
-                        const avatarImg = $(`avatar${team}${i}`);
-                        if(avatarImg) avatarImg.src = dataUrl;
-                        if(name){ const key = name.replace(/[^a-zA-Z0-9]/g,'_'); await update(phRef, {[key]: dataUrl}); }
+                <input class="player-name-inp" id="pl${t}${i}" placeholder="Player ${i}" oninput="onNameChg('${t}',${i})">`;
+            c.appendChild(r);
+            setTimeout(()=>{
+                const fi=$(`fl${t}${i}`); if(!fi)return;
+                fi.addEventListener('change',async e=>{
+                    const f=e.target.files[0]; if(!f)return;
+                    const reader=new FileReader();
+                    reader.onload=async ev=>{
+                        const data=ev.target.result;
+                        const nm=$(`pl${t}${i}`)?.value.trim();
+                        const av=$(`av${t}${i}`);
+                        if(av) av.src=data;
+                        if(nm){ const k=nm.replace(/[^a-zA-Z0-9]/g,'_'); await update(phRef,{[k]:data}); }
                     };
-                    reader.readAsDataURL(file);
+                    reader.readAsDataURL(f);
                 });
-            }, 0);
+            },0);
         }
     });
-    updateTossUI(); // refresh labels after building
+    updateTossUI();
 }
-
-function onPlayerNameChange(team, idx){
-    const nameEl = $(`player${team}${idx}`);
-    const avatarEl = $(`avatar${team}${idx}`);
-    if(nameEl && avatarEl){
-        const name = nameEl.value.trim();
-        avatarEl.dataset.name = name;
-        const key = name.replace(/[^a-zA-Z0-9]/g,'_');
-        avatarEl.src = _playerPhotos[key] || getPhoto('');
-    }
-}
-
-function getSquadNames(team){
-    const names = [];
-    for(let i=1;i<=11;i++){
-        const el = $(`player${team}${i}`);
-        if(el && el.value.trim()) names.push(el.value.trim());
-    }
-    return names;
-}
-
-function setSquadNames(team, names){
-    for(let i=1;i<=11;i++){
-        const el = $(`player${team}${i}`);
-        if(el) el.value = names[i-1] || '';
-        const avatarEl = $(`avatar${team}${i}`);
-        if(avatarEl && names[i-1]){
-            avatarEl.dataset.name = names[i-1];
-            const key = names[i-1].replace(/[^a-zA-Z0-9]/g,'_');
-            avatarEl.src = _playerPhotos[key] || getPhoto('');
-        }
-    }
-}
-
-// ══ PLAYER POPUP ══════════════════════════════════
-window.openPlayerPopup = async () => {
-    const snap = await get(mRef); const d = snap.val();
-    const cont = $('playerPopupContent');
-    const sA = getSquadNames('A'); const sB = getSquadNames('B');
-    const batNm = ($('tNA').value||'Team A').toUpperCase();
-    const bowlNm = ($('tNB').value||'Team B').toUpperCase();
-    function teamHtml(name, players){
-        if(!players.length) return '';
-        const cards = players.map(p => {
-            const key = p.replace(/[^a-zA-Z0-9]/g,'_');
-            const photo = _playerPhotos[key] || getPhoto('');
-            return `<div class="player-card-popup"><img src="${photo}" alt="${p}"><div class="pcp-name">${p}</div></div>`;
-        }).join('');
-        return `<div class="team-section"><div class="team-section-title">🏏 ${name}</div><div class="player-grid-popup">${cards}</div></div>`;
-    }
-    cont.innerHTML = teamHtml(batNm, sA) + teamHtml(bowlNm, sB);
-    $('playerPopupOverlay').classList.add('open');
+window.onNameChg=(t,i)=>{
+    const nm=$(`pl${t}${i}`)?.value.trim();
+    const av=$(`av${t}${i}`);
+    if(av&&nm){ av.dataset.phn=nm; av.src=ph(nm); }
 };
-window.closePlayerPopup = () => $('playerPopupOverlay').classList.remove('open');
+function getNames(t){ const a=[]; for(let i=1;i<=11;i++){const e=$(`pl${t}${i}`);if(e&&e.value.trim())a.push(e.value.trim());} return a; }
+function setNames(t,names){ for(let i=1;i<=11;i++){const e=$(`pl${t}${i}`);if(e)e.value=names[i-1]||'';const av=$(`av${t}${i}`);if(av&&names[i-1]){av.dataset.phn=names[i-1];av.src=ph(names[i-1]);}}}
 
-// ══ WIN POPUP ═════════════════════════════════════
-function showWinPopup(title, sub, detail, isWin){
-    $('winTrophy').textContent = isWin === 'tie' ? '🤝' : '🏆';
-    $('winPopupTitle').textContent = title;
-    $('winPopupSub').textContent = sub;
-    $('winPopupDetail').textContent = detail || '';
-    const conf = $('winConfetti');
-    conf.innerHTML = '';
-    const cols = ['#f5c518','#06d6a0','#e63946','#9b72cf','#118ab2','#fff'];
-    for(let i=0;i<40;i++){
-        const dot = document.createElement('div');
-        dot.className = 'wc-dot';
-        dot.style.cssText = `left:${Math.random()*100}%;top:${-10+Math.random()*20}%;background:${cols[Math.floor(Math.random()*cols.length)]};animation-delay:${Math.random()*3}s;animation-duration:${3+Math.random()*3}s;`;
-        conf.appendChild(dot);
-    }
-    $('winPopupOverlay').classList.add('open');
-}
-window.closeWinPopup = () => $('winPopupOverlay').classList.remove('open');
-
-// ══ AUDIO COMMENTARY ══════════════════════════════
-let _audioEnabled = false;
-function writeCommentarySettings(){
-    update(cSettingsRef, {
-        enabled: _audioEnabled,
-        style:   $('commentaryStyleSel') ? $('commentaryStyleSel').value : 'standard',
-        rate:    $('rateSel')  ? parseFloat($('rateSel').value)  || 1.0 : 1.0,
-        pitch:   $('pitchSel') ? parseFloat($('pitchSel').value) || 1.1 : 1.1,
-    });
-}
-window.toggleAudio = () => { _audioEnabled = !_audioEnabled; updateAudioUI(); writeCommentarySettings(); };
-function updateAudioUI(){
-    const btn = $('audioToggleBtn'), ind = $('audioIndicator'), lbl = $('audioStatusLabel');
-    if(!btn||!ind||!lbl) return;
-    btn.textContent = _audioEnabled ? 'DISABLE' : 'ENABLE';
-    btn.className   = _audioEnabled ? 'audio-toggle on' : 'audio-toggle';
-    ind.className   = _audioEnabled ? 'audio-indicator on' : 'audio-indicator';
-    lbl.textContent = _audioEnabled ? 'COMMENTARY ACTIVE — audio plays on overlay (index.html)' : 'COMMENTARY OFF';
-}
-['commentaryStyleSel','rateSel','pitchSel'].forEach(id => {
-    const el = $(id); if(el) el.addEventListener('change', writeCommentarySettings);
-});
-onValue(cSettingsRef, snap => {
-    const s = snap.val() || {};
-    if(typeof s.enabled === 'boolean') _audioEnabled = s.enabled;
-    if(s.style && $('commentaryStyleSel')) $('commentaryStyleSel').value = s.style;
-    if(s.rate  && $('rateSel'))  $('rateSel').value  = String(s.rate);
-    if(s.pitch && $('pitchSel')) $('pitchSel').value = String(s.pitch);
-    updateAudioUI();
-});
-
-// ══ Toast ══════════════════════════════════════
-function showToast(msg){
-    const t = $('autoSaveToast');
-    t.textContent = msg; t.style.opacity = '1';
-    clearTimeout(t._timer);
-    t._timer = setTimeout(()=>{ t.style.opacity='0'; }, 2500);
-}
-
-// ══ UNDO ══════════════════════════════════════════
-async function saveSnapshot(d){
-    await push(hRef,{ state:JSON.parse(JSON.stringify(d)), savedAt:Date.now() });
-    const all = await get(hRef); const val = all.val();
-    if(val){
-        const keys = Object.keys(val).sort();
-        if(keys.length>20) for(const k of keys.slice(0,keys.length-20)) await remove(ref(db,`undoStack/${k}`));
-    }
-}
-window.undoLast = async () => {
-    const all=await get(hRef); const val=all.val();
-    if(!val||!Object.keys(val).length) return alert('Nothing to undo!');
-    const keys=Object.keys(val).sort();
-    const lastKey=keys[keys.length-1];
-    await set(mRef,val[lastKey].state);
-    await remove(ref(db,`undoStack/${lastKey}`));
-};
-onValue(hRef,snap=>{
-    const val=snap.val(); const count=val?Object.keys(val).length:0;
-    $('undoCount').textContent=count;
-    $('undoBtn').disabled=count===0;
-});
-
-// ══ ANNOUNCEMENTS ═════════════════════════════════
-const QUICK_ANN={
-    century: {emoji:'🏆',text:'CENTURY!',    sub:'100 runs off the bat!',      dur:20,style:'gold'},
-    fifty:   {emoji:'⭐',text:'HALF CENTURY!',sub:'50 runs milestone!',          dur:20,style:'gold'},
-    wicket:  {emoji:'💥',text:'WICKET!',     sub:'A big breakthrough!',         dur:20,style:'red'},
-    six:     {emoji:'🚀',text:'MAXIMUM!',    sub:'Six runs over the boundary!', dur:20,style:'purple'},
-    four:    {emoji:'🔥',text:'BOUNDARY!',   sub:'Four runs to the fence!',     dur:20,style:'blue'},
-    hattrick:{emoji:'🎩',text:'HAT TRICK!',  sub:'Three in three!',             dur:20,style:'gold'},
-};
-window.updateAnnPreview=()=>{
-    const emoji=$('annEmoji').value.trim()||'📣', msg=$('annMsg').value.trim(), prev=$('annPreview');
-    if(msg){prev.textContent=`${emoji}  ${msg}`;prev.classList.add('has-msg');}
-    else{prev.textContent='Preview will appear here…';prev.classList.remove('has-msg');}
-};
-window.sendQuickAnn=async(type)=>{
-    const cfg=QUICK_ANN[type]; if(!cfg) return;
-    const snap=await get(mRef); const d=snap.val();
-    if(!d){ alert('No live match data — cannot send announcement.'); return; }
-    const striker    = d.str===1 ? d.p1n : d.p2n;
-    const strikerR   = d.str===1 ? (d.p1r||0) : (d.p2r||0);
-    const bowler     = d.bwn||'';
-    const lastBall   = (d.recentBalls||[]).slice(-1)[0];
-    let verified = true; let reason = '';
-    if(type==='century'){ if(strikerR < 100){ verified=false; reason=`${striker} has only ${strikerR} runs — not a century yet.`; } }
-    else if(type==='fifty'){ if(strikerR < 50){ verified=false; reason=`${striker} has only ${strikerR} runs — not a half century yet.`; } if(strikerR >= 100){ verified=false; reason=`${striker} has ${strikerR} runs — use CENTURY instead.`; } }
-    else if(type==='six'){ if(lastBall !== 6){ verified=false; reason=`Last ball scored was "${lastBall}" — not a six.`; } }
-    else if(type==='four'){ if(lastBall !== 4){ verified=false; reason=`Last ball scored was "${lastBall}" — not a four.`; } }
-    else if(type==='wicket'){ if(lastBall !== 'W'){ verified=false; reason=`Last ball was "${lastBall}" — no wicket on last delivery.`; } }
-    if(!verified){ if(!confirm(`⚠️ Scoreboard check failed:\n${reason}\n\nSend anyway?`)) return; }
-    const rainChk = document.getElementById(`rain_${type}`);
-    const rain    = rainChk ? rainChk.checked : true;
-    let name      = striker;
-    if(type==='wicket') name = bowler;
-    if(type==='hattrick') name = bowler;
-    await set(aRef,{ emoji:cfg.emoji, text: name ? `${name} — ${cfg.text}` : cfg.text, sub:cfg.sub, style:cfg.style, dur:cfg.dur, rain, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
-};
-window.sendCustomAnn=async()=>{
-    const emoji=$('annEmoji').value.trim()||'📣', msg=$('annMsg').value.trim();
-    if(!msg) return alert('Enter a message to send!');
-    await set(aRef,{emoji,text:msg,sub:'',style:'custom',dur:parseInt($('annDur').value)||20,rain:$('annRainToggle').checked,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
-    $('annMsg').value=''; updateAnnPreview();
+// ── Scorecard tab ────────────────────────────────
+let _scTab='bat';
+window.setScTab=t=>{
+    _scTab=t;
+    $('panBat').classList.toggle('active',t==='bat');
+    $('panBwl').classList.toggle('active',t==='bwl');
+    $('tabBat').classList.toggle('active',t==='bat');
+    $('tabBwl').classList.toggle('active',t==='bwl');
 };
 
-// ══ FILL SELECTS ══════════════════════════════════
-function fillSel(bat,bowl,p1n,p2n,bwn){
+// ── Selects ──────────────────────────────────────
+function fillSels(bat,bowl,p1n,p2n,bwn){
     const bH=bat.map(n=>`<option value="${n}">${n}</option>`).join('');
     const wH=bowl.map(n=>`<option value="${n}">${n}</option>`).join('');
     $('selP1').innerHTML=bH; $('selP2').innerHTML=bH; $('selBw').innerHTML=wH;
@@ -1034,140 +987,117 @@ function fillSel(bat,bowl,p1n,p2n,bwn){
     if(bwn)$('selBw').value=bwn; else if(bowl[0])$('selBw').value=bowl[0];
 }
 
-// ══ MATCH DATA LISTENER ═══════════════════════════
-onValue(mRef,snap=>{
-    const d=snap.val(); _match=d; if(!d) return;
-    $('iBat').textContent=d.batTeam||'—';
-    $('iSc').textContent=`${d.runs}/${d.wkts}`;
-    $('iOv').textContent=`${Math.floor(d.balls/6)}.${d.balls%6}`;
-    $('iCRR').textContent=d.balls>0?(d.runs/(d.balls/6)).toFixed(2):'0.00';
-    $('iInn').textContent=d.target>0?'2ND':'1ST';
-    $('iFH').className=d.freeHit?'fh-pill on':'fh-pill';
-    $('iOvB').textContent=(d.recentBalls||[]).length?(d.recentBalls||[]).join(' · '):'—';
-    if(d.batTeam) $('tNA').value=d.batTeam;
-    if(d.bowlTeam) $('tNB').value=d.bowlTeam;
-    const fmt=d.maxOvers||20;
-    $('fmtLbl').textContent=fmt===50?'ODI · 50 OVERS':fmt===20?'T20 · 20 OVERS':fmt===10?'T10 · 10 OVERS':fmt===40?'40 OVERS':`CUSTOM · ${fmt} OVERS`;
-    if([10,20,40,50].includes(fmt)){$('fmtSel').value=String(fmt);$('customOversWrap').style.display='none';}
-    else{$('fmtSel').value='0';$('customOvers').value=fmt;$('customOversWrap').style.display='block';}
-    if(d.batRows&&d.bowlRows){
-        _squads.bat=d.batRows.map(r=>r.name); _squads.bowl=d.bowlRows.map(r=>r.name);
-        fillSel(_squads.bat,_squads.bowl,d.p1n,d.p2n,d.bwn);
-    } else if(_squads.bat.length||_squads.bowl.length){
-        fillSel(_squads.bat,_squads.bowl,d.p1n,d.p2n,d.bwn);
-    }
-    updateTossUI(); // keep dropdown names in sync with loaded team names
-});
-onValue(sRef,snap=>{
-    const s=snap.val(); if(!s) return;
-    if(s.sqA){ const names=s.sqA.split('\n').map(n=>n.trim()).filter(Boolean); setSquadNames('A',names); }
-    if(s.sqB){ const names=s.sqB.split('\n').map(n=>n.trim()).filter(Boolean); setSquadNames('B',names); }
-    if(!_match||!_match.batRows){
-        _squads.bat=getSquadNames('A'); _squads.bowl=getSquadNames('B');
-        fillSel(_squads.bat,_squads.bowl,_match?.p1n||null,_match?.p2n||null,_match?.bwn||null);
-    }
-    updateTossUI();
-});
-
-// ══ AUTO POPUP TOGGLE ═════════════════════════════
-function updateAutoUI(on){
-    $('autoToggleTrack').classList.toggle('on',on);
-    $('autoToggleLabel').style.color=on?'#06d6a0':'';
-    $('autoToggleSub').textContent=on?'✅ ON — scorecard auto-pops after every over':'OFF — scorecard will not auto-popup';
-    $('autoToggleSub').style.color=on?'#3a6a3a':'';
+// ── Undo ─────────────────────────────────────────
+async function saveSnap(d){
+    await push(hRef,{state:JSON.parse(JSON.stringify(d)),savedAt:Date.now()});
+    const all=await get(hRef); const val=all.val();
+    if(val){ const keys=Object.keys(val).sort(); if(keys.length>20) for(const k of keys.slice(0,keys.length-20)) await remove(ref(db,`undoStack/${k}`)); }
 }
-window.toggleAutoPopup=()=>{ _autoOn=!_autoOn; update(uRef,{autoOverPopup:_autoOn}); updateAutoUI(_autoOn); };
-window.setOverPopupDur=(val)=>update(uRef,{overPopupDur:parseInt(val)||8});
+window.undoLast=async()=>{
+    const all=await get(hRef); const val=all.val();
+    if(!val||!Object.keys(val).length){ alert('Nothing to undo!'); return; }
+    const keys=Object.keys(val).sort();
+    const last=keys[keys.length-1];
+    await set(mRef,val[last].state);
+    await remove(ref(db,`undoStack/${last}`));
+};
+onValue(hRef,snap=>{ const v=snap.val(); const c=v?Object.keys(v).length:0; $('undoCount').textContent=c; $('undoBtn').disabled=c===0; });
+
+// ── Event toggles ────────────────────────────────
 onValue(uRef,snap=>{
     const ui=snap.val()||{};
+    _evtState.autoWicketOverlay=ui.autoWicketOverlay!==false;
+    _evtState.autoSixOverlay=ui.autoSixOverlay!==false;
+    _evtState.autoFourOverlay=ui.autoFourOverlay!==false;
+    refreshEvtUI('autoWicketOverlay','evtTrackWicket','evtDescWicket','on-red','Wicket fall pop-up active');
+    refreshEvtUI('autoSixOverlay','evtTrackSix','evtDescSix','on-purple','Max six pop-up active');
+    refreshEvtUI('autoFourOverlay','evtTrackFour','evtDescFour','on-blue','Boundary four pop-up active');
     _autoOn=!!ui.autoOverPopup;
     updateAutoUI(_autoOn);
     if(ui.overPopupDur) $('overPopupDurSel').value=String(ui.overPopupDur);
 });
-
-// ══ BOWLER PICKER ═════════════════════════════════
-let _midOver=false;
-let _adminLastOver=-1;
-
-function openBowlerPicker(bowlRows, currentBowler, ovNum, midOver){
-    _midOver=!!midOver;
-    $('bpkTitle').textContent=midOver?'🚑 Bowler Injury — Replacement':'⚾ Select Next Bowler';
-    $('bpkSub').textContent=midOver?`MID-OVER CHANGE — replacement completes over ${ovNum}`:`END OF OVER ${ovNum} — choose the next bowler`;
-    $('bpkGrid').innerHTML=bowlRows.map(r=>{
-        const blocked = r.name===currentBowler;
-        const ovs=`${Math.floor(r.balls/6)}.${r.balls%6} ov`;
-        const fig=r.balls>0?`${r.wkts}-${r.runs} (${ovs})`:'yet to bowl';
-        const tag=blocked?(midOver?' 🤕':' ✋'):'';
-        const tip=blocked?(midOver?'Injured':'Just bowled — cannot bowl consecutive overs'):'';
-        return `<button class="bpk-btn" ${blocked?`disabled title="${tip}"`:''}
-            onclick="selectBowler('${r.name.replace(/'/g,"\\'")}')">
-            ${r.name}${tag}<br>
-            <span style="font-size:11px;color:#555;font-weight:400">${fig}</span>
-        </button>`;
-    }).join('');
-    $('bowlerModal').classList.add('open');
+function refreshEvtUI(key,trackId,descId,cls,onText){
+    const on=_evtState[key];
+    const tr=$(trackId),de=$(descId);
+    if(!tr)return;
+    tr.className=on?`toggle-track ${cls}`:'toggle-track';
+    if(de){ de.textContent=on?onText:'⚫ DISABLED'; de.className=on?'evt-desc':'evt-desc off'; }
 }
-window.closeBowlerPicker=()=>$('bowlerModal').classList.remove('open');
-window.selectBowler=async(name)=>{
-    if(_midOver){ await update(mRef,{bwn:name,bwr:0,bww:0}); }
-    else         { await update(mRef,{bwn:name,bwr:0,bww:0,bwb:0}); }
-    closeBowlerPicker();
-};
-window.openBowlerInjury=async()=>{
-    const snap=await get(mRef); const d=snap.val(); if(!d) return alert('No match in progress.');
-    openBowlerPicker(d.bowlRows||[],d.bwn,Math.floor(d.balls/6),true);
+window.toggleEvt=(key,trackId,descId,cls,onText)=>{
+    _evtState[key]=!_evtState[key];
+    update(uRef,{[key]:_evtState[key]});
 };
 
-onValue(mRef,async snap=>{
-    const d=snap.val(); if(!d) return;
-    const completedOvers = Math.floor(d.balls/6);
-    const maxOvers       = d.maxOvers || 20;
-    const maxBalls       = maxOvers * 6;
-    const innComplete    = d.balls >= maxBalls || d.wkts >= 10;
-    if(_adminLastOver>=0 && completedOvers>_adminLastOver && d.balls%6===0 && d.balls>0){
-        if(!innComplete){ openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false); }
-        saveMatchToDb(true);
-    }
-    _adminLastOver=completedOvers;
-    checkMatchEvents(d);
-});
+// ── Auto popup ───────────────────────────────────
+function updateAutoUI(on){
+    $('autoToggle').classList.toggle('on',on);
+    const sub=$('autoToggleSub');
+    sub.textContent=on?'✅ ON — scorecard auto-pops after every over':'OFF — scorecard will not auto-popup';
+    sub.className=on?'toggle-sub on':'toggle-sub';
+}
+window.toggleAutoPopup=()=>{ _autoOn=!_autoOn; update(uRef,{autoOverPopup:_autoOn}); updateAutoUI(_autoOn); };
+window.setOverPopupDur=v=>update(uRef,{overPopupDur:parseInt(v)||8});
 
-// ══ BATSMAN INJURY ════════════════════════════════
-window.openBatInjury=async(pos)=>{
-    const snap=await get(mRef); const d=snap.val(); if(!d) return alert('No match in progress.');
-    const injured=pos==='striker'?d.p1n:d.p2n;
-    $('batInjSub').textContent=`${injured} is injured — select replacement`;
-    const available=(d.batRows||[]).filter(r=>!r.out&&r.name!==d.p1n&&r.name!==d.p2n);
-    if(!available.length){ alert('No more batsmen available!'); return; }
-    $('batInjGrid').innerHTML=available.map(r=>
-        `<button class="bpk-btn" onclick="selectBatReplacement('${pos}','${r.name.replace(/'/g,"\\'")}')">
-            ${r.name}<br><span style="font-size:11px;color:#555;font-weight:400">yet to bat</span>
-        </button>`
-    ).join('');
-    $('batInjuryModal').classList.add('open');
+// ── Audio ─────────────────────────────────────────
+function writeAudio(){ update(cRef,{enabled:_audioEnabled,style:$('commentaryStyleSel')?.value||'standard',rate:parseFloat($('rateSel')?.value)||1.0,pitch:parseFloat($('pitchSel')?.value)||1.1}); }
+window.toggleAudio=()=>{ _audioEnabled=!_audioEnabled; updateAudioUI(); writeAudio(); };
+function updateAudioUI(){
+    $('audioTogBtn').textContent=_audioEnabled?'DISABLE':'ENABLE';
+    $('audioTogBtn').className=_audioEnabled?'audio-tog on':'audio-tog';
+    $('audioDot').className=_audioEnabled?'audio-dot on':'audio-dot';
+    $('audioLbl').textContent=_audioEnabled?'Commentary Active — plays on overlay':'Commentary Off';
+}
+['commentaryStyleSel','rateSel','pitchSel'].forEach(id=>{ const e=$(id); if(e) e.addEventListener('change',writeAudio); });
+onValue(cRef,snap=>{ const s=snap.val()||{}; if(typeof s.enabled==='boolean') _audioEnabled=s.enabled; if(s.style&&$('commentaryStyleSel')) $('commentaryStyleSel').value=s.style; if(s.rate&&$('rateSel')) $('rateSel').value=String(s.rate); if(s.pitch&&$('pitchSel')) $('pitchSel').value=String(s.pitch); updateAudioUI(); });
+
+// ── Toast ─────────────────────────────────────────
+function toast(msg){ const t=$('saveToast'); t.textContent=msg; t.style.opacity='1'; clearTimeout(t._t); t._t=setTimeout(()=>t.style.opacity='0',2500); }
+
+// ── Announcements ────────────────────────────────
+const QANN={
+    century:{emoji:'🏆',text:'CENTURY!',sub:'100 runs off the bat!',dur:20,style:'gold'},
+    fifty:{emoji:'⭐',text:'HALF CENTURY!',sub:'50 runs milestone!',dur:20,style:'gold'},
+    wicket:{emoji:'💥',text:'WICKET!',sub:'A big breakthrough!',dur:20,style:'red'},
+    six:{emoji:'🚀',text:'MAXIMUM!',sub:'Six over the boundary!',dur:20,style:'purple'},
+    four:{emoji:'🔥',text:'BOUNDARY!',sub:'Four to the fence!',dur:20,style:'blue'},
+    hattrick:{emoji:'🎩',text:'HAT TRICK!',sub:'Three in three!',dur:20,style:'gold'},
 };
-window.selectBatReplacement=async(pos,name)=>{
-    const snap=await get(mRef); const d=snap.val(); if(!d) return;
-    const injuredName=pos==='striker'?d.p1n:d.p2n;
-    const batRows=d.batRows||[];
-    const injRow=batRows.find(r=>r.name===injuredName);
-    if(injRow){injRow.out=true;injRow.howOut='retired hurt';}
-    const newIdx=batRows.findIndex(r=>r.name===name);
-    const upd={batRows};
-    if(pos==='striker'){upd.p1n=name;upd.p1r=0;upd.p1b=0;upd.p1fours=0;upd.p1sixes=0;}
-    else{upd.p2n=name;upd.p2r=0;upd.p2b=0;upd.p2fours=0;upd.p2sixes=0;}
-    if(newIdx>=(d.nextBatIdx||2)) upd.nextBatIdx=newIdx+1;
-    await update(mRef,upd);
-    $('batInjuryModal').classList.remove('open');
+window.updateAnnPreview=()=>{
+    const em=$('annEmoji').value.trim()||'📣',msg=$('annMsg').value.trim(),p=$('annPreview');
+    if(msg){p.textContent=`${em}  ${msg}`;p.classList.add('has');}else{p.textContent='Preview will appear here…';p.classList.remove('has');}
+};
+window.sendQuickAnn=async type=>{
+    const cfg=QANN[type]; if(!cfg)return;
+    const snap=await get(mRef); const d=snap.val();
+    if(!d){alert('No match data');return;}
+    const striker=d.str===1?d.p1n:d.p2n, sR=d.str===1?(d.p1r||0):(d.p2r||0);
+    const bowler=d.bwn||'', lb=(d.recentBalls||[]).slice(-1)[0];
+    let ok=true,reason='';
+    if(type==='century'&&sR<100){ok=false;reason=`${striker} has ${sR} runs — not 100 yet.`;}
+    else if(type==='fifty'&&sR<50){ok=false;reason=`${striker} has ${sR} runs — not 50 yet.`;}
+    else if(type==='fifty'&&sR>=100){ok=false;reason=`${striker} has ${sR} — use CENTURY.`;}
+    else if(type==='six'&&lb!==6){ok=false;reason=`Last ball was "${lb}" — not a six.`;}
+    else if(type==='four'&&lb!==4){ok=false;reason=`Last ball was "${lb}" — not a four.`;}
+    else if(type==='wicket'&&lb!=='W'){ok=false;reason=`Last ball was "${lb}" — no wicket.`;}
+    if(!ok&&!confirm(`⚠️ Check failed:\n${reason}\n\nSend anyway?`))return;
+    const rc=document.getElementById(`rain_${type}`);
+    let name=striker; if(type==='wicket'||type==='hattrick') name=bowler;
+    await set(aRef,{emoji:cfg.emoji,text:name?`${name} — ${cfg.text}`:cfg.text,sub:cfg.sub,style:cfg.style,dur:cfg.dur,rain:rc?rc.checked:true,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
+};
+window.sendCustomAnn=async()=>{
+    const em=$('annEmoji').value.trim()||'📣',msg=$('annMsg').value.trim();
+    if(!msg){alert('Enter a message!');return;}
+    await set(aRef,{emoji:em,text:msg,sub:'',style:'custom',dur:parseInt($('annDur').value)||20,rain:$('annRainToggle').checked,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
+    $('annMsg').value=''; updateAnnPreview();
 };
 
-// ══ INIT MATCH ════════════════════════════════════
+// ── Init match ────────────────────────────────────
 window.toggleCustomOvers=()=>{ $('customOversWrap').style.display=$('fmtSel').value==='0'?'block':'none'; };
 window.initMatch=async()=>{
-    const sA=getSquadNames('A'); const sB=getSquadNames('B');
-    if(!sA.length||!sB.length) return alert('Please enter at least one player per squad!');
+    const sA=getNames('A'),sB=getNames('B');
+    if(!sA.length||!sB.length){alert('Enter at least one player per squad');return;}
     const fmtRaw=$('fmtSel').value; let fmt;
-    if(fmtRaw==='0'){fmt=parseInt($('customOvers').value)||20;if(fmt<1)return alert('Min 1 over.');}
+    if(fmtRaw==='0'){fmt=parseInt($('customOvers').value)||20;if(fmt<1){alert('Min 1 over');return;}}
     else fmt=parseInt(fmtRaw)||20;
     const toss=$('tossSel').value;
     const batSq=toss==='A'?sA:sB, bowlSq=toss==='A'?sB:sA;
@@ -1180,25 +1110,22 @@ window.initMatch=async()=>{
         p1n:batSq[0],p1r:0,p1b:0,p1fours:0,p1sixes:0,
         p2n:batSq[1]||batSq[0],p2r:0,p2b:0,p2fours:0,p2sixes:0,
         bwn:bowlSq[0],bwr:0,bww:0,bwb:0,recentBalls:[],nextBatIdx:2,
-        freeHit:false,innings:1,maxOvers:fmt,batRows,bowlRows,
-        matchStartedAt: Date.now()
+        freeHit:false,innings:1,maxOvers:fmt,batRows,bowlRows,matchStartedAt:Date.now()
     });
     await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n')});
     await update(uRef,{scorebar:true,scorecard:false});
-    _adminLastOver=0;
-    _currentMatchKey=null;
-    _winFired=false;
-    _inn1EndFired=false;
+    _adminLastOver=0; _curMatchKey=null; _winFired=false; _inn1EndFired=false;
+    $('matchStatusBadge').textContent='LIVE'; $('matchStatusBadge').style.background='rgba(255,255,255,.3)';
     await saveMatchToDb(true);
     alert('✅ Match Initialized!');
 };
 
-// ══ BALL LOGIC ════════════════════════════════════
+// ── Ball logic ────────────────────────────────────
 window.ball=async(r,type)=>{
     const snap=await get(mRef); const d=snap.val();
-    if(!d) return alert('Initialize match first!');
+    if(!d){alert('Initialize match first');return;}
     if(!d.recentBalls)d.recentBalls=[]; if(!d.batRows)d.batRows=[]; if(!d.bowlRows)d.bowlRows=[];
-    await saveSnapshot(d);
+    await saveSnap(d);
     const isWD=type==='WD',isNB=type==='NB',isBY=type==='BY',isLB=type==='LB';
     d.runs+=r;
     if(isWD){ d.bwr+=r; updBowl(d,d.bwn,{runs:r,wides:1}); d.recentBalls.push(r>1?`Wd${r}`:'Wd'); }
@@ -1209,81 +1136,71 @@ window.ball=async(r,type)=>{
     await update(mRef,d);
 };
 
-// ══ INNINGS END & WIN DETECTION ══════════════════
-let _winFired     = false;
-let _inn1EndFired = false;
-
+// ── Win / innings check ───────────────────────────
 async function checkMatchEvents(d){
-    if(!d) return;
-    const maxBalls  = (d.maxOvers||20) * 6;
-    const allOut    = d.wkts >= 10;
-    const oversUp   = d.balls >= maxBalls;
-    const inn       = d.innings || 1;
-    if(inn === 1 && !_inn1EndFired && (allOut || oversUp)){
-        _inn1EndFired = true;
-        const ovStr = `${Math.floor(d.balls/6)}.${d.balls%6}`;
-        await set(aRef,{ emoji:'🏏', text:`END OF 1ST INNINGS`, sub:`${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs) — ${allOut?'All Out':'Overs Up'}`, style:'custom', dur:15, rain:false, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
-        setTimeout(()=>{ openInningsEndModal(d); }, 2000);
-        return;
+    if(!d)return;
+    const maxBalls=(d.maxOvers||20)*6, allOut=d.wkts>=10, oversUp=d.balls>=maxBalls, inn=d.innings||1;
+    if(inn===1&&!_inn1EndFired&&(allOut||oversUp)){
+        _inn1EndFired=true;
+        const ovStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
+        await set(aRef,{emoji:'🏏',text:'END OF 1ST INNINGS',sub:`${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs) — ${allOut?'All Out':'Overs Up'}`,style:'custom',dur:15,rain:false,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
+        setTimeout(()=>openInnModal(d),2000); return;
     }
-    if(inn !== 2 || _winFired) return;
-    const target     = d.target || 0;
-    if(target <= 0)  return;
-    const runsNeeded = target - d.runs;
-    const wicketsLeft= 10 - d.wkts;
-    const ballsLeft  = maxBalls - d.balls;
-    let winMsg = null;
-    if(runsNeeded <= 0){
-        winMsg = { emoji:'🏆', text:`${d.batTeam} WIN!`, sub:`Won by ${wicketsLeft} wicket${wicketsLeft!==1?'s':''} (${ballsLeft} ball${ballsLeft!==1?'s':''} to spare)`, style:'win', dur:30, rain:true, winner:d.batTeam, margin:`${wicketsLeft} wickets`, type:'win' };
-    } else if(runsNeeded === 1 && (allOut || oversUp)){
-        winMsg = { emoji:'🤝', text:`IT'S A TIE!`, sub:`Both teams scored ${d.runs} runs — Match tied!`, style:'tie', dur:25, rain:true, winner:'TIE', margin:'tie', type:'tie' };
-    } else if(allOut || oversUp){
-        const margin = runsNeeded - 1;
-        winMsg = { emoji:'🏆', text:`${d.bowlTeam} WIN!`, sub:`Won by ${margin} run${margin!==1?'s':''} — ${d.batTeam} fell short`, style:'win', dur:30, rain:true, winner:d.bowlTeam, margin:`${margin} runs`, type:'win' };
-    }
+    if(inn!==2||_winFired)return;
+    const target=d.target||0; if(target<=0)return;
+    const runsNeeded=target-d.runs, wLeft=10-d.wkts, bLeft=maxBalls-d.balls;
+    let winMsg=null;
+    if(runsNeeded<=0) winMsg={t:`${d.batTeam} WIN!`,s:`Won by ${wLeft} wicket${wLeft!==1?'s':''} (${bLeft} ball${bLeft!==1?'s':''} to spare)`,type:'win'};
+    else if(runsNeeded===1&&(allOut||oversUp)) winMsg={t:"IT'S A TIE!",s:`Both teams scored ${d.runs} runs — Tied!`,type:'tie'};
+    else if(allOut||oversUp){ const m=runsNeeded-1; winMsg={t:`${d.bowlTeam} WIN!`,s:`Won by ${m} run${m!==1?'s':''} — ${d.batTeam} fell short`,type:'win'}; }
     if(winMsg){
-        _winFired = true;
-        await set(aRef,{ ...winMsg, sentAt:Date.now(), id:Math.random().toString(36).slice(2) });
-        setTimeout(()=>{ saveMatchToDb(true); }, 1500);
-        setTimeout(()=>{
-            showWinPopup(winMsg.text, winMsg.sub, `${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`, winMsg.type==='tie'?'tie':'win');
-        }, 800);
+        _winFired=true;
+        await set(aRef,{emoji:winMsg.type==='tie'?'🤝':'🏆',text:winMsg.t,sub:winMsg.s,style:winMsg.type,dur:30,rain:true,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
+        setTimeout(()=>saveMatchToDb(true),1500);
+        setTimeout(()=>showWinPopup(winMsg.t,winMsg.s,`${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,winMsg.type),800);
     }
 }
-
-function openInningsEndModal(d){
-    const ovStr = `${Math.floor(d.balls/6)}.${d.balls%6}`;
-    const reason = d.wkts>=10 ? 'ALL OUT' : 'OVERS COMPLETE';
-    if(confirm(`🏏 END OF 1ST INNINGS\n\n${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs)\n${reason}\n\nStart 2nd Innings now?`)){ swapInnings(); }
+function openInnModal(d){
+    const ov=`${Math.floor(d.balls/6)}.${d.balls%6}`;
+    const r=d.wkts>=10?'ALL OUT':'OVERS COMPLETE';
+    if(confirm(`🏏 END OF 1ST INNINGS\n\n${d.batTeam}: ${d.runs}/${d.wkts} (${ov} ovs)\n${r}\n\nStart 2nd Innings now?`)) swapInnings();
+}
+function showWinPopup(t,s,det,type){
+    $('winTrophy').textContent=type==='tie'?'🤝':'🏆';
+    $('winTitle').textContent=t; $('winSub').textContent=s; $('winDetail').textContent=det||'';
+    const conf=$('winConfetti'); conf.innerHTML='';
+    const cols=['#f0b429','#06d6a0','#e63946','#9b72cf','#1a3a5c','#fff'];
+    for(let i=0;i<40;i++){const d2=document.createElement('div');d2.className='wc-dot';d2.style.cssText=`left:${Math.random()*100}%;top:${-10+Math.random()*20}%;background:${cols[Math.floor(Math.random()*cols.length)]};animation-delay:${Math.random()*3}s;animation-duration:${3+Math.random()*3}s;`;conf.appendChild(d2);}
+    $('winOverlay').classList.add('open');
 }
 
-// ══ WICKET MODAL ══════════════════════════════════
+// ── Wicket modal ─────────────────────────────────
 let _dt='b';
 window.openWicket=async()=>{
-    const snap=await get(mRef); const d=snap.val(); if(!d) return alert('Initialize match first!');
+    const snap=await get(mRef); const d=snap.val(); if(!d){alert('Initialize match first');return;}
     $('mBatsman').textContent=d.str===1?d.p1n:d.p2n; $('mBowler').textContent=d.bwn;
     $('mRuns').value=0; $('mCredit').checked=true; _dt='b';
     document.querySelectorAll('.dm').forEach(b=>b.classList.remove('sel'));
     document.querySelector('.dm[data-dt="b"]').classList.add('sel');
     $('mFielder').innerHTML=(d.bowlRows||[]).map(r=>`<option value="${r.name}">${r.name}</option>`).join('');
-    updFielderRow(); $('wktModal').classList.add('open');
+    updFRow(); $('wktModal').classList.add('open');
 };
-window.selDis=(btn,t)=>{ _dt=t; document.querySelectorAll('.dm').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); $('mCredit').checked=(t!=='ro'); updFielderRow(); };
-function updFielderRow(){ const show=['c','ro','st'].includes(_dt); $('mFielderRow').style.display=show?'':'none'; $('mFielderLbl').textContent={c:'Caught by',ro:'Run Out by',st:'Stumped by'}[_dt]||'Fielder'; }
+window.selDis=(btn,t)=>{ _dt=t; document.querySelectorAll('.dm').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); $('mCredit').checked=(t!=='ro'); updFRow(); };
+function updFRow(){ const s=['c','ro','st'].includes(_dt); $('mFielderRow').style.display=s?'block':'none'; $('mFielderLbl').textContent={c:'Caught by',ro:'Run Out by',st:'Stumped by'}[_dt]||'Fielder'; }
 window.closeWicket=()=>$('wktModal').classList.remove('open');
 window.confirmWicket=async()=>{
-    const snap=await get(mRef); const d=snap.val(); if(!d) return;
+    const snap=await get(mRef); const d=snap.val(); if(!d)return;
     if(!d.recentBalls)d.recentBalls=[];
-    await saveSnapshot(d);
-    const runs=parseInt($('mRuns').value)||0,credit=$('mCredit').checked,fielder=$('mFielder').value||'',dt=_dt;
+    await saveSnap(d);
+    const runs=parseInt($('mRuns').value)||0,credit=$('mCredit').checked,fielder=$('mFielder').value||'';
     let howOut='';
-    if(dt==='b')   howOut=`b ${d.bwn}`;
-    else if(dt==='c')   howOut=`c ${fielder} b ${d.bwn}`;
-    else if(dt==='lbw') howOut=`lbw b ${d.bwn}`;
-    else if(dt==='ro')  howOut=fielder?`run out (${fielder})`:'run out';
-    else if(dt==='st')  howOut=`st ${fielder} b ${d.bwn}`;
-    else if(dt==='hb')  howOut=`hit wkt b ${d.bwn}`;
-    else if(dt==='mo')  howOut=`mankad b ${d.bwn}`;
+    if(_dt==='b') howOut=`b ${d.bwn}`;
+    else if(_dt==='c') howOut=`c ${fielder} b ${d.bwn}`;
+    else if(_dt==='lbw') howOut=`lbw b ${d.bwn}`;
+    else if(_dt==='ro') howOut=fielder?`run out (${fielder})`:'run out';
+    else if(_dt==='st') howOut=`st ${fielder} b ${d.bwn}`;
+    else if(_dt==='hb') howOut=`hit wkt b ${d.bwn}`;
+    else if(_dt==='mo') howOut=`mankad b ${d.bwn}`;
     else howOut='out';
     d.runs+=runs; d.wkts++; d.balls++; d.bwb++; d.freeHit=false;
     if(credit){d.bww++;updBowl(d,d.bwn,{balls:1,wkts:1,runs});}else updBowl(d,d.bwn,{balls:1,runs});
@@ -1300,194 +1217,431 @@ window.confirmWicket=async()=>{
     await update(mRef,d);
     closeWicket();
 };
-
 function updBat(d,name,{runs=0,balls=0,fours=0,sixes=0}={}){ const r=(d.batRows||[]).find(x=>x.name===name); if(r){r.runs+=runs;r.balls+=balls;r.fours+=fours;r.sixes+=sixes;} }
-function markOut(d,name,howOut='out'){ const r=(d.batRows||[]).find(x=>x.name===name); if(r){r.out=true;r.howOut=howOut;} }
+function markOut(d,name,ho='out'){ const r=(d.batRows||[]).find(x=>x.name===name); if(r){r.out=true;r.howOut=ho;} }
 function updBowl(d,name,{runs=0,balls=0,wkts=0,wides=0,noballs=0,byes=0,legbyes=0}={}){ const r=(d.bowlRows||[]).find(x=>x.name===name); if(r){r.balls+=balls;r.runs+=runs;r.wkts+=wkts;r.wides+=wides;r.noballs+=noballs;r.byes=(r.byes||0)+byes;r.legbyes=(r.legbyes||0)+legbyes;} }
 
-// ══ SWAP INNINGS ══════════════════════════════════
+// ── Bowler picker ─────────────────────────────────
+function openBowlerPicker(bowlRows,currentBowler,ovNum,midOver){
+    _midOver=!!midOver;
+    $('bpkTitle').textContent=midOver?'🚑 Bowler Injury — Replacement':'⚾ Select Next Bowler';
+    $('bpkSub').textContent=midOver?`Mid-over change — replacement completes over ${ovNum}`:`End of over ${ovNum} — choose next bowler`;
+    $('bpkGrid').innerHTML=bowlRows.map(r=>{
+        const blocked=r.name===currentBowler;
+        const ovs=`${Math.floor(r.balls/6)}.${r.balls%6} ov`;
+        const fig=r.balls>0?`${r.wkts}-${r.runs} (${ovs})`:'yet to bowl';
+        const tag=blocked?(midOver?' 🤕':' ✋'):'';
+        const tip=blocked?(midOver?'Injured':'Cannot bowl consecutive overs'):'';
+        return `<button class="bpk-btn" ${blocked?`disabled title="${tip}"`:''}
+            onclick="selectBowler('${r.name.replace(/'/g,"\\'")}')">
+            ${r.name}${tag}<br><span style="font-size:11px;color:var(--muted);font-weight:400">${fig}</span>
+        </button>`;
+    }).join('');
+    $('bowlerModal').classList.add('open');
+}
+window.closeBowlerPicker=()=>$('bowlerModal').classList.remove('open');
+window.selectBowler=async name=>{
+    if(_midOver) await update(mRef,{bwn:name,bwr:0,bww:0});
+    else await update(mRef,{bwn:name,bwr:0,bww:0,bwb:0});
+    closeBowlerPicker();
+};
+window.openBowlerInjury=async()=>{
+    const snap=await get(mRef); const d=snap.val(); if(!d){alert('No match in progress');return;}
+    openBowlerPicker(d.bowlRows||[],d.bwn,Math.floor(d.balls/6),true);
+};
+
+// ── Batsman injury ────────────────────────────────
+window.openBatInjury=async pos=>{
+    const snap=await get(mRef); const d=snap.val(); if(!d){alert('No match in progress');return;}
+    const injured=pos==='striker'?d.p1n:d.p2n;
+    $('batInjSub').textContent=`${injured} is injured — select replacement`;
+    const avail=(d.batRows||[]).filter(r=>!r.out&&r.name!==d.p1n&&r.name!==d.p2n);
+    if(!avail.length){alert('No batsmen available!');return;}
+    $('batInjGrid').innerHTML=avail.map(r=>`<button class="bpk-btn" onclick="selectBatRep('${pos}','${r.name.replace(/'/g,"\\'")}')">
+        ${r.name}<br><span style="font-size:11px;color:var(--muted);font-weight:400">yet to bat</span></button>`).join('');
+    $('batInjModal').classList.add('open');
+};
+window.selectBatRep=async(pos,name)=>{
+    const snap=await get(mRef); const d=snap.val(); if(!d)return;
+    const injNm=pos==='striker'?d.p1n:d.p2n;
+    const batRows=d.batRows||[];
+    const injRow=batRows.find(r=>r.name===injNm);
+    if(injRow){injRow.out=true;injRow.howOut='retired hurt';}
+    const newIdx=batRows.findIndex(r=>r.name===name);
+    const upd={batRows};
+    if(pos==='striker'){upd.p1n=name;upd.p1r=0;upd.p1b=0;upd.p1fours=0;upd.p1sixes=0;}
+    else{upd.p2n=name;upd.p2r=0;upd.p2b=0;upd.p2fours=0;upd.p2sixes=0;}
+    if(newIdx>=(d.nextBatIdx||2)) upd.nextBatIdx=newIdx+1;
+    await update(mRef,upd);
+    $('batInjModal').classList.remove('open');
+};
+
+// ── Swap innings ──────────────────────────────────
 window.swapInnings=async()=>{
-    if(!confirm('Start 2nd Innings?')) return;
+    if(!confirm('Start 2nd Innings?'))return;
     const d=(await get(mRef)).val(); const s=(await get(sRef)).val();
-    if(!d) return alert('No match data!');
+    if(!d){alert('No match data');return;}
     const sA=(s?.sqA||'').split('\n').map(n=>n.trim()).filter(Boolean);
     const sB=(s?.sqB||'').split('\n').map(n=>n.trim()).filter(Boolean);
     const nb=d.innings===1?sB:sA, nw=d.innings===1?sA:sB;
     const batRows=nb.map(n=>({name:n,runs:0,balls:0,fours:0,sixes:0,out:false,howOut:''}));
     const bowlRows=nw.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0}));
     await set(hRef,null);
-    await set(mRef,{
-        batTeam:d.bowlTeam, bowlTeam:d.batTeam,
-        runs:0, wkts:0, balls:0, str:1, target:d.runs+1,
-        p1n:nb[0]||'Bat 1', p1r:0, p1b:0, p1fours:0, p1sixes:0,
-        p2n:nb[1]||nb[0]||'Bat 2', p2r:0, p2b:0, p2fours:0, p2sixes:0,
-        bwn:nw[0]||'Bowler', bwr:0, bww:0, bwb:0,
-        recentBalls:[], nextBatIdx:2, freeHit:false,
-        innings:2, maxOvers:d.maxOvers, batRows, bowlRows,
+    await set(mRef,{batTeam:d.bowlTeam,bowlTeam:d.batTeam,runs:0,wkts:0,balls:0,str:1,target:d.runs+1,
+        p1n:nb[0]||'Bat 1',p1r:0,p1b:0,p1fours:0,p1sixes:0,
+        p2n:nb[1]||nb[0]||'Bat 2',p2r:0,p2b:0,p2fours:0,p2sixes:0,
+        bwn:nw[0]||'Bowler',bwr:0,bww:0,bwb:0,recentBalls:[],nextBatIdx:2,freeHit:false,
+        innings:2,maxOvers:d.maxOvers,batRows,bowlRows,
         inn1Score:`${d.runs}/${d.wkts} (${Math.floor(d.balls/6)}.${d.balls%6} ovs)`,
-        inn1Bat:d.batTeam, inn1BatRows:d.batRows||[], inn1BowlRows:d.bowlRows||[],
+        inn1Bat:d.batTeam,inn1BatRows:d.batRows||[],inn1BowlRows:d.bowlRows||[],
     });
     _adminLastOver=0; _winFired=false; _inn1EndFired=false;
     alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
 };
 
+// ── Helpers ───────────────────────────────────────
 window.chg=(k,v)=>update(mRef,{[k]:v});
-window.swapStrike=async()=>{ const d=(await get(mRef)).val(); d.str=d.str===1?2:1; update(mRef,d); };
-window.mu=(f,v)=>{ const n=parseInt(v); if(!isNaN(n)) update(mRef,{[f]:n}); };
+window.swapStrike=async()=>{ const d=(await get(mRef)).val(); if(!d)return; d.str=d.str===1?2:1; update(mRef,d); };
 window.setV=(k,v)=>update(uRef,{[k]:v});
 window.fullReset=async()=>{
-    if(!confirm('⚠ Clear ALL match data?')) return;
+    if(!confirm('⚠ Clear ALL match data?'))return;
     await set(mRef,null); await set(sRef,null); await set(hRef,null);
     await set(ref(db,'commentary'),null);
     await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
-    _adminLastOver=-1; _currentMatchKey=null; _winFired=false; _inn1EndFired=false;
+    _adminLastOver=-1; _curMatchKey=null; _winFired=false; _inn1EndFired=false;
     location.reload();
 };
 
-// ══ MATCH HISTORY ═════════════════════════════════
-async function enforceHistoryLimit(){
-    const all=await get(histRef); const val=all.val();
-    if(val){
-        const keys=Object.keys(val).sort((a,b)=>val[a].savedAt-val[b].savedAt);
-        if(keys.length>10) for(const k of keys.slice(0,keys.length-10)) await remove(ref(db,`matchHistory/${k}`));
+// ── Ball class helper ─────────────────────────────
+function ballCls(v){
+    if(v==='W')return 'bW'; if(v===6)return 'b6'; if(v===4)return 'b4'; if(v===0)return 'b0';
+    if(typeof v==='string'){ if(v.startsWith('Wd'))return 'bWd'; if(v.startsWith('Nb'))return 'bNb'; if(v.startsWith('By')||v.startsWith('Lb'))return 'bBy'; }
+    return '';
+}
+
+// ── Main data listener ────────────────────────────
+onValue(mRef,async snap=>{
+    const d=snap.val(); _match=d; if(!d)return;
+
+    const completedOvers=Math.floor(d.balls/6), maxBalls=(d.maxOvers||20)*6;
+    const innComplete=d.balls>=maxBalls||d.wkts>=10;
+    if(_adminLastOver>=0&&completedOvers>_adminLastOver&&d.balls%6===0&&d.balls>0){
+        if(!innComplete) openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false);
+        saveMatchToDb(true);
     }
+    _adminLastOver=completedOvers;
+    checkMatchEvents(d);
+
+    // Top bar
+    $('tbMatch').textContent=`${d.batTeam} vs ${d.bowlTeam}`;
+    const oStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
+    $('tbScore').innerHTML=`${d.runs}/${d.wkts} <span>${oStr}</span>`;
+    $('tbOvs').textContent='';
+    const fmt=d.maxOvers||20;
+    $('fmtLbl').textContent=fmt===50?'ODI · 50':fmt===20?'T20 · 20':fmt===10?'T10 · 10':`${fmt} Overs`;
+
+    // Info bar
+    const ovDec=d.balls/6;
+    const crr=ovDec>0?(d.runs/ovDec).toFixed(2):'0.00';
+    $('iInn').textContent=d.innings===2?'2ND':'1ST';
+    $('iCRR').textContent=crr;
+    if(d.target>0){
+        const bL2=(d.maxOvers||20)*6-d.balls;
+        $('iRRRWrap').style.display='';
+        $('iRRR').textContent=bL2>0?((d.target-d.runs)/(bL2/6)).toFixed(2):'∞';
+        $('iTgtWrap').style.display='';
+        $('iTgt').textContent=d.target;
+        $('iNeed').textContent=Math.max(0,d.target-d.runs);
+        $('iNeedOv').textContent=`${Math.floor(bL2/6)}.${bL2%6}`;
+    } else { $('iRRRWrap').style.display='none'; $('iTgtWrap').style.display='none'; }
+    const iFH=$('iFH'),$iFHOff=$('iFHOff');
+    if(d.freeHit){iFH.classList.add('on');$iFHOff.style.display='none';}else{iFH.classList.remove('on');$iFHOff.style.display='';}
+    const hist=d.recentBalls||[];
+    $('iOvB').textContent=hist.length?hist.join(' · '):'—';
+
+    // Teams in setup
+    if(d.batTeam) $('tNA').value=d.batTeam;
+    if(d.bowlTeam) $('tNB').value=d.bowlTeam;
+    if([10,20,40,50].includes(fmt)){$('fmtSel').value=String(fmt);$('customOversWrap').style.display='none';}
+    else{$('fmtSel').value='0';$('customOvers').value=fmt;$('customOversWrap').style.display='block';}
+
+    // Fill selects
+    if(d.batRows&&d.bowlRows){
+        const bats=d.batRows.map(r=>r.name), bowls=d.bowlRows.map(r=>r.name);
+        fillSels(bats,bowls,d.p1n,d.p2n,d.bwn);
+    }
+
+    // Score banner
+    $('bannerTeam').textContent=d.batTeam||'—';
+    $('bannerDetail').textContent=d.innings===2?`2nd Innings · Target: ${d.target}`:'1st Innings';
+    $('bannerScore').textContent=`${d.runs}/${d.wkts}`;
+    $('bannerOvs').textContent=`${oStr} overs · CRR ${crr}`;
+
+    // Live batters table
+    const striker=d.str===1?d.p1n:d.p2n;
+    const bats2=[
+        {name:d.p1n,r:d.p1r,b:d.p1b,isStr:d.str===1},
+        {name:d.p2n,r:d.p2r,b:d.p2b,isStr:d.str===2},
+    ];
+    $('livePatBatters').innerHTML=bats2.map(bt=>{
+        const sr=bt.b>0?((bt.r/bt.b)*100).toFixed(0):'—';
+        const row=bt.isStr?'striker':'';
+        return `<tr class="${row}">
+            <td>${bt.name}${bt.isStr?'<span class="bat-label">BATTING</span>':'<span class="cr-label">IN</span>'}</td>
+            <td>${bt.r}</td><td>${bt.b}</td>
+            <td>${bt.isStr?(d.p1fours||0):(d.p2fours||0)}</td>
+            <td>${bt.isStr?(d.p1sixes||0):(d.p2sixes||0)}</td>
+            <td>${sr}</td>
+        </tr>`;
+    }).join('');
+
+    // Over display
+    $('overTitle').textContent=`OVER ${completedOvers+1} — BALL ${(d.balls%6)+1} OF 6`;
+    const balls=d.recentBalls||[];
+    const ballHtml=[];
+    for(let i=0;i<6;i++){
+        if(i<balls.length){
+            const v=balls[i];
+            ballHtml.push(`<div class="ball-sq ${ballCls(v)}">${v===0?'·':v}</div>`);
+        } else {
+            ballHtml.push(`<div class="ball-sq empty">·</div>`);
+        }
+    }
+    $('liveBallRow').innerHTML=ballHtml.join('');
+
+    // Bowler table
+    const curBwl=d.bwn||'';
+    const bwlRows=d.bowlRows||[];
+    const bwlHtml=bwlRows.filter(r=>r.balls>0||(r.wides||0)>0||(r.noballs||0)>0).map((r,i)=>{
+        const ov=`${Math.floor(r.balls/6)}.${r.balls%6}`;
+        const eco=r.balls>0?(r.runs/(r.balls/6)).toFixed(1):'—';
+        const eN=parseFloat(eco);
+        const eCls=eN<7?'eco-good':eN>10?'eco-bad':'';
+        const cur=r.name===curBwl;
+        return `<tr class="${cur?'current-bwl':''}${i%2===0&&!cur?' alt':''}">
+            <td>${r.name}</td><td>${ov}</td><td>0</td>
+            <td>${r.runs}</td><td>${r.wkts}</td>
+            <td class="${eCls}">${eco}</td>
+        </tr>`;
+    }).join('');
+    $('liveBwlBody').innerHTML=bwlHtml||`<tr><td colspan="6" style="text-align:center;color:var(--muted)">No overs bowled yet</td></tr>`;
+
+    // Scorecard header
+    $('scBannerTitle').textContent=`${d.batTeam} — ${d.runs}/${d.wkts} (${oStr})`;
+    $('scBannerSub').textContent=d.inn1Score?`After ${d.inn1Bat}: ${d.inn1Score}`:(d.maxOvers?`${d.maxOvers} Overs Match`:'T20');
+
+    // Need bar
+    if(d.target>0){
+        $('needBar').className='need-bar on';
+        $('scTgtV').textContent=d.target;
+        const bL3=(d.maxOvers||20)*6-d.balls;
+        $('scNdV').textContent=Math.max(0,d.target-d.runs);
+        $('scNdOvV').textContent=`${Math.floor(bL3/6)}.${bL3%6}`;
+        $('scRRRV').textContent=bL3>0?((d.target-d.runs)/(bL3/6)).toFixed(2):'∞';
+    } else $('needBar').className='need-bar';
+
+    // Full batting scorecard
+    let fowItems=[],fowCount=0;
+    let ext=0; (d.bowlRows||[]).forEach(r=>{ext+=(r.wides||0)+(r.noballs||0)+(r.byes||0)+(r.legbyes||0);});
+    const batRowHtml=(d.batRows||[]).map((row,i)=>{
+        const isStr=(d.str===1&&d.p1n===row.name)||(d.str===2&&d.p2n===row.name);
+        const isCr=d.p1n===row.name||d.p2n===row.name;
+        const sr=row.balls>0?((row.runs/row.balls)*100).toFixed(0):'—';
+        let howOut='',howStyle='';
+        if(row.out){howOut=row.howOut||'out';howStyle='color:var(--muted)';fowCount++;fowItems.push(`<span class="fow-item"><b>${fowCount}.</b> ${row.name} ${row.runs}</span>`);}
+        else if(isStr){howOut='★ batting';howStyle='color:var(--gold)';}
+        else if(isCr){howOut='not out';howStyle='color:var(--green)';}
+        const imgSrc=ph(row.name);
+        const rowCls=row.out?'out-row':(isStr?'striker':(i%2===0?'alt':''));
+        return `<tr class="${rowCls}">
+            <td style="display:flex;align-items:center;gap:8px;padding:8px 10px">
+                <img src="${imgSrc}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border);flex-shrink:0">
+                <span>${row.name}</span>
+            </td>
+            <td class="howout" style="${howStyle}">${howOut}</td>
+            <td><b>${row.runs}</b></td>
+            <td>${row.balls}</td>
+            <td>${row.fours||0}</td>
+            <td>${row.sixes||0}</td>
+            <td style="color:var(--muted)">${sr}</td>
+        </tr>`;
+    }).join('');
+    $('scBatContent').innerHTML=`
+        <table class="pc-table">
+            <thead><tr><th>Batsman</th><th class="howout" style="text-align:left">How Out</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+            <tbody>${batRowHtml}</tbody>
+            <tbody><tr class="extra-row"><td colspan="2">Extras (Wd + Nb + By + Lb)</td><td>${ext}</td><td colspan="4"></td></tr></tbody>
+            <tbody><tr class="total-row"><td colspan="2">TOTAL</td><td>${d.runs}/${d.wkts}</td><td colspan="3">${oStr} Ovs</td><td>CRR ${crr}</td></tr></tbody>
+        </table>
+        <div class="fow-row">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-right:8px">FALL OF WICKETS</span>
+            ${fowItems.length?fowItems.join(''):'<span style="color:var(--muted);font-size:12px">—</span>'}
+        </div>`;
+
+    // Full bowling scorecard
+    const bwlScHtml=(d.bowlRows||[]).map((row,i)=>{
+        const has=row.balls>0||(row.wides||0)>0||(row.noballs||0)>0;
+        const isCur=d.bwn===row.name;
+        const ov=`${Math.floor(row.balls/6)}.${row.balls%6}`;
+        const eco=row.balls>0?(row.runs/(row.balls/6)).toFixed(1):'—';
+        const eN=parseFloat(eco);
+        const eCls=eN<7?'eco-good':eN>10?'eco-bad':'';
+        const rowCls=!has?'dnb-row':(isCur?'current-bwl':(i%2===0?'alt':''));
+        return `<tr class="${rowCls}">
+            <td>${row.name}</td>
+            <td>${has?ov:'—'}</td>
+            <td>${has?0:'—'}</td>
+            <td>${has?row.runs:'—'}</td>
+            <td>${has?row.wkts:'—'}</td>
+            <td class="${eCls}">${has?eco:'—'}</td>
+        </tr>`;
+    }).join('');
+    const bwlExt=(d.bowlRows||[]).reduce((s,r)=>s+(r.wides||0)+(r.noballs||0),0);
+    $('scBwlContent').innerHTML=`
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">
+            ${d.bowlTeam||'BOWLING'} — Bowling Figures
+        </div>
+        <table class="bwl-table">
+            <thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead>
+            <tbody>${bwlScHtml}</tbody>
+            <tbody><tr style="background:var(--stripe)"><td colspan="3" style="color:var(--muted);font-size:13px">Extras (Wd+Nb)</td><td>${bwlExt}</td><td colspan="2"></td></tr></tbody>
+        </table>`;
+});
+
+onValue(sRef,snap=>{
+    const s=snap.val(); if(!s)return;
+    if(s.sqA){ const names=s.sqA.split('\n').map(n=>n.trim()).filter(Boolean); setNames('A',names); }
+    if(s.sqB){ const names=s.sqB.split('\n').map(n=>n.trim()).filter(Boolean); setNames('B',names); }
+    if(!_match||!_match.batRows){ const bats=getNames('A'),bowls=getNames('B'); fillSels(bats,bowls,_match?.p1n||null,_match?.p2n||null,_match?.bwn||null); }
+    updateTossUI();
+});
+
+// ── Match history ─────────────────────────────────
+async function enforceHistLimit(){
+    const all=await get(histRef); const val=all.val();
+    if(val){ const keys=Object.keys(val).sort((a,b)=>val[a].savedAt-val[b].savedAt); if(keys.length>10) for(const k of keys.slice(0,keys.length-10)) await remove(ref(db,`matchHistory/${k}`)); }
 }
 window.saveMatchToDb=async(silent=false)=>{
     const snap=await get(mRef); const d=snap.val();
-    if(!d){ if(!silent) alert('No match data to save!'); return; }
+    if(!d){if(!silent)alert('No match data');return;}
     const title=$('matchTitle').value.trim()||`${d.batTeam} vs ${d.bowlTeam}`;
     const venue=$('matchVenue').value.trim()||'';
     const now=new Date();
     const dateLabel=`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const ovStr=b=>`${Math.floor(b/6)}.${b%6}`;
-    const record = {
-        title, venue, savedAt:Date.now(), dateLabel,
-        batTeam:d.batTeam, bowlTeam:d.bowlTeam,
-        score:`${d.runs}/${d.wkts}`, overs:ovStr(d.balls),
-        maxOvers:d.maxOvers||20, innings:d.innings||1,
-        inn1Score:d.inn1Score||null, inn1Bat:d.inn1Bat||null, target:d.target||0,
-        batRows:d.batRows||[], bowlRows:d.bowlRows||[],
-        inn1BatRows:d.inn1BatRows||(d.innings===1?d.batRows:[])||[],
-        inn1BowlRows:d.inn1BowlRows||(d.innings===1?d.bowlRows:[])||[],
-        fullState:JSON.parse(JSON.stringify(d)),
-    };
-    if(_currentMatchKey){
-        await set(ref(db,`matchHistory/${_currentMatchKey}`), record);
-    } else {
-        const newRef = await push(histRef, record);
-        _currentMatchKey = newRef.key;
-        await enforceHistoryLimit();
-    }
-    if(!silent) showToast(`✅ Saved: "${title}"`);
+    const record={title,venue,savedAt:Date.now(),dateLabel,batTeam:d.batTeam,bowlTeam:d.bowlTeam,score:`${d.runs}/${d.wkts}`,overs:ovStr(d.balls),maxOvers:d.maxOvers||20,innings:d.innings||1,inn1Score:d.inn1Score||null,inn1Bat:d.inn1Bat||null,target:d.target||0,batRows:d.batRows||[],bowlRows:d.bowlRows||[],inn1BatRows:d.inn1BatRows||(d.innings===1?d.batRows:[])||[],inn1BowlRows:d.inn1BowlRows||(d.innings===1?d.bowlRows:[])||[],fullState:JSON.parse(JSON.stringify(d))};
+    if(_curMatchKey){ await set(ref(db,`matchHistory/${_curMatchKey}`),record); }
+    else { const nRef=await push(histRef,record); _curMatchKey=nRef.key; await enforceHistLimit(); }
+    if(!silent) toast(`✅ Saved: "${title}"`);
 };
-window.deleteMatch=async(key)=>{
-    if(!confirm('Delete this match from history?')) return;
-    await remove(ref(db,`matchHistory/${key}`));
+window.deleteMatch=async key=>{ if(!confirm('Delete this match?'))return; await remove(ref(db,`matchHistory/${key}`)); };
+window.reloadMatch=async(key,enc)=>{
+    const data=JSON.parse(decodeURIComponent(enc));
+    if(!confirm(`Reload "${data.title}"? This will REPLACE the current match.`))return;
+    if(!data.fullState){alert('No full state saved — re-save to enable reload.');return;}
+    await set(hRef,null); await set(mRef,data.fullState);
+    const bn=(data.fullState.batRows||[]).map(r=>r.name).join('\n');
+    const wn=(data.fullState.bowlRows||[]).map(r=>r.name).join('\n');
+    await set(sRef,{sqA:bn,sqB:wn});
+    _adminLastOver=Math.floor(data.fullState.balls/6); _curMatchKey=key;
+    toast(`✅ Loaded: "${data.title}"`);
 };
-window.reloadMatch=async(key,encoded)=>{
-    const data=JSON.parse(decodeURIComponent(encoded));
-    if(!confirm(`Reload "${data.title}" into live panel? This will REPLACE the current match.`)) return;
-    if(!data.fullState){ alert('No full state saved — re-save to enable reload.'); return; }
-    await set(hRef,null);
-    await set(mRef,data.fullState);
-    const batNames=(data.fullState.batRows||[]).map(r=>r.name).join('\n');
-    const bowlNames=(data.fullState.bowlRows||[]).map(r=>r.name).join('\n');
-    await set(sRef,{sqA:batNames,sqB:bowlNames});
-    _adminLastOver=Math.floor(data.fullState.balls/6);
-    _currentMatchKey=key;
-    showToast(`✅ Loaded: "${data.title}"`);
-};
-window.downloadSavedMatch=(key,encoded)=>{
-    const data=JSON.parse(decodeURIComponent(encoded));
+window.downloadSavedMatch=(key,enc)=>{
+    const data=JSON.parse(decodeURIComponent(enc));
     const ovStr=b=>`${Math.floor(b/6)}.${b%6}`;
     const sr=(r,b)=>b>0?((r/b)*100).toFixed(0):'—';
     const eco=(r,b)=>b>0?(r/(b/6)).toFixed(2):'—';
-    const CSS=`:root{--y:#f0b429;--bg:#080810;--card:#0e0e1a;--brd:#1e1e2e;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Barlow',sans-serif;background:var(--bg);color:#ccc;padding:20px;max-width:900px;margin:auto;}.hdr{background:linear-gradient(135deg,#0c0c00,#111);border:1px solid #2a2000;border-radius:8px;padding:20px 24px;margin-bottom:16px;}.htitle{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:900;color:var(--y);text-transform:uppercase;letter-spacing:2px;}.hmeta{font-size:11px;color:#555;margin-top:6px;display:flex;gap:16px;flex-wrap:wrap;font-family:'Barlow Condensed',sans-serif;}.hmeta b{color:#888;}.is{background:#0e0e1a;border-left:4px solid var(--y);padding:10px 16px;margin-bottom:8px;border-radius:0 6px 6px 0;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}.i2{border-left-color:#06d6a0;}.il{font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#444;text-transform:uppercase;letter-spacing:2px;}.isc{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:#fff;}.it{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--y);font-weight:700;}.sec-hdr{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--y);text-transform:uppercase;letter-spacing:3px;padding:10px 0 4px;}.sec{background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:16px;margin-bottom:14px;}.th{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:var(--y);text-transform:uppercase;letter-spacing:3px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--brd);}table{width:100%;border-collapse:collapse;margin-bottom:20px;}th{font-family:'Barlow Condensed',sans-serif;font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1px;padding:4px 8px;text-align:right;font-weight:700;border-bottom:1px solid var(--brd);}th:first-child,th:nth-child(2){text-align:left;}td{font-size:13px;padding:7px 8px;text-align:right;border-top:1px solid rgba(255,255,255,.03);color:#aaa;}td.nm{text-align:left;color:#ddd;font-weight:600;}td.ho{text-align:left;font-size:11px;color:#555;}tr.notout td.nm{color:#fff;}tr.notout td.ho{color:#06d6a0;}tr.xr td{color:#666;font-size:12px;}tr.tr td{color:var(--y);font-weight:700;background:#0a0a18;}.eg{color:#06d6a0!important;font-weight:600;}.eb{color:#e63946!important;font-weight:600;}.ftr{text-align:center;font-size:10px;color:#222;margin-top:20px;font-family:'Barlow Condensed',sans-serif;}`;
-    const batHtml=(rows,team,bowlRowsForExt)=>{
-        if(!rows||!rows.length) return '';
-        let ext=0;(bowlRowsForExt||[]).forEach(r=>{ext+=(r.wides||0)+(r.noballs||0)+(r.byes||0)+(r.legbyes||0);});
-        let h=`<h3 class="th">🏏 ${team} — Batting</h3><table><thead><tr><th>Batsman</th><th>How Out</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>`;
-        rows.forEach(row=>{ const st=row.out?(row.howOut||'out'):'not out'; const cl=row.out?'out':'notout'; h+=`<tr class="${cl}"><td class="nm">${row.name}</td><td class="ho">${st}</td><td class="n"><b>${row.runs}</b></td><td class="n">${row.balls}</td><td class="n">${row.fours||0}</td><td class="n">${row.sixes||0}</td><td class="n">${sr(row.runs,row.balls)}</td></tr>`; });
-        h+=`<tr class="xr"><td colspan="2">Extras</td><td><b>${ext}</b></td><td colspan="4"></td></tr><tr class="tr"><td colspan="2"><b>TOTAL</b></td><td><b>${data.innings===2&&team===data.batTeam?data.score:data.inn1Score||data.score}</b></td><td colspan="4"></td></tr></tbody></table>`;
+    const CSS=`body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0;padding:20px;} .wrap{max-width:900px;margin:auto;} h1{font-size:22px;color:#1a3a5c;border-bottom:3px solid #1a3a5c;padding-bottom:8px;margin-bottom:16px;} table{width:100%;border-collapse:collapse;margin-bottom:20px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.1);} th{background:#1a3a5c;color:#fff;padding:9px 12px;text-align:right;font-size:12px;letter-spacing:1px;} th:first-child,th:nth-child(2){text-align:left;} td{padding:8px 12px;text-align:right;border-top:1px solid #e8ecf0;font-size:13px;} td:first-child{text-align:left;font-weight:600;} tr:nth-child(even){background:#f8fafc;} .striker{background:#fffbeb;} .out{opacity:.6;} .total{background:#1a3a5c;color:#fff;font-weight:700;} .total td{color:#fff;border:none;} .meta{font-size:12px;color:#888;margin-bottom:4px;}`;
+    const batHtml=(rows,team)=>{
+        if(!rows||!rows.length)return '';
+        let ext=0; const bwlR=data.bowlRows||[]; bwlR.forEach(r=>{ext+=(r.wides||0)+(r.noballs||0)+(r.byes||0)+(r.legbyes||0);});
+        let h=`<h2 style="color:#1a3a5c;margin:16px 0 8px">${team} — Batting</h2><table><thead><tr><th>Batsman</th><th>How Out</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>`;
+        rows.forEach(row=>{ const cls=row.out?'out':''; h+=`<tr class="${cls}"><td>${row.name}</td><td style="font-size:11px;color:#888">${row.out?(row.howOut||'out'):'not out'}</td><td><b>${row.runs}</b></td><td>${row.balls}</td><td>${row.fours||0}</td><td>${row.sixes||0}</td><td>${sr(row.runs,row.balls)}</td></tr>`; });
+        h+=`<tr><td colspan="2" style="color:#888">Extras</td><td>${ext}</td><td colspan="4"></td></tr><tr class="total"><td colspan="2">TOTAL</td><td>${data.innings===2&&team===data.batTeam?data.score:data.inn1Score||data.score}</td><td colspan="4"></td></tr></tbody></table>`;
         return h;
     };
     const bwlHtml=(rows,team)=>{
-        if(!rows||!rows.length) return '';
-        let h=`<h3 class="th">⚾ ${team} — Bowling</h3><table><thead><tr><th>Bowler</th><th>O</th><th>R</th><th>W</th><th>Wd</th><th>Nb</th><th>Eco</th></tr></thead><tbody>`;
-        rows.forEach(row=>{ if(!row.balls&&!(row.wides||0)&&!(row.noballs||0)){h+=`<tr><td class="nm">${row.name}</td><td colspan="6" style="color:#555;font-style:italic">did not bowl</td></tr>`;return;} const eV=parseFloat(eco(row.runs,row.balls)); h+=`<tr><td class="nm">${row.name}</td><td>${ovStr(row.balls)}</td><td>${row.runs}</td><td><b>${row.wkts}</b></td><td>${row.wides||0}</td><td>${row.noballs||0}</td><td class="${eV<7?'eg':eV>10?'eb':''}">${eco(row.runs,row.balls)}</td></tr>`; });
+        if(!rows||!rows.length)return '';
+        let h=`<h2 style="color:#1a3a5c;margin:16px 0 8px">${team} — Bowling</h2><table><thead><tr><th>Bowler</th><th>O</th><th>R</th><th>W</th><th>Wd</th><th>Nb</th><th>Eco</th></tr></thead><tbody>`;
+        rows.forEach(row=>{ if(!row.balls&&!(row.wides||0)&&!(row.noballs||0)){h+=`<tr><td>${row.name}</td><td colspan="6" style="color:#999;font-style:italic;text-align:left">did not bowl</td></tr>`;return;} h+=`<tr><td>${row.name}</td><td>${ovStr(row.balls)}</td><td>${row.runs}</td><td><b>${row.wkts}</b></td><td>${row.wides||0}</td><td>${row.noballs||0}</td><td>${eco(row.runs,row.balls)}</td></tr>`; });
         h+=`</tbody></table>`; return h;
     };
-    const fmt=data.maxOvers?`${data.maxOvers} Overs`:'T20';
-    const inn1Bat=data.innings===2?data.bowlTeam:data.batTeam;
-    const inn1Bowl=data.innings===2?data.batTeam:data.bowlTeam;
-    const i1hdr=data.inn1Score?`<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.inn1Bat} — ${data.inn1Score}</span></div>`:'';
-    const i2hdr=data.innings===2?`<div class="is i2"><span class="il">2ND INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span>${data.target>0?`<span class="it">Target ${data.target}</span>`:''}</div>`:`<div class="is"><span class="il">1ST INNINGS</span><span class="isc">${data.batTeam} — ${data.score} (${data.overs} ovs)</span></div>`;
-    const inn1Sec=(data.inn1BatRows&&data.inn1BatRows.length)?`<div class="sec-hdr">1ST INNINGS — ${inn1Bat}</div><div class="sec">${batHtml(data.inn1BatRows,inn1Bat,data.inn1BowlRows)}${bwlHtml(data.inn1BowlRows||[],inn1Bowl)}</div>`:'';
-    const inn2Sec=data.innings===2?`<div class="sec-hdr">2ND INNINGS — ${data.batTeam}</div><div class="sec">${batHtml(data.batRows,data.batTeam,data.bowlRows)}${bwlHtml(data.bowlRows,data.bowlTeam)}</div>`:`<div class="sec">${batHtml(data.batRows,data.batTeam,data.bowlRows)}${bwlHtml(data.bowlRows,data.bowlTeam)}</div>`;
-    const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${data.title}</title><link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Barlow:wght@400;600&display=swap" rel="stylesheet"><style>${CSS}</style></head><body><div class="hdr"><div class="htitle">${data.title}</div><div class="hmeta"><span><b>Date:</b> ${data.dateLabel}</span>${data.venue?`<span><b>Venue:</b> ${data.venue}</span>`:''}<span><b>Format:</b> ${fmt}</span></div></div>${i1hdr}${i2hdr}${inn1Sec}${inn2Sec}<div class="ftr">Cricket Overlay · ${data.dateLabel}</div></body></html>`;
+    const inn1b=data.innings===2?data.bowlTeam:data.batTeam, inn1w=data.innings===2?data.batTeam:data.bowlTeam;
+    const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${data.title}</title><style>${CSS}</style></head><body><div class="wrap"><h1>${data.title}</h1><div class="meta">${data.dateLabel}${data.venue?' · '+data.venue:''} · ${data.maxOvers||20} Overs</div>${data.inn1Score?`<p style="margin:8px 0;font-size:14px;color:#1a3a5c;font-weight:600">1st Innings: ${data.inn1Bat} — ${data.inn1Score}</p>`:''}<p style="margin:8px 0;font-size:14px;color:#1a3a5c;font-weight:600">${data.innings===2?`2nd Innings: ${data.batTeam} — ${data.score} (${data.overs})${data.target>0?` · Target ${data.target}`:''}`:''}</p>${data.inn1BatRows&&data.inn1BatRows.length?batHtml(data.inn1BatRows,inn1b):batHtml(data.batRows,data.batTeam)}${data.inn1BowlRows&&data.inn1BowlRows.length?bwlHtml(data.inn1BowlRows||[],inn1w):''}${data.innings===2?batHtml(data.batRows,data.batTeam)+bwlHtml(data.bowlRows,data.bowlTeam):bwlHtml(data.bowlRows,data.bowlTeam)}</div></body></html>`;
     const safe=data.title.replace(/[^a-zA-Z0-9 ]/g,'').replace(/ +/g,'-').substring(0,40);
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'})); a.download=`scorecard_${safe}.html`; a.click();
 };
 
-function renderHistory(val){
+onValue(histRef,snap=>{
+    const val=snap.val();
     const list=$('histList');
-    if(!val){list.innerHTML='<div class="hist-empty">No saved matches yet — starts auto-saving when you initialize a match.</div>';return;}
+    if(!val){list.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:16px">No saved matches yet — saves automatically every over.</p>';return;}
     const entries=Object.entries(val).sort((a,b)=>b[1].savedAt-a[1].savedAt);
-    list.innerHTML=`<div class="hist-count">${entries.length}/10 MATCHES SAVED — auto-updates every over</div>`+entries.map(([key,d])=>{
-        const isActive = key===_currentMatchKey;
-        const innBadge = d.innings===2?`<span style="background:#0a3a28;color:#06d6a0;border:1px solid #0a5038;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:700;letter-spacing:1px;margin-left:6px">BOTH INN</span>`:`<span style="background:#0a0a20;color:#888;border:1px solid #252535;border-radius:3px;padding:1px 7px;font-size:10px;letter-spacing:1px;margin-left:6px">1ST INN</span>`;
-        const activeBadge = isActive?`<span style="background:#3a2800;color:var(--y);border:1px solid #5a3c00;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:700;letter-spacing:1px;margin-left:4px">● LIVE</span>`:'';
-        const inn1line = d.inn1Score ? `<div class="hist-meta" style="color:#666;margin-top:1px">1st: ${d.inn1Bat||''} ${d.inn1Score}</div>` : '';
-        const inn2line = d.innings===2?`<div class="hist-meta" style="color:#06d6a0;margin-top:1px">2nd: ${d.batTeam} ${d.score} (${d.overs} ovs)${d.target>0?' · Target '+d.target:''}</div>`:`<div class="hist-meta" style="color:#aaa;margin-top:1px">${d.batTeam}: ${d.score} (${d.overs} ovs)</div>`;
+    list.innerHTML=entries.map(([key,d])=>{
+        const isAct=key===_curMatchKey;
+        const innBadge=d.innings===2?`<span class="badge badge-both">BOTH INN</span>`:`<span class="badge badge-inn1">1ST INN</span>`;
+        const actBadge=isAct?`<span class="badge badge-live">● LIVE</span>`:'';
+        const inn1l=d.inn1Score?`<div class="hist-meta" style="margin-top:2px">1st: ${d.inn1Bat||''} ${d.inn1Score}</div>`:'';
+        const inn2l=d.innings===2?`<div class="hist-meta" style="color:var(--green)">2nd: ${d.batTeam} ${d.score}${d.target>0?' · Target '+d.target:''}</div>`:`<div class="hist-meta">${d.batTeam}: ${d.score} (${d.overs})</div>`;
         const enc=encodeURIComponent(JSON.stringify(d));
-        return `<div class="hist-item" style="${isActive?'border-color:var(--y);':''}">
+        return `<div class="hist-item${isAct?' active':''}">
             <div class="hist-info">
-                <div class="hist-title">${d.title||'Untitled'}${innBadge}${activeBadge}</div>
+                <div class="hist-title">${d.title||'Untitled'}${innBadge}${actBadge}</div>
                 <div class="hist-meta">${d.dateLabel}${d.venue?' · '+d.venue:''} · ${d.maxOvers||20} ovs</div>
-                ${inn1line}${inn2line}
+                ${inn1l}${inn2l}
             </div>
             <div class="hist-score">${d.score}</div>
             <div class="hist-actions">
-                <button class="b-hist-rl"  onclick="reloadMatch('${key}','${enc}')">↺ LOAD</button>
-                <button class="b-hist-dl"  onclick="downloadSavedMatch('${key}','${enc}')">⬇ FILE</button>
-                <button class="b-hist-del" onclick="deleteMatch('${key}')">🗑 DEL</button>
+                <button class="hist-act-btn hb-load" onclick="reloadMatch('${key}','${enc}')">↺ Load</button>
+                <button class="hist-act-btn hb-dl" onclick="downloadSavedMatch('${key}','${enc}')">⬇ File</button>
+                <button class="hist-act-btn hb-del" onclick="deleteMatch('${key}')">🗑</button>
             </div>
         </div>`;
     }).join('');
-}
-onValue(histRef,snap=>renderHistory(snap.val()));
+});
 
 window.saveMatch=async()=>{
-    const snap=await get(mRef); const d=snap.val(); if(!d) return alert('No match data to save!');
+    const snap=await get(mRef); const d=snap.val(); if(!d){alert('No match data');return;}
     const now=new Date();
-    const dd=String(now.getDate()).padStart(2,'0'),mm=String(now.getMonth()+1).padStart(2,'0'),yyyy=now.getFullYear();
-    const dateLabel=`${dd}/${mm}/${yyyy} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const dl=`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const title=$('matchTitle').value.trim()||`${d.batTeam} vs ${d.bowlTeam}`;
     const venue=$('matchVenue').value.trim();
-    const enc=encodeURIComponent(JSON.stringify({title,venue,dateLabel,batTeam:d.batTeam,bowlTeam:d.bowlTeam,score:`${d.runs}/${d.wkts}`,overs:`${Math.floor(d.balls/6)}.${d.balls%6}`,maxOvers:d.maxOvers||20,innings:d.innings||1,inn1Score:d.inn1Score||null,inn1Bat:d.inn1Bat||null,target:d.target||0,batRows:d.batRows||[],bowlRows:d.bowlRows||[],inn1BatRows:d.inn1BatRows||(d.innings===1?d.batRows:[])||[],inn1BowlRows:d.inn1BowlRows||(d.innings===1?d.bowlRows:[])||[],}));
+    const enc=encodeURIComponent(JSON.stringify({title,venue,dateLabel:dl,batTeam:d.batTeam,bowlTeam:d.bowlTeam,score:`${d.runs}/${d.wkts}`,overs:`${Math.floor(d.balls/6)}.${d.balls%6}`,maxOvers:d.maxOvers||20,innings:d.innings||1,inn1Score:d.inn1Score||null,inn1Bat:d.inn1Bat||null,target:d.target||0,batRows:d.batRows||[],bowlRows:d.bowlRows||[],inn1BatRows:d.inn1BatRows||(d.innings===1?d.batRows:[])||[],inn1BowlRows:d.inn1BowlRows||(d.innings===1?d.bowlRows:[])||[]}));
     downloadSavedMatch('current',enc);
 };
 
-// ── Build squad inputs & init ────────────────────
-buildSquadInputs();
-updateTossUI(); // initial render
+// Player popup
+window.openPlayerPopup=async()=>{
+    const sA=getNames('A'),sB=getNames('B');
+    const batNm=($('tNA').value||'Team A').toUpperCase(), bowlNm=($('tNB').value||'Team B').toUpperCase();
+    function thHtml(name,players){
+        if(!players.length)return '';
+        const cards=players.map(p=>`<div class="player-card"><img src="${ph(p)}" alt="${p}"><div class="pc-name">${p}</div></div>`).join('');
+        return `<div style="margin-bottom:20px"><div class="team-sec-title">🏏 ${name}</div><div class="player-card-grid">${cards}</div></div>`;
+    }
+    $('ppContent').innerHTML=thHtml(batNm,sA)+thHtml(bowlNm,sB);
+    $('ppOverlay').classList.add('open');
+};
+window.closePlayerPopup=()=>$('ppOverlay').classList.remove('open');
 
+// Init
+buildSquads();
+updateTossUI();
 const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
-
-const cSnap = await get(cSettingsRef);
-if(!cSnap.val()){ await set(cSettingsRef, { enabled:true, style:'standard', rate:1.0, pitch:1.1 }); }
+const cSnap=await get(cRef);
+if(!cSnap.val()) await set(cRef,{enabled:true,style:'standard',rate:1.0,pitch:1.1});
 </script>
 
-</div><!-- /mainContent -->
+</div><!-- /mc -->
 
 <script>
 (function(){
-    const PW='Ganesh@12345', KEY='cricket_admin_auth';
-    function unlock(){ document.getElementById('pwGate').classList.add('gone'); const mc=document.getElementById('mainContent'); mc.style.filter=''; mc.style.pointerEvents=''; mc.style.userSelect=''; }
-    if(sessionStorage.getItem(KEY)==='1'){ unlock(); return; }
-    window.checkPw=function(){ const i=document.getElementById('pwInput'),e=document.getElementById('pwErr'); if(i.value===PW){ sessionStorage.setItem(KEY,'1'); unlock(); } else { i.classList.add('error'); e.textContent='Incorrect password.'; i.value=''; setTimeout(()=>i.classList.remove('error'),400); } };
-    window.togglePwEye=function(){ const i=document.getElementById('pwInput'); i.type=i.type==='password'?'text':'password'; };
+    const PW='Ganesh@12345',KEY='cricket_admin_auth_v2';
+    function unlock(){document.getElementById('pwGate').classList.add('gone');const mc=document.getElementById('mc');mc.style.filter='';mc.style.pointerEvents='';mc.style.userSelect='';}
+    if(sessionStorage.getItem(KEY)==='1'){unlock();return;}
+    window.checkPw=function(){const i=document.getElementById('pwInput'),e=document.getElementById('pwErr');if(i.value===PW){sessionStorage.setItem(KEY,'1');unlock();}else{i.classList.add('error');e.textContent='Incorrect password.';i.value='';setTimeout(()=>i.classList.remove('error'),400);}};
+    window.togglePwEye=function(){const i=document.getElementById('pwInput');i.type=i.type==='password'?'text':'password';};
     document.getElementById('pwInput').focus();
 })();
 </script>
