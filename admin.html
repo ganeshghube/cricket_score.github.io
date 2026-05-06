@@ -126,111 +126,39 @@ body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); m
 .ball-sq.bBy,.ball-sq.bLb{ background:#eff6ff; border-color:#93c5fd; color:#3b82f6; }
 .ball-sq.empty{ background:#f8fafc; border-color:#e2e8f0; opacity:.35; }
 
-/* ══════════════════════════════════════════════════════
-   ── PLAY-CRICKET STYLE SCORING BUTTONS ──
-   Small, compact, circular/pill style like the app
-══════════════════════════════════════════════════════ */
-
-/* Section wrapper */
+/* ── SCORING BUTTONS ── */
 .scoring-card{ background:var(--card); border-radius:8px; border:1px solid var(--border); }
-.scoring-section{ padding:10px 12px; border-bottom:1px solid var(--border); }
+.scoring-section{ padding:12px 14px; border-bottom:1px solid var(--border); }
 .scoring-section:last-child{ border-bottom:none; }
-.scoring-lbl{
-    font-family:'Barlow Condensed',sans-serif; font-size:9px; font-weight:800;
-    color:var(--muted); letter-spacing:2px; text-transform:uppercase;
-    margin-bottom:6px; display:block;
-}
-
-/* ── Legal runs row — circles like Play-Cricket ── */
-.pc-runs-row{
-    display:flex; gap:6px; flex-wrap:wrap; align-items:center;
-}
-
-/* Base circle button */
-.pc-btn{
-    border-radius:50%;
-    width:44px; height:44px;
-    border:2px solid;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:15px; font-weight:800;
-    cursor:pointer;
-    transition:all .1s;
-    flex-shrink:0;
-    padding:0;
-    line-height:1;
-}
-.pc-btn:active{ transform:scale(.9); opacity:.75; }
-
-/* Pill button (wider, for FOUR / SIX / action buttons) */
-.pc-pill{
-    border-radius:22px;
-    height:40px; min-width:68px;
-    padding:0 14px;
-    border:2px solid;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:13px; font-weight:800;
-    cursor:pointer;
-    transition:all .1s;
-    flex-shrink:0;
-    line-height:1;
-    white-space:nowrap;
-    letter-spacing:.3px;
-}
-.pc-pill:active{ transform:scale(.96); opacity:.75; }
-
-/* Wide pill for WICKET / END OVER / SWAP */
-.pc-pill-wide{
-    border-radius:22px;
-    height:40px; min-width:100px;
-    padding:0 18px;
-    border:2px solid;
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:13px; font-weight:800;
-    cursor:pointer;
-    transition:all .1s;
-    flex-shrink:0;
-    line-height:1;
-    white-space:nowrap;
-    letter-spacing:.3px;
-}
-.pc-pill-wide:active{ transform:scale(.96); opacity:.75; }
-
-/* Colour variants */
-.pc-dot  { background:#fff; color:#64748b; border-color:#cbd5e1; }
-.pc-run  { background:#fff; color:#1a3a5c; border-color:#b8c5d0; }
-.pc-four { background:#eff6ff; color:#1d4ed8; border-color:#93c5fd; font-size:14px; }
-.pc-six  { background:#f5f3ff; color:#6d28d9; border-color:#c4b5fd; font-size:14px; }
-.pc-wide { background:#fffbeb; color:#b45309; border-color:#fcd34d; }
-.pc-nb   { background:#fff7ed; color:#c2410c; border-color:#fdba74; }
-.pc-bye  { background:#f0f9ff; color:#0369a1; border-color:#bae6fd; }
-.pc-lb   { background:#f0fdf4; color:#166534; border-color:#86efac; }
-.pc-wkt  { background:#fff1f2; color:#be123c; border-color:#fda4af; }
-.pc-wkt:hover{ background:#be123c; color:#fff; border-color:#be123c; }
-.pc-swap { background:#f8fafc; color:#374151; border-color:#cbd5e1; }
-.pc-undo { background:#f5f0ff; color:#5b21b6; border-color:#c4b5fd; }
-.pc-undo:disabled{ opacity:.3; cursor:not-allowed; }
-
-/* Action row at the bottom */
-.pc-action-row{
-    display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:10px 12px;
-    border-top:2px solid var(--border); background:#f8fafc; border-radius:0 0 8px 8px;
-}
-
-/* Extras sub-row — wides/noballs side by side */
-.pc-extras-grid{
-    display:flex; gap:6px; flex-wrap:wrap;
-}
-
-/* ── MISC ── */
+.scoring-lbl{ font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:800; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.btn-grid{ display:grid; gap:6px; }
+.btn-grid.cols4{ grid-template-columns:repeat(4,1fr); }
+.btn-grid.cols3{ grid-template-columns:repeat(3,1fr); }
+.btn-grid.cols2{ grid-template-columns:repeat(2,1fr); }
+.sb{ padding:12px 6px; border:2px solid; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:15px; cursor:pointer; transition:all .1s; width:100%; letter-spacing:.5px; line-height:1.2; }
+.sb:active{ transform:scale(.94); opacity:.7; }
+.sb-dot { background:#f1f5f9; color:#64748b; border-color:#cbd5e1; }
+.sb-run { background:#f0fdf4; color:#16a34a; border-color:#86efac; }
+.sb-4   { background:#eff6ff; color:#2563eb; border-color:#93c5fd; }
+.sb-6   { background:#f5f3ff; color:#7c3aed; border-color:#c4b5fd; }
+.sb-wd  { background:#fffbeb; color:#d97706; border-color:#fcd34d; }
+.sb-nb  { background:#fff7ed; color:#ea580c; border-color:#fed7aa; }
+.sb-bye { background:#f0f9ff; color:#0369a1; border-color:#bae6fd; }
+.sb-lb  { background:#f0fdf4; color:#15803d; border-color:#86efac; }
+.sb-wkt { background:#fff1f2; color:#be123c; border-color:#fda4af; font-size:17px; }
+.sb-wkt:hover{ background:var(--red); color:#fff; border-color:var(--red); }
+.sb-swap{ background:#f8fafc; color:#475569; border-color:#cbd5e1; }
+.sb-undo{ background:#f5f0ff; color:#6d28d9; border-color:#c4b5fd; }
+.sb-undo:disabled{ opacity:.3; cursor:not-allowed; }
+.sb-gold{ background:var(--navy); color:#fff; border-color:var(--navy); font-size:16px; }
+.sb-gold:hover{ background:var(--navy2); }
+.sb-show{ background:#f0fdf4; color:var(--green); border-color:#86efac; }
+.sb-hide{ background:#fff1f2; color:var(--red); border-color:#fda4af; }
+.sb-inn{ background:#f5f0ff; color:var(--purple); border-color:#c4b5fd; }
+.sb-rst{ background:#fff1f2; color:var(--red2); border-color:#fca5a5; }
 .undo-badge{ background:#e9d5ff; color:#6d28d9; border-radius:3px; padding:1px 6px; font-size:11px; margin-left:3px; }
 .injury-btn{ background:#fff7ed; color:#c2410c; border:2px solid #fed7aa; border-radius:6px; padding:9px 8px; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:12px; cursor:pointer; width:100%; letter-spacing:.5px; }
 .injury-btn:hover{ background:#c2410c; color:#fff; border-color:#c2410c; }
-
-.note-box{ background:var(--card2); border:1.5px solid var(--border); border-radius:6px; padding:10px 14px; font-size:11px; color:var(--muted); line-height:1.7; }
-.note-box b{ color:var(--text2); }
 
 /* ── DIVIDERS ── */
 .sec-div{ display:flex; align-items:center; gap:10px; padding:2px 0; font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
@@ -298,19 +226,6 @@ select.inp option{ background:#fff; }
 .rain-chk{ width:13px!important; height:13px!important; accent-color:var(--navy); cursor:pointer; }
 .rain-lbl{ font-size:11px; color:var(--muted); cursor:pointer; }
 
-/* ── General action buttons (non-scoring) ── */
-.sb{ padding:0; border:2px solid; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:14px; cursor:pointer; transition:all .1s; width:100%; letter-spacing:.5px; line-height:1.2; height:38px; display:flex; align-items:center; justify-content:center; }
-.sb:active{ transform:scale(.95); opacity:.75; }
-.sb-gold{ background:var(--navy); color:#fff; border-color:var(--navy); font-size:15px; }
-.sb-gold:hover{ background:var(--navy2); }
-.sb-show{ background:#f0fdf4; color:var(--green); border-color:#86efac; }
-.sb-hide{ background:#fff1f2; color:var(--red); border-color:#fda4af; }
-.sb-inn{ background:#f5f0ff; color:var(--purple); border-color:#c4b5fd; }
-.sb-rst{ background:#fff1f2; color:var(--red2); border-color:#fca5a5; }
-.btn-grid{ display:grid; gap:6px; }
-.btn-grid.cols2{ grid-template-columns:repeat(2,1fr); }
-.dur-sel{ width:auto!important; padding:6px 10px!important; font-size:12px!important; }
-
 /* ── MATCH HISTORY ── */
 .hist-list{ display:flex; flex-direction:column; gap:8px; }
 .hist-item{ background:var(--card2); border:1.5px solid var(--border); border-radius:7px; padding:12px 14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
@@ -344,7 +259,7 @@ select.inp option{ background:#fff; }
 .m-confirm{ background:var(--red); color:#fff; border:none; border-radius:6px; padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
 .m-cancel{ background:var(--card2); color:var(--muted); border:1.5px solid var(--border); border-radius:6px; padding:12px; font-family:'Barlow Condensed',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
 
-/* ── PICKER OVERLAYS ── */
+/* ── PICKER OVERLAYS (Bowler + Batsman) ── */
 .bpk-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:300; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
 .bpk-overlay.open{ display:flex; }
 .bpk-box{ background:#fff; border-radius:12px; padding:22px; width:94%; max-width:480px; box-shadow:0 20px 60px rgba(0,0,0,.2); }
@@ -354,6 +269,7 @@ select.inp option{ background:#fff; }
 .bpk-btn{ padding:13px 10px; background:var(--card2); border:2px solid var(--border); border-radius:7px; color:var(--text); font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; cursor:pointer; text-align:center; width:100%; transition:.12s; }
 .bpk-btn:hover:not(:disabled){ background:var(--navy); color:#fff; border-color:var(--navy); }
 .bpk-btn:disabled{ opacity:.35; cursor:not-allowed; }
+/* Batsman picker accent */
 .bpk-box.bat-accent .bpk-title{ color:var(--green); }
 .bpk-box.bat-accent .bpk-btn:hover:not(:disabled){ background:var(--green); border-color:var(--green); color:#fff; }
 .bpk-cancel{ width:100%; padding:11px; background:transparent; border:1.5px solid var(--border); border-radius:6px; color:var(--muted); font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; margin-top:4px; }
@@ -393,12 +309,15 @@ select.inp option{ background:#fff; }
 .audio-tog{ background:var(--card2); border:1.5px solid var(--border); color:var(--muted); padding:6px 14px; border-radius:5px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; cursor:pointer; width:auto; }
 .audio-tog.on{ background:#d1fae5; color:var(--green); border-color:#34d399; }
 
-/* ── MATCH TITLE ── */
+/* ── MISC ── */
+.note-box{ background:var(--card2); border:1.5px solid var(--border); border-radius:6px; padding:10px 14px; font-size:11px; color:var(--muted); line-height:1.7; }
+.note-box b{ color:var(--text2); }
+.dur-sel{ width:auto!important; padding:6px 10px!important; font-size:12px!important; }
 .match-title-bar{ background:linear-gradient(90deg,var(--navy),var(--navy2)); color:#fff; padding:8px 16px; border-radius:6px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
 .mt-score{ font-size:20px; font-weight:900; }
 .mt-detail{ font-size:11px; opacity:.7; }
-
-/* ── TOAST ── */
+.fow-row{ font-size:12px; color:var(--muted); padding:6px 0; border-top:1px solid var(--border); flex-wrap:wrap; display:flex; gap:3px 8px; }
+.fow-item b{ color:var(--navy); }
 #saveToast{ position:fixed; bottom:24px; right:20px; z-index:9999; background:var(--navy); color:#fff; border-radius:7px; padding:10px 18px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; opacity:0; transition:opacity .3s; pointer-events:none; box-shadow:0 4px 20px rgba(0,0,0,.2); }
 </style>
 </head>
@@ -445,7 +364,7 @@ select.inp option{ background:#fff; }
 </div>
 
 <!-- PREVIEW -->
-<div class="pv-bar">▶ LIVE PREVIEW — index.html</div>
+<div class="pv-bar">▶ LIVE PREVIEW — index.html (muted — full audio on overlay only)</div>
 <div class="pv"><iframe src="index.html?preview=1"></iframe></div>
 
 <div class="body">
@@ -500,7 +419,7 @@ select.inp option{ background:#fff; }
                 </select>
             </div>
         </div>
-        <button class="sb sb-gold" style="margin-top:14px;font-size:15px;height:42px" onclick="initMatch()">⚡ INITIALIZE MATCH</button>
+        <button class="sb sb-gold" style="margin-top:14px;font-size:16px" onclick="initMatch()">⚡ INITIALIZE MATCH</button>
     </div>
 </div>
 
@@ -510,7 +429,7 @@ select.inp option{ background:#fff; }
     <div class="card-body" style="padding:0">
 
         <!-- Score banner -->
-        <div class="match-title-bar" style="border-radius:0;margin:0">
+        <div class="match-title-bar">
             <div>
                 <div style="font-size:14px;font-weight:700" id="bannerTeam">—</div>
                 <div class="mt-detail" id="bannerDetail">—</div>
@@ -575,89 +494,59 @@ select.inp option{ background:#fff; }
             </div>
         </div>
 
-        <!-- ══════════════════════════════════════════
-             PLAY-CRICKET STYLE SCORING BUTTONS
-        ══════════════════════════════════════════ -->
+        <!-- SCORING BUTTONS -->
         <div class="scoring-card" style="border:none;border-top:2px solid var(--border);border-radius:0">
-
-            <!-- LEGAL DELIVERIES -->
             <div class="scoring-section">
-                <span class="scoring-lbl">Legal Deliveries</span>
-                <div class="pc-runs-row">
-                    <!-- Dot -->
-                    <button class="pc-btn pc-dot" onclick="ball(0)" title="Dot ball">•</button>
-                    <!-- Runs 1-3 -->
-                    <button class="pc-btn pc-run" onclick="ball(1)" title="1 run">1</button>
-                    <button class="pc-btn pc-run" onclick="ball(2)" title="2 runs">2</button>
-                    <button class="pc-btn pc-run" onclick="ball(3)" title="3 runs">3</button>
-                    <!-- Separator -->
-                    <div style="width:1px;height:36px;background:var(--border);margin:0 2px;flex-shrink:0"></div>
-                    <!-- Four & Six — wider pills -->
-                    <button class="pc-pill pc-four" onclick="ball(4)" title="Four (boundary)">FOUR ● 4</button>
-                    <button class="pc-pill pc-six"  onclick="ball(6)" title="Six (maximum)">SIX ● 6</button>
+                <div class="scoring-lbl">Legal Deliveries</div>
+                <div class="btn-grid cols4">
+                    <button class="sb sb-dot" onclick="ball(0)">● DOT</button>
+                    <button class="sb sb-run" onclick="ball(1)">1</button>
+                    <button class="sb sb-run" onclick="ball(2)">2</button>
+                    <button class="sb sb-run" onclick="ball(3)">3</button>
+                </div>
+                <div class="btn-grid cols2" style="margin-top:6px">
+                    <button class="sb sb-4" onclick="ball(4)" style="font-size:18px;padding:14px">FOUR ● 4</button>
+                    <button class="sb sb-6" onclick="ball(6)" style="font-size:18px;padding:14px">SIX ● 6</button>
                 </div>
             </div>
-
-            <!-- WIDES -->
             <div class="scoring-section">
-                <span class="scoring-lbl">Wides — illegal (ball not counted)</span>
-                <div class="pc-extras-grid">
-                    <button class="pc-pill pc-wide" onclick="ball(1,'WD')" title="Wide +1">Wd +1</button>
-                    <button class="pc-pill pc-wide" onclick="ball(2,'WD')" title="Wide +2">Wd +2</button>
-                    <button class="pc-pill pc-wide" onclick="ball(3,'WD')" title="Wide +3">Wd +3</button>
-                    <button class="pc-pill pc-wide" onclick="ball(4,'WD')" title="Wide +4">Wd +4</button>
-                    <button class="pc-pill pc-wide" onclick="ball(5,'WD')" title="Wide +5">Wd +5</button>
+                <div class="scoring-lbl">Extras (Illegal)</div>
+                <div class="btn-grid cols4">
+                    <button class="sb sb-wd" onclick="ball(1,'WD')">Wd +1</button>
+                    <button class="sb sb-wd" onclick="ball(2,'WD')">Wd +2</button>
+                    <button class="sb sb-wd" onclick="ball(3,'WD')">Wd +3</button>
+                    <button class="sb sb-wd" onclick="ball(4,'WD')">Wd +4</button>
+                </div>
+                <div class="btn-grid cols4" style="margin-top:6px">
+                    <button class="sb sb-nb" onclick="ball(1,'NB')">Nb +1</button>
+                    <button class="sb sb-nb" onclick="ball(2,'NB')">Nb +2</button>
+                    <button class="sb sb-nb" onclick="ball(4,'NB')">Nb +4</button>
+                    <button class="sb sb-nb" onclick="ball(6,'NB')">Nb +6</button>
                 </div>
             </div>
-
-            <!-- NO BALLS -->
             <div class="scoring-section">
-                <span class="scoring-lbl">No Balls — illegal (ball not counted)</span>
-                <div class="pc-extras-grid">
-                    <button class="pc-pill pc-nb" onclick="ball(1,'NB')" title="No Ball +1">Nb +1</button>
-                    <button class="pc-pill pc-nb" onclick="ball(2,'NB')" title="No Ball +2">Nb +2</button>
-                    <button class="pc-pill pc-nb" onclick="ball(4,'NB')" title="No Ball +4">Nb +4</button>
-                    <button class="pc-pill pc-nb" onclick="ball(6,'NB')" title="No Ball +6">Nb +6</button>
+                <div class="scoring-lbl">Byes &amp; Leg Byes</div>
+                <div class="btn-grid cols4">
+                    <button class="sb sb-bye" onclick="ball(1,'BY')">By +1</button>
+                    <button class="sb sb-bye" onclick="ball(2,'BY')">By +2</button>
+                    <button class="sb sb-bye" onclick="ball(3,'BY')">By +3</button>
+                    <button class="sb sb-bye" onclick="ball(4,'BY')">By +4</button>
+                </div>
+                <div class="btn-grid cols3" style="margin-top:6px">
+                    <button class="sb sb-lb" onclick="ball(1,'LB')">LB +1</button>
+                    <button class="sb sb-lb" onclick="ball(2,'LB')">LB +2</button>
+                    <button class="sb sb-lb" onclick="ball(3,'LB')">LB +3</button>
                 </div>
             </div>
-
-            <!-- BYES -->
             <div class="scoring-section">
-                <span class="scoring-lbl">Byes — legal ball (extras)</span>
-                <div class="pc-extras-grid">
-                    <button class="pc-pill pc-bye" onclick="ball(1,'BY')" title="Bye +1">By +1</button>
-                    <button class="pc-pill pc-bye" onclick="ball(2,'BY')" title="Bye +2">By +2</button>
-                    <button class="pc-pill pc-bye" onclick="ball(3,'BY')" title="Bye +3">By +3</button>
-                    <button class="pc-pill pc-bye" onclick="ball(4,'BY')" title="Bye +4">By +4</button>
+                <div class="btn-grid cols3">
+                    <button class="sb sb-wkt" onclick="openWicket()">🏏 WICKET</button>
+                    <button class="sb sb-swap" onclick="swapStrike()">⇄ SWAP STRIKE</button>
+                    <button class="sb sb-undo" id="undoBtn" onclick="undoLast()" disabled>↩ UNDO <span class="undo-badge" id="undoCount">0</span></button>
                 </div>
+                <div class="note-box" style="margin-top:10px"><b>Rules:</b> Wide/No-Ball = illegal, over count unchanged. No-Ball → FREE HIT. Byes/Leg-Byes = legal ball extras. Odd runs → striker rotates. End of 6 legal balls → auto strike swap. Undo reverts last ball (up to 20). After each wicket a batsman picker appears.</div>
             </div>
-
-            <!-- LEG BYES -->
-            <div class="scoring-section">
-                <span class="scoring-lbl">Leg Byes — legal ball (extras)</span>
-                <div class="pc-extras-grid">
-                    <button class="pc-pill pc-lb" onclick="ball(1,'LB')" title="Leg Bye +1">LB +1</button>
-                    <button class="pc-pill pc-lb" onclick="ball(2,'LB')" title="Leg Bye +2">LB +2</button>
-                    <button class="pc-pill pc-lb" onclick="ball(3,'LB')" title="Leg Bye +3">LB +3</button>
-                    <button class="pc-pill pc-lb" onclick="ball(4,'LB')" title="Leg Bye +4">LB +4</button>
-                </div>
-            </div>
-
-            <!-- ACTION ROW: WICKET · SWAP · UNDO -->
-            <div class="pc-action-row">
-                <button class="pc-pill-wide pc-wkt" onclick="openWicket()">🏏 WICKET</button>
-                <button class="pc-pill-wide pc-swap" onclick="swapStrike()">⇄ SWAP STRIKE</button>
-                <button class="pc-pill-wide pc-undo" id="undoBtn" onclick="undoLast()" disabled>
-                    ↩ UNDO <span class="undo-badge" id="undoCount">0</span>
-                </button>
-                <div style="flex:1"></div>
-                <div class="note-box" style="font-size:10px;max-width:320px;padding:6px 10px">
-                    <b>Rules:</b> Wd/Nb = illegal, over count unchanged. Nb → Free Hit.
-                    By/LB = legal ball. Odd runs → striker rotates. 6 legal balls → new bowler.
-                </div>
-            </div>
-
-        </div><!-- /scoring-card -->
+        </div>
     </div>
 </div>
 
@@ -668,15 +557,16 @@ select.inp option{ background:#fff; }
         <div class="g2">
             <div style="border:1.5px solid var(--border);border-radius:7px;padding:10px;display:flex;flex-direction:column;gap:7px">
                 <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Score Bar</span>
-                <button class="sb sb-show" onclick="setV('scorebar',true)" style="height:36px">SHOW</button>
-                <button class="sb sb-hide" onclick="setV('scorebar',false)" style="height:36px">HIDE</button>
+                <button class="sb sb-show" onclick="setV('scorebar',true)" style="padding:9px">SHOW</button>
+                <button class="sb sb-hide" onclick="setV('scorebar',false)" style="padding:9px">HIDE</button>
             </div>
             <div style="border:1.5px solid var(--border);border-radius:7px;padding:10px;display:flex;flex-direction:column;gap:7px">
                 <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase">Scorecard Overlay</span>
-                <button class="sb sb-show" onclick="setV('scorecard',true)" style="height:36px">SHOW</button>
-                <button class="sb sb-hide" onclick="setV('scorecard',false)" style="height:36px">HIDE</button>
+                <button class="sb sb-show" onclick="setV('scorecard',true)" style="padding:9px">SHOW</button>
+                <button class="sb sb-hide" onclick="setV('scorecard',false)" style="padding:9px">HIDE</button>
             </div>
         </div>
+        <!-- Auto popup -->
         <div style="background:var(--card2);border:1.5px solid var(--border);border-radius:7px;padding:12px;margin-top:12px">
             <div class="toggle-row">
                 <div class="toggle-track" id="autoToggle" onclick="toggleAutoPopup()"><div class="toggle-thumb"></div></div>
@@ -693,6 +583,7 @@ select.inp option{ background:#fff; }
                 </div>
             </div>
         </div>
+        <!-- Event overlays -->
         <div style="margin-top:12px">
             <div class="sec-div">Auto Event Overlays</div>
             <div class="evt-grid">
@@ -750,7 +641,7 @@ select.inp option{ background:#fff; }
                 <option value="1.1" selected>Energetic</option><option value="1.2">High</option>
             </select>
         </div>
-        <div class="note-box" style="margin-top:10px;background:#f0fdf4;border-color:#86efac">🔊 Audio plays on the overlay (index.html) only. Admin never plays audio.</div>
+        <div class="note-box" style="margin-top:10px;background:#f0fdf4;border-color:#86efac">🔊 Audio plays on the overlay (index.html) only. Admin never plays audio. Works with OBS, PRISM Live, CameraFi Live — no button tap needed on overlay.</div>
     </div>
 </div>
 
@@ -786,7 +677,7 @@ select.inp option{ background:#fff; }
             <div style="flex:0 0 auto"><span class="lbl">Rain</span><div style="display:flex;align-items:center;gap:6px;height:40px"><input type="checkbox" id="annRainToggle" checked style="width:auto;margin:0;accent-color:var(--navy);width:16px;height:16px;cursor:pointer"><label for="annRainToggle" style="font-size:11px;color:var(--muted);cursor:pointer">Enable</label></div></div>
         </div>
         <div class="ann-preview" id="annPreview">Preview will appear here…</div>
-        <button class="sb sb-gold" style="margin-top:10px;height:40px" onclick="sendCustomAnn()">📣 SEND TO OVERLAY</button>
+        <button class="sb sb-gold" style="margin-top:10px" onclick="sendCustomAnn()">📣 SEND TO OVERLAY</button>
     </div>
 </div>
 
@@ -799,8 +690,8 @@ select.inp option{ background:#fff; }
             <div><span class="lbl">Venue</span><input class="inp" id="matchVenue" placeholder="Eden Gardens, Kolkata"></div>
         </div>
         <div class="btn-grid cols2" style="margin-top:12px">
-            <button class="sb sb-show" style="font-size:13px;height:38px" onclick="saveMatchToDb()">☁ SAVE TO DATABASE</button>
-            <button class="sb" style="font-size:13px;height:38px;background:var(--card2);color:var(--navy);border:2px solid var(--navy)" onclick="saveMatch()">💾 DOWNLOAD FILE</button>
+            <button class="sb sb-show" style="font-size:14px" onclick="saveMatchToDb()">☁ SAVE TO DATABASE</button>
+            <button class="sb" style="font-size:14px;background:var(--card2);color:var(--navy);border:2px solid var(--navy)" onclick="saveMatch()">💾 DOWNLOAD FILE</button>
         </div>
     </div>
 </div>
@@ -808,7 +699,7 @@ select.inp option{ background:#fff; }
 <div class="card">
     <div class="card-hdr">📚 Match History</div>
     <div class="card-body">
-        <div class="hist-list" id="histList"><p style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No saved matches yet.</p></div>
+        <div class="hist-list" id="histList"><p style="color:var(--muted);font-size:13px;text-align:center;padding:20px">No saved matches yet — saves automatically every over.</p></div>
     </div>
 </div>
 
@@ -816,8 +707,8 @@ select.inp option{ background:#fff; }
 <div class="card">
     <div class="card-body">
         <div class="btn-grid cols2">
-            <button class="sb sb-inn" style="height:38px" onclick="swapInnings()">🔄 START 2ND INNINGS</button>
-            <button class="sb sb-rst" style="height:38px" onclick="fullReset()">⚠ RESET ALL DATA</button>
+            <button class="sb sb-inn" onclick="swapInnings()">🔄 START 2ND INNINGS</button>
+            <button class="sb sb-rst" onclick="fullReset()">⚠ RESET ALL DATA</button>
         </div>
     </div>
 </div>
@@ -834,12 +725,13 @@ select.inp option{ background:#fff; }
     </div>
 </div>
 
-<!-- ══ BATSMAN PICKER ══ -->
+<!-- ══ BATSMAN PICKER (Wicket + Injury — unified) ══ -->
 <div class="bpk-overlay" id="newBatModal">
     <div class="bpk-box bat-accent">
         <div class="bpk-title" id="newBatTitle">🏏 Select New Batsman</div>
         <div class="bpk-sub" id="newBatSub">Choose who comes in next</div>
         <div class="bpk-grid" id="newBatGrid"></div>
+        <!-- Cancel only shown for injury (wicket requires selection) -->
         <button class="bpk-cancel" id="newBatCancel" onclick="cancelBatPicker()" style="display:none">✕ Cancel</button>
     </div>
 </div>
@@ -926,7 +818,13 @@ let _ph={}, _match=null, _autoOn=false, _curMatchKey=null,
     _winFired=false, _inn1EndFired=false, _adminLastOver=-1,
     _midOver=false, _audioEnabled=false;
 let _evtState={autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true};
-let _batPickerMode=null, _dismissedSlot=null, _injuryPos=null;
+
+// ════════════════════════════════════════════════════════
+// BATSMAN PICKER STATE
+// ════════════════════════════════════════════════════════
+let _batPickerMode  = null;  // 'wicket' | 'injury'
+let _dismissedSlot  = null;  // 1 or 2 (for wicket — which slot the batsman was in)
+let _injuryPos      = null;  // 'striker' | 'nonstriker' (for injury)
 
 // ── Photos ──────────────────────────────────────────────
 onValue(phRef,snap=>{
@@ -993,24 +891,33 @@ window.onNameChg=(t,i)=>{
 function getNames(t){ const a=[]; for(let i=1;i<=11;i++){const e=$(`pl${t}${i}`);if(e&&e.value.trim())a.push(e.value.trim());} return a; }
 function setNames(t,names){ for(let i=1;i<=11;i++){const e=$(`pl${t}${i}`);if(e)e.value=names[i-1]||'';const av=$(`av${t}${i}`);if(av&&names[i-1]){av.dataset.phn=names[i-1];av.src=ph(names[i-1]);}}}
 
-// ── Dropdowns ────────────────────────────────────────────
+// ── DROPDOWNS — only show available (not-out) batsmen ───
 function fillSels(d){
     if(!d) return;
     const p1n=d.p1n||'', p2n=d.p2n||'', bwn=d.bwn||'';
     const batRows=d.batRows||[], bowlRows=d.bowlRows||[];
-    const availBat=batRows.filter(r=>!r.out||r.name===p1n||r.name===p2n).map(r=>r.name);
-    const batList=availBat.length?availBat:[];
-    const bowlList=bowlRows.map(r=>r.name);
-    const bH=batList.map(n=>`<option value="${n}">${n}</option>`).join('');
-    const wH=bowlList.map(n=>`<option value="${n}">${n}</option>`).join('');
-    $('selP1').innerHTML=bH||'<option value="">—</option>';
-    $('selP2').innerHTML=bH||'<option value="">—</option>';
-    $('selBw').innerHTML=wH||'<option value="">—</option>';
-    if(p1n&&$('selP1').querySelector(`option[value="${p1n}"]`)) $('selP1').value=p1n;
+
+    // Batting selects: show all not-out batsmen + currently batting (even if marked out, edge case)
+    const availBat = batRows.filter(r => !r.out || r.name===p1n || r.name===p2n).map(r=>r.name);
+    // If no batRows yet, fall back to full squad
+    const batList = availBat.length ? availBat : [];
+
+    const bowlList = bowlRows.map(r=>r.name);
+
+    const bH = batList.map(n=>`<option value="${n}">${n}</option>`).join('');
+    const wH = bowlList.map(n=>`<option value="${n}">${n}</option>`).join('');
+
+    $('selP1').innerHTML = bH || '<option value="">—</option>';
+    $('selP2').innerHTML = bH || '<option value="">—</option>';
+    $('selBw').innerHTML = wH || '<option value="">—</option>';
+
+    if(p1n && $('selP1').querySelector(`option[value="${p1n}"]`)) $('selP1').value=p1n;
     else if(batList[0]) $('selP1').value=batList[0];
-    if(p2n&&$('selP2').querySelector(`option[value="${p2n}"]`)) $('selP2').value=p2n;
+
+    if(p2n && $('selP2').querySelector(`option[value="${p2n}"]`)) $('selP2').value=p2n;
     else if(batList[1]) $('selP2').value=batList[1];
-    if(bwn&&$('selBw').querySelector(`option[value="${bwn}"]`)) $('selBw').value=bwn;
+
+    if(bwn && $('selBw').querySelector(`option[value="${bwn}"]`)) $('selBw').value=bwn;
     else if(bowlList[0]) $('selBw').value=bowlList[0];
 }
 
@@ -1176,7 +1083,7 @@ async function checkMatchEvents(d){
     if(inn===1&&!_inn1EndFired&&(allOut||oversUp)){
         _inn1EndFired=true;
         const ovStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
-        await set(aRef,{emoji:'🏏',text:'END OF 1ST INNINGS',sub:`${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs)`,style:'custom',dur:15,rain:false,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
+        await set(aRef,{emoji:'🏏',text:'END OF 1ST INNINGS',sub:`${d.batTeam}: ${d.runs}/${d.wkts} (${ovStr} ovs) — ${allOut?'All Out':'Overs Up'}`,style:'custom',dur:15,rain:false,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
         setTimeout(()=>openInnModal(d),2000); return;
     }
     if(inn!==2||_winFired) return;
@@ -1185,17 +1092,17 @@ async function checkMatchEvents(d){
     let winMsg=null;
     if(runsNeeded<=0) winMsg={t:`${d.batTeam} WIN!`,s:`Won by ${wLeft} wicket${wLeft!==1?'s':''} (${bLeft} ball${bLeft!==1?'s':''} to spare)`,type:'win'};
     else if(runsNeeded===1&&(allOut||oversUp)) winMsg={t:"IT'S A TIE!",s:`Both teams scored ${d.runs} runs — Tied!`,type:'tie'};
-    else if(allOut||oversUp){ const m=runsNeeded-1; winMsg={t:`${d.bowlTeam} WIN!`,s:`Won by ${m} run${m!==1?'s':''}`,type:'win'}; }
+    else if(allOut||oversUp){ const m=runsNeeded-1; winMsg={t:`${d.bowlTeam} WIN!`,s:`Won by ${m} run${m!==1?'s':''} — ${d.batTeam} fell short`,type:'win'}; }
     if(winMsg){
         _winFired=true;
         await set(aRef,{emoji:winMsg.type==='tie'?'🤝':'🏆',text:winMsg.t,sub:winMsg.s,style:winMsg.type,dur:30,rain:true,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
         setTimeout(()=>saveMatchToDb(true),1500);
-        setTimeout(()=>showWinPopup(winMsg.t,winMsg.s,`${d.batTeam} vs ${d.bowlTeam}`,winMsg.type),800);
+        setTimeout(()=>showWinPopup(winMsg.t,winMsg.s,`${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,winMsg.type),800);
     }
 }
 function openInnModal(d){
     const ov=`${Math.floor(d.balls/6)}.${d.balls%6}`;
-    if(confirm(`🏏 END OF 1ST INNINGS\n\n${d.batTeam}: ${d.runs}/${d.wkts} (${ov} ovs)\n\nStart 2nd Innings now?`)) swapInnings();
+    if(confirm(`🏏 END OF 1ST INNINGS\n\n${d.batTeam}: ${d.runs}/${d.wkts} (${ov} ovs)\n${d.wkts>=10?'ALL OUT':'OVERS COMPLETE'}\n\nStart 2nd Innings now?`)) swapInnings();
 }
 function showWinPopup(t,s,det,type){
     $('winTrophy').textContent=type==='tie'?'🤝':'🏆';
@@ -1225,6 +1132,7 @@ window.confirmWicket=async()=>{
     const snap=await get(mRef); const d=snap.val(); if(!d) return;
     if(!d.recentBalls)d.recentBalls=[];
     await saveSnap(d);
+
     const runs=parseInt($('mRuns').value)||0,credit=$('mCredit').checked,fielder=$('mFielder').value||'';
     let howOut='';
     if(_dt==='b') howOut=`b ${d.bwn}`;
@@ -1236,8 +1144,9 @@ window.confirmWicket=async()=>{
     else if(_dt==='mo') howOut=`mankad b ${d.bwn}`;
     else howOut='out';
 
-    const dismissedStrSlot=d.str;
-    const dismissedName=dismissedStrSlot===1?d.p1n:d.p2n;
+    // Record ORIGINAL str before any swapping (this is the slot that needs replacing)
+    const dismissedStrSlot = d.str;
+    const dismissedName = dismissedStrSlot===1 ? d.p1n : d.p2n;
 
     d.runs+=runs; d.wkts++; d.balls++; d.bwb++; d.freeHit=false;
     if(credit){d.bww++;updBowl(d,d.bwn,{balls:1,wkts:1,runs});}else updBowl(d,d.bwn,{balls:1,runs});
@@ -1250,46 +1159,66 @@ window.confirmWicket=async()=>{
     }
     markOut(d,dismissedName,howOut);
     d.recentBalls.push('W');
+
+    // Handle end-of-over swap (this may flip d.str)
     if(d.balls%6===0){ d.str=d.str===1?2:1; d.recentBalls=[]; }
+
+    // ── DO NOT auto-assign next batter — write state first, then show picker ──
     await update(mRef,d);
     closeWicket();
-    if(d.wkts>=10) return;
-    _batPickerMode='wicket';
-    _dismissedSlot=dismissedStrSlot;
-    openBatPicker(d,dismissedName);
+
+    // If innings all out, no picker needed
+    if(d.wkts >= 10) return;
+
+    // Show the batsman picker — the dismissed slot is dismissedStrSlot
+    _batPickerMode = 'wicket';
+    _dismissedSlot = dismissedStrSlot;
+    openBatPicker(d, dismissedName);
 };
 
-// ── Batsman Picker ────────────────────────────────────────
-function openBatPicker(d,dismissedName){
-    const available=(d.batRows||[]).filter(r=>!r.out&&r.name!==d.p1n&&r.name!==d.p2n);
-    if(_batPickerMode==='wicket'){
-        $('newBatTitle').textContent='🏏 Select New Batsman';
-        $('newBatSub').textContent=`${dismissedName} dismissed — who comes in next?`;
-        $('newBatCancel').style.display='none';
+// ════════════════════════════════════════════════════════
+// UNIFIED BATSMAN PICKER
+// ════════════════════════════════════════════════════════
+
+function openBatPicker(d, dismissedName){
+    // Available = not out, not currently at crease
+    const available = (d.batRows||[]).filter(r =>
+        !r.out && r.name !== d.p1n && r.name !== d.p2n
+    );
+
+    if(_batPickerMode === 'wicket'){
+        $('newBatTitle').textContent = '🏏 Select New Batsman';
+        $('newBatSub').textContent = `${dismissedName} dismissed — who comes in next?`;
+        $('newBatCancel').style.display = 'none'; // must select after a wicket
     } else {
-        $('newBatTitle').textContent='🚑 Select Replacement Batsman';
-        $('newBatSub').textContent=`${dismissedName} retired hurt — who replaces them?`;
-        $('newBatCancel').style.display='block';
+        $('newBatTitle').textContent = '🚑 Select Replacement Batsman';
+        $('newBatSub').textContent = `${dismissedName} retired hurt — who replaces them?`;
+        $('newBatCancel').style.display = 'block'; // can cancel for injury
     }
+
     if(!available.length){
-        $('newBatGrid').innerHTML='<div class="bpk-empty">No more batsmen available!</div>';
+        $('newBatGrid').innerHTML = '<div class="bpk-empty">No more batsmen available — innings may be over!</div>';
     } else {
-        $('newBatGrid').innerHTML=available.map(r=>`
+        $('newBatGrid').innerHTML = available.map(r=>`
             <button class="bpk-btn" onclick="selectNewBatter('${r.name.replace(/'/g,"\\'")}')">
-                ${r.name}<br><span style="font-size:11px;color:var(--muted);font-weight:400">yet to bat</span>
+                ${r.name}
+                <br><span style="font-size:11px;color:var(--muted);font-weight:400">yet to bat</span>
             </button>`).join('');
     }
     $('newBatModal').classList.add('open');
 }
+
 window.selectNewBatter=async name=>{
     const snap=await get(mRef); const d=snap.val(); if(!d) return;
     const upd={};
+
     if(_batPickerMode==='wicket'){
         const slot=_dismissedSlot;
         if(slot===1){upd.p1n=name;upd.p1r=0;upd.p1b=0;upd.p1fours=0;upd.p1sixes=0;}
         else{upd.p2n=name;upd.p2r=0;upd.p2b=0;upd.p2fours=0;upd.p2sixes=0;}
     } else if(_batPickerMode==='injury'){
         const pos=_injuryPos;
+        // Mark injured as retired hurt
         const batRows=d.batRows||[];
         const injNm=pos==='striker'?d.p1n:d.p2n;
         const injRow=batRows.find(r=>r.name===injNm);
@@ -1298,23 +1227,26 @@ window.selectNewBatter=async name=>{
         if(pos==='striker'){upd.p1n=name;upd.p1r=0;upd.p1b=0;upd.p1fours=0;upd.p1sixes=0;}
         else{upd.p2n=name;upd.p2r=0;upd.p2b=0;upd.p2fours=0;upd.p2sixes=0;}
     }
+
     await update(mRef,upd);
     $('newBatModal').classList.remove('open');
     _batPickerMode=null; _dismissedSlot=null; _injuryPos=null;
 };
+
 window.cancelBatPicker=()=>{
     $('newBatModal').classList.remove('open');
     _batPickerMode=null; _dismissedSlot=null; _injuryPos=null;
 };
 
-// ── Batsman injury ─────────────────────────────────────────
+// ── Batsman injury ────────────────────────────────────────
 window.openBatInjury=async pos=>{
     const snap=await get(mRef); const d=snap.val(); if(!d){alert('No match in progress');return;}
     const injured=pos==='striker'?d.p1n:d.p2n;
     const available=(d.batRows||[]).filter(r=>!r.out&&r.name!==d.p1n&&r.name!==d.p2n);
     if(!available.length){alert('No batsmen available!');return;}
-    _batPickerMode='injury'; _injuryPos=pos;
-    openBatPicker(d,injured);
+    _batPickerMode='injury';
+    _injuryPos=pos;
+    openBatPicker(d, injured);
 };
 
 // ── Helpers ───────────────────────────────────────────────
@@ -1396,6 +1328,7 @@ function ballCls(v){
 // ── MAIN DATA LISTENER ────────────────────────────────────
 onValue(mRef,async snap=>{
     const d=snap.val(); _match=d; if(!d) return;
+
     const completedOvers=Math.floor(d.balls/6), maxBalls=(d.maxOvers||20)*6;
     const innComplete=d.balls>=maxBalls||d.wkts>=10;
     if(_adminLastOver>=0&&completedOvers>_adminLastOver&&d.balls%6===0&&d.balls>0){
@@ -1405,12 +1338,14 @@ onValue(mRef,async snap=>{
     _adminLastOver=completedOvers;
     checkMatchEvents(d);
 
+    // ── Top bar ──
     $('tbMatch').textContent=`${d.batTeam} vs ${d.bowlTeam}`;
     const oStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
     $('tbScore').innerHTML=`${d.runs}/${d.wkts} <span>${oStr}</span>`;
     const fmt=d.maxOvers||20;
     $('fmtLbl').textContent=fmt===50?'ODI · 50':fmt===20?'T20 · 20':fmt===10?'T10 · 10':`${fmt} Overs`;
 
+    // ── Info bar ──
     const ovDec=d.balls/6, crr=ovDec>0?(d.runs/ovDec).toFixed(2):'0.00';
     $('iInn').textContent=d.innings===2?'2ND':'1ST'; $('iCRR').textContent=crr;
     if(d.target>0){
@@ -1424,18 +1359,22 @@ onValue(mRef,async snap=>{
     if(d.freeHit){iFH.classList.add('on');iFHOff.style.display='none';}else{iFH.classList.remove('on');iFHOff.style.display='';}
     $('iOvB').textContent=(d.recentBalls||[]).length?(d.recentBalls||[]).join(' · '):'—';
 
+    // ── Setup fields ──
     if(d.batTeam) $('tNA').value=d.batTeam;
     if(d.bowlTeam) $('tNB').value=d.bowlTeam;
     if([10,20,40,50].includes(fmt)){$('fmtSel').value=String(fmt);$('customOversWrap').style.display='none';}
     else{$('fmtSel').value='0';$('customOvers').value=fmt;$('customOversWrap').style.display='block';}
 
+    // ── Dropdowns (fixed — only not-out batsmen) ──
     fillSels(d);
 
+    // ── Score banner ──
     $('bannerTeam').textContent=d.batTeam||'—';
     $('bannerDetail').textContent=d.innings===2?`2nd Innings · Target: ${d.target}`:'1st Innings';
     $('bannerScore').textContent=`${d.runs}/${d.wkts}`;
     $('bannerOvs').textContent=`${oStr} overs · CRR ${crr}`;
 
+    // ── Live batters table ──
     const bats2=[
         {name:d.p1n,r:d.p1r,b:d.p1b,f:d.p1fours||0,s:d.p1sixes||0,isStr:d.str===1},
         {name:d.p2n,r:d.p2r,b:d.p2b,f:d.p2fours||0,s:d.p2sixes||0,isStr:d.str===2},
@@ -1448,11 +1387,13 @@ onValue(mRef,async snap=>{
         </tr>`;
     }).join('');
 
+    // ── Over display ──
     $('overTitle').textContent=`OVER ${completedOvers+1} — BALL ${(d.balls%6)+1} OF 6`;
     const balls=d.recentBalls||[];
     const ballHtml=[]; for(let i=0;i<6;i++){ if(i<balls.length){const v=balls[i];ballHtml.push(`<div class="ball-sq ${ballCls(v)}">${v===0?'·':v}</div>`);}else{ballHtml.push(`<div class="ball-sq empty">·</div>`);} }
     $('liveBallRow').innerHTML=ballHtml.join('');
 
+    // ── Bowler table ──
     const curBwl=d.bwn||'';
     const bwlRows=d.bowlRows||[];
     const bwlHtml=bwlRows.filter(r=>r.balls>0||(r.wides||0)>0||(r.noballs||0)>0).map((r,i)=>{
@@ -1468,7 +1409,7 @@ onValue(mRef,async snap=>{
     $('liveBwlBody').innerHTML=bwlHtml||`<tr><td colspan="6" style="text-align:center;color:var(--muted)">No overs bowled yet</td></tr>`;
 });
 
-// ── Squad sync ────────────────────────────────────────────
+// ── Squad data sync ───────────────────────────────────────
 onValue(sRef,snap=>{
     const s=snap.val(); if(!s) return;
     if(s.sqA){ const names=s.sqA.split('\n').map(n=>n.trim()).filter(Boolean); setNames('A',names); }
@@ -1515,7 +1456,7 @@ window.downloadSavedMatch=(key,enc)=>{
         if(!rows||!rows.length) return '';
         let ext=0;(bwlR||[]).forEach(r=>{ext+=(r.wides||0)+(r.noballs||0)+(r.byes||0)+(r.legbyes||0);});
         let h=`<h2 style="color:#1a3a5c;margin:16px 0 8px">${team} — Batting</h2><table><thead><tr><th>Batsman</th><th>How Out</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>`;
-        rows.forEach(row=>{ h+=`<tr><td>${row.name}</td><td style="font-size:11px;color:#888">${row.out?(row.howOut||'out'):'not out'}</td><td><b>${row.runs}</b></td><td>${row.balls}</td><td>${row.fours||0}</td><td>${row.sixes||0}</td><td>${sr(row.runs,row.balls)}</td></tr>`; });
+        rows.forEach(row=>{ h+=`<tr class="${row.out?'out':''}"><td>${row.name}</td><td style="font-size:11px;color:#888">${row.out?(row.howOut||'out'):'not out'}</td><td><b>${row.runs}</b></td><td>${row.balls}</td><td>${row.fours||0}</td><td>${row.sixes||0}</td><td>${sr(row.runs,row.balls)}</td></tr>`; });
         h+=`<tr><td colspan="2" style="color:#888">Extras</td><td>${ext}</td><td colspan="4"></td></tr><tr class="total"><td colspan="2">TOTAL</td><td>${data.score}</td><td colspan="4"></td></tr></tbody></table>`;
         return h;
     };
