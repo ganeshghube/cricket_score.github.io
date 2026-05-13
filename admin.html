@@ -180,6 +180,204 @@ body{ font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); m
 .sec-div{ display:flex; align-items:center; gap:8px; padding:2px 0; font-family:'Barlow Condensed',sans-serif; font-size:9px; font-weight:700; color:var(--muted); letter-spacing:2px; text-transform:uppercase; }
 .sec-div::after{ content:''; flex:1; height:1px; background:var(--border); }
 
+/* ══════════════════════════════════════════
+   PENDING SCORE AREA
+══════════════════════════════════════════ */
+.pending-wrap{
+    border-radius:10px;
+    border:2.5px dashed var(--border2);
+    background:var(--card2);
+    transition:all .2s ease;
+    overflow:hidden;
+}
+.pending-wrap.has-pending{
+    border-style:solid;
+    border-color:var(--gold2);
+    background:#fffbeb;
+    box-shadow:0 0 0 3px rgba(240,180,41,.12);
+}
+.pending-wrap.has-pending.type-four{ border-color:#93c5fd; background:#eff6ff; box-shadow:0 0 0 3px rgba(59,130,246,.1); }
+.pending-wrap.has-pending.type-six{ border-color:#c4b5fd; background:#f5f3ff; box-shadow:0 0 0 3px rgba(109,59,181,.1); }
+.pending-wrap.has-pending.type-wide{ border-color:#fcd34d; background:#fffbeb; box-shadow:0 0 0 3px rgba(217,119,6,.1); }
+.pending-wrap.has-pending.type-nb{ border-color:#fdba74; background:#fff7ed; box-shadow:0 0 0 3px rgba(234,88,12,.1); }
+.pending-wrap.has-pending.type-bye{ border-color:#93c5fd; background:#f0f9ff; box-shadow:0 0 0 3px rgba(3,105,161,.1); }
+.pending-wrap.has-pending.type-lb{ border-color:#86efac; background:#f0fdf4; box-shadow:0 0 0 3px rgba(21,128,61,.1); }
+.pending-wrap.has-pending.type-dot{ border-color:#cbd5e1; background:#f8fafc; box-shadow:0 0 0 3px rgba(100,116,139,.08); }
+.pending-wrap.has-pending.type-wicket{ border-color:#fca5a5; background:#fff5f5; box-shadow:0 0 0 3px rgba(196,30,58,.1); }
+
+/* Idle state */
+.pending-idle{
+    padding:14px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+}
+.pending-idle-txt{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px;
+    font-weight:700;
+    color:var(--muted);
+    letter-spacing:2px;
+    text-transform:uppercase;
+}
+
+/* Active state */
+.pending-active{
+    padding:14px 16px;
+    display:none;
+}
+.pending-active.show{ display:block; }
+
+.pending-top-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+}
+.pending-score-block{ display:flex; align-items:baseline; gap:10px; }
+.pending-runs-val{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:52px;
+    font-weight:900;
+    color:var(--navy);
+    line-height:1;
+    transition:color .2s;
+}
+.has-pending.type-four  .pending-runs-val{ color:#1d4ed8; }
+.has-pending.type-six   .pending-runs-val{ color:var(--purple); }
+.has-pending.type-wide  .pending-runs-val{ color:#d97706; }
+.has-pending.type-nb    .pending-runs-val{ color:#ea580c; }
+.has-pending.type-bye   .pending-runs-val{ color:#0369a1; }
+.has-pending.type-lb    .pending-runs-val{ color:#15803d; }
+.has-pending.type-dot   .pending-runs-val{ color:#64748b; }
+.has-pending.type-wicket .pending-runs-val{ color:var(--red); }
+
+.pending-type-col{ display:flex; flex-direction:column; gap:2px; }
+.pending-event-name{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:18px;
+    font-weight:900;
+    color:var(--text);
+    letter-spacing:1px;
+    text-transform:uppercase;
+    line-height:1;
+}
+.pending-lbl-tag{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:9px;
+    font-weight:800;
+    color:var(--muted);
+    letter-spacing:2px;
+    text-transform:uppercase;
+}
+.pending-note-pill{
+    display:inline-block;
+    margin-top:4px;
+    padding:2px 8px;
+    border-radius:4px;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:1px;
+    background:#d1fae5;
+    color:#166534;
+    border:1px solid #86efac;
+}
+.pending-note-pill.orange{ background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
+.pending-note-pill.blue  { background:#dbeafe; color:#1e40af; border-color:#93c5fd; }
+
+/* Confirm/Cancel buttons */
+.pending-btn-row{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+}
+.btn-correct{
+    flex:1;
+    padding:14px 12px;
+    background:var(--green);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:17px;
+    font-weight:900;
+    letter-spacing:1.5px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    transition:background .15s, transform .1s;
+    box-shadow:0 3px 10px rgba(26,122,60,.25);
+}
+.btn-correct:hover{ background:#16a34a; }
+.btn-correct:active{ transform:scale(.96); }
+
+.btn-incorrect{
+    flex:1;
+    padding:14px 12px;
+    background:var(--red);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:17px;
+    font-weight:900;
+    letter-spacing:1.5px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    transition:background .15s, transform .1s;
+    box-shadow:0 3px 10px rgba(196,30,58,.2);
+}
+.btn-incorrect:hover{ background:#b91c1c; }
+.btn-incorrect:active{ transform:scale(.96); }
+
+.pending-context{
+    margin-top:8px;
+    font-size:10px;
+    color:var(--text2);
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+}
+.pending-ctx-item b{ color:var(--text); font-weight:700; }
+.pending-ctx-label{
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:8px;
+    font-weight:700;
+    letter-spacing:1px;
+    color:var(--muted);
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:1px;
+}
+
+/* Key hint */
+.pending-key-hint{
+    text-align:center;
+    font-family:'Barlow Condensed',sans-serif;
+    font-size:9px;
+    color:var(--muted);
+    letter-spacing:1px;
+    margin-top:6px;
+}
+.pending-key-hint kbd{
+    display:inline-block;
+    padding:1px 5px;
+    border:1px solid #d1d5db;
+    border-radius:3px;
+    font-size:9px;
+    background:#f9fafb;
+    color:var(--text2);
+    font-family:monospace;
+}
+
 /* ── SQUAD ── */
 .g2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .g3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
@@ -275,199 +473,7 @@ select.inp option{ background:#fff; }
 .m-confirm{ background:var(--red); color:#fff; border:none; border-radius:6px; padding:11px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 .m-cancel{ background:var(--card2); color:var(--muted); border:1.5px solid var(--border); border-radius:6px; padding:11px; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 
-/* ══════════════════════════════════════════
-   CONFIRM SCORE MODAL  (Play-Cricket style)
-══════════════════════════════════════════ */
-.conf-modal-bg{
-    display:none; position:fixed; inset:0;
-    background:rgba(10,20,35,.65);
-    z-index:250; align-items:center; justify-content:center;
-    backdrop-filter:blur(6px);
-    animation:confBgIn .18s ease;
-}
-.conf-modal-bg.open{ display:flex; }
-@keyframes confBgIn{ from{opacity:0} to{opacity:1} }
-
-.conf-modal{
-    background:#fff; border-radius:14px; width:94%; max-width:400px;
-    box-shadow:0 28px 80px rgba(0,0,0,.28);
-    overflow:hidden;
-    animation:confSlideIn .22s cubic-bezier(.34,1.56,.64,1);
-    transform-origin:center bottom;
-}
-@keyframes confSlideIn{
-    from{opacity:0;transform:scale(.88) translateY(18px)}
-    to{opacity:1;transform:scale(1) translateY(0)}
-}
-
-/* Top coloured stripe that changes per event type */
-.conf-stripe{
-    height:6px; width:100%;
-    background:var(--navy);
-    transition:background .2s;
-}
-.conf-stripe.s-four { background:linear-gradient(90deg,#3b82f6,#06b6d4); }
-.conf-stripe.s-six  { background:linear-gradient(90deg,#7c3aed,#a855f7); }
-.conf-stripe.s-wicket{ background:linear-gradient(90deg,#dc2626,#f43f5e); }
-.conf-stripe.s-wide { background:linear-gradient(90deg,#d97706,#f59e0b); }
-.conf-stripe.s-nb   { background:linear-gradient(90deg,#ea580c,#f97316); }
-.conf-stripe.s-bye  { background:linear-gradient(90deg,#0369a1,#38bdf8); }
-.conf-stripe.s-lb   { background:linear-gradient(90deg,#15803d,#34d399); }
-.conf-stripe.s-run  { background:linear-gradient(90deg,#16a34a,#22c55e); }
-.conf-stripe.s-dot  { background:linear-gradient(90deg,#475569,#94a3b8); }
-
-.conf-header{
-    padding:18px 20px 14px;
-    display:flex; align-items:center; gap:14px;
-    border-bottom:1px solid var(--border);
-}
-.conf-event-icon{
-    width:52px; height:52px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    font-size:26px; flex-shrink:0;
-    background:var(--card2); border:2px solid var(--border);
-    transition:background .2s,border-color .2s;
-}
-.conf-event-icon.s-four  { background:#eff6ff; border-color:#93c5fd; }
-.conf-event-icon.s-six   { background:#f5f3ff; border-color:#c4b5fd; }
-.conf-event-icon.s-wicket{ background:#fff1f2; border-color:#fda4af; }
-.conf-event-icon.s-wide  { background:#fffbeb; border-color:#fcd34d; }
-.conf-event-icon.s-nb    { background:#fff7ed; border-color:#fed7aa; }
-.conf-event-icon.s-bye   { background:#f0f9ff; border-color:#bae6fd; }
-.conf-event-icon.s-lb    { background:#f0fdf4; border-color:#86efac; }
-.conf-event-icon.s-run   { background:#f0fdf4; border-color:#86efac; }
-.conf-event-icon.s-dot   { background:#f8fafc; border-color:#e2e8f0; }
-
-.conf-event-info{ flex:1; }
-.conf-event-label{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:22px; font-weight:900; letter-spacing:2px;
-    text-transform:uppercase; color:var(--text); line-height:1.1;
-}
-.conf-event-sub{
-    font-size:11px; color:var(--muted); margin-top:3px;
-    letter-spacing:.3px; line-height:1.4;
-}
-.conf-event-note{
-    display:inline-block; margin-top:5px;
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:10px; font-weight:700; letter-spacing:1px;
-    background:#fef3c7; color:#92400e;
-    border:1px solid #fcd34d; border-radius:3px;
-    padding:1px 7px;
-}
-.conf-event-note.blue { background:#dbeafe; color:#1e40af; border-color:#93c5fd; }
-.conf-event-note.green{ background:#dcfce7; color:#166534; border-color:#86efac; }
-.conf-event-note.red  { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
-
-/* Score comparison row */
-.conf-scores{
-    display:flex; align-items:stretch; justify-content:center;
-    gap:0; padding:16px 20px; border-bottom:1px solid var(--border);
-}
-.conf-score-box{
-    flex:1; text-align:center; padding:12px 10px; border-radius:8px;
-    border:1.5px solid var(--border);
-    transition:background .2s,border-color .2s;
-}
-.conf-score-box.current{ background:var(--card2); }
-.conf-score-box.after  { background:#f0fdf4; border-color:#86efac; }
-.conf-score-box.after.wicket-after { background:#fff5f5; border-color:#fda4af; }
-.conf-score-box.after.wide-after   { background:#fffbeb; border-color:#fcd34d; }
-
-.conf-score-tag{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:9px; font-weight:800; letter-spacing:2px;
-    text-transform:uppercase; color:var(--muted); margin-bottom:4px;
-}
-.conf-score-val{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:28px; font-weight:900; color:var(--navy); line-height:1;
-}
-.conf-score-box.after .conf-score-val{ color:var(--green); }
-.conf-score-box.after.wicket-after .conf-score-val{ color:var(--red); }
-.conf-score-box.after.wide-after .conf-score-val{ color:var(--gold); }
-
-.conf-score-ov{
-    font-size:10px; color:var(--muted); margin-top:3px;
-}
-.conf-score-crr{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:10px; color:var(--muted); margin-top:1px;
-}
-
-.conf-arrow-col{
-    display:flex; align-items:center; justify-content:center;
-    padding:0 12px; flex-shrink:0;
-}
-.conf-arrow-svg{
-    width:24px; height:24px; color:var(--muted);
-}
-
-/* Bowler / batter context row */
-.conf-context{
-    padding:10px 20px; border-bottom:1px solid var(--border);
-    display:flex; gap:6px; flex-wrap:wrap;
-}
-.conf-ctx-chip{
-    background:var(--card2); border:1px solid var(--border);
-    border-radius:20px; padding:4px 10px;
-    font-size:11px; color:var(--text2);
-    display:flex; align-items:center; gap:5px;
-}
-.conf-ctx-chip b{ color:var(--text); }
-.conf-ctx-chip .chip-lbl{
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:9px; font-weight:700; letter-spacing:1px;
-    color:var(--muted); text-transform:uppercase;
-}
-
-/* Buttons */
-.conf-buttons{
-    display:grid; grid-template-columns:1fr 1fr; gap:10px;
-    padding:14px 20px 18px;
-}
-.conf-btn-yes{
-    padding:14px 0; border:none; border-radius:8px;
-    background:var(--green); color:#fff;
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:16px; font-weight:900; letter-spacing:2px;
-    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;
-    transition:background .15s,transform .1s;
-    box-shadow:0 4px 14px rgba(26,122,60,.3);
-}
-.conf-btn-yes:hover{ background:#16a34a; }
-.conf-btn-yes:active{ transform:scale(.96); }
-.conf-btn-yes.wicket-yes{
-    background:var(--red);
-    box-shadow:0 4px 14px rgba(196,30,58,.3);
-}
-.conf-btn-yes.wicket-yes:hover{ background:#b91c1c; }
-
-.conf-btn-no{
-    padding:14px 0; border:2px solid var(--border); border-radius:8px;
-    background:#fff; color:var(--text2);
-    font-family:'Barlow Condensed',sans-serif;
-    font-size:16px; font-weight:900; letter-spacing:2px;
-    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;
-    transition:border-color .15s,color .15s,transform .1s;
-}
-.conf-btn-no:hover{ border-color:var(--red2); color:var(--red); }
-.conf-btn-no:active{ transform:scale(.96); }
-
-/* Keyboard shortcut hint */
-.conf-key-hint{
-    text-align:center; font-size:9px; color:var(--muted);
-    letter-spacing:1px; font-family:'Barlow Condensed',sans-serif;
-    padding-bottom:10px; margin-top:-8px;
-}
-kbd{
-    display:inline-block; padding:1px 5px; border:1px solid #d1d5db;
-    border-radius:3px; font-size:9px; background:#f9fafb; color:var(--text2);
-    font-family:monospace;
-}
-
-/* ── PICKER OVERLAYS ── */
+/* ── BOWLER PICKER ── */
 .bpk-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:300; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
 .bpk-overlay.open{ display:flex; }
 .bpk-box{ background:#fff; border-radius:11px; padding:20px; width:94%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,.2); }
@@ -696,8 +702,47 @@ kbd{
             </div>
         </div>
 
-        <!-- SCORING BUTTONS -->
+        <!-- ════════════════════════════════════════
+             SCORING BUTTONS + PENDING AREA
+        ════════════════════════════════════════ -->
         <div style="border-top:2px solid var(--border);padding:12px;display:flex;flex-direction:column;gap:10px">
+
+            <!-- ══ PENDING SCORE AREA ══ -->
+            <div>
+                <div class="scoring-lbl" style="margin-bottom:6px">Pending Score</div>
+                <div class="pending-wrap" id="pendingWrap">
+                    <!-- Idle -->
+                    <div class="pending-idle" id="pendingIdle">
+                        <span style="font-size:18px">🏏</span>
+                        <span class="pending-idle-txt">Tap a scoring button to stage a delivery</span>
+                    </div>
+                    <!-- Active -->
+                    <div class="pending-active" id="pendingActive">
+                        <div class="pending-top-row">
+                            <div class="pending-score-block">
+                                <div class="pending-runs-val" id="pendingRunsVal">0</div>
+                                <div class="pending-type-col">
+                                    <div class="pending-lbl-tag">Pending</div>
+                                    <div class="pending-event-name" id="pendingEventName">RUNS</div>
+                                    <div class="pending-note-pill" id="pendingNotePill" style="display:none"></div>
+                                </div>
+                            </div>
+                            <div style="font-size:10px;color:var(--text2);text-align:right;line-height:1.7" id="pendingMeta"></div>
+                        </div>
+                        <div class="pending-btn-row">
+                            <button class="btn-correct" onclick="correctScore()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+                                CORRECT
+                            </button>
+                            <button class="btn-incorrect" onclick="incorrectScore()">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                                INCORRECT
+                            </button>
+                        </div>
+                        <div class="pending-key-hint"><kbd>Y</kbd> Correct &nbsp;·&nbsp; <kbd>N</kbd> / <kbd>Esc</kbd> Incorrect</div>
+                    </div>
+                </div>
+            </div>
 
             <div>
                 <div class="scoring-lbl">Runs</div>
@@ -750,7 +795,7 @@ kbd{
                     <button class="act-btn act-swap" onclick="swapStrike()">⇄ Swap Strike</button>
                     <button class="act-btn act-undo" id="undoBtn" onclick="undoLast()" disabled>↩ Undo <span class="undo-badge" id="undoCount">0</span></button>
                 </div>
-                <div class="note-box" style="margin-top:8px"><b>Rules:</b> Wide/No-Ball = illegal delivery. No-Ball → FREE HIT. Byes/LB = legal extras. Odd runs → striker rotates. End of 6 legal balls → auto strike swap. Undo reverts last ball (up to 20).</div>
+                <div class="note-box" style="margin-top:8px"><b>How to score:</b> Click run buttons — they accumulate in the Pending area above. Click <b>Correct</b> to commit or <b>Incorrect</b> to cancel. Extra pills (Wd, Nb, By, Lb) set the delivery type directly. Wicket opens the dismissal form.</div>
             </div>
         </div>
 
@@ -915,62 +960,6 @@ kbd{
 
 </div><!-- /body -->
 
-<!-- ══════════════════════════════════════════
-     PLAY-CRICKET STYLE CONFIRM SCORE MODAL
-══════════════════════════════════════════ -->
-<div class="conf-modal-bg" id="confModal">
-    <div class="conf-modal">
-        <div class="conf-stripe" id="confStripe"></div>
-
-        <!-- Header: icon + label -->
-        <div class="conf-header">
-            <div class="conf-event-icon" id="confEventIcon">●</div>
-            <div class="conf-event-info">
-                <div class="conf-event-label" id="confEventLabel">CONFIRM ACTION</div>
-                <div class="conf-event-sub" id="confEventSub">Reviewing scoring action</div>
-                <div class="conf-event-note" id="confEventNote" style="display:none"></div>
-            </div>
-        </div>
-
-        <!-- Score comparison -->
-        <div class="conf-scores">
-            <div class="conf-score-box current">
-                <div class="conf-score-tag">CURRENT</div>
-                <div class="conf-score-val" id="confCurScore">0/0</div>
-                <div class="conf-score-ov" id="confCurOv">0.0 ov</div>
-                <div class="conf-score-crr" id="confCurCrr">CRR —</div>
-            </div>
-            <div class="conf-arrow-col">
-                <svg class="conf-arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            </div>
-            <div class="conf-score-box after" id="confAfterBox">
-                <div class="conf-score-tag">AFTER</div>
-                <div class="conf-score-val" id="confNewScore">0/0</div>
-                <div class="conf-score-ov" id="confNewOv">0.0 ov</div>
-                <div class="conf-score-crr" id="confNewCrr">CRR —</div>
-            </div>
-        </div>
-
-        <!-- Context chips: striker + bowler -->
-        <div class="conf-context" id="confContext"></div>
-
-        <!-- YES / NO buttons -->
-        <div class="conf-buttons">
-            <button class="conf-btn-yes" id="confBtnYes" onclick="execConfirm()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
-                YES — CONFIRM
-            </button>
-            <button class="conf-btn-no" onclick="cancelConfirm()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                NO — CANCEL
-            </button>
-        </div>
-        <div class="conf-key-hint"><kbd>Y</kbd> confirm &nbsp;·&nbsp; <kbd>N</kbd> or <kbd>Esc</kbd> cancel</div>
-    </div>
-</div>
-
 <!-- ══ BOWLER PICKER ══ -->
 <div class="bpk-overlay" id="bowlerModal">
     <div class="bpk-box">
@@ -1079,211 +1068,132 @@ let _dismissedSlot  = null;
 let _injuryPos      = null;
 
 // ════════════════════════════════════════════════════════
-// CONFIRMATION MODAL STATE
+// PENDING SCORE STATE
 // ════════════════════════════════════════════════════════
-let _pendingFn = null;
-
-// ── Photos ──────────────────────────────────────────────
-onValue(phRef,snap=>{
-    _ph=snap.val()||{};
-    document.querySelectorAll('[data-phn]').forEach(el=>{ if(el.dataset.phn) el.src=ph(el.dataset.phn); });
-});
-const BLANK=`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23eef1f5'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23b0bec5'/%3E%3Cellipse cx='16' cy='28' rx='10' ry='7' fill='%23b0bec5'/%3E%3C/svg%3E`;
-function ph(name){ if(!name) return BLANK; const k=name.replace(/[^a-zA-Z0-9]/g,'_'); return _ph[k]||BLANK; }
-
-// ── Keyboard shortcuts for confirm modal ─────────────────
-document.addEventListener('keydown', e => {
-    const modal = $('confModal');
-    if (!modal.classList.contains('open')) return;
-    if (e.key === 'y' || e.key === 'Y' || e.key === 'Enter') {
-        e.preventDefault(); execConfirm();
-    }
-    if (e.key === 'n' || e.key === 'N' || e.key === 'Escape') {
-        e.preventDefault(); cancelConfirm();
-    }
-});
-
-// ════════════════════════════════════════════════════════
-// CONFIRM MODAL HELPERS
-// ════════════════════════════════════════════════════════
+let _pending = { active: false, runs: 0, type: null };
 
 /**
- * openConfirmModal — shows the Play-Cricket style confirm popup
- * @param {object} opts
- *   icon       emoji
- *   label      event title (uppercase)
- *   sub        subtitle line
- *   note       optional pill note text
- *   noteClass  'blue'|'green'|'red'|'' (default gold)
- *   stripeClass 's-four'|'s-six'|'s-wicket'|'s-wide'|'s-nb'|'s-bye'|'s-lb'|'s-run'|'s-dot'
- *   curScore   e.g. "45/3"
- *   curOv      e.g. "7.2 ov"
- *   curCrr     e.g. "CRR 6.25"
- *   newScore   e.g. "49/3"
- *   newOv      e.g. "7.3 ov"
- *   newCrr     e.g. "CRR 6.67"
- *   afterClass 'wicket-after'|'wide-after'|'' (default green)
- *   context    array of {lbl, val} chips
- *   isWicket   bool — makes YES button red
- *   callback   fn to call on YES
+ * updatePendingUI — refreshes the inline pending area based on _pending state.
+ * Reads current match data from _match for context chips.
  */
-function openConfirmModal(opts) {
-    // Stripe
-    const stripe = $('confStripe');
-    stripe.className = 'conf-stripe ' + (opts.stripeClass || '');
+function updatePendingUI() {
+    const wrap   = $('pendingWrap');
+    const idle   = $('pendingIdle');
+    const active = $('pendingActive');
 
-    // Icon
-    const icon = $('confEventIcon');
-    icon.textContent = opts.icon || '●';
-    icon.className = 'conf-event-icon ' + (opts.stripeClass || '');
+    if (!_pending.active) {
+        wrap.className   = 'pending-wrap';
+        idle.style.display   = '';
+        active.className = 'pending-active';
+        return;
+    }
 
-    // Label / sub
-    $('confEventLabel').textContent = opts.label || 'CONFIRM';
-    $('confEventSub').textContent = opts.sub || '';
+    idle.style.display   = 'none';
+    active.className = 'pending-active show';
 
-    // Note pill
-    const noteEl = $('confEventNote');
-    if (opts.note) {
-        noteEl.textContent = opts.note;
-        noteEl.className = 'conf-event-note ' + (opts.noteClass || '');
-        noteEl.style.display = '';
+    const r = _pending.runs;
+    const t = _pending.type;
+
+    // ── Determine display label, type class, note ──
+    let eventName = '', typeClass = '', note = '', noteCls = '';
+
+    if (!t) {
+        if (r === 0)       { eventName='DOT BALL'; typeClass='type-dot'; }
+        else if (r === 4)  { eventName='FOUR — BOUNDARY'; typeClass='type-four'; }
+        else if (r === 6)  { eventName='SIX — MAXIMUM'; typeClass='type-six'; }
+        else               { eventName=`RUN${r!==1?'S':''}`; typeClass=''; }
+    } else if (t === 'WD') { eventName='WIDE'; typeClass='type-wide'; note='BALL NOT COUNTED'; noteCls='orange'; }
+    else if (t === 'NB')   { eventName='NO BALL'; typeClass='type-nb'; note='FREE HIT NEXT'; noteCls=''; }
+    else if (t === 'BY')   { eventName='BYES'; typeClass='type-bye'; note='LEGAL DELIVERY'; noteCls='blue'; }
+    else if (t === 'LB')   { eventName='LEG BYES'; typeClass='type-lb'; note='LEGAL DELIVERY'; noteCls='blue'; }
+
+    $('pendingRunsVal').textContent   = r;
+    $('pendingEventName').textContent = eventName;
+
+    const notePill = $('pendingNotePill');
+    if (note) {
+        notePill.textContent  = note;
+        notePill.className    = 'pending-note-pill' + (noteCls ? ' '+noteCls : '');
+        notePill.style.display = '';
     } else {
-        noteEl.style.display = 'none';
+        notePill.style.display = 'none';
     }
 
-    // Scores
-    $('confCurScore').textContent = opts.curScore || '0/0';
-    $('confCurOv').textContent    = opts.curOv    || '0.0 ov';
-    $('confCurCrr').textContent   = opts.curCrr   || 'CRR —';
-    $('confNewScore').textContent = opts.newScore  || '0/0';
-    $('confNewOv').textContent    = opts.newOv     || '0.0 ov';
-    $('confNewCrr').textContent   = opts.newCrr    || 'CRR —';
-
-    // After box class
-    const afterBox = $('confAfterBox');
-    afterBox.className = 'conf-score-box after ' + (opts.afterClass || '');
-
-    // Context chips
-    const ctx = $('confContext');
-    if (opts.context && opts.context.length) {
-        ctx.innerHTML = opts.context.map(c =>
-            `<div class="conf-ctx-chip"><span class="chip-lbl">${c.lbl}</span><b>${c.val}</b></div>`
-        ).join('');
-        ctx.style.display = '';
+    // ── Context meta ──
+    const d = _match;
+    if (d) {
+        const striker  = d.str===1 ? d.p1n : d.p2n;
+        const bowler   = d.bwn || '—';
+        const ovStr    = `${Math.floor(d.balls/6)}.${d.balls%6}`;
+        const projRuns = d.runs + r;
+        const isLegal  = t !== 'WD' && t !== 'NB';
+        const projBalls= isLegal ? d.balls+1 : d.balls;
+        const projOv   = `${Math.floor(projBalls/6)}.${projBalls%6}`;
+        const crr      = projBalls>0 ? (projRuns/(projBalls/6)).toFixed(2) : '0.00';
+        $('pendingMeta').innerHTML =
+            `<span style="font-family:'Barlow Condensed',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Striker</span><br><b>${striker}</b><br>` +
+            `<span style="font-family:'Barlow Condensed',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Score after</span><br><b>${projRuns}/${d.wkts} (${projOv})</b>`;
     } else {
-        ctx.innerHTML = ''; ctx.style.display = 'none';
+        $('pendingMeta').innerHTML = '';
     }
 
-    // YES button colour
-    const yesBtn = $('confBtnYes');
-    yesBtn.className = 'conf-btn-yes' + (opts.isWicket ? ' wicket-yes' : '');
-
-    // Store callback
-    _pendingFn = opts.callback || null;
-
-    $('confModal').classList.add('open');
+    // ── Wrap class ──
+    wrap.className = 'pending-wrap has-pending' + (typeClass ? ' '+typeClass : '');
 }
 
-window.execConfirm = () => {
-    $('confModal').classList.remove('open');
-    if (_pendingFn) { const fn = _pendingFn; _pendingFn = null; fn(); }
-};
-window.cancelConfirm = () => {
-    $('confModal').classList.remove('open');
-    _pendingFn = null;
-};
+// ── Keyboard shortcuts for pending area ──────────────────
+document.addEventListener('keydown', e => {
+    // Only when no modal is open
+    const wktOpen = $('wktModal').classList.contains('open');
+    const bpkOpen = $('bowlerModal').classList.contains('open') || $('newBatModal').classList.contains('open');
+    if (wktOpen || bpkOpen) return;
 
-// ── Compute overs string ──────────────────────────────────
-function ovsStr(balls) {
-    return `${Math.floor(balls/6)}.${balls%6} ov`;
-}
-function crrStr(runs, balls) {
-    if (!balls) return 'CRR —';
-    return 'CRR ' + (runs / (balls/6)).toFixed(2);
-}
+    if (!_pending.active) return;
+
+    if (e.key === 'y' || e.key === 'Y' || e.key === 'Enter') {
+        e.preventDefault(); correctScore();
+    }
+    if (e.key === 'n' || e.key === 'N' || e.key === 'Escape') {
+        e.preventDefault(); incorrectScore();
+    }
+});
 
 // ════════════════════════════════════════════════════════
-// ball() — INTERCEPTS ALL SCORING BUTTONS, SHOWS CONFIRM FIRST
+// ball() — STAGES DELIVERY IN PENDING AREA
+//   Run buttons (0,1,2,3,4,6): accumulate pending.runs
+//   Extra pills (WD/NB/BY/LB):  SET type+runs directly
 // ════════════════════════════════════════════════════════
-window.ball = async (r, type) => {
-    const snap = await get(mRef); const d = snap.val();
-    if (!d) { alert('Initialize match first'); return; }
-
-    const isWD = type === 'WD', isNB = type === 'NB';
-    const isBY = type === 'BY', isLB = type === 'LB';
-
-    // ── Labels / icons per event type ──
-    let icon, label, sub, note = '', noteClass = '', stripeClass, afterClass = '';
-
-    if (r === 0 && !type) {
-        icon='●'; label='DOT BALL'; sub='No run scored off the bat';
-        stripeClass='s-dot';
-    } else if (r === 4 && !type) {
-        icon='🔥'; label='BOUNDARY — FOUR!'; sub='Ball reaches the boundary rope';
-        stripeClass='s-four'; afterClass='';
-    } else if (r === 6 && !type) {
-        icon='🚀'; label='MAXIMUM — SIX!'; sub='Ball clears the boundary rope';
-        stripeClass='s-six'; afterClass='';
-    } else if (!type) {
-        icon='🏃'; label=`${r} RUN${r !== 1 ? 'S' : ''}`;
-        sub= r % 2 !== 0 ? 'Striker and non-striker will swap ends' : 'Batters retain ends';
-        stripeClass='s-run';
-    } else if (isWD) {
-        icon='⚡'; label=`WIDE  +${r}`;
-        sub='Illegal delivery — ball not counted in over';
-        note='OVER BALL NOT COUNTED'; noteClass='';
-        stripeClass='s-wide'; afterClass='wide-after';
-    } else if (isNB) {
-        icon='🟠'; label=`NO BALL  +${r}`;
-        sub='Illegal delivery — FREE HIT on next ball';
-        note='FREE HIT AWARDED'; noteClass='green';
-        stripeClass='s-nb'; afterClass='wide-after';
-    } else if (isBY) {
-        icon='👟'; label=`BYE  +${r}`;
-        sub='Extras credited — legal delivery, no bat contact';
-        note='LEGAL DELIVERY'; noteClass='blue';
-        stripeClass='s-bye';
-    } else if (isLB) {
-        icon='🦵'; label=`LEG BYE  +${r}`;
-        sub='Extras credited — deflection off the body';
-        note='LEGAL DELIVERY'; noteClass='blue';
-        stripeClass='s-lb';
+window.ball = (r, type) => {
+    if (type) {
+        // Extra pills always SET the pending (replace any current pending)
+        _pending = { active: true, runs: r, type: type };
+    } else {
+        // Run buttons: accumulate if no type, otherwise start fresh
+        if (_pending.active && !_pending.type) {
+            _pending.runs += r;
+        } else {
+            _pending = { active: true, runs: r, type: null };
+        }
     }
+    updatePendingUI();
+};
 
-    // ── Score projections ──
-    const curBalls = d.balls;
-    const newBalls = (isWD || isNB) ? curBalls : curBalls + 1;
-    const projRuns = d.runs + r;
-    const projWkts = d.wkts;
+// ── Confirm / Incorrect ───────────────────────────────────
+window.correctScore = async () => {
+    if (!_pending.active) return;
+    const { runs, type } = _pending;
+    _pending = { active: false, runs: 0, type: null };
+    updatePendingUI();
+    await executeBall(runs, type);
+};
 
-    const curScore = `${d.runs}/${d.wkts}`;
-    const newScore = `${projRuns}/${projWkts}`;
-    const curCrr   = crrStr(d.runs, d.balls);
-    const newCrr   = crrStr(projRuns, newBalls);
-
-    // Context chips
-    const striker = d.str === 1 ? d.p1n : d.p2n;
-    const context = [
-        { lbl: 'STRIKER', val: striker || '—' },
-        { lbl: 'BOWLER',  val: d.bwn || '—'  },
-        { lbl: 'OVER',    val: ovsStr(curBalls) },
-    ];
-    if (d.target > 0) {
-        context.push({ lbl: 'NEED', val: `${Math.max(0, d.target - d.runs)} off ${ovsStr((d.maxOvers||20)*6 - d.balls)}` });
-    }
-
-    openConfirmModal({
-        icon, label, sub, note, noteClass, stripeClass, afterClass,
-        curScore, curOv: ovsStr(curBalls), curCrr,
-        newScore, newOv: ovsStr(newBalls), newCrr,
-        context,
-        isWicket: false,
-        callback: () => executeBall(r, type),
-    });
+window.incorrectScore = () => {
+    _pending = { active: false, runs: 0, type: null };
+    updatePendingUI();
 };
 
 // ════════════════════════════════════════════════════════
-// executeBall() — ORIGINAL ball() logic (fires after YES)
+// executeBall() — core scoring logic (fires after Correct)
 // ════════════════════════════════════════════════════════
 async function executeBall(r, type) {
     const snap = await get(mRef); const d = snap.val();
@@ -1333,45 +1243,19 @@ async function executeBall(r, type) {
 }
 
 // ════════════════════════════════════════════════════════
-// openWicket() — INTERCEPTS WICKET BUTTON, CONFIRM FIRST
+// openWicket() — directly opens dismissal form (no staging)
 // ════════════════════════════════════════════════════════
 window.openWicket = async () => {
-    const snap = await get(mRef); const d = snap.val();
-    if (!d) { alert('Initialize match first'); return; }
-
-    const striker = d.str === 1 ? d.p1n : d.p2n;
-    const curScore = `${d.runs}/${d.wkts}`;
-    const newScore = `${d.runs}/${d.wkts + 1}`;
-    const newBalls = d.balls + 1;
-
-    openConfirmModal({
-        icon: '💥',
-        label: `WICKET — ${striker}`,
-        sub: `${striker} is out — opens dismissal details form`,
-        note: 'OPENS DISMISSAL FORM NEXT',
-        noteClass: 'red',
-        stripeClass: 's-wicket',
-        afterClass: 'wicket-after',
-        curScore,
-        curOv: ovsStr(d.balls),
-        curCrr: crrStr(d.runs, d.balls),
-        newScore,
-        newOv: ovsStr(newBalls),
-        newCrr: crrStr(d.runs, newBalls),
-        context: [
-            { lbl: 'BATSMAN', val: striker || '—' },
-            { lbl: 'BOWLER',  val: d.bwn || '—'  },
-            { lbl: 'WKTS LEFT', val: `${10 - d.wkts - 1} remaining` },
-        ],
-        isWicket: true,
-        callback: () => openWicketDetails(),
-    });
+    // Clear any staged pending score
+    _pending = { active: false, runs: 0, type: null };
+    updatePendingUI();
+    await openWicketDetails();
 };
 
-// ── openWicketDetails — original openWicket logic ────────
+// ── openWicketDetails — shows the dismissal modal ────────
 async function openWicketDetails() {
     const snap = await get(mRef); const d = snap.val();
-    if (!d) return;
+    if (!d) { alert('Initialize match first'); return; }
     $('mBatsman').textContent = d.str===1 ? d.p1n : d.p2n;
     $('mBowler').textContent  = d.bwn;
     $('mRuns').value = 0; $('mCredit').checked = true; _dt = 'b';
@@ -1454,6 +1338,14 @@ window.onNameChg=(t,i)=>{
 };
 function getNames(t){ const a=[]; for(let i=1;i<=11;i++){const e=$(`pl${t}${i}`);if(e&&e.value.trim())a.push(e.value.trim());} return a; }
 function setNames(t,names){ for(let i=1;i<=11;i++){const e=$(`pl${t}${i}`);if(e)e.value=names[i-1]||'';const av=$(`av${t}${i}`);if(av&&names[i-1]){av.dataset.phn=names[i-1];av.src=ph(names[i-1]);}}}
+
+// ── Photos ──────────────────────────────────────────────
+onValue(phRef,snap=>{
+    _ph=snap.val()||{};
+    document.querySelectorAll('[data-phn]').forEach(el=>{ if(el.dataset.phn) el.src=ph(el.dataset.phn); });
+});
+const BLANK=`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23eef1f5'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23b0bec5'/%3E%3Cellipse cx='16' cy='28' rx='10' ry='7' fill='%23b0bec5'/%3E%3C/svg%3E`;
+function ph(name){ if(!name) return BLANK; const k=name.replace(/[^a-zA-Z0-9]/g,'_'); return _ph[k]||BLANK; }
 
 // ── Dropdowns ────────────────────────────────────────────
 function fillSels(d){
@@ -1610,6 +1502,9 @@ window.initMatch=async()=>{
     await update(uRef,{scorebar:true,scorecard:false});
     _adminLastOver=0; _curMatchKey=null; _winFired=false; _inn1EndFired=false;
     $('matchStatusBadge').textContent='LIVE';
+    // Reset pending on new match
+    _pending = { active: false, runs: 0, type: null };
+    updatePendingUI();
     await saveMatchToDb(true);
     alert('✅ Match Initialized!');
 };
@@ -1814,6 +1709,7 @@ window.swapInnings=async()=>{
         inn1Bat:d.batTeam,inn1BatRows:d.batRows||[],inn1BowlRows:d.bowlRows||[],
     });
     _adminLastOver=0; _winFired=false; _inn1EndFired=false;
+    _pending = { active: false, runs: 0, type: null }; updatePendingUI();
     alert(`✅ 2nd Innings started! Target: ${d.runs+1}`);
 };
 
@@ -1824,8 +1720,9 @@ window.fullReset=async()=>{
     if(!confirm('⚠ Clear ALL match data?')) return;
     await set(mRef,null); await set(sRef,null); await set(hRef,null);
     await set(ref(db,'commentary'),null);
-    await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
+    await update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
     _adminLastOver=-1; _curMatchKey=null; _winFired=false; _inn1EndFired=false;
+    _pending = { active: false, runs: 0, type: null };
     location.reload();
 };
 
@@ -1839,6 +1736,9 @@ function ballCls(v){
 // ── MAIN DATA LISTENER ────────────────────────────────────
 onValue(mRef,async snap=>{
     const d=snap.val(); _match=d; if(!d) return;
+
+    // Refresh pending UI with updated match context
+    if(_pending.active) updatePendingUI();
 
     const completedOvers=Math.floor(d.balls/6), maxBalls=(d.maxOvers||20)*6;
     const innComplete=d.balls>=maxBalls||d.wkts>=10;
@@ -1945,6 +1845,7 @@ window.reloadMatch=async(key,enc)=>{
     await set(hRef,null); await set(mRef,data.fullState);
     await set(sRef,{sqA:(data.fullState.batRows||[]).map(r=>r.name).join('\n'),sqB:(data.fullState.bowlRows||[]).map(r=>r.name).join('\n')});
     _adminLastOver=Math.floor(data.fullState.balls/6); _curMatchKey=key;
+    _pending={active:false,runs:0,type:null}; updatePendingUI();
     toast(`✅ Loaded: "${data.title}"`);
 };
 window.downloadSavedMatch=(key,enc)=>{
@@ -2021,7 +1922,7 @@ window.openPlayerPopup=async()=>{
 window.closePlayerPopup=()=>$('ppOverlay').classList.remove('open');
 
 // ── Init ──────────────────────────────────────────────────
-buildSquads(); updateTossUI(false);
+buildSquads(); updateTossUI(false); updatePendingUI();
 const uSnap=await get(uRef);
 if(!uSnap.val()) update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
 const cSnap=await get(cRef);
