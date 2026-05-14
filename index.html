@@ -12,12 +12,6 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:rgba(0,0,0,0);font-family:'Barlow Condensed',sans-serif;color:var(--text);overflow:hidden;height:100vh;width:100vw;}
 
-/* hidden overlay to unlock audio on first touch */
-#audioUnlock{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;font-size:28px;color:white;font-family:'Barlow Condensed',sans-serif;cursor:pointer;transition:opacity 0.5s;}
-#audioUnlock.hide{opacity:0;pointer-events:none;}
-.unlock-btn{background:var(--gold);color:#000;padding:15px 40px;border-radius:50px;font-size:24px;font-weight:800;border:none;cursor:pointer;}
-.unlock-sub{font-size:16px;color:#ccc;}
-
 .loading-shim{position:fixed;inset:0;z-index:199;background:rgba(4,4,12,0);pointer-events:none;transition:opacity .4s;}
 .loading-shim.gone{opacity:0;}
 
@@ -135,13 +129,6 @@ body{background:rgba(0,0,0,0);font-family:'Barlow Condensed',sans-serif;color:va
 </head>
 <body>
 
-<div id="audioUnlock">
-  <div>🎧</div>
-  <div style="font-size:32px;font-weight:900;">TAP TO ENABLE AUDIO</div>
-  <div class="unlock-sub">Live commentary by Ravi Shastri • Ball-by-ball</div>
-  <button class="unlock-btn" id="unlockBtn">🔊 ENABLE COMMENTARY</button>
-</div>
-
 <div class="loading-shim" id="loadingShim"></div>
 <div class="ann-rain" id="annRain"></div>
 <div class="ann-wrap"><div class="ann-toast" id="annToast"><div class="ann-emoji" id="annEmoji">🏆</div><div class="ann-body"><div class="ann-text" id="annText">CENTURY!</div><div class="ann-sub" id="annSub">100 runs!</div></div><div class="ann-progress" id="annProgress"></div></div></div>
@@ -178,30 +165,37 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebas
 import { getDatabase, ref, onValue, update, get, onChildAdded } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
 const IS_PREVIEW = (function(){try{if(window.self!==window.top)return true;if(new URLSearchParams(window.location.search).has('preview'))return true;}catch(e){return true;}return false;})();
-if(IS_PREVIEW){document.getElementById('audioUnlock').style.display='none';}
+if(IS_PREVIEW){document.body.style.filter='blur(2px)';}
 
 const cfg={apiKey:"AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",authDomain:"cricket-8e338.firebaseapp.com",projectId:"cricket-8e338",storageBucket:"cricket-8e338.firebasestorage.app",messagingSenderId:"41064243639",appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"};
 const db=getDatabase(initializeApp(cfg));
 const cricketRef=ref(db,'cricket'),uiRef=ref(db,'ui'),phRef=ref(db,'playerPhotos'),commentaryQueueRef=ref(db,'commentaryQueue');
 const $=id=>document.getElementById(id);
 
-let _audioEnabled=false,_playerPhotos={},_prevData=null,_epovTimer=null,_winShown=false,_firstData=false,_speechSynth=null;
-let _commentaryStyle='shastri',_commentaryRate=0.85,_commentaryPitch=0.75;
+let _audioEnabled=true, // Audio enabled by default, no button needed
+    _playerPhotos={},
+    _prevData=null,
+    _epovTimer=null,
+    _winShown=false,
+    _firstData=false,
+    _commentaryStyle='shastri',
+    _commentaryRate=0.85,
+    _commentaryPitch=0.75;
 
 function getPhoto(name){if(!name)return '';const k=name.replace(/[^a-zA-Z0-9]/g,'_');return _playerPhotos[k]||'';}
 onValue(phRef,snap=>{_playerPhotos=snap.val()||{};document.querySelectorAll('[data-ph]').forEach(el=>{const n=el.dataset.ph;if(n)el.src=getPhoto(n);});});
 
-// Authentic Ravi Shastri commentary lines
+// Authentic Ravi Shastri commentary lines (same as before)
 const commentaryLines = {
-  six: [`${data.striker} has sent that into the STANDS! WHAT A SHOT! That is MASSIVE!`,`HE SMOKES IT! ${data.striker} clears the ropes with EASE! Absolutely ENORMOUS!`,`SIX! ${data.striker} is in the ZONE! That is FABULOUS cricket!`,`IN THE AIR... AND IT'S GONE! ${data.striker} has hit that into ROW Z!`],
-  four: [`FOUR! ${data.striker} creams that through the covers! TIMING!`,`${data.striker} finds the gap and it races away! BEAUTIFUL batting!`,`SHOT! That is TEXTBOOK from ${data.striker}! FOUR!`],
-  wicket: [`OUT! ${data.bowler} has done it! ${data.striker} walks back and the crowd ERUPTS!`,`BOWLED HIM! ${data.bowler} rattles the stumps! TIMBER!`,`CAUGHT! And there is PANDEMONIUM! ${data.bowler} strikes!`],
-  fifty: [`FIFTY! ${data.striker} raises the bat! What a KNOCK! This man is a SUPERSTAR!`,`Half-century for ${data.striker}! Well played!`],
-  century: [`CENTURY! ${data.striker} gets to THREE FIGURES! The crowd is on its FEET! MAGNIFICENT!`,`A HUNDRED for ${data.striker}! Take a BOW, son! SPECTACULAR!`],
-  run: [`${data.runs} run${data.runs>1?'s':''}! ${data.striker} picks it nicely and they scamper through!`,`Excellent running between the wickets! ${data.runs} added!`],
-  dot: [`Dot ball! ${data.bowler} is right on the MONEY! Brilliant stuff!`,`No run! ${data.bowler} bowls a beauty!`],
-  wide: [`Wide! That's down the leg side! 1 run to the total.`,`Wide called! ${data.bowler} will have to reload.`],
-  noball: [`NO BALL! Free hit coming up! And ${data.striker} takes ${data.runs} runs!`,`That's a no ball! ${data.runs} runs added!`]
+  six: (data) => [`${data.striker} has sent that into the STANDS! WHAT A SHOT! That is MASSIVE!`,`HE SMOKES IT! ${data.striker} clears the ropes with EASE! Absolutely ENORMOUS!`,`SIX! ${data.striker} is in the ZONE! That is FABULOUS cricket!`,`IN THE AIR... AND IT'S GONE! ${data.striker} has hit that into ROW Z!`][Math.floor(Math.random()*4)],
+  four: (data) => [`FOUR! ${data.striker} creams that through the covers! TIMING!`,`${data.striker} finds the gap and it races away! BEAUTIFUL batting!`,`SHOT! That is TEXTBOOK from ${data.striker}! FOUR!`][Math.floor(Math.random()*3)],
+  wicket: (data) => [`OUT! ${data.bowler} has done it! ${data.striker} walks back and the crowd ERUPTS!`,`BOWLED HIM! ${data.bowler} rattles the stumps! TIMBER!`,`CAUGHT! And there is PANDEMONIUM! ${data.bowler} strikes!`][Math.floor(Math.random()*3)],
+  fifty: (data) => [`FIFTY! ${data.striker} raises the bat! What a KNOCK! This man is a SUPERSTAR!`,`Half-century for ${data.striker}! Well played!`][Math.floor(Math.random()*2)],
+  century: (data) => [`CENTURY! ${data.striker} gets to THREE FIGURES! The crowd is on its FEET! MAGNIFICENT!`,`A HUNDRED for ${data.striker}! Take a BOW, son! SPECTACULAR!`][Math.floor(Math.random()*2)],
+  run: (data) => [`${data.runs} run${data.runs>1?'s':''}! ${data.striker} picks it nicely and they scamper through!`,`Excellent running between the wickets! ${data.runs} added!`][Math.floor(Math.random()*2)],
+  dot: (data) => [`Dot ball! ${data.bowler} is right on the MONEY! Brilliant stuff!`,`No run! ${data.bowler} bowls a beauty!`][Math.floor(Math.random()*2)],
+  wide: (data) => [`Wide! That's down the leg side! 1 run to the total.`,`Wide called! ${data.bowler} will have to reload.`][Math.floor(Math.random()*2)],
+  noball: (data) => [`NO BALL! Free hit coming up! And ${data.striker} takes ${data.runs} runs!`,`That's a no ball! ${data.runs} runs added!`][Math.floor(Math.random()*2)]
 };
 
 function speak(line){
@@ -212,6 +206,7 @@ function speak(line){
   utter.rate=_commentaryRate;
   utter.pitch=_commentaryPitch;
   utter.volume=1.0;
+  // Try to get a deep male voice for Shastri effect
   const voices=window.speechSynthesis.getVoices();
   let chosen=voices.find(v=>v.name==='Google UK English Male')||voices.find(v=>v.lang==='en-GB')||voices.find(v=>v.lang==='en-US')||voices[0];
   if(chosen) utter.voice=chosen;
@@ -254,10 +249,13 @@ function showWinOverlay(d,winnerTeam,margin){
 }
 
 function showAnn(data){
+  // Filter out 1st innings announcements
+  const text = data.text || '';
+  if(text.includes('1ST INNINGS') || text.includes('END OF 1ST')) return;
   const toast=$('annToast'),prog=$('annProgress'),DUR=data.dur||8;
   toast.classList.remove('visible');
   $('annEmoji').textContent=data.emoji||'📣';
-  $('annText').textContent=data.text||'';
+  $('annText').textContent=text;
   $('annSub').textContent=data.sub||'';
   prog.style.animation='none';void prog.offsetWidth;prog.style.animation=`annProgress ${DUR}s linear forwards`;
   setTimeout(()=>toast.classList.add('visible'),10);
@@ -332,12 +330,12 @@ function checkEvents(d,prev){
   if(d.innings===2&&!_winShown){const target=d.target||0,maxBalls=(d.maxOvers||20)*6,allOut=d.wkts>=10,oversUp=d.balls>=maxBalls,runsNeeded=target-d.runs;if(runsNeeded<=0)showWinOverlay(d,d.batTeam,`Won by ${10-d.wkts} wicket${10-d.wkts!==1?'s':''}`);else if((allOut||oversUp)&&runsNeeded>1)showWinOverlay(d,d.bowlTeam,`Won by ${runsNeeded-1} run${runsNeeded-1!==1?'s':''}`);}
 }
 
-// Listen to real-time commentary events from admin
+// Real-time commentary from admin
 onChildAdded(commentaryQueueRef, async (snap) => {
   const data = snap.val();
   if(!data) return;
   if(_audioEnabled){
-    const {event,data:eventData,style,rate,pitch} = data;
+    const {event,eventData,style,rate,pitch} = data;
     _commentaryStyle=style||'shastri';
     _commentaryRate=rate||0.85;
     _commentaryPitch=pitch||0.75;
@@ -352,33 +350,35 @@ onChildAdded(commentaryQueueRef, async (snap) => {
     else if(event==='fifty') line=commentaryLines.fifty({striker:eventData.striker});
     else if(event==='century') line=commentaryLines.century({striker:eventData.striker});
     if(line) speak(line);
-    // play sound effect
     if(event==='six') playEventSound('six');
     else if(event==='four') playEventSound('four');
     else if(event==='wicket') playEventSound('wicket');
     else if(event==='fifty') playEventSound('fifty');
     else if(event==='century') playEventSound('century');
   }
-  // remove after processing
   await snap.ref.remove();
 });
 
-// Unlock audio on user interaction
-function enableAudio(){
-  if(_audioEnabled) return;
-  _audioEnabled=true;
-  if(window.speechSynthesis) window.speechSynthesis.getVoices();
-  // resume AudioContext if any
-  try{const ctx=new AudioContext();ctx.resume();}catch(e){}
-  speak("Audio enabled. Welcome to live cricket commentary.");
-  document.getElementById('audioUnlock').classList.add('hide');
-}
-document.getElementById('unlockBtn').addEventListener('click',enableAudio);
-document.getElementById('audioUnlock').addEventListener('click',(e)=>{if(e.target===document.getElementById('audioUnlock'))enableAudio();});
+// Auto-initialize speech synthesis and AudioContext
+(function initAudio(){
+  if(IS_PREVIEW) return;
+  // Preload voices and resume audio context
+  if(window.speechSynthesis){
+    window.speechSynthesis.getVoices();
+    // Small welcome message
+    setTimeout(()=>{
+      if(_audioEnabled) speak("Live cricket commentary enabled. Ravi Shastri style.");
+    }, 1000);
+  }
+  // Also try to resume any audio context
+  try{
+    const ctx = new AudioContext();
+    ctx.resume().catch(()=>{});
+  }catch(e){}
+})();
 
-onValue(ref(db,'commentarySettings'),s=>{const set=s.val();if(set){_commentaryStyle=set.style||'shastri';_commentaryRate=set.rate||0.85;_commentaryPitch=set.pitch||0.75;}});
+onValue(ref(db,'commentarySettings'),s=>{const set=s.val();if(set){_commentaryStyle=set.style||'shastri';_commentaryRate=set.rate||0.85;_commentaryPitch=set.pitch||0.75;_audioEnabled=set.enabled===true;}});
 
-setTimeout(()=>{if(window.speechSynthesis)window.speechSynthesis.getVoices();},500);
 markLoaded();
 </script>
 </body>
