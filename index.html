@@ -541,7 +541,6 @@ if (IS_PREVIEW) {
    ══════════════════════════════════════════════════════════════════ */
 let _audioOn = false;
 let _audioCtx = null;
-let currentVoice = null;
 
 // Commentary settings (synced from admin via Firebase commentarySettings)
 let _commentaryStyle = 'shastri';
@@ -551,20 +550,6 @@ let _commentaryPitch = 0.80;   // Shastri default: deep, booming voice
 function getAudioCtx(){
     if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
     return _audioCtx;
-}
-async function getBestVoice(){
-    if(!window.speechSynthesis) return null;
-    let voices = window.speechSynthesis.getVoices();
-    if(voices.length === 0){
-        await new Promise(r => window.speechSynthesis.onvoiceschanged = r);
-        voices = window.speechSynthesis.getVoices();
-    }
-    const priority = ['Shastri','Ravi','Microsoft David','Brian','Daniel','Google UK English','en-GB','en-IN'];
-    for(let p of priority){
-        const v = voices.find(v => v.name.toLowerCase().includes(p.toLowerCase()) || v.lang.startsWith('en'));
-        if(v) return v;
-    }
-    return voices[0];
 }
 
 function playTone(freqs, durations, types, vol=0.18){
@@ -609,10 +594,8 @@ function speak(text){
     if(!window.speechSynthesis || !text) return;
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
-    if(!currentVoice) currentVoice = await getBestVoice();
-    if(currentVoice) utter.voice = currentVoice;
-    utter.rate = 0.85;
-    utter.pitch = 0.82;
+    utter.rate   = _commentaryRate;
+    utter.pitch  = _commentaryPitch;
     utter.volume = 1.0;
 
     // Pick best voice: prefer deep UK/US English male voice for Shastri feel
@@ -642,13 +625,6 @@ function speak(text){
 }
 
 /* ── Style-aware line generators (Ravi Shastri authentic phrases) ── */
-function getBallCommentary(runs, isWicket, isSix, isFour, striker, bowler){
-    if(isWicket) return `Wicket! ${bowler} gets the wicket of ${striker}.`;
-    if(isSix) return `Six! What a shot by ${striker}! The ball has gone into the stands!`;
-    if(isFour) return `Four! Beautifully played by ${striker}.`;
-    if(runs === 0) return `Dot ball.`;
-    return `${runs} runs. Good batting by ${striker}.`;
-	
 function lineFor(event, data={}){
     const { striker='', bowler='', runs=0, team='' } = data;
 
@@ -762,16 +738,14 @@ function syncAudioUI(){
    FIREBASE
    ══════════════════════════════════════════════ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+import { getDatabase, ref, onValue, update, get }
+    from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
 const cfg = {
     apiKey:"AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
-    authDomain:"cricket-8e338.firebaseapp.com",
-    databaseURL:"https://cricket-8e338-default-rtdb.firebaseio.com",
-    projectId:"cricket-8e338",
+    authDomain:"cricket-8e338.firebaseapp.com", projectId:"cricket-8e338",
     storageBucket:"cricket-8e338.firebasestorage.app",
-    messagingSenderId:"41064243639",
-    appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
+    messagingSenderId:"41064243639", appId:"1:41064243639:web:d99e0d8f64b1bbca20c832"
 };
 const db=getDatabase(initializeApp(cfg));
 const uiRef=ref(db,'ui'), annRef=ref(db,'announcement'), phRef=ref(db,'playerPhotos');
@@ -1006,9 +980,6 @@ const EVENT_EMOJIS={
 function spawnParticles(style){
     const c=$('annParticles'); c.innerHTML='';
     const cols=PARTICLE_COLORS[style]||PARTICLE_COLORS.gold;
-	const db=getDatabase(initializeApp(cfg));
-	const cricketRef=ref(db,'cricket');
-	const phRef=ref(db,'playerPhotos');
     for(let i=0;i<28;i++){
         const p=document.createElement('div'); p.className='ann-p';
         const a=Math.random()*360,d=60+Math.random()*120;
@@ -1102,9 +1073,9 @@ function ballCls(v){
     }
     return '';
 }
-let _playerPhotos={}, _prevData=null;
+
 const cricketRef = ref(db,'cricket');
-onValue(phRef,snap=>{ _playerPhotos=snap.val()||{}; });
+
 get(cricketRef).then(snap=>{
     const d=snap.val(); if(!d) return;
     renderData(d);
@@ -1114,7 +1085,6 @@ get(cricketRef).then(snap=>{
 onValue(cricketRef, snap=>{
     const d=snap.val(); if(!d) return;
     markLoaded();
-	if(!d) return;
     renderData(d);
 });
 
@@ -1143,16 +1113,7 @@ function renderData(d){
         const lastBall=(d.recentBalls||[]).slice(-1)[0];
         const striker=prev.str===1?prev.p1n:prev.p2n;
         const strikerR=d.str===1?(d.p1r||0):(d.p2r||0);
-		const striker = d.str === 1 ? d.p1n : d.p2n;
-        const bowler = d.bwn || '';
         const bowler=prev.bwn||'';
-		
-		const isWicket = d.wkts > prev.wkts;
-		const isSix = lastBall === 6;
-        const isFour = lastBall === 4;
-
-        if(lastBall !== undefined && lastBall !== prev.recentBalls?.slice(-1)[0]){
-            const comment = getBallCommentary(typeof lastBall === 'number' ? lastBall : 0, isWicket, isSix, isFour, striker, bowler);
 
         if(d.wkts>prev.wkts && uiSt.autoWicketOverlay!==false){
             showEventPlayer(bowler,'💥',`${bowler} — WICKET!`,`${striker} dismissed`,'red');
@@ -1200,20 +1161,7 @@ function renderData(d){
 
     lastOverCount=Math.floor(d.balls/6);
     _prevData=JSON.parse(JSON.stringify(d));
-window.toggleAudio = () => {
-    if(IS_PREVIEW) return;
-    _audioOn = !_audioOn;
-    const btn = document.getElementById('audioBtn');
-    const icon = document.getElementById('abIcon');
-    if(_audioOn){
-        btn.classList.add('active');
-        icon.textContent = '🔊';
-        getAudioCtx().resume();
-    } else {
-        btn.classList.remove('active');
-        icon.textContent = '🔇';
-        window.speechSynthesis?.cancel();
-		
+
     /* ══ SCORE BAR ══ */
     $('dTeam').textContent=d.batTeam||'TEAM';
     $('dRuns').textContent=d.runs; $('dWkts').textContent=d.wkts;
@@ -1249,7 +1197,6 @@ window.toggleAudio = () => {
         const v=i<hist.length?hist[i]:'';
         og.innerHTML+=`<div class="ball ${v===''?'':ballCls(v)}">${v===''?'·':v}</div>`;
     }
-};
     const bar=$('scoreBar'); bar.classList.remove('uf'); void bar.offsetWidth; bar.classList.add('uf');
 
     /* ══ SCORECARD ══ */
@@ -1275,8 +1222,7 @@ window.toggleAudio = () => {
     $('scTotFooter').textContent=`${d.runs}/${d.wkts}`;
     $('scBwlExt').textContent=(d.bowlRows||[]).reduce((s,r)=>s+(r.wides||0)+(r.noballs||0),0);
     $('scBwlOv').textContent=oStr; $('scBwlTotal').textContent=`${d.runs}/${d.wkts}`;
-get(cricketRef).then(snap => {
-    if(snap.val()) renderData(snap.val());
+
     /* Batting rows */
     const batCont=$('scBatRows'); batCont.innerHTML='';
     let fowItems=[],fowCount=0;
