@@ -516,142 +516,45 @@ body{
 /* ══════════════════════════════════════════════
    AUDIO ENGINE  — Web Audio API tones + Web Speech API commentary
    ══════════════════════════════════════════════ */
+/* ────── FIXED AUDIO FOR PRISM + CHROME ────── */
 let _audioOn = false;
 let _audioCtx = null;
-
-// ── Commentary settings (synced from admin via Firebase) ──
-let _commentaryStyle = 'standard'; // standard | shastri | chopra
-let _commentaryRate  = 1.0;
-let _commentaryPitch = 1.1;
+let userGestureGiven = false;   // ← This is the main fix
 
 function getAudioCtx(){
     if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
     return _audioCtx;
 }
 
-function playTone(freqs, durations, types, vol=0.18){
-    if(!_audioOn) return;
-    try{
-        const ctx = getAudioCtx();
-        freqs.forEach((freq,i)=>{
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain); gain.connect(ctx.destination);
-            osc.type = types[i]||'sine';
-            osc.frequency.value = freq;
-            const t = ctx.currentTime + (durations.slice(0,i).reduce((a,b)=>a+b,0));
-            gain.gain.setValueAtTime(0, t);
-            gain.gain.linearRampToValueAtTime(vol, t+0.01);
-            gain.gain.exponentialRampToValueAtTime(0.001, t+durations[i]-0.01);
-            osc.start(t); osc.stop(t+durations[i]);
-        });
-    }catch(e){}
-}
+async function speak(text){
+    if(!_audioOn || !text || !userGestureGiven) return;
+    if(!window.speechSynthesis) return;
 
-function playWicket(){ playTone([180,140,100],[0.12,0.14,0.2],['sawtooth','sawtooth','sawtooth'],0.22); setTimeout(()=>playTone([320,220],[0.08,0.18],['square','square'],0.12),80); }
-function playSix(){ playTone([523,659,784,1047],[0.1,0.1,0.1,0.28],['sine','sine','sine','sine'],0.18); setTimeout(()=>playTone([1047,1319],[0.08,0.22],['triangle','triangle'],0.1),360); }
-function playFour(){ playTone([440,554,659],[0.08,0.08,0.2],['sine','sine','sine'],0.16); }
-function playFifty(){ playTone([523,659,784,523,784],[0.09,0.09,0.09,0.09,0.22],['triangle','triangle','triangle','triangle','triangle'],0.15); }
-function playCentury(){ playTone([523,659,784,1047,784,1047,1319],[0.09,0.09,0.09,0.09,0.09,0.09,0.32],['sine','sine','sine','sine','sine','sine','sine'],0.18); }
-function playWin(){ playTone([523,659,784,1047,1319],[0.15,0.15,0.15,0.15,0.5],['triangle','triangle','triangle','triangle','triangle'],0.15); setTimeout(()=>playTone([784,1047,1319,1568],[0.1,0.1,0.1,0.55],['sine','sine','sine','sine'],0.12),700); }
-function playAnnounce(){ playTone([880,1108,1320],[0.1,0.1,0.22],['sine','sine','sine'],0.13); }
-function playOverEnd(){ playTone([659,659],[0.12,0.14],['triangle','triangle'],0.13); setTimeout(()=>playTone([880,880],[0.1,0.16],['triangle','triangle'],0.11),300); }
-
-/* ══════════════════════════════════════════════
-   WEB SPEECH API — Commentary
-   speak() is the single public function.
-   Called with a text string; respects _audioOn,
-   _commentaryStyle, _commentaryRate, _commentaryPitch.
-   ══════════════════════════════════════════════ */
-function speak(text){
-    if(!_audioOn) return;
-    if(!window.speechSynthesis || !text) return;
-    // Cancel any ongoing speech so new events don't queue up
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
-    utter.rate  = _commentaryRate;
-    utter.pitch = _commentaryPitch;
+    utter.rate = 0.86;
+    utter.pitch = 0.82;
     utter.volume = 0.95;
-    // Pick a voice based on style preference
-    const voices = window.speechSynthesis.getVoices();
-    if(voices.length){
-        // Prefer an English voice; fall back to first available
-        const enVoice = voices.find(v => v.lang.startsWith('en') && !v.name.includes('Google') ) ||
-                        voices.find(v => v.lang.startsWith('en')) ||
-                        voices[0];
-        if(enVoice) utter.voice = enVoice;
-    }
     window.speechSynthesis.speak(utter);
 }
 
-/* ── Style-aware line generators ── */
-function lineFor(event, data={}){
-    const { striker='', bowler='', runs=0, wkts=0, team='' } = data;
-
-    const lines = {
-        standard: {
-            six:     [`Six! What a shot by ${striker}!`, `That's gone all the way! Maximum by ${striker}!`, `Six runs! ${striker} sends it over the boundary!`],
-            four:    [`Four! Beautifully timed by ${striker}.`, `That races away to the boundary — four runs!`, `Shot! ${striker} finds the gap — FOUR!`],
-            wicket:  [`OUT! ${bowler} gets the wicket!`, `Wicket! ${striker} has to walk back to the pavilion.`, `Bowled him! ${bowler} strikes!`],
-            fifty:   [`Fifty! What a knock by ${striker}! Half century!`, `Fifty up for ${striker} — a fine innings!`],
-            century: [`Century! One hundred runs for ${striker}! What a knock!`, `A HUNDRED for ${striker}! The crowd goes wild!`],
-            fifer:   [`Five wickets for ${bowler}! A brilliant bowling performance!`, `Fifer! ${bowler} is on fire — five wickets!`],
-            over:    [`End of over. ${runs} runs from that over.`, `Over complete. ${bowler} bowled well this over.`],
-            win:     [`${team} have WON the match! Brilliant performance! Congratulations!`],
-        },
-        shastri: {
-            six:     [`And that is GONE! The ball has been dispatched into the stands by ${striker}! Absolutely MAGNIFICENT!`, `HE SMOKES IT! ${striker} hits it out of the park! WHAT A SHOT!`, `That's in the crowd! ${striker}, absolutely CARNAGE with that six!`],
-            four:    [`SHOT! ${striker} creams that through the covers — FOUR! What a follow through!`, `That is PURE BATTING by ${striker}! Four runs and it screams to the boundary!`, `BOUNDARY! ${striker} hits it hard and it races away!`],
-            wicket:  [`BOWLED HIM! ${bowler} has done it! What a delivery — the stumps are rattled! TIMBER!`, `HE'S OUT! ${striker} is walking back and ${bowler} is pumped up! WHAT A MOMENT!`, `CAUGHT! ${bowler} has his wicket and this crowd is ERUPTING!`],
-            fifty:   [`FIFTY for ${striker}! That is a FIFTY and the crowd acknowledges it! What a player!`, `Fifty up! ${striker} raises the bat — this is SPECIAL STUFF!`],
-            century: [`ONE HUNDRED! ${striker} raises the bat to the sky! The crowd is on its feet! A CENTURY! WHAT A KNOCK!`, `HUNDRED for ${striker}! What an innings, what a player! A MEMORABLE HUNDRED!`],
-            fifer:   [`FIVE WICKETS for ${bowler}! This is HISTORY! A FIFER! What a performance!`, `Five for ${bowler}! He is absolutely PUMPED and this crowd is GOING NUTS!`],
-            over:    [`End of the over! ${runs} runs from it. ${bowler} has been on FIRE today!`, `And that is the over! The crowd is buzzing!`],
-            win:     [`${team} HAVE WON THE MATCH! What a performance! What a team! Take a BOW, gentlemen!`],
-        },
-        chopra: {
-            six:     [`Aaand that's a SIX! ${striker} has picked the length early and dispatched it over the boundary!`, `Six runs! Absolutely top-drawer stuff from ${striker} — reads the length, backs away, and deposits it!`, `Over the rope and into the crowd! ${striker} with a brilliant SIX!`],
-            four:    [`Four! Nice wristwork by ${striker} — elegant shot, perfectly timed!`, `That's a boundary. ${striker} has used the pace beautifully — four more runs!`, `FOUR! ${striker} gets low and sweeps that fine — wonderful technique!`],
-            wicket:  [`OUT! Big wicket for ${bowler} — gets the ball to nip back and ${striker} is done!`, `${striker} is out! Lovely delivery from ${bowler} — pitched it up and it's done the job!`, `Caught! ${bowler} creates the chances and the fielder takes it — big moment!`],
-            fifty:   [`Fifty for ${striker}! A well-crafted innings — lots of positives in that knock!`, `Half-century for ${striker}! Mix of aggression and sensibility — exactly what the team needed!`],
-            century: [`CENTURY! ${striker} gets to three figures — a composed and classy hundred! Hats off!`, `A hundred for ${striker} — one of the best innings you'll see this season! Wonderful!`],
-            fifer:   [`Five wickets for ${bowler}! Exceptional spell of bowling — discipline, variation, everything!`, `Fifer! ${bowler} has dismantled this batting lineup. Absolutely clinical!`],
-            over:    [`End of over. ${runs} off it. ${bowler} keeping things tight here.`, `Over done. Mixed bag from ${bowler} — but the pressure is building!`],
-            win:     [`${team} win the match! A complete performance — batting, bowling, fielding — all came together! Wonderful!`],
-        }
-    };
-
-    const style = _commentaryStyle || 'standard';
-    const styleLines = lines[style] || lines.standard;
-    const eventLines = styleLines[event] || lines.standard[event] || [`${event}!`];
-    return eventLines[Math.floor(Math.random() * eventLines.length)];
-}
-
-/* Toggle audio from button */
+/* Toggle Button */
 window.toggleAudio = function(){
     _audioOn = !_audioOn;
-    syncAudioUI();
-    if(_audioOn){
-        try{ getAudioCtx().resume(); }catch(e){}
-        playAnnounce();
-        // Preload voices
-        window.speechSynthesis && window.speechSynthesis.getVoices();
-    }
-};
-
-function syncAudioUI(){
     const btn = document.getElementById('audioBtn');
     const icon = document.getElementById('abIcon');
+
     if(_audioOn){
         btn.classList.add('active');
         icon.textContent = '🔊';
+        getAudioCtx().resume();
+        userGestureGiven = true;           // ← VERY IMPORTANT
     } else {
         btn.classList.remove('active');
         icon.textContent = '🔇';
-        // Stop any speech in progress when disabled
         window.speechSynthesis && window.speechSynthesis.cancel();
     }
-}
+};
 
 /* ══════════════════════════════════════════════
    FIREBASE
