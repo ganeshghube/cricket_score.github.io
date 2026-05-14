@@ -513,16 +513,39 @@ body{
 </div>
 
 <script type="module">
-/* ══════════════════════════════════════════════
-   AUDIO ENGINE  — Web Audio API tones + Web Speech API commentary
-   ══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════════
+   FIX #1 — DETECT PREVIEW / IFRAME MODE
+   admin.html embeds this page as <iframe src="index.html?preview=1">
+   We must silence ALL audio when running inside that iframe.
+   ══════════════════════════════════════════════════════════════════ */
+const IS_PREVIEW = (function(){
+    try {
+        // If loaded inside any iframe (including admin.html preview)
+        if (window.self !== window.top) return true;
+        // Also honour the explicit ?preview query param
+        if (new URLSearchParams(window.location.search).has('preview')) return true;
+    } catch(e) {
+        // Cross-origin iframe — definitely not the real overlay
+        return true;
+    }
+    return false;
+})();
+
+// Hide audio button entirely in preview mode — no UI noise
+if (IS_PREVIEW) {
+    document.getElementById('audioBtn').style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   AUDIO ENGINE  — Web Audio API tones + Web Speech commentary
+   ══════════════════════════════════════════════════════════════════ */
 let _audioOn = false;
 let _audioCtx = null;
 
-// ── Commentary settings (synced from admin via Firebase) ──
-let _commentaryStyle = 'standard'; // standard | shastri | chopra
-let _commentaryRate  = 1.0;
-let _commentaryPitch = 1.1;
+// Commentary settings (synced from admin via Firebase commentarySettings)
+let _commentaryStyle = 'shastri';
+let _commentaryRate  = 0.84;   // Shastri default: deliberate, slightly slow
+let _commentaryPitch = 0.80;   // Shastri default: deep, booming voice
 
 function getAudioCtx(){
     if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
@@ -530,7 +553,7 @@ function getAudioCtx(){
 }
 
 function playTone(freqs, durations, types, vol=0.18){
-    if(!_audioOn) return;
+    if(!_audioOn || IS_PREVIEW) return;
     try{
         const ctx = getAudioCtx();
         freqs.forEach((freq,i)=>{
@@ -557,85 +580,144 @@ function playWin(){ playTone([523,659,784,1047,1319],[0.15,0.15,0.15,0.15,0.5],[
 function playAnnounce(){ playTone([880,1108,1320],[0.1,0.1,0.22],['sine','sine','sine'],0.13); }
 function playOverEnd(){ playTone([659,659],[0.12,0.14],['triangle','triangle'],0.13); setTimeout(()=>playTone([880,880],[0.1,0.16],['triangle','triangle'],0.11),300); }
 
-/* ══════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════════
    WEB SPEECH API — Commentary
-   speak() is the single public function.
-   Called with a text string; respects _audioOn,
-   _commentaryStyle, _commentaryRate, _commentaryPitch.
-   ══════════════════════════════════════════════ */
+   FIX #2 — Authentic Ravi Shastri voice characteristics:
+     • Rate  0.82–0.88  (deliberate, punchy pauses, not rushed)
+     • Pitch 0.78–0.82  (deep, booming baritone)
+     • His hallmark phrases: "IN THE ZONE", "WHAT A PLAYER",
+       "THAT IS MASSIVE", "HE SMOKES IT", "IN THE STANDS",
+       "THE CROWD IS ON ITS FEET", "FABULOUS CRICKET"
+   ══════════════════════════════════════════════════════════════════ */
 function speak(text){
-    if(!_audioOn) return;
+    if(!_audioOn || IS_PREVIEW) return;
     if(!window.speechSynthesis || !text) return;
-    // Cancel any ongoing speech so new events don't queue up
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
-    utter.rate  = _commentaryRate;
-    utter.pitch = _commentaryPitch;
-    utter.volume = 0.95;
-    // Pick a voice based on style preference
+    utter.rate   = _commentaryRate;
+    utter.pitch  = _commentaryPitch;
+    utter.volume = 1.0;
+
+    // Pick best voice: prefer deep UK/US English male voice for Shastri feel
     const voices = window.speechSynthesis.getVoices();
     if(voices.length){
-        // Prefer an English voice; fall back to first available
-        const enVoice = voices.find(v => v.lang.startsWith('en') && !v.name.includes('Google') ) ||
-                        voices.find(v => v.lang.startsWith('en')) ||
-                        voices[0];
-        if(enVoice) utter.voice = enVoice;
+        // Priority order for a deep male voice
+        const preferred = [
+            'Google UK English Male',
+            'Microsoft George',
+            'Microsoft Brian',
+            'Alex',
+            'Daniel',
+        ];
+        let chosen = null;
+        for(const name of preferred){
+            const v = voices.find(v => v.name === name);
+            if(v){ chosen = v; break; }
+        }
+        // Fallback: any en-GB or en-US voice
+        if(!chosen) chosen = voices.find(v => v.lang === 'en-GB') ||
+                             voices.find(v => v.lang === 'en-US') ||
+                             voices.find(v => v.lang.startsWith('en')) ||
+                             voices[0];
+        if(chosen) utter.voice = chosen;
     }
     window.speechSynthesis.speak(utter);
 }
 
-/* ── Style-aware line generators ── */
+/* ── Style-aware line generators (Ravi Shastri authentic phrases) ── */
 function lineFor(event, data={}){
-    const { striker='', bowler='', runs=0, wkts=0, team='' } = data;
+    const { striker='', bowler='', runs=0, team='' } = data;
 
     const lines = {
         standard: {
             six:     [`Six! What a shot by ${striker}!`, `That's gone all the way! Maximum by ${striker}!`, `Six runs! ${striker} sends it over the boundary!`],
             four:    [`Four! Beautifully timed by ${striker}.`, `That races away to the boundary — four runs!`, `Shot! ${striker} finds the gap — FOUR!`],
-            wicket:  [`OUT! ${bowler} gets the wicket!`, `Wicket! ${striker} has to walk back to the pavilion.`, `Bowled him! ${bowler} strikes!`],
-            fifty:   [`Fifty! What a knock by ${striker}! Half century!`, `Fifty up for ${striker} — a fine innings!`],
-            century: [`Century! One hundred runs for ${striker}! What a knock!`, `A HUNDRED for ${striker}! The crowd goes wild!`],
-            fifer:   [`Five wickets for ${bowler}! A brilliant bowling performance!`, `Fifer! ${bowler} is on fire — five wickets!`],
-            over:    [`End of over. ${runs} runs from that over.`, `Over complete. ${bowler} bowled well this over.`],
-            win:     [`${team} have WON the match! Brilliant performance! Congratulations!`],
+            wicket:  [`OUT! ${bowler} gets the wicket!`, `Wicket! ${striker} has to walk back to the pavilion.`, `${bowler} strikes!`],
+            fifty:   [`Fifty! Half century for ${striker}!`, `Fifty up for ${striker} — a fine innings!`],
+            century: [`Century! One hundred runs for ${striker}!`, `A HUNDRED for ${striker}! Magnificent!`],
+            fifer:   [`Five wickets for ${bowler}! Brilliant spell!`, `Fifer! ${bowler} is on fire — five wickets!`],
+            over:    [`End of over. ${runs} runs from that over.`, `Over complete. Good bowling.`],
+            win:     [`${team} have WON the match! Brilliant performance!`],
         },
+
+        /* ── RAVI SHASTRI — authentic lines ── */
         shastri: {
-            six:     [`And that is GONE! The ball has been dispatched into the stands by ${striker}! Absolutely MAGNIFICENT!`, `HE SMOKES IT! ${striker} hits it out of the park! WHAT A SHOT!`, `That's in the crowd! ${striker}, absolutely CARNAGE with that six!`],
-            four:    [`SHOT! ${striker} creams that through the covers — FOUR! What a follow through!`, `That is PURE BATTING by ${striker}! Four runs and it screams to the boundary!`, `BOUNDARY! ${striker} hits it hard and it races away!`],
-            wicket:  [`BOWLED HIM! ${bowler} has done it! What a delivery — the stumps are rattled! TIMBER!`, `HE'S OUT! ${striker} is walking back and ${bowler} is pumped up! WHAT A MOMENT!`, `CAUGHT! ${bowler} has his wicket and this crowd is ERUPTING!`],
-            fifty:   [`FIFTY for ${striker}! That is a FIFTY and the crowd acknowledges it! What a player!`, `Fifty up! ${striker} raises the bat — this is SPECIAL STUFF!`],
-            century: [`ONE HUNDRED! ${striker} raises the bat to the sky! The crowd is on its feet! A CENTURY! WHAT A KNOCK!`, `HUNDRED for ${striker}! What an innings, what a player! A MEMORABLE HUNDRED!`],
-            fifer:   [`FIVE WICKETS for ${bowler}! This is HISTORY! A FIFER! What a performance!`, `Five for ${bowler}! He is absolutely PUMPED and this crowd is GOING NUTS!`],
-            over:    [`End of the over! ${runs} runs from it. ${bowler} has been on FIRE today!`, `And that is the over! The crowd is buzzing!`],
-            win:     [`${team} HAVE WON THE MATCH! What a performance! What a team! Take a BOW, gentlemen!`],
+            six: [
+                `And THAT... is GONE! ${striker} has hit it into the STANDS! What a player! What a SHOT! The crowd is absolutely on its FEET!`,
+                `HE SMOKES IT! ${striker} gets under that one and dispatches it over the long-on boundary! MASSIVE! ABSOLUTELY MASSIVE!`,
+                `In the AIR... and it's GONE! ${striker} has cleared the ropes with ease! This man is in a DIFFERENT ZONE altogether!`,
+                `That is ENORMOUS! ${striker} has hit that into ROW Z! Sheer power! Sheer BRILLIANCE! What a cricketer!`,
+                `SIX! ${striker} has taken on the bowler and WON! The ball has gone into the CROWD! Fabulous cricket! FABULOUS!`,
+            ],
+            four: [
+                `SHOT! ${striker} creams that through the covers — FOUR! What a follow through! Text-book cricket!`,
+                `FOUR! That is BEAUTIFUL batting by ${striker}! Punched off the back foot and it races away like a ROCKET!`,
+                `${striker} has timed that to PERFECTION! The ball screams to the boundary — FOUR runs! Class act!`,
+                `That's a BOUNDARY! ${striker} picks the line early, transfers the weight, and smashes it through the gap! BRILLIANT!`,
+                `What TIMING! ${striker} is batting in the ZONE today! Another boundary — the fielder doesn't even move!`,
+            ],
+            wicket: [
+                `BOWLED HIM! ${bowler} has rattled the STUMPS! What a DELIVERY! ${striker} walks back and the crowd ERUPTS! TIMBER!`,
+                `HE'S OUT! ${striker} is GONE and ${bowler} is absolutely PUMPED UP! What a breakthrough! What a MOMENT this is!`,
+                `CAUGHT! And there is PANDEMONIUM out here! ${bowler} strikes at the PERFECT time! The momentum has completely SHIFTED!`,
+                `OUT! ${bowler} produces an UNPLAYABLE delivery! ${striker} never had a chance! That is WORLD CLASS bowling — take a BOW!`,
+                `WICKET! ${striker} has to go and ${bowler} has done what no one else could — BEAUTIFUL cricket! Just BEAUTIFUL!`,
+            ],
+            fifty: [
+                `FIFTY! What a knock! ${striker} raises that bat to the crowd and they are giving him a STANDING OVATION! Well deserved! WELL DESERVED!`,
+                `Half-century for ${striker}! What a player! He has been absolutely IN THE ZONE and now he's brought up his FIFTY! Brilliant!`,
+                `Fifty up for ${striker}! Fifty. UP. Take a BOW, son! That innings has had EVERYTHING — power, timing, grit! FABULOUS CRICKET!`,
+            ],
+            century: [
+                `ONE HUNDRED! ${striker} raises BOTH ARMS to the sky and the crowd is going absolutely BERSERK! A HUNDRED! What an innings! What a PLAYER! Take a BOW!`,
+                `CENTURY! ${striker} gets to THREE FIGURES and this crowd will NEVER forget this knock! This is the stuff of LEGENDS! Absolutely MAGNIFICENT!`,
+                `A HUNDRED for ${striker}! What a knock! What courage! What SKILL! He has been batting on a DIFFERENT PLANET today! SPECTACULAR CRICKET!`,
+            ],
+            fifer: [
+                `FIVE WICKETS for ${bowler}! HISTORY is being made right HERE, right NOW! What a performance! What a spell! The crowd is going ABSOLUTELY NUTS!`,
+                `FIFER! Five wickets for ${bowler}! He is absolutely PUMPED UP and I tell you what — that is one of the great spells you will EVER see! SUPERB!`,
+            ],
+            over: [
+                `And that is the end of the over. ${runs} runs from it. ${bowler} has been probing away — building the PRESSURE ball by ball. This is QUALITY cricket!`,
+                `Over done! ${runs} off it. The match is beautifully poised. The crowd is BUZZING — and with good reason! This is a CONTEST!`,
+                `What an OVER that was! ${runs} runs. Great duels, great battles. This is why we LOVE cricket — the TENSION is absolutely incredible here!`,
+            ],
+            win: [
+                `${team} HAVE WON THE MATCH! What a performance! What a TEAM! From the first ball to the last — they have been MAGNIFICENT! Take a BOW, gentlemen — take a BOW!`,
+                `IT IS OVER! ${team} WIN! A STUNNING victory! The crowd is going ABSOLUTELY BERSERK and I tell you — they DESERVED every bit of this! FABULOUS!`,
+            ],
         },
+
+        /* ── AKASH CHOPRA — analytical style ── */
         chopra: {
-            six:     [`Aaand that's a SIX! ${striker} has picked the length early and dispatched it over the boundary!`, `Six runs! Absolutely top-drawer stuff from ${striker} — reads the length, backs away, and deposits it!`, `Over the rope and into the crowd! ${striker} with a brilliant SIX!`],
-            four:    [`Four! Nice wristwork by ${striker} — elegant shot, perfectly timed!`, `That's a boundary. ${striker} has used the pace beautifully — four more runs!`, `FOUR! ${striker} gets low and sweeps that fine — wonderful technique!`],
-            wicket:  [`OUT! Big wicket for ${bowler} — gets the ball to nip back and ${striker} is done!`, `${striker} is out! Lovely delivery from ${bowler} — pitched it up and it's done the job!`, `Caught! ${bowler} creates the chances and the fielder takes it — big moment!`],
-            fifty:   [`Fifty for ${striker}! A well-crafted innings — lots of positives in that knock!`, `Half-century for ${striker}! Mix of aggression and sensibility — exactly what the team needed!`],
-            century: [`CENTURY! ${striker} gets to three figures — a composed and classy hundred! Hats off!`, `A hundred for ${striker} — one of the best innings you'll see this season! Wonderful!`],
-            fifer:   [`Five wickets for ${bowler}! Exceptional spell of bowling — discipline, variation, everything!`, `Fifer! ${bowler} has dismantled this batting lineup. Absolutely clinical!`],
-            over:    [`End of over. ${runs} off it. ${bowler} keeping things tight here.`, `Over done. Mixed bag from ${bowler} — but the pressure is building!`],
-            win:     [`${team} win the match! A complete performance — batting, bowling, fielding — all came together! Wonderful!`],
+            six:     [`Aaand that's a SIX! ${striker} has picked the length early and deposited it!`, `Over the rope and into the crowd! ${striker} with a brilliant SIX!`, `Six runs! Backed away and absolutely launched it — ${striker} in fine touch!`],
+            four:    [`Four! Nice wristwork by ${striker} — elegant shot, perfectly timed!`, `That's a boundary. ${striker} has used the pace beautifully!`, `FOUR! ${striker} sweeps that fine — wonderful technique!`],
+            wicket:  [`OUT! Big wicket for ${bowler} — gets the ball to nip back and ${striker} is done!`, `${striker} is out! Lovely delivery from ${bowler} — pitched it up, did the job!`, `Caught! ${bowler} creates the chance — big moment!`],
+            fifty:   [`Fifty for ${striker}! A well-crafted innings — lots of positives!`, `Half-century for ${striker}! Mix of aggression and sensibility!`],
+            century: [`CENTURY! ${striker} gets to three figures — composed and classy! Hats off!`, `A hundred for ${striker} — one of the best innings you'll see this season!`],
+            fifer:   [`Five wickets for ${bowler}! Exceptional spell — discipline, variation, everything!`, `Fifer! ${bowler} has dismantled this batting lineup. Clinical!`],
+            over:    [`End of over. ${runs} off it. ${bowler} keeping things tight.`, `Over done. The pressure is building slowly but surely.`],
+            win:     [`${team} win the match! A complete performance — batting, bowling, fielding — all came together!`],
         }
     };
 
-    const style = _commentaryStyle || 'standard';
-    const styleLines = lines[style] || lines.standard;
-    const eventLines = styleLines[event] || lines.standard[event] || [`${event}!`];
+    const style = _commentaryStyle || 'shastri';
+    const styleLines = lines[style] || lines.shastri;
+    const eventLines = styleLines[event] || lines.shastri[event] || [`${event}!`];
     return eventLines[Math.floor(Math.random() * eventLines.length)];
 }
 
-/* Toggle audio from button */
+/* ── Toggle audio from button (blocked in preview) ── */
 window.toggleAudio = function(){
+    if(IS_PREVIEW) return;   // ← FIX: no audio in admin.html iframe
     _audioOn = !_audioOn;
     syncAudioUI();
     if(_audioOn){
         try{ getAudioCtx().resume(); }catch(e){}
         playAnnounce();
-        // Preload voices
         window.speechSynthesis && window.speechSynthesis.getVoices();
+    } else {
+        window.speechSynthesis && window.speechSynthesis.cancel();
     }
 };
 
@@ -648,7 +730,6 @@ function syncAudioUI(){
     } else {
         btn.classList.remove('active');
         icon.textContent = '🔇';
-        // Stop any speech in progress when disabled
         window.speechSynthesis && window.speechSynthesis.cancel();
     }
 }
@@ -669,23 +750,28 @@ const cfg = {
 const db=getDatabase(initializeApp(cfg));
 const uiRef=ref(db,'ui'), annRef=ref(db,'announcement'), phRef=ref(db,'playerPhotos');
 
-/* ── FIX: listen to commentarySettings written by admin.html ── */
+/* ── FIX #1 continued — commentarySettings synced only when NOT preview ── */
 const commentarySettingsRef = ref(db, 'commentarySettings');
 onValue(commentarySettingsRef, snap => {
+    if(IS_PREVIEW) return;  // ← FIX: don't sync audio state in iframe
     const s = snap.val();
     if(!s) return;
 
-    // Sync style, rate, pitch
-    _commentaryStyle = s.style  || 'standard';
-    _commentaryRate  = parseFloat(s.rate)  || 1.0;
-    _commentaryPitch = parseFloat(s.pitch) || 1.1;
+    _commentaryStyle = s.style  || 'shastri';
+    // FIX #2: Shastri-specific rate/pitch regardless of stored value
+    // Admin stores generic values; we override with Shastri-appropriate defaults
+    if(_commentaryStyle === 'shastri'){
+        _commentaryRate  = Math.min(parseFloat(s.rate)  || 0.84, 0.90);  // cap at 0.90 for Shastri
+        _commentaryPitch = Math.min(parseFloat(s.pitch) || 0.80, 0.85);  // keep deep
+    } else {
+        _commentaryRate  = parseFloat(s.rate)  || 1.0;
+        _commentaryPitch = parseFloat(s.pitch) || 1.0;
+    }
 
-    // Sync enabled/disabled state — only change if it differs
     if(s.enabled === true && !_audioOn){
         _audioOn = true;
         syncAudioUI();
         try{ getAudioCtx().resume(); }catch(e){}
-        // Preload voices on first enable
         window.speechSynthesis && window.speechSynthesis.getVoices();
     } else if(s.enabled === false && _audioOn){
         _audioOn = false;
@@ -944,7 +1030,6 @@ function showAnn(data){
     buildFloaters(data.style||'custom');
     if(data.rain!==false) spawnRain(data.style||'custom',DUR);
     playAnnounce();
-    // Also speak the announcement text
     setTimeout(()=>speak(data.text+(data.sub?'. '+data.sub:'')), 300);
     requestAnimationFrame(()=>{ toast.classList.add('visible'); });
     annTimer=setTimeout(()=>{
@@ -1021,7 +1106,6 @@ function renderData(d){
             showOverPlayers(d,completedOvers,prevBalls.length?prevBalls:[]);
             $('overBadge').textContent=`⬜ END OF OVER ${completedOvers}`;
             playOverEnd();
-            // Commentary for end of over
             const runsInOver=(prevBalls||[]).reduce((s,v)=>s+(typeof v==='number'?v:0),0);
             setTimeout(()=>speak(lineFor('over',{bowler:prev.bwn||'',runs:runsInOver})),600);
         }
@@ -1034,17 +1118,14 @@ function renderData(d){
         if(d.wkts>prev.wkts && uiSt.autoWicketOverlay!==false){
             showEventPlayer(bowler,'💥',`${bowler} — WICKET!`,`${striker} dismissed`,'red');
             playWicket();
-            // FIX: commentary for wicket
             setTimeout(()=>speak(lineFor('wicket',{striker,bowler})),400);
         } else if(lastBall===6&&d.runs>prev.runs && uiSt.autoSixOverlay!==false){
             showEventPlayer(striker,'🚀',`${strikerR} RUNS`,'MAXIMUM SIX!','purple');
             playSix();
-            // FIX: commentary for six
             setTimeout(()=>speak(lineFor('six',{striker})),400);
         } else if(lastBall===4&&d.runs>prev.runs && uiSt.autoFourOverlay!==false){
             showEventPlayer(striker,'🔥',`${strikerR} RUNS`,'BOUNDARY FOUR!','blue');
             playFour();
-            // FIX: commentary for four
             setTimeout(()=>speak(lineFor('four',{striker})),400);
         } else if(strikerR>=50&&strikerR<55){
             const prevR=prev.str===1?(prev.p1r||0):(prev.p2r||0);
