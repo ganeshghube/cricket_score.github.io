@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cricket Overlay</title>
+<!-- ── Speed: preconnect to every external origin ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
+<link rel="dns-prefetch" href="https://cricket-8e338-default-rtdb.firebaseio.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -24,6 +30,34 @@ body{
     height:100vh;
     width:100vw;
 }
+
+/* ═══ AUDIO BUTTON (top-left, minimal) ═══ */
+#audioBtn{
+    position:fixed; top:12px; left:12px; z-index:999;
+    width:34px; height:34px; border-radius:8px;
+    background:rgba(10,10,22,0.88);
+    border:1px solid rgba(255,255,255,0.12);
+    color:rgba(255,255,255,0.55);
+    font-size:16px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .2s, color .2s, border-color .2s;
+    backdrop-filter:blur(6px);
+    box-shadow:0 2px 12px rgba(0,0,0,0.6);
+    user-select:none;
+    outline:none;
+}
+#audioBtn:hover{ background:rgba(20,20,40,0.95); color:rgba(255,255,255,0.85); border-color:rgba(255,255,255,0.22); }
+#audioBtn.active{ color:var(--gold); border-color:rgba(245,197,24,0.4); background:rgba(20,16,4,0.92); }
+#audioBtn .ab-icon{ line-height:1; pointer-events:none; }
+
+/* ─ LOADING SHIMMER overlay (shown until first Firebase data) ─ */
+#loadingShim{
+    position:fixed; inset:0; z-index:200;
+    background:rgba(4,4,12,0.0);
+    pointer-events:none;
+    transition:opacity .4s;
+}
+#loadingShim.gone{ opacity:0; pointer-events:none; }
 
 /* ═══ ANNOUNCEMENT TOAST ═══ */
 .ann-rain{ position:fixed; inset:0; pointer-events:none; z-index:48; overflow:hidden; }
@@ -86,49 +120,31 @@ body{
 .fh-badge{ background:linear-gradient(90deg,#d35400,#e67e22); color:#fff; padding:4px 20px 4px 14px; font-size:13px; font-weight:800; letter-spacing:2px; text-transform:uppercase; border-radius:5px 5px 0 0; display:none; }
 .fh-badge.on{ display:inline-block; animation:fhp .9s infinite; }
 @keyframes fhp{ 0%,100%{opacity:1} 50%{opacity:.45} }
-
-/* Score bar: 84px height — unchanged */
 .score-bar{ display:flex; width:100%; height:84px; background:var(--dark); border-top:3px solid var(--ta); border-radius:3px 3px 0 0; overflow:hidden; box-shadow:0 0 0 1px rgba(255,255,255,.06); }
-
-/* Team block */
 .sb-team{ flex:0 0 235px; min-width:235px; background:linear-gradient(135deg,var(--ta) 0%,rgba(0,0,0,0) 100%); border-right:1px solid var(--brd); padding:0 18px; display:flex; flex-direction:column; justify-content:center; position:relative; }
 .sb-team::after{ content:''; position:absolute; right:-1px; top:0; bottom:0; width:40px; background:linear-gradient(90deg,transparent,var(--dark)); }
 .sb-tm-name{ font-size:17px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:2px; line-height:1; text-shadow:0 1px 8px rgba(0,0,0,.6); }
 .sb-score{ font-size:42px; font-weight:900; line-height:1; margin-top:3px; display:flex; align-items:baseline; gap:1px; text-shadow:0 2px 12px rgba(0,0,0,.8); }
 .sb-score-wkts{ font-size:33px; color:rgba(255,255,255,.85); }
 .sb-score-ovs{ font-size:15px; color:rgba(255,255,255,.65); font-weight:500; margin-left:6px; }
-
-/* Batting section — increased fonts for highlighted elements */
 .sb-bat{ flex:1; display:flex; flex-direction:column; justify-content:center; gap:4px; padding:0 14px; }
 .bat-row{ display:flex; justify-content:space-between; align-items:center; width:240px; gap:7px; }
 .bat-row-photo{ width:28px; height:28px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,.15); background:#111; flex-shrink:0; }
 .bat-row.on .bat-row-photo{ border-color:var(--gold); }
-
-/* ★ FONT INCREASE: bat names 18→22px */
 .bat-name{ font-size:22px; font-weight:600; color:#bbb; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:128px; letter-spacing:.3px; flex:1; }
 .bat-row.on .bat-name{ color:var(--gold); font-weight:700; }
 .bat-row.on .bat-name::before{ content:'● '; font-size:9px; vertical-align:middle; color:var(--gold); }
-
-/* ★ FONT INCREASE: bat score 18→22px, balls 13→16px */
 .bat-stat{ font-size:22px; color:#e0e0e0; font-weight:700; white-space:nowrap; }
 .bat-row.on .bat-stat{ color:#fff; }
 .bat-stat .sb{ color:#999; font-size:16px; font-weight:400; }
-
-/* Bowling section — increased fonts for highlighted elements */
 .sb-bwl{ flex:0 0 300px; background:linear-gradient(225deg,rgba(0,80,55,.55) 0%,rgba(6,6,18,.98) 55%); border-left:3px solid rgba(0,103,71,.9); padding:0 18px 0 16px; display:flex; flex-direction:column; justify-content:center; align-items:flex-end; text-align:right; position:relative; }
 .sb-bwl::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:30px; background:linear-gradient(90deg,rgba(6,6,18,.6),transparent); }
 .sb-bwl-inner{ display:flex; align-items:center; gap:10px; }
 .sb-bwl-photo{ width:34px; height:34px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(0,103,71,.8); background:#111; flex-shrink:0; }
 .sb-bwl-text{ display:flex; flex-direction:column; align-items:flex-end; }
-
-/* ★ FONT INCREASE: bowler name 18→22px */
 .bwl-name{ font-size:22px; color:#fff; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px; letter-spacing:.3px; text-shadow:0 1px 6px rgba(0,0,0,.9); }
-
-/* ★ FONT INCREASE: bowler figures 18→22px, overs 13→16px */
 .bwl-stat{ font-size:22px; color:var(--gold); font-weight:800; margin:1px 0; letter-spacing:.5px; }
 .bwl-stat .bwl-ov{ color:#aaa; font-size:16px; font-weight:400; }
-
-/* ★ FONT INCREASE: recent balls — bigger boxes */
 .og{ display:flex; gap:4px; justify-content:flex-end; margin-top:3px; flex-wrap:nowrap; }
 .ball{ min-width:26px; height:26px; padding:0 4px; border-radius:3px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; border:1px solid rgba(255,255,255,.1); color:#888; background:rgba(255,255,255,.05); }
 .bW{ background:#7b1e1e; border-color:#e63946; color:#ff8080; }
@@ -139,7 +155,6 @@ body{
 .bNb{ background:#3d1400; border-color:#e67e22; color:#e67e22; }
 .bBy{ background:#00233d; border-color:#118ab2; color:#6ec6e8; }
 .bLb{ background:#0a2e0a; border-color:#2ecc71; color:#7fff7f; }
-
 .rates{ background:rgba(0,0,0,.9); display:flex; width:100%; font-size:14px; letter-spacing:.5px; border-radius:0 0 3px 3px; border:1px solid rgba(255,255,255,.08); border-top:none; }
 .ri{ padding:5px 18px; color:#aaa; border-right:1px solid rgba(255,255,255,.07); }
 .ri b{ color:var(--gold); font-weight:700; }
@@ -155,7 +170,6 @@ body{
 .sc-auto-bar.running{ display:block; }
 .sc-auto-bar-fill{ position:absolute; top:0; left:0; height:100%; background:linear-gradient(90deg,var(--gold),#06d6a0); width:100%; animation:autoBarShrink linear forwards; transform-origin:left; }
 @keyframes autoBarShrink{ from{width:100%} to{width:0%} }
-/* Header 62px */
 .sc-team-hdr{ display:flex; align-items:stretch; height:62px; flex-shrink:0; }
 .sc-hdr-color{ width:8px; background:var(--ta); flex-shrink:0; }
 .sc-hdr-main{ flex:1; background:linear-gradient(90deg,var(--ta) 0%,rgba(12,12,28,.98) 45%,rgba(12,12,28,.98) 100%); display:flex; align-items:center; gap:14px; padding:0 24px; position:relative; overflow:hidden; }
@@ -166,20 +180,16 @@ body{
 .sc-total-lbl{ font-size:12px; color:#888; text-transform:uppercase; letter-spacing:2px; }
 .sc-total-val{ font-size:40px; font-weight:900; color:var(--gold); letter-spacing:1px; line-height:1; }
 .sc-total-detail{ font-size:14px; color:#aaa; margin-top:2px; }
-/* Tabs 34px */
 .sc-tabs{ display:flex; background:rgba(0,0,0,.5); border-bottom:1px solid var(--brd); flex-shrink:0; }
 .sc-tab{ flex:1; padding:6px 14px; cursor:pointer; font-size:16px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:#888; text-align:center; transition:all .2s; border-bottom:2px solid transparent; }
 .sc-tab.active{ color:var(--gold); border-bottom-color:var(--gold); background:rgba(240,180,41,.05); }
 .need-bar{ display:none; flex-shrink:0; background:linear-gradient(90deg,#4a0000,rgba(0,0,0,0) 80%); padding:5px 20px; border-bottom:1px solid rgba(230,57,70,.2); font-size:14px; color:#e63946; font-weight:700; letter-spacing:1px; }
 .need-bar.on{ display:block; }
-/* sc-body: overflow hidden — no scrollbar */
 .sc-body{ flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--panel); }
-/* Column header 28px */
 .sc-col-hdr{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; background:rgba(0,0,0,.6); border-bottom:1px solid rgba(255,255,255,.12); padding:5px 20px; position:sticky; top:0; z-index:2; flex-shrink:0; }
 .sc-col-hdr span{ font-size:13px; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:2px; text-align:right; }
 .sc-col-hdr span:first-child{ text-align:left; }
 .sc-col-hdr.bat-hdr{ grid-template-columns:36px 1fr 170px 60px 60px 52px 52px 60px; }
-/* Rows */
 .sc-row{ display:grid; grid-template-columns:1fr 60px 70px 80px 80px 70px; padding:6px 20px; border-bottom:1px solid rgba(255,255,255,.05); align-items:center; transition:background .15s; }
 .sc-row:hover{ background:var(--rowh); }
 .sc-row.bat-row-sc{ grid-template-columns:36px 1fr 170px 60px 60px 52px 52px 60px; }
@@ -197,13 +207,11 @@ body{
 .sc-cell.strike{ color:var(--gold); font-weight:700; }
 .sc-player-photo{ width:32px; height:32px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,.1); background:#111; }
 .sc-row.hlt .sc-player-photo{ border-color:var(--gold); }
-/* FOW */
 .sc-fow{ display:flex; align-items:center; background:rgba(0,0,0,.45); border-top:1px solid rgba(255,255,255,.08); padding:3px 14px; flex-wrap:wrap; gap:3px; flex-shrink:0; }
 .sc-fow-lbl{ font-size:12px; color:#999; text-transform:uppercase; letter-spacing:2px; margin-right:6px; white-space:nowrap; }
 .sc-fow-item{ font-size:14px; color:#aaa; padding:1px 8px; border-right:1px solid rgba(255,255,255,.08); }
 .sc-fow-item:last-child{ border-right:none; }
 .sc-fow-item b{ color:var(--gold); }
-/* Footer */
 .sc-footer{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; background:rgba(0,0,0,.75); border-top:1px solid rgba(255,255,255,.14); flex-shrink:0; }
 .sc-footer-cell{ padding:6px 14px; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; align-items:center; gap:1px; }
 .sc-footer-cell:last-child{ border-right:none; }
@@ -219,7 +227,7 @@ body{
 .over-badge{ position:fixed; top:16px; right:16px; z-index:60; background:linear-gradient(135deg,#2a1e00,#1a1200); border:1px solid var(--gold); border-radius:6px; padding:8px 16px; font-size:13px; font-weight:700; color:var(--gold); letter-spacing:1px; text-transform:uppercase; opacity:0; transform:translateY(-10px) scale(.9); transition:opacity .3s,transform .3s; pointer-events:none; white-space:nowrap; }
 .over-badge.show{ opacity:1; transform:translateY(0) scale(1); }
 
-/* ═══ ID-CARD PHOTO shared ═══ */
+/* ═══ ID-CARD PHOTO ═══ */
 .id-card-photo{ width:80px; height:108px; border-radius:6px; object-fit:contain; object-position:center center; display:block; flex-shrink:0; background:#111; box-shadow:0 4px 16px rgba(0,0,0,.7); }
 
 /* ═══ AFTER-OVER PLAYER DISPLAY ═══ */
@@ -301,6 +309,13 @@ body{
 </style>
 </head>
 <body>
+
+<!-- ── Audio toggle button ── -->
+<button id="audioBtn" title="Toggle sounds" onclick="toggleAudio()">
+    <span class="ab-icon" id="abIcon">🔇</span>
+</button>
+
+<div id="loadingShim"></div>
 
 <div class="ann-rain" id="annRain"></div>
 <div class="ann-wrap" id="annWrap">
@@ -498,6 +513,96 @@ body{
 </div>
 
 <script type="module">
+/* ══════════════════════════════════════════════
+   AUDIO ENGINE  — Web Audio API, no files needed
+   ══════════════════════════════════════════════ */
+let _audioOn = false;
+let _audioCtx = null;
+
+function getAudioCtx(){
+    if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    return _audioCtx;
+}
+
+function playTone(freqs, durations, types, vol=0.18){
+    if(!_audioOn) return;
+    try{
+        const ctx = getAudioCtx();
+        freqs.forEach((freq,i)=>{
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.type = types[i]||'sine';
+            osc.frequency.value = freq;
+            const t = ctx.currentTime + (durations.slice(0,i).reduce((a,b)=>a+b,0));
+            gain.gain.setValueAtTime(0, t);
+            gain.gain.linearRampToValueAtTime(vol, t+0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, t+durations[i]-0.01);
+            osc.start(t); osc.stop(t+durations[i]);
+        });
+    }catch(e){}
+}
+
+// Wicket: dramatic thud + descending
+function playWicket(){
+    playTone([180,140,100],[0.12,0.14,0.2],['sawtooth','sawtooth','sawtooth'],0.22);
+    setTimeout(()=>playTone([320,220],[0.08,0.18],['square','square'],0.12),80);
+}
+// Six: triumphant ascending fanfare
+function playSix(){
+    playTone([523,659,784,1047],[0.1,0.1,0.1,0.28],['sine','sine','sine','sine'],0.18);
+    setTimeout(()=>playTone([1047,1319],[0.08,0.22],['triangle','triangle'],0.1),360);
+}
+// Four: quick bright ascending
+function playFour(){
+    playTone([440,554,659],[0.08,0.08,0.2],['sine','sine','sine'],0.16);
+}
+// Half century: short celebratory chime
+function playFifty(){
+    playTone([523,659,784,523,784],[0.09,0.09,0.09,0.09,0.22],['triangle','triangle','triangle','triangle','triangle'],0.15);
+}
+// Century: full fanfare
+function playCentury(){
+    playTone([523,659,784,1047,784,1047,1319],[0.09,0.09,0.09,0.09,0.09,0.09,0.32],
+             ['sine','sine','sine','sine','sine','sine','sine'],0.18);
+}
+// Win: majestic chords
+function playWin(){
+    playTone([523,659,784,1047,1319],[0.15,0.15,0.15,0.15,0.5],
+             ['triangle','triangle','triangle','triangle','triangle'],0.15);
+    setTimeout(()=>playTone([784,1047,1319,1568],[0.1,0.1,0.1,0.55],
+             ['sine','sine','sine','sine'],0.12),700);
+}
+// Announcement chime (generic)
+function playAnnounce(){
+    playTone([880,1108,1320],[0.1,0.1,0.22],['sine','sine','sine'],0.13);
+}
+// Over end: short double chime
+function playOverEnd(){
+    playTone([659,659],[0.12,0.14],['triangle','triangle'],0.13);
+    setTimeout(()=>playTone([880,880],[0.1,0.16],['triangle','triangle'],0.11),300);
+}
+
+/* Toggle audio from button */
+window.toggleAudio = function(){
+    _audioOn = !_audioOn;
+    const btn = document.getElementById('audioBtn');
+    const icon = document.getElementById('abIcon');
+    if(_audioOn){
+        btn.classList.add('active');
+        icon.textContent = '🔊';
+        // Unlock AudioContext on first user gesture
+        try{ getAudioCtx().resume(); }catch(e){}
+        playAnnounce();
+    } else {
+        btn.classList.remove('active');
+        icon.textContent = '🔇';
+    }
+};
+
+/* ══════════════════════════════════════════════
+   FIREBASE
+   ══════════════════════════════════════════════ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, update, get }
     from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
@@ -513,6 +618,16 @@ const uiRef=ref(db,'ui'), annRef=ref(db,'announcement'), phRef=ref(db,'playerPho
 const $=id=>document.getElementById(id);
 
 let _playerPhotos={}, _winShown=false, _prevData=null, _epovTimer=null, _overPlayersTimer=null;
+let _firstDataReceived = false;
+
+/* ── Hide shim on first data ── */
+function markLoaded(){
+    if(_firstDataReceived) return;
+    _firstDataReceived = true;
+    const shim = $('loadingShim');
+    shim.classList.add('gone');
+    setTimeout(()=>shim.remove(), 500);
+}
 
 onValue(phRef,snap=>{
     _playerPhotos=snap.val()||{};
@@ -533,11 +648,13 @@ function setPhoto(el,name){
     el.src=getPhoto(name); el.dataset.phName=name||'';
 }
 
+/* ── Reconnect watchdog ── */
 let rTimer=null;
 onValue(ref(db,'.info/connected'),s=>{
     if(s.val()===false) rTimer=setTimeout(()=>location.reload(),4000);
     else clearTimeout(rTimer);
 });
+/* Reload every 5 min to keep overlay fresh */
 setTimeout(()=>location.reload(),5*60*1000);
 
 let currentTab='bat';
@@ -646,6 +763,7 @@ function showOverPlayers(d,overNum,overBalls){
 
 function showWinOverlay(d,winnerTeam,margin,winType){
     if(_winShown) return; _winShown=true;
+    playWin();
     $('winOverlayTitle').textContent=winType==='tie'?"IT'S A TIE!":`${winnerTeam} WIN!`;
     $('winOverlaySub').textContent=margin;
     $('winOverlayDetail').textContent=`${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`;
@@ -673,8 +791,24 @@ function showWinOverlay(d,winnerTeam,margin,winType){
 }
 
 let annTimer=null,lastAnnId=null;
-const PARTICLE_COLORS={ gold:['#f5c518','#ffd54f','#fff176','#ffe082','#ffca28'], red:['#e63946','#ff6b6b','#ff8080','#ffadad','#ff4d6d'], purple:['#9b72cf','#c4a0ff','#d4b0ff','#e8d5ff','#b392f0'], blue:['#118ab2','#7ec8ff','#90d5ff','#a8dfff','#48cae4'], custom:['#06d6a0','#40e0b0','#70edc0','#a0f5d5','#23e5a0'], win:['#ffd700','#ffec6e','#fff9c4','#ffa500','#ffe082'], tie:['#a0c4ff','#e8f4ff','#7ec8ff','#4a90d9','#cce5ff'] };
-const EVENT_EMOJIS={ gold:['🏆','⭐','✨','🌟','💛','🥇','🎊','🎉','🏅','💫'], red:['💥','🔴','😱','🎯','🔥','💢','⚡','😤','🏏','❌'], purple:['🚀','💜','🌌','⚡','🔮','🌠','💥','🎆','🌊','✨'], blue:['🔥','💙','4️⃣','🎯','💦','⚡','🏏','🌀','💨','🎊'], custom:['🎉','🎊','🎈','🥳','🎆','🌈','🎁','🪄','✨','🎀'], win:['🏆','🥇','🎊','🎉','🌟','⭐','🎆','🎇','🥂','👑'], tie:['🤝','⚖️','🏏','🎯','💙','🌊','✨','🎗️','🔵','💫'] };
+const PARTICLE_COLORS={
+    gold:['#f5c518','#ffd54f','#fff176','#ffe082','#ffca28'],
+    red:['#e63946','#ff6b6b','#ff8080','#ffadad','#ff4d6d'],
+    purple:['#9b72cf','#c4a0ff','#d4b0ff','#e8d5ff','#b392f0'],
+    blue:['#118ab2','#7ec8ff','#90d5ff','#a8dfff','#48cae4'],
+    custom:['#06d6a0','#40e0b0','#70edc0','#a0f5d5','#23e5a0'],
+    win:['#ffd700','#ffec6e','#fff9c4','#ffa500','#ffe082'],
+    tie:['#a0c4ff','#e8f4ff','#7ec8ff','#4a90d9','#cce5ff']
+};
+const EVENT_EMOJIS={
+    gold:['🏆','⭐','✨','🌟','💛','🥇','🎊','🎉','🏅','💫'],
+    red:['💥','🔴','😱','🎯','🔥','💢','⚡','😤','🏏','❌'],
+    purple:['🚀','💜','🌌','⚡','🔮','🌠','💥','🎆','🌊','✨'],
+    blue:['🔥','💙','4️⃣','🎯','💦','⚡','🏏','🌀','💨','🎊'],
+    custom:['🎉','🎊','🎈','🥳','🎆','🌈','🎁','🪄','✨','🎀'],
+    win:['🏆','🥇','🎊','🎉','🌟','⭐','🎆','🎇','🥂','👑'],
+    tie:['🤝','⚖️','🏏','🎯','💙','🌊','✨','🎗️','🔵','💫']
+};
 
 function spawnParticles(style){
     const c=$('annParticles'); c.innerHTML='';
@@ -728,6 +862,7 @@ function showAnn(data){
     spawnParticles(data.style||'custom');
     buildFloaters(data.style||'custom');
     if(data.rain!==false) spawnRain(data.style||'custom',DUR);
+    playAnnounce();
     requestAnimationFrame(()=>{ toast.classList.add('visible'); });
     annTimer=setTimeout(()=>{
         toast.classList.add('leaving');
@@ -735,6 +870,8 @@ function showAnn(data){
         setTimeout(()=>{ toast.classList.remove('visible','leaving'); },520);
     },DUR*1000);
 }
+
+/* ── Fetch announcement id first (avoid replaying on refresh) ── */
 get(annRef).then(snap=>{
     lastAnnId=snap.val()?.id||null;
     onValue(annRef,snap=>{
@@ -770,45 +907,73 @@ function ballCls(v){
     return '';
 }
 
-onValue(ref(db,'cricket'),snap=>{
+/* ══════════════════════════════════════════════
+   MAIN DATA LISTENER — uses once() first for
+   instant paint, then onValue for live updates
+   ══════════════════════════════════════════════ */
+const cricketRef = ref(db,'cricket');
+
+// ── Fetch once immediately for instant first render ──
+get(cricketRef).then(snap=>{
     const d=snap.val(); if(!d) return;
+    renderData(d);
+    markLoaded();
+}).catch(()=>{ markLoaded(); });
+
+// ── Then keep listening for live changes ──
+onValue(cricketRef, snap=>{
+    const d=snap.val(); if(!d) return;
+    markLoaded();
+    renderData(d);
+});
+
+function renderData(d){
     const batColor=teamColor(d.batTeam), bowlColor=teamColor(d.bowlTeam);
     document.documentElement.style.setProperty('--ta',batColor);
     document.documentElement.style.setProperty('--tb',bowlColor);
 
     const completedOvers=Math.floor(d.balls/6), ballsThisOver=d.balls%6;
-    if(lastOverCount>=0&&completedOvers>lastOverCount&&ballsThisOver===0&&uiSt.autoOverPopup===true&&d.balls>0){
-        const dur=uiSt.overPopupDur||8;
-        triggerAutoPopup(dur);
-        const prevBalls=_prevData?(_prevData.recentBalls||[]):[];
-        showOverPlayers(d,completedOvers,prevBalls.length?prevBalls:[]);
-        $('overBadge').textContent=`⬜ END OF OVER ${completedOvers}`;
-    }
 
+    /* ── Event detection (only when _prevData exists) ── */
     if(_prevData){
         const prev=_prevData;
+
+        if(completedOvers>lastOverCount&&ballsThisOver===0&&uiSt.autoOverPopup===true&&d.balls>0){
+            const dur=uiSt.overPopupDur||8;
+            triggerAutoPopup(dur);
+            const prevBalls=prev.recentBalls||[];
+            showOverPlayers(d,completedOvers,prevBalls.length?prevBalls:[]);
+            $('overBadge').textContent=`⬜ END OF OVER ${completedOvers}`;
+            playOverEnd();
+        }
+
         const lastBall=(d.recentBalls||[]).slice(-1)[0];
         const striker=prev.str===1?prev.p1n:prev.p2n;
         const strikerR=d.str===1?(d.p1r||0):(d.p2r||0);
         const bowler=prev.bwn||'';
-if(d.wkts>prev.wkts && uiSt.autoWicketOverlay!==false){
-        showEventPlayer(bowler,'💥',`${bowler} — WICKET!`,`${striker} dismissed`,'red');
-    } else if(lastBall===6&&d.runs>prev.runs && uiSt.autoSixOverlay!==false){
-        showEventPlayer(striker,'🚀',`${strikerR} RUNS`,'MAXIMUM SIX!','purple');
-    } else if(lastBall===4&&d.runs>prev.runs && uiSt.autoFourOverlay!==false){
-        showEventPlayer(striker,'🔥',`${strikerR} RUNS`,'BOUNDARY FOUR!','blue');
-    } else if(strikerR>=50&&strikerR<55){
+
+        if(d.wkts>prev.wkts && uiSt.autoWicketOverlay!==false){
+            showEventPlayer(bowler,'💥',`${bowler} — WICKET!`,`${striker} dismissed`,'red');
+            playWicket();
+        } else if(lastBall===6&&d.runs>prev.runs && uiSt.autoSixOverlay!==false){
+            showEventPlayer(striker,'🚀',`${strikerR} RUNS`,'MAXIMUM SIX!','purple');
+            playSix();
+        } else if(lastBall===4&&d.runs>prev.runs && uiSt.autoFourOverlay!==false){
+            showEventPlayer(striker,'🔥',`${strikerR} RUNS`,'BOUNDARY FOUR!','blue');
+            playFour();
+        } else if(strikerR>=50&&strikerR<55){
             const prevR=prev.str===1?(prev.p1r||0):(prev.p2r||0);
-            if(prevR<50) showEventPlayer(striker,'⭐',`${strikerR} RUNS`,'HALF CENTURY! 50!','');
+            if(prevR<50){ showEventPlayer(striker,'⭐',`${strikerR} RUNS`,'HALF CENTURY! 50!',''); playFifty(); }
         }
         if(strikerR>=100){
             const prevR=prev.str===1?(prev.p1r||0):(prev.p2r||0);
-            if(prevR<100) showEventPlayer(striker,'🏆',`${strikerR} RUNS`,'CENTURY! 100!','');
+            if(prevR<100){ showEventPlayer(striker,'🏆',`${strikerR} RUNS`,'CENTURY! 100!',''); playCentury(); }
         }
         const bowlerRow=(d.bowlRows||[]).find(r=>r.name===bowler);
         const prevBowlerRow=(prev.bowlRows||[]).find(r=>r.name===bowler);
         if(bowlerRow&&prevBowlerRow&&bowlerRow.wkts===5&&prevBowlerRow.wkts<5){
             showEventPlayer(bowler,'🎩',`${bowler} — 5 WICKETS!`,'BRILLIANT FIFER!','');
+            playCentury();
         }
         if(d.innings===2&&!_winShown){
             const target=d.target||0, maxBalls=(d.maxOvers||20)*6;
@@ -819,10 +984,10 @@ if(d.wkts>prev.wkts && uiSt.autoWicketOverlay!==false){
         }
     }
 
-    lastOverCount=completedOvers;
+    lastOverCount=Math.floor(d.balls/6);
     _prevData=JSON.parse(JSON.stringify(d));
 
-    /* SCORE BAR */
+    /* ══ SCORE BAR ══ */
     $('dTeam').textContent=d.batTeam||'TEAM';
     $('dRuns').textContent=d.runs; $('dWkts').textContent=d.wkts;
     const oStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
@@ -859,7 +1024,7 @@ if(d.wkts>prev.wkts && uiSt.autoWicketOverlay!==false){
     }
     const bar=$('scoreBar'); bar.classList.remove('uf'); void bar.offsetWidth; bar.classList.add('uf');
 
-    /* SCORECARD */
+    /* ══ SCORECARD ══ */
     $('scTeamName').textContent=d.batTeam||'TEAM';
     $('scTournament').textContent=d.inn1Score?`After ${d.inn1Bat}: ${d.inn1Score}`:(d.maxOvers?`${d.maxOvers} OVERS MATCH`:'T20 MATCH');
     $('scInnLbl').textContent=d.innings===2?'2ND INNINGS':'1ST INNINGS';
@@ -916,7 +1081,7 @@ if(d.wkts>prev.wkts && uiSt.autoWicketOverlay!==false){
         div.innerHTML=`<span class="sc-cell left ${isCur?'gold':''}">${isCur?'▶ ':''}${row.name}</span><span class="sc-cell">${hasBowled?oSt:'—'}</span><span class="sc-cell">${hasBowled?0:'—'}</span><span class="sc-cell">${hasBowled?row.runs:'—'}</span><span class="sc-cell gold">${hasBowled?row.wkts:'—'}</span><span class="sc-cell ${eCls}">${hasBowled?eco:'—'}</span>`;
         bwlCont.appendChild(div);
     });
-});
+}
 </script>
 </body>
 </html>
