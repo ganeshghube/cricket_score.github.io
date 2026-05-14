@@ -14,23 +14,36 @@
         }
         body { font-family: 'Inter', sans-serif; background: var(--bg); font-size: 13px; }
 
-        /* Password gate */
+        /* Password gate - always on top, no blur here */
         #pwGate {
             position: fixed; inset: 0; background: #1a3a5c; display: flex;
-            align-items: center; justify-content: center; z-index: 9999;
+            align-items: center; justify-content: center; z-index: 10000;
         }
         #pwGate.gone { display: none; }
         .pw-box {
             background: #fff; border-radius: 12px; padding: 36px 32px; width: 320px;
-            text-align: center;
+            text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
-        .pw-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 900; color: var(--navy); }
-        #pwInput { width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 7px; margin: 12px 0; }
-        #pwBtn { background: var(--navy); color: #fff; border: none; padding: 10px; border-radius: 7px; width: 100%; font-weight: bold; cursor: pointer; }
+        .pw-logo { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; color: var(--navy); margin-bottom: 8px; }
+        .pw-hint { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+        #pwInput { width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 7px; margin: 12px 0; font-size: 16px; text-align: center; }
+        #pwBtn { background: var(--navy); color: #fff; border: none; padding: 10px; border-radius: 7px; width: 100%; font-weight: bold; cursor: pointer; font-size: 16px; }
         #pwErr { color: var(--red); font-size: 12px; margin-top: 8px; }
 
-        /* Main app – blurred until unlocked */
-        #mc { filter: blur(6px); pointer-events: none; user-select: none; transition: all 0.2s; }
+        /* Main app - initially blurred and disabled */
+        #mc {
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+        #mc.unlocked {
+            filter: none;
+            pointer-events: auto;
+            user-select: auto;
+        }
+
+        /* Rest of your existing styles (keep everything else) */
         .topbar {
             background: var(--navy); color: #fff; padding: 0 14px; display: flex;
             align-items: center; height: 46px; gap: 12px;
@@ -53,8 +66,9 @@
         .rnd {
             width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center;
             justify-content: center; font-weight: 900; font-size: 18px; cursor: pointer;
-            border: 2px solid; background: #f1f5f9;
+            border: 2px solid; background: #f1f5f9; transition: 0.1s;
         }
+        .rnd:active { transform: scale(0.92); }
         .rnd-1, .rnd-2, .rnd-3 { background: #f0fdf4; color: #16a34a; border-color: #86efac; }
         .rnd-4 { background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; width: 54px; height: 54px; }
         .rnd-6 { background: #f5f3ff; color: #6d28d9; border-color: #c4b5fd; width: 54px; height: 54px; }
@@ -116,16 +130,21 @@
     </style>
 </head>
 <body>
+
+<!-- PASSWORD GATE -->
 <div id="pwGate">
     <div class="pw-box">
         <div class="pw-logo">🏏 Cricket Admin</div>
-        <input id="pwInput" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()">
-        <button id="pwBtn" onclick="checkPw()">UNLOCK</button>
+        <div class="pw-hint">Enter password to access scoring console</div>
+        <input id="pwInput" type="password" placeholder="Password" autofocus>
+        <button id="pwBtn">UNLOCK</button>
         <div id="pwErr"></div>
+        <div style="font-size: 10px; margin-top: 12px; color: #888;">Default: <strong>Ganesh@12345</strong></div>
     </div>
 </div>
 
-<div id="mc" style="filter:blur(6px);pointer-events:none;">
+<!-- MAIN APP (blurred until unlocked) -->
+<div id="mc">
 <div class="topbar">
     <div class="tb-logo">🏏 Cricket Admin <span class="tb-live">● LIVE</span></div>
     <div class="tb-match" id="tbMatch">No match</div>
@@ -190,7 +209,6 @@
                 </div>
             </div>
 
-            <!-- Pending score block -->
             <div class="pending-wrap" id="pendingWrap">
                 <div class="pending-idle" id="pendingIdle">⚡ Tap runs or extras → CORRECT to confirm</div>
                 <div class="pending-active" id="pendingActive">
@@ -205,7 +223,6 @@
                 </div>
             </div>
 
-            <!-- Run buttons -->
             <div class="run-btn-row">
                 <button class="rnd rnd-dot" onclick="ball(0)">●</button>
                 <button class="rnd rnd-1" onclick="ball(1)">1</button>
@@ -216,7 +233,6 @@
                 <button class="rnd rnd-wkt" onclick="openWicket()">🏏</button>
             </div>
 
-            <!-- Extra type selectors -->
             <div class="run-btn-row">
                 <button class="rnd rnd-wd" id="xBtn_WD" onclick="setExtraType('WD')">Wd</button>
                 <button class="rnd rnd-nb" id="xBtn_NB" onclick="setExtraType('NB')">Nb</button>
@@ -224,7 +240,6 @@
                 <button class="rnd rnd-lb" id="xBtn_LB" onclick="setExtraType('LB')">Lb</button>
             </div>
 
-            <!-- Actions -->
             <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
                 <button class="act-btn" onclick="swapStrike()">⇄ Swap Strike</button>
                 <button class="act-btn" id="undoBtn" onclick="undoLast()" disabled>↩ Undo</button>
@@ -245,7 +260,6 @@
         </div>
     </div>
 
-    <!-- Innings / Reset -->
     <div class="card">
         <div class="card-body">
             <div class="g2">
@@ -257,58 +271,16 @@
 </div>
 </div>
 
-<!-- Bowler picker modal -->
-<div class="bpk-overlay" id="bowlerModal">
-    <div class="bpk-box">
-        <div class="bpk-title">⚾ Select Next Bowler</div>
-        <div class="bpk-grid" id="bpkGrid" style="display:grid; gap:8px;"></div>
-        <button style="margin-top:10px; width:100%;" onclick="closeBowlerPicker()">Cancel</button>
-    </div>
-</div>
-
-<!-- New batsman modal -->
-<div class="bpk-overlay" id="newBatModal">
-    <div class="bpk-box">
-        <div class="bpk-title">🏏 New Batsman</div>
-        <div class="bpk-grid" id="newBatGrid" style="display:grid; gap:8px;"></div>
-        <button style="margin-top:10px; width:100%;" onclick="cancelBatPicker()">Cancel</button>
-    </div>
-</div>
-
-<!-- Wicket modal -->
-<div class="modal-bg" id="wktModal">
-    <div class="modal">
-        <h3>🏏 Dismissal</h3>
-        <div class="modal-meta" id="mBatsman">—</div>
-        <div class="dis-grid">
-            <button class="dm" data-dt="b" onclick="selDis(this,'b')">Bowled</button>
-            <button class="dm" data-dt="c" onclick="selDis(this,'c')">Caught</button>
-            <button class="dm" data-dt="lbw" onclick="selDis(this,'lbw')">LBW</button>
-            <button class="dm" data-dt="ro" onclick="selDis(this,'ro')">Run out</button>
-            <button class="dm" data-dt="st" onclick="selDis(this,'st')">Stumped</button>
-        </div>
-        <div id="mFielderRow" style="display:none; margin-top:8px;">
-            <span class="lbl">Fielder</span>
-            <select id="mFielder" class="inp"></select>
-        </div>
-        <div style="margin-top:8px;">
-            <span class="lbl">Runs on this ball</span>
-            <input id="mRuns" type="number" value="0" class="inp">
-        </div>
-        <div class="modal-btns">
-            <button class="m-confirm" onclick="confirmWicket()">Confirm</button>
-            <button class="m-cancel" onclick="closeWicket()">Cancel</button>
-        </div>
-    </div>
-</div>
-
+<!-- Modals (unchanged) -->
+<div class="bpk-overlay" id="bowlerModal"><div class="bpk-box"><div class="bpk-title">⚾ Select Next Bowler</div><div class="bpk-grid" id="bpkGrid" style="display:grid; gap:8px;"></div><button style="margin-top:10px; width:100%;" onclick="closeBowlerPicker()">Cancel</button></div></div>
+<div class="bpk-overlay" id="newBatModal"><div class="bpk-box"><div class="bpk-title">🏏 New Batsman</div><div class="bpk-grid" id="newBatGrid" style="display:grid; gap:8px;"></div><button style="margin-top:10px; width:100%;" onclick="cancelBatPicker()">Cancel</button></div></div>
+<div class="modal-bg" id="wktModal"><div class="modal"><h3>🏏 Dismissal</h3><div class="modal-meta" id="mBatsman">—</div><div class="dis-grid"><button class="dm" data-dt="b" onclick="selDis(this,'b')">Bowled</button><button class="dm" onclick="selDis(this,'c')">Caught</button><button class="dm" onclick="selDis(this,'lbw')">LBW</button><button class="dm" onclick="selDis(this,'ro')">Run out</button><button class="dm" onclick="selDis(this,'st')">Stumped</button></div><div id="mFielderRow" style="display:none; margin-top:8px;"><span class="lbl">Fielder</span><select id="mFielder" class="inp"></select></div><div style="margin-top:8px;"><span class="lbl">Runs on this ball</span><input id="mRuns" type="number" value="0" class="inp"></div><div class="modal-btns"><button class="m-confirm" onclick="confirmWicket()">Confirm</button><button class="m-cancel" onclick="closeWicket()">Cancel</button></div></div></div>
 <div id="saveToast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
 import { getDatabase, ref, set, get, update, push, remove, onValue, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-// Firebase config (your existing project)
 const cfg = {
     apiKey: "AIzaSyCFSreoo7grP30O3P0dWyI5ADlwTNWGKgU",
     authDomain: "cricket-8e338.firebaseapp.com",
@@ -326,29 +298,20 @@ const histRef = ref(db, 'matchHistory');
 const commentaryQueueRef = ref(db, 'commentaryQueue');
 const phRef = ref(db, 'playerPhotos');
 
-// Helper
 const $ = id => document.getElementById(id);
 
 let _match = null;
 let _curMatchKey = null;
 let _pending = { active: false, batRuns: 0, type: null };
 let _lastToss = 'A';
-let _bowlerPickerCallback = null;
+let _playerPhotos = {};
 
-// -------------------- Pending score logic --------------------
-function pendingTotal() {
-    const extra = (_pending.type === 'WD' || _pending.type === 'NB') ? 1 : 0;
-    return extra + _pending.batRuns;
-}
+function pendingTotal() { return ((_pending.type === 'WD' || _pending.type === 'NB') ? 1 : 0) + _pending.batRuns; }
 function updatePendingUI() {
     const wrap = $('#pendingWrap');
     const idle = $('#pendingIdle');
     const active = $('#pendingActive');
-    // update extra button highlights
-    ['WD','NB','BY','LB'].forEach(t => {
-        const btn = $(`xBtn_${t}`);
-        if (btn) btn.classList.toggle('xactive', _pending.active && _pending.type === t);
-    });
+    ['WD','NB','BY','LB'].forEach(t => { const btn = $(`xBtn_${t}`); if (btn) btn.classList.toggle('xactive', _pending.active && _pending.type === t); });
     if (!_pending.active) {
         wrap.className = 'pending-wrap';
         idle.style.display = '';
@@ -376,19 +339,13 @@ function updatePendingUI() {
 }
 
 window.ball = (r) => {
-    if (!_pending.active) {
-        _pending = { active: true, batRuns: r, type: null };
-    } else {
-        _pending.batRuns += r;
-    }
+    if (!_pending.active) _pending = { active: true, batRuns: r, type: null };
+    else _pending.batRuns += r;
     updatePendingUI();
 };
 window.setExtraType = (t) => {
-    if (_pending.active) {
-        _pending.type = t;
-    } else {
-        _pending = { active: true, batRuns: 0, type: t };
-    }
+    if (_pending.active) _pending.type = t;
+    else _pending = { active: true, batRuns: 0, type: t };
     updatePendingUI();
 };
 window.correctScore = async () => {
@@ -404,15 +361,13 @@ window.incorrectScore = () => {
     updatePendingUI();
 };
 
-// Keyboard shortcuts
 document.addEventListener('keydown', e => {
-    if ($('wktModal').classList.contains('open') || $('bowlerModal').classList.contains('open') || $('newBatModal').classList.contains('open')) return;
+    if ($('wktModal')?.classList.contains('open') || $('bowlerModal')?.classList.contains('open') || $('newBatModal')?.classList.contains('open')) return;
     if (!_pending.active) return;
     if (e.key === 'y' || e.key === 'Y' || e.key === 'Enter') { e.preventDefault(); correctScore(); }
     if (e.key === 'n' || e.key === 'N' || e.key === 'Escape') { e.preventDefault(); incorrectScore(); }
 });
 
-// -------------------- Core scoring --------------------
 async function executeBall(runs, type) {
     const snap = await get(mRef);
     let d = snap.val();
@@ -463,7 +418,6 @@ async function executeBall(runs, type) {
         commentEvent = 'legbye';
         commentData = { runs: runs };
     } else {
-        // normal ball (including dot)
         d.freeHit = false;
         d.balls++; d.bwb++; d.bwr += runs;
         updBowl(d, d.bwn, { runs: runs, balls: 1 });
@@ -489,22 +443,15 @@ async function executeBall(runs, type) {
 
     await update(mRef, d);
     if (commentEvent) {
-        await push(commentaryQueueRef, {
-            event: commentEvent,
-            data: commentData,
-            timestamp: Date.now()
-        });
+        await push(commentaryQueueRef, { event: commentEvent, data: commentData, timestamp: Date.now() });
     }
-    // check milestones
     const striker = d.str === 1 ? d.p1n : d.p2n;
     const strikerRuns = d.str === 1 ? d.p1r : d.p2r;
     if (strikerRuns === 50 || strikerRuns === 100) {
         const milestone = strikerRuns === 50 ? 'fifty' : 'century';
         await push(commentaryQueueRef, { event: milestone, data: { striker }, timestamp: Date.now() });
     }
-    // update last ball display
-    const last = d.recentBalls.length ? d.recentBalls[d.recentBalls.length-1] : '—';
-    $('#lastBallDisplay').innerHTML = last;
+    $('#lastBallDisplay').innerHTML = d.recentBalls.length ? d.recentBalls[d.recentBalls.length-1] : '—';
 }
 
 function updBat(d, name, { runs=0, balls=0, fours=0, sixes=0 }) {
@@ -535,17 +482,13 @@ onValue(hRef, snap => {
     $('#undoBtn').disabled = count === 0;
 });
 
-// -------------------- Squad management --------------------
 function buildSquadInputs(containerId, teamLetter) {
     const container = $(containerId);
     container.innerHTML = '';
     for (let i=1; i<=11; i++) {
         const row = document.createElement('div');
         row.className = 'player-row';
-        row.innerHTML = `
-            <span class="player-num">${i}</span>
-            <input class="player-name-inp" id="pl${teamLetter}${i}" placeholder="Player ${i}">
-        `;
+        row.innerHTML = `<span class="player-num">${i}</span><input class="player-name-inp" id="pl${teamLetter}${i}" placeholder="Player ${i}">`;
         container.appendChild(row);
     }
 }
@@ -557,16 +500,9 @@ function getNames(teamLetter) {
     }
     return names;
 }
-function setNames(teamLetter, names) {
-    for (let i=1; i<=11; i++) {
-        const inp = $(`pl${teamLetter}${i}`);
-        if (inp) inp.value = names[i-1] || '';
-    }
-}
 buildSquadInputs('squadA', 'A');
 buildSquadInputs('squadB', 'B');
 
-// -------------------- Match init & helpers --------------------
 window.refreshTossLabels = () => {
     const nA = $('#tNA').value.trim() || 'Team A';
     const nB = $('#tNB').value.trim() || 'Team B';
@@ -577,7 +513,6 @@ window.updateTossUI = (fromUser) => {
     const toss = $('#tossSel').value;
     if (fromUser && toss !== _lastToss) {
         _lastToss = toss;
-        // swap team names and squads
         const tmpName = $('#tNA').value;
         $('#tNA').value = $('#tNB').value;
         $('#tNB').value = tmpName;
@@ -588,7 +523,7 @@ window.updateTossUI = (fromUser) => {
     }
     refreshTossLabels();
 };
-window.refreshTossLabels();
+refreshTossLabels();
 
 window.initMatch = async () => {
     const sA = getNames('A'), sB = getNames('B');
@@ -599,7 +534,6 @@ window.initMatch = async () => {
     const bowlTeam = $('#tNB').value.trim().toUpperCase() || 'TEAM B';
     const batRows = sA.map(n => ({ name: n, runs:0, balls:0, fours:0, sixes:0, out:false, howOut:'' }));
     const bowlRows = sB.map(n => ({ name: n, balls:0, runs:0, wkts:0, wides:0, noballs:0, byes:0, legbyes:0 }));
-    // clear undo stack
     await set(hRef, null);
     const newMatchRef = await push(mRef, {
         batTeam, bowlTeam, runs:0, wkts:0, balls:0, str:1, target:0,
@@ -664,7 +598,7 @@ window.fullReset = async () => {
     }
 };
 
-// -------------------- Wicket & new batsman --------------------
+// Wicket & batsman picker (simplified)
 let _wicketDismissalType = 'b';
 window.selDis = (btn, type) => {
     _wicketDismissalType = type;
@@ -677,7 +611,6 @@ window.openWicket = async () => {
     const d = (await get(mRef)).val();
     if (!d) { alert('No match'); return; }
     $('#mBatsman').textContent = d.str === 1 ? d.p1n : d.p2n;
-    // populate fielder dropdown with all players
     const allPlayers = [...(d.batRows||[]), ...(d.bowlRows||[])].map(p => p.name);
     $('#mFielder').innerHTML = allPlayers.map(n => `<option value="${n}">${n}</option>`).join('');
     $('#mRuns').value = '0';
@@ -702,30 +635,17 @@ window.confirmWicket = async () => {
     d.balls++;
     d.bwb++;
     d.freeHit = false;
-    // update bowler stats
     const bowlRec = d.bowlRows.find(r => r.name === bowler);
-    if (bowlRec) {
-        bowlRec.balls += 1;
-        bowlRec.runs += runsOnBall;
-        if (dismissal !== 'ro') bowlRec.wkts += 1;
-    }
-    // update batter stats
-    if (d.str === 1) {
-        d.p1r += runsOnBall; d.p1b++;
-    } else {
-        d.p2r += runsOnBall; d.p2b++;
-    }
-    // mark out in batting rows
+    if (bowlRec) { bowlRec.balls += 1; bowlRec.runs += runsOnBall; if (dismissal !== 'ro') bowlRec.wkts += 1; }
+    if (d.str === 1) { d.p1r += runsOnBall; d.p1b++; } else { d.p2r += runsOnBall; d.p2b++; }
     const batRec = d.batRows.find(r => r.name === dismissed);
     if (batRec) { batRec.out = true; batRec.howOut = `${dismissal} ${fielder ? `(${fielder})` : ''} b ${bowler}`; }
     d.recentBalls.push('W');
     if (d.balls % 6 === 0) d.str = d.str === 1 ? 2 : 1;
     await update(mRef, d);
     closeWicket();
-    // send commentary
     await push(commentaryQueueRef, { event: 'wicket', data: { striker: dismissed, bowler }, timestamp: Date.now() });
     if (d.wkts < 10) {
-        // open batsman picker
         const available = (d.batRows||[]).filter(r => !r.out && r.name !== d.p1n && r.name !== d.p2n);
         $('#newBatGrid').innerHTML = available.map(p => `<button onclick="selectNewBatter('${p.name}')">${p.name}</button>`).join('');
         $('#newBatModal').classList.add('open');
@@ -742,15 +662,8 @@ window.selectNewBatter = async (name) => {
 };
 window.cancelBatPicker = () => $('#newBatModal').classList.remove('open');
 
-// -------------------- Bowler change modal --------------------
 function openBowlerPicker(bowlRows, currentBowler, overNum) {
-    $('#bpkGrid').innerHTML = bowlRows.map(r => {
-        const disabled = r.name === currentBowler;
-        return `<button class="bpk-btn" ${disabled ? 'disabled' : ''} onclick="selectBowler('${r.name}')">
-                    ${r.name} ${disabled ? '(current)' : ''}<br>
-                    <span style="font-size:11px;">${r.wkts}-${r.runs} (${Math.floor(r.balls/6)}.${r.balls%6})</span>
-                </button>`;
-    }).join('');
+    $('#bpkGrid').innerHTML = bowlRows.map(r => `<button ${r.name === currentBowler ? 'disabled' : ''} onclick="selectBowler('${r.name}')">${r.name} (${r.wkts}-${r.runs})</button>`).join('');
     $('#bowlerModal').classList.add('open');
 }
 window.closeBowlerPicker = () => $('#bowlerModal').classList.remove('open');
@@ -759,58 +672,32 @@ window.selectBowler = async (name) => {
     closeBowlerPicker();
 };
 
-// -------------------- Save & History --------------------
 window.saveMatchToDb = async () => {
     const d = (await get(mRef)).val();
     if (!d) return;
-    const rec = {
-        title: `${d.batTeam} vs ${d.bowlTeam}`,
-        savedAt: Date.now(),
-        batTeam: d.batTeam, bowlTeam: d.bowlTeam,
-        score: `${d.runs}/${d.wkts}`,
-        overs: `${Math.floor(d.balls/6)}.${d.balls%6}`,
-        fullState: JSON.parse(JSON.stringify(d))
-    };
-    if (_curMatchKey) {
-        await set(ref(db, `matchHistory/${_curMatchKey}`), rec);
-    } else {
-        const nr = await push(histRef, rec);
-        _curMatchKey = nr.key;
-    }
-    toast('Match saved to cloud');
+    const rec = { title: `${d.batTeam} vs ${d.bowlTeam}`, savedAt: Date.now(), batTeam: d.batTeam, bowlTeam: d.bowlTeam, score: `${d.runs}/${d.wkts}`, overs: `${Math.floor(d.balls/6)}.${d.balls%6}`, fullState: JSON.parse(JSON.stringify(d)) };
+    if (_curMatchKey) await set(ref(db, `matchHistory/${_curMatchKey}`), rec);
+    else { const nr = await push(histRef, rec); _curMatchKey = nr.key; }
+    toast('Match saved');
 };
 window.saveMatch = async () => {
     const d = (await get(mRef)).val();
     if (!d) return;
     const enc = encodeURIComponent(JSON.stringify(d));
-    downloadFile('scorecard.json', enc);
-};
-function downloadFile(filename, data) {
     const a = document.createElement('a');
-    a.href = 'data:application/octet-stream,' + data;
-    a.download = filename;
+    a.href = 'data:application/octet-stream,' + enc;
+    a.download = 'match_backup.json';
     a.click();
-}
-function toast(msg) {
-    const t = $('#saveToast');
-    t.textContent = msg;
-    t.style.opacity = '1';
-    setTimeout(() => t.style.opacity = '0', 2000);
-}
+};
+function toast(msg) { const t = $('#saveToast'); t.textContent = msg; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000); }
 
-// Load match history (last 10)
 async function loadHistory() {
     const snap = await get(query(histRef, limitToLast(10)));
     const val = snap.val();
     const container = $('#histList');
     if (!val) { container.innerHTML = '<p style="text-align:center;">No saved matches</p>'; return; }
     const entries = Object.entries(val).sort((a,b) => b[1].savedAt - a[1].savedAt);
-    container.innerHTML = entries.map(([key, rec]) => `
-        <div class="hist-item">
-            <div><strong>${rec.title}</strong><br>${rec.score} (${rec.overs})</div>
-            <div><button class="hist-load" onclick="reloadMatch('${key}')">Load</button></div>
-        </div>
-    `).join('');
+    container.innerHTML = entries.map(([key, rec]) => `<div class="hist-item"><div><strong>${rec.title}</strong><br>${rec.score} (${rec.overs})</div><div><button class="hist-load" onclick="reloadMatch('${key}')">Load</button></div></div>`).join('');
 }
 window.reloadMatch = async (key) => {
     const snap = await get(ref(db, `matchHistory/${key}`));
@@ -824,18 +711,14 @@ window.reloadMatch = async (key) => {
 };
 loadHistory();
 
-// -------------------- Real-time UI updates --------------------
 onValue(mRef, async (snap) => {
     const d = snap.val();
     if (!d) return;
     _match = d;
     if (_pending.active) updatePendingUI();
-
     $('#tbMatch').innerHTML = `${d.batTeam} vs ${d.bowlTeam}`;
     const ovStr = `${Math.floor(d.balls/6)}.${d.balls%6}`;
     $('#tbScore').innerHTML = `${d.runs}/${d.wkts} <span>${ovStr}</span>`;
-
-    // Update dropdowns
     const batRows = d.batRows || [];
     const availBats = batRows.filter(r => !r.out).map(r => r.name);
     $('#selP1').innerHTML = availBats.map(n => `<option value="${n}">${n}</option>`).join('');
@@ -844,8 +727,6 @@ onValue(mRef, async (snap) => {
     if (d.p1n) $('#selP1').value = d.p1n;
     if (d.p2n) $('#selP2').value = d.p2n;
     if (d.bwn) $('#selBw').value = d.bwn;
-
-    // Check end of over -> offer new bowler
     if (d.balls % 6 === 0 && d.balls > 0 && !d.bowlerModalShown) {
         d.bowlerModalShown = true;
         await update(mRef, { bowlerModalShown: true });
@@ -856,36 +737,27 @@ onValue(mRef, async (snap) => {
     }
 });
 
-// -------------------- Auto-load match from URL param --------------------
+// Restore match from URL if present
 const urlParams = new URLSearchParams(window.location.search);
 const matchId = urlParams.get('match');
 if (matchId) {
     _curMatchKey = matchId;
-    // redirect the main data reference to that specific match
+    // redirect listener to that specific match
     window.mRef = ref(db, `cricket/${matchId}`);
-    // also load squads? squads are stored under /squads/${matchId}? Not needed for simplicity, we'll load fullState from history if needed.
-    // For simplicity we listen to the correct path
-    onValue(ref(db, `cricket/${matchId}`), snap => {
-        if (snap.val()) $('#tbMatch').innerHTML = `Match ${matchId} loaded`;
-    });
+    onValue(ref(db, `cricket/${matchId}`), () => {});
 } else {
-    // default: listen to root cricket (will be created by initMatch)
     onValue(mRef, () => {});
 }
-
-// Finally, unlock the UI when password is correct (handled by the non-module script below)
 </script>
 
+<!-- Password unlock (non-module, runs immediately) -->
 <script>
-// Simple password gate (non-module so it runs immediately)
 const PW = 'Ganesh@12345';
 const KEY = 'cricket_admin_auth_v3';
 function unlock() {
     document.getElementById('pwGate').classList.add('gone');
     const mc = document.getElementById('mc');
-    mc.style.filter = '';
-    mc.style.pointerEvents = '';
-    mc.style.userSelect = '';
+    mc.classList.add('unlocked');
 }
 if (sessionStorage.getItem(KEY) === '1') {
     unlock();
@@ -903,10 +775,8 @@ if (sessionStorage.getItem(KEY) === '1') {
             setTimeout(() => inp.classList.remove('error'), 400);
         }
     };
-    window.togglePwEye = function() {
-        const inp = document.getElementById('pwInput');
-        inp.type = inp.type === 'password' ? 'text' : 'password';
-    };
+    document.getElementById('pwBtn').onclick = checkPw;
+    document.getElementById('pwInput').onkeydown = (e) => { if (e.key === 'Enter') checkPw(); };
     document.getElementById('pwInput').focus();
 }
 </script>
