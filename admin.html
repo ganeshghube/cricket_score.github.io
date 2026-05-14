@@ -1010,63 +1010,49 @@ window.incorrectScore = () => {
 // ══════════════════════════════════════════════════════
 // executeBall — core logic after Correct
 // ══════════════════════════════════════════════════════
-// ── Improved executeBall - Better for Commentary ──
 async function executeBall(r, type){
-  const snap=await get(mRef); 
-  const d=snap.val();
+  const snap=await get(mRef); const d=snap.val();
   if(!d){alert('Initialize match first');return;}
-
-  await saveSnap(d);   // save for undo
-
-  const isWD=type==='WD', isNB=type==='NB', isBY=type==='BY', isLB=type==='LB';
-
-  d.runs += r;
-
+  if(!d.recentBalls) d.recentBalls=[];
+  if(!d.batRows)     d.batRows=[];
+  if(!d.bowlRows)    d.bowlRows=[];
+  await saveSnap(d);
+  const isWD=type==='WD',isNB=type==='NB',isBY=type==='BY',isLB=type==='LB';
+  d.runs+=r;
   if(isWD){
-    d.bwr += r;
-    updBowl(d, d.bwn, {runs:r, wides:1});
-    d.recentBalls.push(r > 1 ? `Wd${r}` : 'Wd');
-  } 
-  else if(isNB){
-    d.bwr += r;
-    updBowl(d, d.bwn, {runs:r, noballs:1});
-    if(d.str===1){ d.p1r+=r; d.p1fours+=(r===4?1:0); d.p1sixes+=(r===6?1:0); }
-    else         { d.p2r+=r; d.p2fours+=(r===4?1:0); d.p2sixes+=(r===6?1:0); }
-    updBat(d, d.str===1?d.p1n:d.p2n, {runs:r, fours:r===4?1:0, sixes:r===6?1:0});
-    if(r%2!==0) d.str = d.str===1?2:1;
-    d.freeHit = true;
-    d.recentBalls.push(r > 1 ? `Nb${r}` : 'Nb');
-  } 
-  else if(isBY || isLB){
-    d.freeHit=false; d.balls++; d.bwb++;
-    const extraType = isBY ? {byes:r} : {legbyes:r};
-    updBowl(d, d.bwn, {balls:1, ...extraType});
-    if(r%2!==0) d.str = d.str===1?2:1;
-    d.recentBalls.push(isBY ? (r>1?`By${r}`:'By') : (r>1?`Lb${r}`:'Lb'));
-  } 
-  else {
-    // Normal ball
-    d.freeHit=false; 
-    d.balls++; 
-    d.bwb++; 
-    d.bwr += r;
-    updBowl(d, d.bwn, {runs:r, balls:1});
-    if(d.str===1){
-      d.p1r+=r; d.p1b++; 
-      d.p1fours+=(r===4?1:0); d.p1sixes+=(r===6?1:0);
-    } else {
-      d.p2r+=r; d.p2b++; 
-      d.p2fours+=(r===4?1:0); d.p2sixes+=(r===6?1:0);
-    }
-    updBat(d, d.str===1?d.p1n:d.p2n, {runs:r, balls:1, fours:r===4?1:0, sixes:r===6?1:0});
-    if(r%2!==0) d.str = d.str===1?2:1;
-    d.recentBalls.push(r);
+    d.bwr+=r; updBowl(d,d.bwn,{runs:r,wides:1});
+    d.recentBalls.push(r>1?`Wd${r}`:'Wd');
+  } else if(isNB){
+    d.bwr+=r; updBowl(d,d.bwn,{runs:r,noballs:1});
+    if(d.str===1){d.p1r+=r;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}
+    else         {d.p2r+=r;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);}
+    updBat(d,d.str===1?d.p1n:d.p2n,{runs:r,fours:r===4?1:0,sixes:r===6?1:0});
+    if(r%2!==0) d.str=d.str===1?2:1;
+    d.freeHit=true;
+    d.recentBalls.push(r>1?`Nb${r}`:'Nb');
+  } else if(isBY){
+    d.freeHit=false;d.balls++;d.bwb++;
+    updBowl(d,d.bwn,{balls:1,byes:r});
+    if(r%2!==0) d.str=d.str===1?2:1;
+    d.recentBalls.push(r>1?`By${r}`:'By');
+    if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
+  } else if(isLB){
+    d.freeHit=false;d.balls++;d.bwb++;
+    updBowl(d,d.bwn,{balls:1,legbyes:r});
+    if(r%2!==0) d.str=d.str===1?2:1;
+    d.recentBalls.push(r>1?`Lb${r}`:'Lb');
+    if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
+  } else {
+    d.freeHit=false;d.balls++;d.bwb++;d.bwr+=r;
+    updBowl(d,d.bwn,{runs:r,balls:1});
+    if(d.str===1){d.p1r+=r;d.p1b++;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}
+    else         {d.p2r+=r;d.p2b++;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);}
+    updBat(d,d.str===1?d.p1n:d.p2n,{runs:r,balls:1,fours:r===4?1:0,sixes:r===6?1:0});
+    if(r%2!==0) d.str=d.str===1?2:1;
+    if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
+    else d.recentBalls.push(r);
   }
-
-  // Force clean recentBalls (max 6 balls)
-  if(d.recentBalls.length > 6) d.recentBalls = d.recentBalls.slice(-6);
-
-  await update(mRef, d);
+  await update(mRef,d);
 }
 
 // ── Wicket (opens dismissal form directly) ────────────
@@ -1313,7 +1299,6 @@ window.confirmWicket=async()=>{
   else{if(dismissedStrSlot===1)d.p1b++;else d.p2b++;updBat(d,dismissedName,{balls:1});}
   markOut(d,dismissedName,howOut);
   d.recentBalls.push('W');
-  if(d.recentBalls.length > 6) d.recentBalls = d.recentBalls.slice(-6);
   if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
   await update(mRef,d);closeWicket();
   if(d.wkts>=10)return;
