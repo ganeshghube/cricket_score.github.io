@@ -607,14 +607,48 @@ body{
 /* ══════════════════════════════════════════════════════
    PRISM / OVERLAY IFRAME DETECTION
    ══════════════════════════════════════════════════════ */
-const IS_PREVIEW=(()=>{
-  try{
-    if(window.self!==window.top) return true;
-    if(new URLSearchParams(window.location.search).has('preview')) return true;
-  }catch(e){return true;}
-  return false;
-})();
-if(IS_PREVIEW){ document.getElementById('audioBtn').style.display='none'; }
+const IS_PREVIEW = new URLSearchParams(location.search).has('preview');
+
+let _audioOn = false;
+let _audioCtx = null;
+let currentVoice = null;
+let userInteracted = false;
+
+function getAudioCtx(){
+    if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    return _audioCtx;
+}
+
+async function getBestVoice(){
+    if(!window.speechSynthesis) return null;
+    let voices = window.speechSynthesis.getVoices();
+    if(voices.length === 0){
+        await new Promise(r => window.speechSynthesis.onvoiceschanged = r);
+        voices = window.speechSynthesis.getVoices();
+    }
+    const priority = ['Shastri','Ravi','Microsoft David','Brian','Daniel','Google UK','en-GB','en-IN'];
+    for(let p of priority){
+        const v = voices.find(v => v.name.toLowerCase().includes(p.toLowerCase()) || v.lang.startsWith('en'));
+        if(v) return v;
+    }
+    return voices[0];
+}
+
+async function speak(text){
+    if(!_audioOn || !text || !userInteracted) return;
+    if(!window.speechSynthesis) return;
+
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    
+    if(!currentVoice) currentVoice = await getBestVoice();
+    if(currentVoice) utter.voice = currentVoice;
+
+    utter.rate = 0.86;
+    utter.pitch = 0.82;
+    utter.volume = 0.95;
+    window.speechSynthesis.speak(utter);
+}
 
 /* ══════════════════════════════════════════════════════
    AUDIO ENGINE
