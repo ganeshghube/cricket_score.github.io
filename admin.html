@@ -125,8 +125,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .run-btn-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
 .rnd{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;cursor:pointer;border:2.5px solid;transition:all .12s;flex-shrink:0;line-height:1;padding:0;}
 .rnd:active{transform:scale(.86);opacity:.75;}
-
-/* Run buttons */
 .rnd-dot{background:#f1f5f9;color:#64748b;border-color:#cbd5e1;}
 .rnd-dot:hover{background:#e2e8f0;}
 .rnd-1{background:#f0fdf4;color:#16a34a;border-color:#86efac;}
@@ -141,8 +139,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .rnd-6:hover{background:#ede9fe;}
 .rnd-wkt{background:#fff1f2;color:#be123c;border-color:#fda4af;font-size:14px;width:54px;height:54px;}
 .rnd-wkt:hover{background:var(--red);color:#fff;border-color:var(--red);}
-
-/* Single extra type selector buttons */
 .rnd-wd{background:#fffbeb;color:#d97706;border-color:#fcd34d;font-size:13px;font-weight:900;}
 .rnd-wd:hover{background:#fef3c7;}
 .rnd-wd.xactive{background:#d97706;color:#fff;border-color:#b45309;box-shadow:0 0 0 3px rgba(217,119,6,.25);}
@@ -155,8 +151,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .rnd-lb{background:#f0fdf4;color:#15803d;border-color:#86efac;font-size:13px;font-weight:900;}
 .rnd-lb:hover{background:#dcfce7;}
 .rnd-lb.xactive{background:#15803d;color:#fff;border-color:#166534;box-shadow:0 0 0 3px rgba(21,128,61,.25);}
-
-/* COMBO extra type buttons (Wide+Bye, Wide+Lb, NoBall+Bye, NoBall+Lb) */
 .rnd-combo{font-size:10px;font-weight:900;width:52px;height:52px;}
 .rnd-wdby{background:#fef9c3;color:#854d0e;border-color:#fde047;}
 .rnd-wdby:hover{background:#fef08a;}
@@ -170,8 +164,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .rnd-nblb{background:#e8f5e9;color:#1b5e20;border-color:#81c784;}
 .rnd-nblb:hover{background:#c8e6c9;}
 .rnd-nblb.xactive{background:#1b5e20;color:#fff;border-color:#145214;box-shadow:0 0 0 3px rgba(27,94,32,.22);}
-
-/* Overlay / Announcement / Save control buttons */
 .rnd-show{background:#f0fdf4;color:#16a34a;border-color:#86efac;font-size:16px;}
 .rnd-show:hover{background:#dcfce7;}
 .rnd-hidebtn{background:#fff1f2;color:#be123c;border-color:#fda4af;font-size:16px;}
@@ -188,15 +180,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .rnd-ann-purple:hover{background:#ddd6fe;}
 .rnd-ann-blue{background:#dbeafe;color:#1d4ed8;border-color:#93c5fd;font-size:20px;width:52px;height:52px;}
 .rnd-ann-blue:hover{background:#bfdbfe;}
-
-/* Action buttons */
-.act-btn{padding:8px 14px;border-radius:7px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;cursor:pointer;border:2px solid;transition:all .1s;flex-shrink:0;}
-.act-btn:active{transform:scale(.94);opacity:.7;}
-.act-swap{background:#f8fafc;color:#475569;border-color:#cbd5e1;}
-.act-swap:hover{background:#f1f5f9;}
-.act-undo{background:#f5f0ff;color:#6d28d9;border-color:#c4b5fd;}
-.act-undo:disabled{opacity:.3;cursor:not-allowed;}
-.undo-badge{background:#e9d5ff;color:#6d28d9;border-radius:3px;padding:0 5px;font-size:10px;margin-left:2px;}
 
 /* PENDING SCORE AREA */
 .pending-wrap{border-radius:10px;border:2.5px dashed var(--border2);background:var(--card2);transition:all .2s ease;overflow:hidden;}
@@ -238,6 +221,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .btn-incorrect:active{transform:scale(.96);}
 .pending-key-hint{text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:5px;}
 .pending-key-hint kbd{display:inline-block;padding:1px 5px;border:1px solid #d1d5db;border-radius:3px;font-size:9px;background:#f9fafb;color:var(--text2);font-family:monospace;}
+
+/* COMMENTARY TICKER */
+.comm-ticker{background:linear-gradient(90deg,#f0fdf4,#fff);border:1.5px solid #86efac;border-radius:6px;padding:7px 12px;margin-top:8px;font-size:11px;color:var(--text2);min-height:34px;font-style:italic;display:flex;align-items:center;gap:8px;}
+.comm-ticker-badge{background:var(--green);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:8px;font-weight:800;padding:1px 5px;border-radius:2px;letter-spacing:1px;flex-shrink:0;}
+.comm-ticker-text{flex:1;}
+
+/* ACTION BUTTONS */
+.act-btn{padding:8px 14px;border-radius:7px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;cursor:pointer;border:2px solid;transition:all .1s;flex-shrink:0;}
+.act-btn:active{transform:scale(.94);opacity:.7;}
+.act-swap{background:#f8fafc;color:#475569;border-color:#cbd5e1;}
+.act-swap:hover{background:#f1f5f9;}
+.act-undo{background:#f5f0ff;color:#6d28d9;border-color:#c4b5fd;}
+.act-undo:disabled{opacity:.3;cursor:not-allowed;}
+.undo-badge{background:#e9d5ff;color:#6d28d9;border-radius:3px;padding:0 5px;font-size:10px;margin-left:2px;}
 
 /* SQUAD */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -376,12 +373,7 @@ select.inp option{background:#fff;}
 .audio-tog{background:var(--card2);border:1.5px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:5px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;cursor:pointer;width:auto;}
 .audio-tog.on{background:#d1fae5;color:var(--green);border-color:#34d399;}
 .voice-select-wrap{background:var(--card2);border:1.5px solid var(--border);border-radius:6px;padding:8px 10px;margin-top:8px;}
-.voice-select-wrap .lbl{margin-top:0;}
 .voice-badge{display:inline-block;padding:1px 6px;background:#dbeafe;color:#1e40af;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;margin-left:6px;}
-
-/* MANUAL TARGET */
-.mt-preview-box{background:var(--active-bat);border:1.5px solid var(--gold2);border-radius:7px;padding:12px 14px;margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--text);font-weight:700;line-height:1.6;}
-.mt-big{font-size:28px;font-weight:900;color:var(--red);font-family:'Barlow Condensed',sans-serif;}
 
 /* MISC */
 .note-box{background:var(--card2);border:1.5px solid var(--border);border-radius:6px;padding:8px 12px;font-size:10px;color:var(--muted);line-height:1.6;}
@@ -403,6 +395,8 @@ select.inp option{background:#fff;}
 #saveToast{position:fixed;bottom:20px;right:16px;z-index:9999;background:var(--navy);color:#fff;border-radius:7px;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.2);}
 .toss-swap-note{font-size:9px;color:var(--gold);background:#fffbeb;border:1px solid #fcd34d;border-radius:4px;padding:2px 8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;display:none;}
 .toss-swap-note.show{display:inline-block;animation:livepulse 1s 3;}
+.mt-preview-box{background:var(--active-bat);border:1.5px solid var(--gold2);border-radius:7px;padding:12px 14px;margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--text);font-weight:700;line-height:1.6;}
+.mt-big{font-size:28px;font-weight:900;color:var(--red);font-family:'Barlow Condensed',sans-serif;}
 </style>
 </head>
 <body>
@@ -483,7 +477,7 @@ select.inp option{background:#fff;}
     </div>
     <div class="g2" style="margin-top:8px">
       <div>
-        <input class="inp" id="tNA" placeholder="India" value="India" oninput="refreshTossLabels()" style="font-weight:700;font-size:13px">
+        <input class="inp" id="tNA" placeholder="Team A" value="" oninput="onTeamNameInput('A')" style="font-weight:700;font-size:13px">
         <div class="squad-col-hdr">
           <span class="lbl" style="margin:0" id="lblSqA">Squad A</span>
           <span class="role-bat" id="roleTagA">🏏 BATTING</span>
@@ -491,7 +485,7 @@ select.inp option{background:#fff;}
         <div class="squad-grid" id="squadA"></div>
       </div>
       <div>
-        <input class="inp" id="tNB" placeholder="Australia" value="Australia" oninput="refreshTossLabels()" style="font-weight:700;font-size:13px">
+        <input class="inp" id="tNB" placeholder="Team B" value="" oninput="onTeamNameInput('B')" style="font-weight:700;font-size:13px">
         <div class="squad-col-hdr">
           <span class="lbl" style="margin:0" id="lblSqB">Squad B</span>
           <span class="role-bowl" id="roleTagB">⚾ BOWLING</span>
@@ -595,6 +589,11 @@ select.inp option{background:#fff;}
             <div class="pending-key-hint"><kbd>Y</kbd> Correct &nbsp;·&nbsp; <kbd>N</kbd>/<kbd>Esc</kbd> Incorrect</div>
           </div>
         </div>
+        <!-- Live commentary ticker in admin -->
+        <div class="comm-ticker" id="adminCommTicker" style="display:none">
+          <span class="comm-ticker-badge">LIVE</span>
+          <span class="comm-ticker-text" id="adminCommText"></span>
+        </div>
       </div>
 
       <!-- RUN BUTTONS -->
@@ -611,34 +610,26 @@ select.inp option{background:#fff;}
         </div>
       </div>
 
-      <!-- EXTRA TYPE SELECTORS — Row 1: Single extras -->
+      <!-- EXTRA TYPE SELECTORS -->
       <div>
-        <div class="scoring-lbl">Extra Type — Single
-          <span style="font-size:8px;text-transform:none;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0;color:var(--muted)">— select type, then add runs above · Wd/Nb auto-add 1 penalty</span>
-        </div>
+        <div class="scoring-lbl">Extra Type — Single</div>
         <div class="run-btn-row">
-          <button class="rnd rnd-wd"  id="xBtn_WD"  onclick="setExtraType('WD')"  title="Wide (+1 penalty, ball not counted)">Wd</button>
-          <button class="rnd rnd-nb"  id="xBtn_NB"  onclick="setExtraType('NB')"  title="No Ball (+1 penalty, Free Hit next)">Nb</button>
-          <button class="rnd rnd-bye" id="xBtn_BY"  onclick="setExtraType('BY')"  title="Bye — legal delivery, no bat contact">By</button>
-          <button class="rnd rnd-lb"  id="xBtn_LB"  onclick="setExtraType('LB')"  title="Leg Bye — deflection off body">Lb</button>
+          <button class="rnd rnd-wd"  id="xBtn_WD"  onclick="setExtraType('WD')"  title="Wide">Wd</button>
+          <button class="rnd rnd-nb"  id="xBtn_NB"  onclick="setExtraType('NB')"  title="No Ball">Nb</button>
+          <button class="rnd rnd-bye" id="xBtn_BY"  onclick="setExtraType('BY')"  title="Bye">By</button>
+          <button class="rnd rnd-lb"  id="xBtn_LB"  onclick="setExtraType('LB')"  title="Leg Bye">Lb</button>
         </div>
-
-        <!-- Row 2: Combo extras (Wide/NoBall + Bye/LegBye) -->
-        <div class="scoring-lbl" style="margin-top:8px">Extra Type — Combos
-          <span style="font-size:8px;text-transform:none;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0;color:var(--muted)">— wide/nb hits pad; select combo then tap bye runs above</span>
-        </div>
+        <div class="scoring-lbl" style="margin-top:8px">Extra Type — Combos</div>
         <div class="run-btn-row">
-          <button class="rnd rnd-combo rnd-wdby" id="xBtn_WD_BY" onclick="setExtraType('WD_BY')" title="Wide + Bye (wide deflects off pad, byes scored — ball NOT counted)">Wd+By</button>
-          <button class="rnd rnd-combo rnd-wdlb" id="xBtn_WD_LB" onclick="setExtraType('WD_LB')" title="Wide + Leg Bye (wide deflects off body, leg byes — ball NOT counted)">Wd+Lb</button>
-          <button class="rnd rnd-combo rnd-nbby" id="xBtn_NB_BY" onclick="setExtraType('NB_BY')" title="No Ball + Bye (no ball, byes off pad — Free Hit next)">Nb+By</button>
-          <button class="rnd rnd-combo rnd-nblb" id="xBtn_NB_LB" onclick="setExtraType('NB_LB')" title="No Ball + Leg Bye (no ball, leg byes — Free Hit next)">Nb+Lb</button>
+          <button class="rnd rnd-combo rnd-wdby" id="xBtn_WD_BY" onclick="setExtraType('WD_BY')" title="Wide + Bye">Wd+By</button>
+          <button class="rnd rnd-combo rnd-wdlb" id="xBtn_WD_LB" onclick="setExtraType('WD_LB')" title="Wide + Leg Bye">Wd+Lb</button>
+          <button class="rnd rnd-combo rnd-nbby" id="xBtn_NB_BY" onclick="setExtraType('NB_BY')" title="No Ball + Bye">Nb+By</button>
+          <button class="rnd rnd-combo rnd-nblb" id="xBtn_NB_LB" onclick="setExtraType('NB_LB')" title="No Ball + Leg Bye">Nb+Lb</button>
         </div>
-
         <div class="note-box" style="margin-top:7px">
-          <b>Single extras:</b> Click <b>Wd</b> or <b>Nb</b> (+1 penalty auto-added), then tap runs for bat/overthrow runs.
-          Click <b>By</b> or <b>Lb</b> (no penalty, legal ball), then tap runs. <br>
-          <b>Combo extras:</b> Wide hits pad → <b>Wd+By</b> then tap 2 = 3 total (1 wide + 2 byes, ball not counted).
-          No ball hits pad → <b>Nb+By</b> then tap runs. <b>Wd+Lb</b> / <b>Nb+Lb</b> work similarly for leg-byes.
+          <b>Single extras:</b> Click <b>Wd</b> or <b>Nb</b> (+1 penalty auto-added), then tap runs.
+          Click <b>By</b> or <b>Lb</b> (no penalty, legal ball), then tap runs.<br>
+          <b>Combo extras:</b> Wide hits pad → <b>Wd+By</b> then tap 2 = 3 total.
         </div>
       </div>
 
@@ -672,7 +663,6 @@ select.inp option{background:#fff;}
         </div>
       </div>
     </div>
-
     <div style="background:var(--card2);border:1.5px solid var(--border);border-radius:7px;padding:10px;margin-top:10px">
       <div class="toggle-row">
         <div class="toggle-track" id="autoToggle" onclick="toggleAutoPopup()"><div class="toggle-thumb"></div></div>
@@ -689,7 +679,6 @@ select.inp option{background:#fff;}
         </div>
       </div>
     </div>
-
     <div style="margin-top:10px">
       <div class="sec-div">Auto Event Overlays</div>
       <div class="evt-grid">
@@ -717,7 +706,7 @@ select.inp option{background:#fff;}
   </div>
 </div>
 
-<!-- AUDIO -->
+<!-- AUDIO — System Voice Only -->
 <div class="card">
   <div class="card-hdr">🎙 Live Commentary Audio</div>
   <div class="card-body">
@@ -727,29 +716,7 @@ select.inp option{background:#fff;}
       <button class="audio-tog" id="audioTogBtn" onclick="toggleAudio()">ENABLE</button>
     </div>
 
-    <!-- Commentary Style & Rates -->
-    <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;align-items:center">
-      <span class="lbl" style="margin:0">Style:</span>
-      <select class="inp dur-sel" id="commentaryStyleSel">
-        <option value="standard">Standard Cricket</option>
-        <option value="energetic">Energetic / Hype</option>
-        <option value="calm">Calm Classic</option>
-        <option value="shastri">🎙 Ravi Shastri</option>
-        <option value="chopra">🎙 Akash Chopra</option>
-      </select>
-      <span class="lbl" style="margin:0">Rate:</span>
-      <select class="inp dur-sel" id="rateSel">
-        <option value="0.9">0.9x</option><option value="1.0" selected>1.0x</option>
-        <option value="1.1">1.1x</option><option value="1.2">1.2x</option>
-      </select>
-      <span class="lbl" style="margin:0">Pitch:</span>
-      <select class="inp dur-sel" id="pitchSel">
-        <option value="0.9">Low</option><option value="1.0">Normal</option>
-        <option value="1.1" selected>Energetic</option><option value="1.2">High</option>
-      </select>
-    </div>
-
-    <!-- System Voice Picker -->
+    <!-- System Voice Picker ONLY -->
     <div class="voice-select-wrap">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
         <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;color:var(--navy);letter-spacing:2px;text-transform:uppercase">System Voice</span>
@@ -770,11 +737,13 @@ select.inp option{background:#fff;}
         </div>
       </div>
       <div class="note-box" style="margin-top:6px;background:#f0f9ff;border-color:#93c5fd;font-size:9px">
-        💡 <b>Best voices:</b> On Chrome — look for <b>Google UK English Male/Female</b> or <b>Google US English</b>. On Windows — <b>Microsoft Aria, Guy, Zira</b>. On Mac/iOS — <b>Daniel, Samantha, Karen</b> are natural-sounding. Hit <b>▶ Preview</b> to test.
+        💡 <b>Best voices:</b> Chrome → <b>Google UK English Male/Female</b>. Windows → <b>Microsoft Aria, Guy, Zira</b>. Mac/iOS → <b>Daniel, Samantha, Karen</b>. Hit <b>▶ Preview</b> to test any voice.
       </div>
     </div>
 
-    <div class="note-box" style="margin-top:8px;background:#f0fdf4;border-color:#86efac">🔊 Audio plays on overlay (index.html) only. Voice selection is stored and applied on the overlay page.</div>
+    <div class="note-box" style="margin-top:8px;background:#f0fdf4;border-color:#86efac">
+      🔊 AI commentary is <b>generated here on each ball</b> and delivered live to <b>index.html</b>. Enable above to activate ball-by-ball broadcast.
+    </div>
   </div>
 </div>
 
@@ -796,7 +765,6 @@ select.inp option{background:#fff;}
       <div class="rain-row"><input type="checkbox" id="rain_six" class="rain-chk"><label for="rain_six" class="rain-lbl">🚀 Rain</label></div>
       <div class="rain-row"><input type="checkbox" id="rain_four" class="rain-chk"><label for="rain_four" class="rain-lbl">🔥 Rain</label></div>
     </div>
-
     <div class="sec-div" style="margin-top:12px;margin-bottom:8px">Custom Message</div>
     <div style="display:flex;gap:7px;align-items:flex-end;flex-wrap:wrap">
       <div style="flex:0 0 58px"><span class="lbl">Emoji</span><input class="inp" id="annEmoji" value="🎉" style="font-size:16px;text-align:center"></div>
@@ -837,21 +805,19 @@ select.inp option{background:#fff;}
         <span style="font-size:10px;color:var(--muted)">Cloud save &nbsp;·&nbsp; Download scorecard</span>
       </div>
     </div>
-    <div class="sec-div" style="margin-top:14px;margin-bottom:8px">Match History</div>
+    <div class="sec-div" style="margin-top:14px;margin-bottom:8px">Match History <span style="font-size:9px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0;text-transform:none">(last 10 matches)</span></div>
     <div class="hist-list" id="histList"><p style="color:var(--muted);font-size:12px;text-align:center;padding:16px">No saved matches yet.</p></div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
-     MANUAL TARGET SETUP — for when opponent batted without app
-     ══════════════════════════════════════════════════════ -->
+<!-- MANUAL TARGET SETUP -->
 <div class="card">
   <div class="card-hdr purple">🎯 Manual Target Setup — Opponent Batted Offline
     <span style="font-size:9px;font-weight:700;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:3px">2ND INNINGS ONLY</span>
   </div>
   <div class="card-body">
     <div class="note-box" style="margin-bottom:10px;background:#faf5ff;border-color:#c4b5fd;">
-      Use this when <b>the opponent batted 1st without this app</b>. Enter their final score manually, then fill <b>Squad A</b> with <em>your batting team</em> and <b>Squad B</b> with <em>their bowling team</em> in the Team Squads section above, then click <b>SET TARGET</b> below.
+      Use this when <b>the opponent batted 1st without this app</b>. Enter their final score manually, then fill <b>Squad A</b> with <em>your batting team</em> and <b>Squad B</b> with <em>their bowling team</em> above, then click <b>SET TARGET</b>.
     </div>
     <div class="g2">
       <div>
@@ -883,8 +849,6 @@ select.inp option{background:#fff;}
         <input class="inp" type="number" id="mt_maxov" value="20" min="1" max="100" oninput="updateMtPreview()" style="text-align:center;">
       </div>
     </div>
-
-    <!-- Live target preview -->
     <div class="mt-preview-box" id="mtPreviewBox">
       <div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;color:var(--muted);margin-bottom:4px">1ST INNINGS RESULT</div>
       <span id="mtOppName" style="color:var(--navy)">Opponent</span>:
@@ -894,8 +858,6 @@ select.inp option{background:#fff;}
       <span class="mt-big" id="mtTarget">151</span>
       <span style="font-size:13px;color:var(--text2);margin-left:6px">runs in <b id="mtMaxOvDisp">20</b> overs</span>
     </div>
-
-    <p style="font-size:10px;color:var(--muted);margin-top:6px">⬆ Make sure <b>Squad A = your batting squad</b>, <b>Squad B = their bowling squad</b> in the Team Squads card above before clicking below.</p>
     <button class="sb-purple" onclick="setupManualTarget()">🎯 SET TARGET &amp; BEGIN 2ND INNINGS</button>
   </div>
 </div>
@@ -1002,8 +964,13 @@ const db=getDatabase(initializeApp(cfg));
 const mRef=ref(db,'cricket'),sRef=ref(db,'squads'),uRef=ref(db,'ui'),
       hRef=ref(db,'undoStack'),aRef=ref(db,'announcement'),
       histRef=ref(db,'matchHistory'),phRef=ref(db,'playerPhotos'),
-      cRef=ref(db,'commentarySettings');
+      cRef=ref(db,'commentarySettings'),commRef=ref(db,'commentary');
 const $=id=>document.getElementById(id);
+
+// ── localStorage keys ─────────────────────────────────────────
+const LS_TEAMS   = 'cricket_admin_teams_v1';
+const LS_AUDIO   = 'cricket_admin_audio_v1';
+const LS_VOICE   = 'cricket_admin_voice_v1';
 
 let _ph={},_match=null,_autoOn=false,_curMatchKey=null,
     _winFired=false,_inn1EndFired=false,_adminLastOver=-1,
@@ -1012,85 +979,251 @@ let _evtState={autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true};
 let _lastToss='A';
 let _batPickerMode=null,_dismissedSlot=null,_injuryPos=null;
 
-// ══════════════════════════════════════════════════════
-// PENDING SCORE STATE
-// _pending.batRuns  = runs added via run buttons (for combo types = bye/lb runs)
-// _pending.type     = null | 'WD' | 'NB' | 'BY' | 'LB' | 'WD_BY' | 'WD_LB' | 'NB_BY' | 'NB_LB'
-// Total = typeBase(type) + batRuns
-// ══════════════════════════════════════════════════════
-let _pending = { active:false, batRuns:0, type:null };
+// ── Pending Score State ────────────────────────────────────────
+let _pending={active:false,batRuns:0,type:null};
+const ILLEGAL_TYPES=new Set(['WD','NB','WD_BY','WD_LB','NB_BY','NB_LB']);
 
-// Types that don't count as a legal delivery
-const ILLEGAL_TYPES = new Set(['WD','NB','WD_BY','WD_LB','NB_BY','NB_LB']);
+function typeBase(t){return(t==='WD'||t==='NB'||t==='WD_BY'||t==='WD_LB'||t==='NB_BY'||t==='NB_LB')?1:0;}
+function pendingTotal(){return typeBase(_pending.type)+_pending.batRuns;}
 
-function typeBase(t){
-  // WD and NB variants all carry 1 penalty run
-  return (t==='WD'||t==='NB'||t==='WD_BY'||t==='WD_LB'||t==='NB_BY'||t==='NB_LB') ? 1 : 0;
+// ══════════════════════════════════════════════════════
+// AI COMMENTARY ENGINE — 300+ unique ball-by-ball lines
+// ══════════════════════════════════════════════════════
+const COMM_POOLS={
+dot:["Good shape from {bowler} — {striker} defends solidly back down the wicket. Dot ball.","Tight line from {bowler}. {striker} pushes safely to square leg. No run.","Nipped back off the seam! {striker} barely kept it out — excellent dot ball.","Short of a length, rising sharply — {striker} sways away. Dot.","Well bowled by {bowler}. {striker} watches it onto the bat — dot ball.","{striker} taps it back to {bowler}. Simple and safe. Dot.","Lovely away movement! {striker} played at it, the edge doesn't carry. Dot.","{bowler} bowls a disguised slower ball — {striker} checks the drive. Dot.","Tight bowling here. {striker} smothers the ball and defends it out.","Pitched on middle, {striker} plays down the line to mid-on. No run.","{bowler} bowls well outside off. {striker} wisely leaves it alone.","Bouncer! {striker} ducks brilliantly — clean dot ball from {bowler}.","That beat the outside edge! {bowler} generating real movement right now.","Pushed to cover point — sent back immediately. No run available.","Tidy from {bowler}. Lands on a perfect length — {striker} has no options.","Kept out! {bowler} gets one to rear up sharply — {striker} takes it on the glove.","{striker} tries to work it through midwicket but skids on. Dot ball.","Defended off the front foot — straight to {bowler}. Dot.","Big appeal for lbw! Not out but it was close — dot ball, {bowler} pumped.","Dot ball. {bowler} keeping relentless pressure on {striker} right now.","Solid defence from {striker} — bat came down straight and true. No run.","Pushed off the back foot to point — fielder covers quickly. Dot.","Dot ball — the pressure dial cranks up another notch here.","Not much room offered. {striker} jabs into the off side, no run.","Clean dot ball. {bowler} is finding superb rhythm in this spell.","Full and swinging — {striker} can only dig it out. Excellent from {bowler}.","{bowler} hits a tight length outside off — {striker} shapes to cut but checks. Dot.","Back of a length from {bowler} — {striker} rocks back and defends. Dot ball.","Beautiful out-swing from {bowler}! {striker} shoulders arms wisely. No run.","Flighted one from {bowler} — {striker} presses forward with soft hands. Dot.","{striker} pushed at one outside off and missed — excellent dot for {bowler}.","Seam up, full length — {striker} drives hard but straight to mid-off. Dot."],
+
+one:["Single to {striker} — tapped to mid-off and they run through quickly.","One run. Pushed to extra cover, a sharp single — {striker} crosses.","Worked off the hip to fine leg — easy single for {striker}.","Flicked to midwicket, yes called confidently — one run, strike changes.","One run — {striker} presses forward and taps to short cover, scampers through.","Played to third man — they trot through for a comfortable single.","Dab to third man. One run — {striker} keeps things moving.","Nudged off the hip to fine leg. Simple single — baton passes to {nonStriker}.","Cheeky single — {striker} pushes to mid-on and calls immediately. Clever running.","One run and the partnership continues to grow. Smart cricket from both.","Rotated to leg side — one run. Communication between the batters excellent.","Pushed past mid-off — one run and strike rotated. Keeping the pressure off.","Soft hands to backward point — single taken. Sensible, steady batting.","One run. {striker} uses the pace off the ball and dabs it to third man.","Steered to third man — comfortable single. Good game awareness from {striker}.","Gently pushed to cover — run taken smartly. One run, strike transferred.","Short and wide — {striker} cuts firmly but straight to point. Just the one.","Driven along the ground to long-on — one run, batters cross without issue."],
+
+two:["Two runs! Punched through the gap at cover — excellent running from {striker}.","Driven to long-on, two runs! Good timing and they scamper back for the second.","Two! {striker} finds the gap at deep midwicket and they push hard for it.","Guided to third man — two runs. Throw comes in but they're home comfortably.","Flicked off the pads — two runs to fine leg. Gorgeous timing from {striker}.","Two! Short ball, {striker} pulls to deep square — fielder cuts it off well.","Driven into the gap past mid-on — two runs, brilliant running between the wickets.","Glanced off the pads — two runs to fine leg. Great awareness from {striker}.","Two through midwicket! {striker} plays it early and finds the gap perfectly.","Excellent placement! {striker} threads it through cover-point — two runs.","Two runs — the throw misses! They've taken an extra from the overthrow.","Pushed to long-off — two runs scampered quickly. Good running once again.","Thumped to deep point — two runs. They didn't even need to hurry for those.","Swept fine — two runs to backward square leg. Lovely cricket from {striker}."],
+
+three:["Three runs! Hit hard to deep square leg — sprint brilliantly for three!","Three runs — the fielder fumbles at the boundary and they push for a third!","Excellent running! {striker} and {nonStriker} steal three with sharp calling.","Three! Hit to deep midwicket, fielder slides to save the four — three runs!","Three runs taken — alert running from {batTeam}. Tremendous cricket.","Three runs off an overthrow! Chaos in the field — {batTeam} take full advantage.","Driven powerfully to long-on and they come back for three. Terrific cricket.","Three! Misfield at deep point lets them scamper back. Sharp work by {batTeam}.","Outstanding running — three runs! {striker} never stopped calling to {nonStriker}."],
+
+four:["FOUR! {striker} drives through the covers — gorgeous shot, races to the rope!","FOUR RUNS! {striker} cuts late and it speeds past point! Shot of the innings!","BOUNDARY! {striker} flicks off the hip and beats fine leg all ends up!","FOUR! Lovely sweep from {striker} — down on one knee, sweeps it fine!","Elegant drive through mid-off — FOUR! {striker} timing the ball sublimely!","BOUNDARY! {striker} lofts over mid-on, pitches and races to the fence!","FOUR! {striker} pulls powerfully from short of a length — gets right on top!","OFF THE PADS and away to fine-leg fence — FOUR! That was all pace from {bowler}.","FOUR! Driven through the gap — cover fieldsman had absolutely no chance there.","FOUR! Reverse sweep from {striker}! Audacious, inventive, brilliant — and it comes off!","Carved over point — FOUR! {striker} opens the face of the bat and threads it.","FOUR RUNS! Back-foot punch through the covers — {striker} in supreme touch!","Edged — but it flies to the third-man fence! Lucky, but all four count!","BOUNDARY! Short and wide from {bowler} and {striker} cuts with real authority!","FOUR! {striker} gets under it and drives wide of mid-on — glorious follow-through.","FOUR! The pull shot — short ball, {striker} swivels and dispatches it square!","BOUNDARY! Delicate glance off the back of a length — fine leg was too square.","FOUR! Whipped through midwicket — pure timing from {striker}. No power needed.","FOUR RUNS! Inside edge rockets to the fine-leg fence — {striker} will take it!","BOUNDARY! Upper cut over point — {striker} manufacturing the shot brilliantly.","FOUR! Flipped over midwicket off a full toss — {striker} doesn't miss those.","FOUR! {striker} dances down the track and drives past the bowler beautifully.","FOUR! Late cut executed to perfection — ball splits two fielders and races away.","BOUNDARY! {striker} drives on the up through extra cover. Stunning, stunning shot!","FOUR! Paddle sweep — {striker} gets down early, trickles to the fine-leg rope.","FOUR RUNS! Driven straight — {bowler} gets out of the way just in time there!","BOUNDARY! Pulled in front of square — {striker} got into perfect position.","FOUR! Off the top edge but still flies over the keeper's head — four runs!","FOUR! {striker} waits on it, waits, and then guides it to third man effortlessly.","BOUNDARY! Back-cut over point — {striker} rocked back and punched it crisply.","FOUR! Sweetly timed flick over midwicket — the fielder didn't move a muscle.","FOUR RUNS! Lofted drive clears mid-off by a fraction and rolls to the rope!","BOUNDARY! Full toss, {striker} clubs it through covers — {bowler} will regret that.","FOUR! Glorious cover drive — all the way along the turf to the boundary rope!","FOUR RUNS! Ramp shot over slip — it runs away to the third-man boundary!","FOUR! Driven through extra cover on the up — {striker} finding the middle consistently.","BOUNDARY! Scything cut through point — the crowd rise to applaud that one.","FOUR! Flicked from outside off through square leg — unconventional and brilliant!"],
+
+six:["SIX! {striker} launches it over long-on — ball disappears into the stands!","MAXIMUM! {striker} gets under it and lifts it high over midwicket — stunning!","SIX! Straight back over {bowler}'s head — massive hit, enormous distance!","SIX RUNS! {striker} reverse-scoops it over fine leg — outrageous cricket!","CLEARED THE ROPE! {striker} shuffles and slog-sweeps — phenomenal six!","SIX! Smashed back down the ground — {striker} got hold of that completely!","MAXIMUM! Dispatched over wide long-on — {striker} puts everything through it!","SIX! {striker} charges {bowler} and lofts it effortlessly over long-off!","SIX! Hit so cleanly — {striker} barely looked like they were trying there!","SIX! Standing tall and pulling from outside off — way back into the crowd!","OVER THE BOUNDARY! Massive blow — cleared the rope by an enormous margin!","SIX RUNS! Not in the slot but {striker} manufactured that perfectly!","THAT'S INTO THE CROWD! {striker} times it to perfection — sails over long-on!","SIX! Steps down the track and drives with absolute disdain — ten rows back!","MAXIMUM! Swept powerfully over deep square — fielder could only watch!","SIX! Inside-out over extra cover — wonderful footwork, wonderful timing, wonderful!","HUGE SIX! Ramp over the keeper — no fielder within fifty metres of that one!","SIX! Flipped over fine leg — {striker} gets on one knee and shovels it away!","SIX RUNS! That is absolutely enormous — the ball is still going!","MAXIMUM! {striker} picks up a short ball and pulls it ferociously over square!","SIX! Driven back over {bowler}'s head — cheeky, direct, devastating cricket!","MAXIMUM! Lofted over long-off — {striker} made that look ridiculously easy!","SIX! Top-edged over the keeper — didn't even get hold of it, still six!","SIX RUNS! That's out of the stadium! {striker} hits it a country mile!","MAXIMUM! Stepped away and carved it over the off side — beautiful six!","SIX! Short and {striker} pulls it over fine leg — perfectly placed shot!","SIX! Came down the track, got to the pitch and lifted it over long-off!","THAT'S A MAXIMUM! {bowler} is shell-shocked — what an incredible stroke!","SIX! The helicopter shot — {striker} flicks over fine leg in extraordinary style!","MAXIMUM SIX! Dropped his wrists and scooped it — genius cricket from {striker}!","SIX! Driven imperiously back over the bowler — don't bother retrieving that.","SIX RUNS! That went like a rocket — {striker} in an entirely different league!","MAXIMUM! Back-foot punch over point — where on earth did that power come from?","SIX! Flat, fast, over long-on — {striker} swung and it cleared comfortably!","SIX RUNS! {striker} has launched {bowler} out of the attack with that missile!","MAXIMUM! Out of the middle of the bat — sails away over deep midwicket! Six!","SIX! Up and over cow corner — {striker} makes it look completely effortless!","HUGE MAXIMUM! {striker} clears long-on by a distance — extraordinary power!"],
+
+wicket:["OUT! {bowler} strikes — {striker} makes that long walk back to the pavilion.","WICKET! {bowler} gets the breakthrough — {striker} is dismissed!","GONE! Massive wicket for {bowler} — {striker} departs. Big moment!","HE'S OUT! {bowler} finds the edge — the fielder takes a sharp catch!","WICKET! {bowler} bowls {striker} around the legs — stumps shattered!","BOWLED! Clean bowled by {bowler} — that delivery was simply unplayable.","DISMISSED! What a ball from {bowler} — {striker} had absolutely no answer!","CAUGHT! {striker} throws the head back — {bowler} gets the richly deserved reward!","OUT! {striker} plays around the ball — plumb lbw! Very soft dismissal!","WICKET! {bowler} nips it back off the seam and that's out. Magnificent ball.","GONE! Run out — brilliant fielding catches the batter short of the crease!","{striker} departs — good innings brought to a sudden end by {bowler}.","OUT! The bouncer did the job for {bowler} — top edge and it's caught!","WICKET! Stumped — {striker} came down the pitch and missed it completely!","DISMISSED! Crucial wicket at this stage — {bowler} punches the air!","OUT! {bowler} bowled a ripper — full, fast, late swing. No chance for {striker}.","WICKET! Caught at slip — probing line from {bowler} draws the outside edge.","OUT! Caught behind — {striker} nicked it driving and the keeper took it low.","WICKET! Caught at mid-on — {striker} mistimed the lofted drive. Huge breakthrough!","GONE! Brilliant catch in the deep — {striker} hit it well but straight to the fielder.","OUT! Run out — terrible mix-up between the batters. Someone had to go.","WICKET! Googly from {bowler} beats {striker} completely — stumps hit! Brilliant!","OUT! Hit straight to square leg — {striker} picked the fielder, not the gap.","DISMISSED! Reverse swing from {bowler} — {striker} plays across the line, bowled!","WICKET! Caught at long-on — hit it well but straight down the throat!","OUT! Brilliant caught and bowled from {bowler} — full stretch to his right!","WICKET! Caught at fine leg — top edge from a pull shot. {bowler} strikes again!","GONE! Hit wicket — {striker} stepped back into his stumps pulling. Hard luck!","OUT! The off-stump is pegged back! What an absolute beauty from {bowler}!","WICKET! {striker} goes for a big one and is caught at long-off. Costly!","DISMISSED! Spin does the trick — {bowler} gets big turn and {striker} caught!","OUT! LBW — crashes into the pad in front of middle stump. Stone dead!"],
+
+wide:["Wide! {bowler} strays too far outside off — one extra to {batTeam}.","Wide ball — {bowler} loses the line there. Penalty run added.","Wide! Goes down the leg side — {striker} couldn't get near it at all.","Called wide! {bowler} will be disappointed — drifted outside the tramlines.","Wide ball — extra run for {batTeam}. Costly from {bowler} there.","Wide! Too short and too wide — not one to be proud of, {bowler}.","Wide ball — slipped out of the hand. One extra conceded there.","That's a wide — drifted too far to leg, batter made no attempt.","Wide! {bowler} overcooks the swing and it sails to the leg side.","Called wide down leg — {striker} made no attempt, and rightly so.","Wide — that's a free run. {bowler} shakes his head in frustration.","Wide ball — well down the off side, umpire's arm goes straight out.","Wide called. {bowler} was just trying too hard to find the edge there."],
+
+noball:["No ball! {bowler} overstepped — extra run AND a FREE HIT to follow!","No ball! Front foot lands past the crease — FREE HIT for {striker}!","Overstepped! {bowler} gives away a no ball — FREE HIT on the way!","No ball called! {batTeam} get a free run AND a free hit next ball!","NO BALL! {bowler} oversteps — the crowd knows what that means. FREE HIT!","The no-ball call is made — {bowler} has overstepped. FREE HIT incoming!","No ball! {bowler} a foot over the crease. Free hit — licence to attack!","No ball! The replays confirm it — too far forward. FREE HIT to come!","No ball! Costly error from {bowler} — free run and free hit both gifted.","No ball! {bowler} overstepped badly there — {striker} rubs their hands!","NO BALL! The umpire signals — crowd is on their feet. FREE HIT next!"],
+
+freehit:["FREE HIT! {striker} can play any shot — only run-out can dismiss here!","It's a FREE HIT! {bowler} under immense pressure — {striker} has freedom!","FREE HIT DELIVERY! The crowd on their feet — anything can happen here!","FREE HIT! Pressure entirely on {bowler} — {striker} can swing from the hip!","FREE HIT coming! {striker} has a golden opportunity — nothing to lose!","The golden ball — FREE HIT! {striker} can attack without any fear of dismissal.","FREE HIT! Fields spread, pressure on {bowler} — looking for maximum here!","Here comes the FREE HIT! {batTeam}'s batter has a licence to thrill!","FREE HIT delivery — umpire signals clearly. {striker} is in the box seat!","FREE HIT! {bowler}'s nightmare. {striker}'s dream. Let's see what they do."],
+
+bye:["Byes! Ball beats bat AND the keeper — {batTeam} pick up the runs.","Byes signalled — ball went through to the fence! Keeper will be disappointed.","Byes! That took the inside edge and raced through. Runs on the board.","Byes — keeper misses it and they're running. Good awareness from {batTeam}.","Ball beats the keeper! Byes awarded — {batTeam} take those runs.","Byes! Keeper dived but couldn't gather — they've crossed for the runs.","Wide enough that keeper couldn't reach — byes awarded. Extra runs for {batTeam}.","Byes — slipped past the keeper down leg. Sharp running from {batTeam}.","Byes! Ball flicks the top of the stumps but they get out of the way in time."],
+
+legbye:["Leg byes! Deflects off the thigh pad — they set off and get the runs.","Leg byes signalled by the umpire — off the pad and away to fine leg.","Off the pad and away — leg byes, {batTeam} keep the scoreboard ticking.","Leg byes! {striker} misses the flick but the deflection sends it to square.","Ball hits the pad, bounces away — leg byes awarded. Umpire signals correctly.","Off the back pad — leg byes. They run quickly and take two.","Leg byes! Missed the shot, ball hits the hip and deflects fine. Good running.","Struck on the thigh — they run the leg byes smartly. Umpire signals up.","Leg byes — hit on the pad, rolled away on the off side. Extra runs taken."],
+
+powerplay:["We're in the powerplay — only two fielders outside the circle! Attack time!","Powerplay in effect — {batTeam} looking to capitalise on the fielding restrictions.","These powerplay overs could define the innings — {batTeam} must cash in.","In the powerplay — every boundary is golden. {striker} showing positive intent.","Powerplay cricket! Field is up — gaps everywhere for {striker} to exploit.","In the powerplay — {bowlTeam} hunting wickets, {batTeam} hunting boundaries.","These are the powerplay overs — foundation of the innings set right here.","Powerplay cricket! {bowler} trying to beat the bat with the field up.","In the powerplay, every dot ball is precious. Both sides know it.","Powerplay — the battle between {striker} and {bowler} defining this game.","Fielding restrictions — opportunity is there. {batTeam} need to take it!","Powerplay overs — maximum opportunity, maximum risk. Exciting phase!"],
+
+death:["We're into the death overs — all-out attack now from {batTeam}!","Death overs! Every ball counts — {striker} looking to clear the ropes.","The final overs — pressure immense from both sides. Exciting cricket ahead!","These are the death overs — where nerves shred and matches are won.","Death overs cricket — yorkers, bouncers, variations. Who blinks first?","Into the death now — bowlers targeting the stumps. Watch for the yorker.","Death overs! {bowlTeam} holding {batTeam} back. {batTeam} desperate to attack.","The death overs — most dramatic phase of this game has arrived!","We're in the final stretch! {striker} needs a cool head and big shots.","Death bowling — wide yorkers, slow bouncers, cutters. {bowler} has the tools.","Death overs and the field goes out — can {striker} find those gaps?","Into the final overs — {batTeam} need big shots, {bowlTeam} need discipline.","Death overs! This is where the game will be won and lost. Incredible tension!"],
+
+lastover:["LAST OVER OF THE INNINGS! Everything on the line — every ball matters!","It's the final over! Crowd electric — {striker} needs to go absolutely big!","Last over! {batTeam} looking for maximum — {bowler} under enormous pressure.","Final over — six balls to define this innings. Who rises to the occasion?","THE LAST OVER IS HERE! Six balls of pure cricket drama ahead!","Last over! {batTeam}: make every ball count from here!","Six balls left. The last over. What a game — don't blink!","FINAL OVER! Ground is buzzing — every delivery is now match-defining!","Last over — can {striker} take {batTeam} to a big total? Let's find out.","Six balls to go — everything is on the line right here, right now."],
+
+dots3plus:["Three consecutive dot balls — {bowler} is really tying up {striker} here.","That's three dots in a row! Pressure building enormously on {batTeam}.","Dot, dot, dot — {bowler} on a magnificent spell. {striker} struggling for room.","Can't buy a run! {bowler} keeping {striker} absolutely quiet right now!","Three dots in a row — run rate climbing, pressure mounting on {batTeam}.","Three dot balls! {bowler} has found exceptional rhythm. {striker} in trouble.","Three dots! {bowler} keeping a relentless squeeze on {striker} here.","Three consecutive dots — {bowler} has completely shut {striker} down!","Three successive dot balls — suffocating bowling from {bowler}. Superb!","Dot ball sequence from {bowler} — exactly what {bowlTeam} needed right now.","Three dots and the scoreboard is frozen — {bowler} controlling this completely.","Back-to-back-to-back dots! {striker} needs a release ball desperately."],
+
+dots5plus:["FIVE dot balls in a row! Incredible bowling from {bowler}! Phenomenal spell!","Five consecutive dots — {bowler} has {striker} completely tied down! Magnificent!","{striker} in total crisis — five balls, zero runs, pressure unbearable!","Five dots! {bowler} is bowling as well as anyone could right now!","Five in a row without a run — this could be a maiden over from {bowler}!","{batTeam} need to break this stranglehold! Five dot balls — extraordinary!","Five consecutive dots — required rate spiralling. Something must give soon.","Five dot balls — {bowler} could be about to claim a maiden over here!","This is a stunning spell — five dots and {striker} looks completely lost."],
+
+pressure_chase:["Still {needed} needed off {ballsLeft} balls — required rate climbing fast!","{batTeam} need {needed} from {ballsLeft} balls. Can {striker} deliver here?","Required rate of {rrr} — this is a very tough ask for {batTeam} right now.","Every ball a battle — {batTeam} need boundaries to change this equation.","Need {needed} from {ballsLeft}? The math is tough, but {striker}'s at the crease.","{batTeam} need a big over here urgently — run rate is getting away from them.","{batTeam} are in a real chase — {needed} runs off the remaining {ballsLeft} balls.","The equation is tighter — {needed} needed, RRR now at {rrr}. Do they chase?","Chasing hard — {batTeam} need {needed} from {ballsLeft}, every run matters.","The pressure is palpable — {needed} to win, {ballsLeft} balls left, RRR {rrr}!","Required run rate {rrr} — massive ask. {striker} needs to be extraordinary.","Time running out for {batTeam} — {needed} needed off {ballsLeft} balls to win.","The chase is in danger — {batTeam} must find a way to score {needed} now!"],
+
+easy_chase:["{batTeam} firmly in control — just need to avoid any silly wickets from here.","Looking comfortable for {batTeam}. {needed} needed off {ballsLeft} — on track.","{striker} and {nonStriker} have made this look quite straightforward. Cruising!","{batTeam} well on top — should win this barring something extraordinary.","Very manageable now — {needed} from {ballsLeft}. Stay calm, stay smart, {striker}.","RRR of {rrr} — very gentle chase. {batTeam} are in the driving seat.","Nice and smooth for {batTeam} — {needed} off {ballsLeft}. No need to panic.","The win is getting closer — {needed} needed with {ballsLeft} balls to go.","In control here — {batTeam} just need to bat sensibly and it's theirs."],
+
+over_end:["End of over {overNum} — {thisOverRuns} runs from the over. Good hard cricket.","Over {overNum} complete! {batTeam} pick up {thisOverRuns} runs from that one.","That's the over. {bowler} finishes — {thisOverRuns} runs from this over.","End of over {overNum}! {thisOverRuns} runs — the match continues to simmer.","Over complete — {thisOverRuns} runs scored. Battle of bat and ball goes on.","Over {overNum} done! {thisOverRuns} runs — both sides pushing, every ball vital.","End of over {overNum} — {bowler} gave away {thisOverRuns} runs. On to the next.","That's {overNum} overs gone — {thisOverRuns} from this one. On we go.","Over {overNum} done and dusted — {thisOverRuns} runs in that over from {bowler}.","End of the over — {thisOverRuns} runs scored. {batTeam} keep pushing forward."],
+
+hat_trick_chance:["HAT-TRICK BALL! {bowler} has taken two in two — the whole ground is watching!","{bowler} is on a hat-trick! New batter in — can {bowler} make history?","TWO IN TWO for {bowler}! The hat-trick ball is coming — incredible moment!","Hat-trick chance for {bowler}! Two wickets in successive balls — extraordinary!","{bowler} is on a hat-trick — the pressure on this next delivery is indescribable!"],
+
+milestone_fifty:["FIFTY! {striker} raises the bat — a wonderful half-century! Crowd on their feet!","HALF CENTURY for {striker}! What a knock this has been so far!","{striker} reaches FIFTY! Superb batting — deserved every one of those runs!","FIFTY for {striker}! The bat is raised, crowd applauds — brilliant innings!","What an innings! {striker} brings up the half-century with a glorious stroke!","FIFTY! {striker} has batted superbly to reach this milestone — raise that bat!","Half-century for {striker}! Patient, composed, brilliant batting right through.","FIFTY RUNS for {striker}! The crowd rises as one — what a moment this is!"],
+
+milestone_century:["CENTURY! {striker} raises the bat to the sky — ONE HUNDRED RUNS! Incredible!","ONE HUNDRED for {striker}! What a knock — the crowd gives a standing ovation!","HUNDRED! {striker} reaches three figures — absolutely magnificent batting!","A CENTURY! {striker} has done it! What a player, what an innings, what a moment!","ONE HUNDRED RUNS! {striker} has played a stunning innings — century on board!","CENTURY for {striker}! Brilliant composure, skill, heart — an innings for the ages!","The hundred is up for {striker}! Whole ground on its feet — simply spectacular!","CENTURY! {striker} milks the applause — {strikerRuns} runs and still going strong!"],
+
+win:["{batTeam} have won the match! What a wonderful performance — congratulations!","{batTeam} WIN! A brilliant victory — they've done it in style!","Victory for {batTeam}! All the hard work, all the effort — it's paid off magnificently!","{batTeam} are the winners! What a match this has been from start to finish!","IT'S OVER! {batTeam} WIN! The celebrations begin — a remarkable match!","{batTeam} have done it! A complete performance — with bat, ball, and in the field!","What a match! {batTeam} emerge victorious — dressing room will be celebrating!","{batTeam} WIN! A memorable victory — every player contributed to this result!"],
+
+tie:["IT'S A TIE! What a remarkable conclusion — both teams finish level! Extraordinary!","An incredible TIE! You couldn't script a better finish to this match!","THE MATCH IS TIED! Both teams gave absolutely everything — a fair result!","TIE! What drama — they've finished on the same score! Crowd cannot believe it!","A TIE! One of cricket's rarest outcomes — what a match this has been!"],
+};
+
+// Commentary context tracker
+const CC={dots:0,partnership:0,p50:false,p100:false,p150:false,lastKeys:{},hatTrick:false,hatTrickCheck:false};
+
+function pickComm(event){
+  const pool=COMM_POOLS[event];if(!pool||!pool.length)return'';
+  if(pool.length===1)return pool[0];
+  const last=CC.lastKeys[event]??-1;let idx,att=0;
+  do{idx=Math.floor(Math.random()*pool.length);att++;}while(idx===last&&att<10);
+  CC.lastKeys[event]=idx;return pool[idx];
 }
-function pendingTotal(){ return typeBase(_pending.type) + _pending.batRuns; }
 
+function fillComm(tmpl,ctx){
+  return(tmpl||'')
+    .replace(/\{striker\}/g,ctx.striker||'the batsman')
+    .replace(/\{bowler\}/g,ctx.bowler||'the bowler')
+    .replace(/\{nonStriker\}/g,ctx.nonStriker||'the non-striker')
+    .replace(/\{batTeam\}/g,ctx.batTeam||'the batting side')
+    .replace(/\{bowlTeam\}/g,ctx.bowlTeam||'the bowling side')
+    .replace(/\{strikerRuns\}/g,ctx.strikerRuns??'')
+    .replace(/\{strikerBalls\}/g,ctx.strikerBalls??'')
+    .replace(/\{needed\}/g,ctx.needed??'')
+    .replace(/\{ballsLeft\}/g,ctx.ballsLeft??'')
+    .replace(/\{rrr\}/g,ctx.rrr??'')
+    .replace(/\{crr\}/g,ctx.crr??'')
+    .replace(/\{overNum\}/g,ctx.overNum??'')
+    .replace(/\{thisOverRuns\}/g,ctx.thisOverRuns??'')
+    .replace(/\{bwlFigs\}/g,ctx.bwlFigs??'');
+}
+
+function buildCommCtx(d){
+  if(!d)return{};
+  const striker=d.str===1?d.p1n:d.p2n;
+  const sR=d.str===1?(d.p1r||0):(d.p2r||0);
+  const sB=d.str===1?(d.p1b||0):(d.p2b||0);
+  const nonStr=d.str===1?d.p2n:d.p1n;
+  const overs=d.balls/6;
+  const crr=overs>0?(d.runs/overs).toFixed(2):'0.00';
+  const bLeft=Math.max(0,(d.maxOvers||20)*6-d.balls);
+  const needed=d.target>0?Math.max(0,d.target-d.runs):0;
+  const rrr=(d.target>0&&bLeft>0)?(needed/(bLeft/6)).toFixed(2):'0.00';
+  const overNum=Math.floor(d.balls/6);
+  const bRow=(d.bowlRows||[]).find(r=>r.name===d.bwn);
+  const bwlFigs=bRow?`${bRow.wkts}-${bRow.runs}`:'0-0';
+  return{striker,strikerRuns:sR,strikerBalls:sB,nonStriker:nonStr,
+    bowler:d.bwn||'',bwlFigs,batTeam:d.batTeam||'',bowlTeam:d.bowlTeam||'',
+    runs:d.runs,wkts:d.wkts,target:d.target||0,crr,rrr,needed,
+    ballsLeft:bLeft,overNum,thisOverRuns:0};
+}
+
+function selectCommentary(d,ballEvent,runsScored,overRunsSoFar){
+  const ctx=buildCommCtx(d);
+  const overs=d.balls/6, maxOvers=d.maxOvers||20;
+  const completedOvs=Math.floor(d.balls/6);
+  const isPP=overs<6, isDeath=overs>=(maxOvers-4), isLastOv=completedOvs===(maxOvers-1);
+  let line='';
+
+  if(ballEvent==='wicket'){
+    if(CC.hatTrickCheck){line=fillComm(pickComm('hat_trick_chance'),ctx);CC.hatTrickCheck=false;CC.hatTrick=false;}
+    else{if(CC.hatTrick)CC.hatTrickCheck=true;CC.hatTrick=true;line=fillComm(pickComm('wicket'),ctx);}
+    CC.dots=0;CC.partnership=0;CC.p50=false;CC.p100=false;CC.p150=false;
+  }else if(ballEvent==='wide'){line=fillComm(pickComm('wide'),ctx);CC.hatTrick=false;CC.hatTrickCheck=false;}
+  else if(ballEvent==='noball'){line=fillComm(pickComm('noball'),ctx);CC.hatTrick=false;CC.hatTrickCheck=false;}
+  else if(ballEvent==='freehit'){line=fillComm(pickComm('freehit'),ctx);}
+  else if(ballEvent==='bye'){line=fillComm(pickComm('bye'),ctx);}
+  else if(ballEvent==='legbye'){line=fillComm(pickComm('legbye'),ctx);}
+  else if(runsScored===6){
+    line=fillComm(pickComm('six'),ctx);CC.dots=0;CC.partnership+=6;
+    _checkPartner(ctx);CC.hatTrick=false;CC.hatTrickCheck=false;
+  }else if(runsScored===4){
+    line=fillComm(pickComm('four'),ctx);CC.dots=0;CC.partnership+=4;
+    _checkPartner(ctx);CC.hatTrick=false;CC.hatTrickCheck=false;
+  }else if(runsScored===0){
+    CC.dots++;CC.hatTrick=false;CC.hatTrickCheck=false;
+    if(CC.dots>=5)line=fillComm(pickComm('dots5plus'),ctx);
+    else if(CC.dots>=3)line=fillComm(pickComm('dots3plus'),ctx);
+    else line=fillComm(pickComm('dot'),ctx);
+  }else{
+    CC.dots=0;CC.partnership+=runsScored;CC.hatTrick=false;CC.hatTrickCheck=false;
+    _checkPartner(ctx);
+    if(runsScored===1)line=fillComm(pickComm('one'),ctx);
+    else if(runsScored===2)line=fillComm(pickComm('two'),ctx);
+    else if(runsScored===3)line=fillComm(pickComm('three'),ctx);
+    else line=`${runsScored} runs scored off that delivery.`;
+  }
+
+  // Contextual overlays
+  if(!line){
+    if(isPP)line=fillComm(pickComm('powerplay'),ctx);
+    else if(isDeath)line=fillComm(pickComm('death'),ctx);
+    else if(d.target>0){
+      const r=parseFloat(ctx.rrr);
+      if(r>=10)line=fillComm(pickComm('pressure_chase'),ctx);
+      else if(r>0&&r<7)line=fillComm(pickComm('easy_chase'),ctx);
+    }
+  }
+
+  // Last over prefix
+  if(isLastOv&&d.balls%6===0&&ballEvent!=='wicket'){
+    const prefix=fillComm(pickComm('lastover'),ctx);
+    line=prefix+(line?' '+line:'');
+  }
+
+  // Chase context suffix (non-dot/non-special)
+  if(d.target>0&&ballEvent!=='wicket'&&ballEvent!=='wide'&&ballEvent!=='noball'&&runsScored<=3&&runsScored>0){
+    const r=parseFloat(ctx.rrr);
+    if(Math.random()<0.3){
+      if(r>=10)line+=' '+fillComm(pickComm('pressure_chase'),ctx);
+      else if(r>0&&r<7)line+=' '+fillComm(pickComm('easy_chase'),ctx);
+    }
+  }
+
+  return line||`${runsScored===undefined?'Ball played':runsScored===0?'Dot ball':runsScored+' runs'}.`;
+}
+
+function _checkPartner(ctx){
+  if(CC.partnership>=150&&!CC.p150){CC.p150=true;
+    const l=fillComm(pickComm('over_end'),{...ctx,thisOverRuns:CC.partnership,overNum:'150-partnership'});
+    showAdminTicker('150+ PARTNERSHIP',l);}
+  else if(CC.partnership>=100&&!CC.p100){CC.p100=true;}
+  else if(CC.partnership>=50&&!CC.p50){CC.p50=true;}
+}
+
+// Commentary admin ticker
+let _commTickerTimer=null;
+function showAdminTicker(badge,text){
+  if(!text)return;
+  clearTimeout(_commTickerTimer);
+  const t=$('adminCommTicker');const tb=t.querySelector('.comm-ticker-badge');const tt=$('adminCommText');
+  t.style.display='flex';if(tb)tb.textContent=badge||'LIVE';if(tt)tt.textContent=text;
+  _commTickerTimer=setTimeout(()=>{t.style.display='none';},8000);
+}
+
+// Push commentary to Firebase
+async function pushCommentary(d,ballEvent,runsScored){
+  if(!_audioEnabled)return;
+  try{
+    const line=selectCommentary(d,ballEvent,runsScored,0);
+    if(!line)return;
+    showAdminTicker(ballEvent.toUpperCase(),line);
+    await set(commRef,{text:line,event:ballEvent,id:Math.random().toString(36).slice(2),sentAt:Date.now(),balls:d.balls});
+  }catch(e){console.error('Commentary push error:',e);}
+}
+
+// ── Pending UI ─────────────────────────────────────────────────
 function updatePendingUI(){
-  const wrap=$('pendingWrap'), idle=$('pendingIdle'), active=$('pendingActive');
-
-  // Reset all extra button highlights (single + combo)
+  const wrap=$('pendingWrap'),idle=$('pendingIdle'),active=$('pendingActive');
   ['WD','NB','BY','LB','WD_BY','WD_LB','NB_BY','NB_LB'].forEach(t=>{
-    const b=$(`xBtn_${t}`);
-    if(b) b.classList.toggle('xactive', _pending.active && _pending.type===t);
+    const b=$(`xBtn_${t}`);if(b)b.classList.toggle('xactive',_pending.active&&_pending.type===t);
   });
-
-  if(!_pending.active){
-    wrap.className='pending-wrap'; idle.style.display=''; active.className='pending-active'; return;
-  }
-
-  idle.style.display='none'; active.className='pending-active show';
-
-  const total=pendingTotal(), t=_pending.type, batR=_pending.batRuns, base=typeBase(t);
-
-  // ── Label, type class, note ──────────────────────────
-  let eventName='', typeClass='', note='', noteCls='';
+  if(!_pending.active){wrap.className='pending-wrap';idle.style.display='';active.className='pending-active';return;}
+  idle.style.display='none';active.className='pending-active show';
+  const total=pendingTotal(),t=_pending.type,batR=_pending.batRuns,base=typeBase(t);
+  let eventName='',typeClass='',note='',noteCls='';
   if(!t){
-    if(total===0)      {eventName='DOT BALL';typeClass='type-dot';}
-    else if(total===4) {eventName='FOUR — BOUNDARY';typeClass='type-four';}
-    else if(total===6) {eventName='SIX — MAXIMUM';typeClass='type-six';}
-    else               {eventName=`RUN${total!==1?'S':''}`;typeClass='';}
-  }
-  else if(t==='WD')    {eventName='WIDE';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
-  else if(t==='NB')    {eventName='NO BALL';typeClass='type-nb';note='FREE HIT NEXT';noteCls='';}
-  else if(t==='BY')    {eventName='BYES';typeClass='type-bye';note='LEGAL BALL';noteCls='blue';}
-  else if(t==='LB')    {eventName='LEG BYES';typeClass='type-lb';note='LEGAL BALL';noteCls='blue';}
-  // ── NEW COMBO TYPES ──────────────────────────────────
-  else if(t==='WD_BY') {eventName='WIDE + BYES';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
-  else if(t==='WD_LB') {eventName='WIDE + LEG BYES';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
-  else if(t==='NB_BY') {eventName='NO BALL + BYES';typeClass='type-nb';note='FREE HIT NEXT';noteCls='';}
-  else if(t==='NB_LB') {eventName='NO BALL + LEG BYES';typeClass='type-nb';note='FREE HIT NEXT';noteCls='';}
-
+    if(total===0){eventName='DOT BALL';typeClass='type-dot';}
+    else if(total===4){eventName='FOUR — BOUNDARY';typeClass='type-four';}
+    else if(total===6){eventName='SIX — MAXIMUM';typeClass='type-six';}
+    else{eventName=`RUN${total!==1?'S':''}`;typeClass='';}
+  }else if(t==='WD'){eventName='WIDE';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
+  else if(t==='NB'){eventName='NO BALL';typeClass='type-nb';note='FREE HIT NEXT';}
+  else if(t==='BY'){eventName='BYES';typeClass='type-bye';note='LEGAL BALL';noteCls='blue';}
+  else if(t==='LB'){eventName='LEG BYES';typeClass='type-lb';note='LEGAL BALL';noteCls='blue';}
+  else if(t==='WD_BY'){eventName='WIDE + BYES';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
+  else if(t==='WD_LB'){eventName='WIDE + LEG BYES';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
+  else if(t==='NB_BY'){eventName='NO BALL + BYES';typeClass='type-nb';note='FREE HIT NEXT';}
+  else if(t==='NB_LB'){eventName='NO BALL + LEG BYES';typeClass='type-nb';note='FREE HIT NEXT';}
   $('pendingRunsVal').textContent=total;
   $('pendingEventName').textContent=eventName;
-
-  // ── Breakdown label ──────────────────────────────────
   const breakEl=$('pendingBreakdown');
   if(t){
-    const parts=[];
-    let penLabel='',runLabel='bat run';
-    if(t==='WD'||t==='WD_BY'||t==='WD_LB')     penLabel='wd penalty';
-    else if(t==='NB'||t==='NB_BY'||t==='NB_LB') penLabel='nb penalty';
-    if(t==='WD_BY'||t==='NB_BY')  runLabel='bye';
-    else if(t==='WD_LB'||t==='NB_LB') runLabel='leg bye';
-
-    if(base>0) parts.push(`${base} ${penLabel}`);
-    if(batR>0) parts.push(`${batR} ${runLabel}${batR!==1?'s':''}`);
+    const parts=[];let penLabel='',runLabel='bat run';
+    if(t==='WD'||t==='WD_BY'||t==='WD_LB')penLabel='wd penalty';
+    else if(t==='NB'||t==='NB_BY'||t==='NB_LB')penLabel='nb penalty';
+    if(t==='WD_BY'||t==='NB_BY')runLabel='bye';
+    else if(t==='WD_LB'||t==='NB_LB')runLabel='leg bye';
+    if(base>0)parts.push(`${base} ${penLabel}`);
+    if(batR>0)parts.push(`${batR} ${runLabel}${batR!==1?'s':''}`);
     if(parts.length>1){breakEl.textContent=parts.join(' + ')+` = ${total}`;breakEl.style.display='';}
     else breakEl.style.display='none';
-  } else {
-    breakEl.style.display='none';
-  }
-
-  // ── Note pill ────────────────────────────────────────
+  }else breakEl.style.display='none';
   const notePill=$('pendingNotePill');
   if(note){notePill.textContent=note;notePill.className='pending-note-pill'+(noteCls?' '+noteCls:'');notePill.style.display='';}
   else notePill.style.display='none';
-
-  // ── Context meta (projected score) ──────────────────
   const d=_match;
   if(d){
     const striker=d.str===1?d.p1n:d.p2n;
@@ -1099,11 +1232,8 @@ function updatePendingUI(){
     const projBalls=isLegal?d.balls+1:d.balls;
     const projOv=`${Math.floor(projBalls/6)}.${projBalls%6}`;
     const crr=projBalls>0?(projRuns/(projBalls/6)).toFixed(2):'0.00';
-    $('pendingMeta').innerHTML=
-      `<span style="font-family:'Barlow Condensed',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Striker</span><br><b>${striker}</b><br>`+
-      `<span style="font-family:'Barlow Condensed',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">After</span><br><b>${projRuns}/${d.wkts} (${projOv})</b>`;
-  } else $('pendingMeta').innerHTML='';
-
+    $('pendingMeta').innerHTML=`<span style="font-family:'Barlow Condensed',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Striker</span><br><b>${striker}</b><br>`+`<span style="font-family:'Barlow Condensed',sans-serif;font-size:8px;color:var(--muted);letter-spacing:1px;text-transform:uppercase">After</span><br><b>${projRuns}/${d.wkts} (${projOv})</b>`;
+  }else $('pendingMeta').innerHTML='';
   wrap.className='pending-wrap has-pending'+(typeClass?' '+typeClass:'');
 }
 
@@ -1111,151 +1241,125 @@ function updatePendingUI(){
 document.addEventListener('keydown',e=>{
   const wktOpen=$('wktModal').classList.contains('open');
   const bpkOpen=$('bowlerModal').classList.contains('open')||$('newBatModal').classList.contains('open');
-  if(wktOpen||bpkOpen) return;
-  if(!_pending.active) return;
+  if(wktOpen||bpkOpen)return;
+  if(!_pending.active)return;
   if(e.key==='y'||e.key==='Y'||e.key==='Enter'){e.preventDefault();correctScore();}
   if(e.key==='n'||e.key==='N'||e.key==='Escape'){e.preventDefault();incorrectScore();}
 });
 
-// ── Run buttons: accumulate batRuns ──────────────────
-window.ball = (r) => {
-  if(!_pending.active){
-    _pending = { active:true, batRuns:r, type:null };
-  } else {
-    _pending.batRuns += r;
-  }
+window.ball=(r)=>{
+  if(!_pending.active){_pending={active:true,batRuns:r,type:null};}
+  else{_pending.batRuns+=r;}
   updatePendingUI();
 };
 
-// ── Extra type selector: set/change type ─────────────
-window.setExtraType = (type) => {
-  if(_pending.active){
-    _pending.type = type; // Keep existing batRuns, just change type
-  } else {
-    _pending = { active:true, batRuns:0, type:type };
-  }
+window.setExtraType=(type)=>{
+  if(_pending.active){_pending.type=type;}
+  else{_pending={active:true,batRuns:0,type:type};}
   updatePendingUI();
 };
 
-// ── Correct: commit pending ───────────────────────────
-window.correctScore = async () => {
-  if(!_pending.active) return;
-  const total   = pendingTotal();
-  const type    = _pending.type || undefined;
-  const batRuns = _pending.batRuns; // needed for combo breakdown in executeBall
-  _pending = { active:false, batRuns:0, type:null };
-  updatePendingUI();
-  await executeBall(total, type, batRuns);
+window.correctScore=async()=>{
+  if(!_pending.active)return;
+  const total=pendingTotal(),type=_pending.type||undefined,batRuns=_pending.batRuns;
+  _pending={active:false,batRuns:0,type:null};updatePendingUI();
+  await executeBall(total,type,batRuns);
 };
 
-// ── Incorrect: cancel pending ─────────────────────────
-window.incorrectScore = () => {
-  _pending = { active:false, batRuns:0, type:null };
-  updatePendingUI();
+window.incorrectScore=()=>{
+  _pending={active:false,batRuns:0,type:null};updatePendingUI();
 };
 
-// ══════════════════════════════════════════════════════
-// executeBall — core logic after Correct
-// r        = total runs (typeBase + batRuns)
-// type     = extra type string or undefined
-// batRuns  = the batRuns component (bye/lb runs for combos)
-// ══════════════════════════════════════════════════════
-async function executeBall(r, type, batRuns=0){
-  const snap=await get(mRef); const d=snap.val();
+// ── executeBall ────────────────────────────────────────────────
+async function executeBall(r,type,batRuns=0){
+  const snap=await get(mRef);const d=snap.val();
   if(!d){alert('Initialize match first');return;}
-  if(!d.recentBalls) d.recentBalls=[];
-  if(!d.batRows)     d.batRows=[];
-  if(!d.bowlRows)    d.bowlRows=[];
+  if(!d.recentBalls)d.recentBalls=[];
+  if(!d.batRows)d.batRows=[];
+  if(!d.bowlRows)d.bowlRows=[];
   await saveSnap(d);
 
-  const isWD=type==='WD', isNB=type==='NB',
-        isBY=type==='BY', isLB=type==='LB',
-        isWD_BY=type==='WD_BY', isWD_LB=type==='WD_LB',
-        isNB_BY=type==='NB_BY', isNB_LB=type==='NB_LB';
+  const isWD=type==='WD',isNB=type==='NB',isBY=type==='BY',isLB=type==='LB',
+        isWD_BY=type==='WD_BY',isWD_LB=type==='WD_LB',isNB_BY=type==='NB_BY',isNB_LB=type==='NB_LB';
 
   d.runs+=r;
 
-  if(isWD){
-    // ─ WIDE: penalty+bat/overthrow runs, ball not counted ─
-    d.bwr+=r; updBowl(d,d.bwn,{runs:r,wides:1});
-    d.recentBalls.push(r>1?`Wd${r}`:'Wd');
+  // Determine commentary event BEFORE state changes
+  let commEvent='dot',commRuns=r;
+  if(isWD||isWD_BY||isWD_LB)commEvent='wide';
+  else if(isNB||isNB_BY||isNB_LB)commEvent='noball';
+  else if(isBY)commEvent='bye';
+  else if(isLB)commEvent='legbye';
+  else if(r===6)commEvent='six';
+  else if(r===4)commEvent='four';
+  else if(r===0)commEvent='dot';
+  else commEvent='run';
 
-  } else if(isNB){
-    // ─ NO BALL: penalty+bat runs, free hit next, ball not counted ─
-    d.bwr+=r; updBowl(d,d.bwn,{runs:r,noballs:1});
+  if(isWD){
+    d.bwr+=r;updBowl(d,d.bwn,{runs:r,wides:1});
+    d.recentBalls.push(r>1?`Wd${r}`:'Wd');
+  }else if(isNB){
+    d.bwr+=r;updBowl(d,d.bwn,{runs:r,noballs:1});
     if(d.str===1){d.p1r+=r;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}
-    else         {d.p2r+=r;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);}
+    else{d.p2r+=r;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);}
     updBat(d,d.str===1?d.p1n:d.p2n,{runs:r,fours:r===4?1:0,sixes:r===6?1:0});
-    if(r%2!==0) d.str=d.str===1?2:1;
+    if(r%2!==0)d.str=d.str===1?2:1;
     d.freeHit=true;
     d.recentBalls.push(r>1?`Nb${r}`:'Nb');
-
-  } else if(isBY){
-    // ─ BYE: legal delivery, runs NOT to bat ─
+    // push freehit commentary after committing noball
+  }else if(isBY){
     d.freeHit=false;d.balls++;d.bwb++;
     updBowl(d,d.bwn,{balls:1,byes:r});
-    if(r%2!==0) d.str=d.str===1?2:1;
+    if(r%2!==0)d.str=d.str===1?2:1;
     d.recentBalls.push(r>1?`By${r}`:'By');
     if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
-
-  } else if(isLB){
-    // ─ LEG BYE: legal delivery, runs NOT to bat ─
+  }else if(isLB){
     d.freeHit=false;d.balls++;d.bwb++;
     updBowl(d,d.bwn,{balls:1,legbyes:r});
-    if(r%2!==0) d.str=d.str===1?2:1;
+    if(r%2!==0)d.str=d.str===1?2:1;
     d.recentBalls.push(r>1?`Lb${r}`:'Lb');
     if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
-
-  // ── NEW COMBO TYPES ────────────────────────────────────
-  } else if(isWD_BY){
-    // WIDE + BYE: ball NOT counted, 1 wide penalty + bye runs off pad
-    // batRuns = number of byes (r = 1 + batRuns)
-    d.bwr+=r;
-    updBowl(d,d.bwn,{runs:r,wides:1,byes:batRuns});
-    if(r%2!==0) d.str=d.str===1?2:1;
+  }else if(isWD_BY){
+    d.bwr+=r;updBowl(d,d.bwn,{runs:r,wides:1,byes:batRuns});
+    if(r%2!==0)d.str=d.str===1?2:1;
     d.recentBalls.push(batRuns>0?`Wd+By${batRuns}`:'Wd+By');
-
-  } else if(isWD_LB){
-    // WIDE + LEG BYE: ball NOT counted, 1 wide penalty + leg-bye runs off body
-    d.bwr+=r;
-    updBowl(d,d.bwn,{runs:r,wides:1,legbyes:batRuns});
-    if(r%2!==0) d.str=d.str===1?2:1;
+  }else if(isWD_LB){
+    d.bwr+=r;updBowl(d,d.bwn,{runs:r,wides:1,legbyes:batRuns});
+    if(r%2!==0)d.str=d.str===1?2:1;
     d.recentBalls.push(batRuns>0?`Wd+Lb${batRuns}`:'Wd+Lb');
-
-  } else if(isNB_BY){
-    // NO BALL + BYE: ball NOT counted, 1 nb penalty + bye runs, FREE HIT next
-    d.bwr+=r;
-    updBowl(d,d.bwn,{runs:r,noballs:1,byes:batRuns});
-    if(r%2!==0) d.str=d.str===1?2:1;
+  }else if(isNB_BY){
+    d.bwr+=r;updBowl(d,d.bwn,{runs:r,noballs:1,byes:batRuns});
+    if(r%2!==0)d.str=d.str===1?2:1;
     d.freeHit=true;
     d.recentBalls.push(batRuns>0?`Nb+By${batRuns}`:'Nb+By');
-
-  } else if(isNB_LB){
-    // NO BALL + LEG BYE: ball NOT counted, 1 nb penalty + leg-bye runs, FREE HIT next
-    d.bwr+=r;
-    updBowl(d,d.bwn,{runs:r,noballs:1,legbyes:batRuns});
-    if(r%2!==0) d.str=d.str===1?2:1;
+  }else if(isNB_LB){
+    d.bwr+=r;updBowl(d,d.bwn,{runs:r,noballs:1,legbyes:batRuns});
+    if(r%2!==0)d.str=d.str===1?2:1;
     d.freeHit=true;
     d.recentBalls.push(batRuns>0?`Nb+Lb${batRuns}`:'Nb+Lb');
-
-  } else {
-    // ─ NORMAL BALL: bat runs, counts as legal delivery ─
+  }else{
     d.freeHit=false;d.balls++;d.bwb++;d.bwr+=r;
     updBowl(d,d.bwn,{runs:r,balls:1});
     if(d.str===1){d.p1r+=r;d.p1b++;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}
-    else         {d.p2r+=r;d.p2b++;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);}
+    else{d.p2r+=r;d.p2b++;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);}
     updBat(d,d.str===1?d.p1n:d.p2n,{runs:r,balls:1,fours:r===4?1:0,sixes:r===6?1:0});
-    if(r%2!==0) d.str=d.str===1?2:1;
+    if(r%2!==0)d.str=d.str===1?2:1;
     if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
     else d.recentBalls.push(r);
   }
   await update(mRef,d);
+
+  // Commentary: for no-ball also push a freehit line after a moment
+  if(isNB||isNB_BY||isNB_LB){
+    setTimeout(()=>pushCommentary(d,'freehit',r),1200);
+  }
+  await pushCommentary(d,commEvent,commRuns);
 }
 
-// ── Wicket ────────────────────────────────────────────
-window.openWicket = async () => {
-  _pending={active:false,batRuns:0,type:null}; updatePendingUI();
-  const snap=await get(mRef); const d=snap.val();
+// ── Wicket ────────────────────────────────────────────────────
+window.openWicket=async()=>{
+  _pending={active:false,batRuns:0,type:null};updatePendingUI();
+  const snap=await get(mRef);const d=snap.val();
   if(!d){alert('Initialize match first');return;}
   $('mBatsman').textContent=d.str===1?d.p1n:d.p2n;
   $('mBowler').textContent=d.bwn;
@@ -1263,20 +1367,40 @@ window.openWicket = async () => {
   document.querySelectorAll('.dm').forEach(b=>b.classList.remove('sel'));
   document.querySelector('.dm[data-dt="b"]').classList.add('sel');
   $('mFielder').innerHTML=(d.bowlRows||[]).map(r=>`<option value="${r.name}">${r.name}</option>`).join('');
-  updFRow(); $('wktModal').classList.add('open');
+  updFRow();$('wktModal').classList.add('open');
 };
 
-// ── Photos ────────────────────────────────────────────
-onValue(phRef,snap=>{ _ph=snap.val()||{}; document.querySelectorAll('[data-phn]').forEach(el=>{if(el.dataset.phn)el.src=ph(el.dataset.phn);}); });
+// ── Photos ────────────────────────────────────────────────────
+onValue(phRef,snap=>{_ph=snap.val()||{};document.querySelectorAll('[data-phn]').forEach(el=>{if(el.dataset.phn)el.src=ph(el.dataset.phn);});});
 const BLANK=`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%23eef1f5'/%3E%3Ccircle cx='16' cy='12' r='6' fill='%23b0bec5'/%3E%3Cellipse cx='16' cy='28' rx='10' ry='7' fill='%23b0bec5'/%3E%3C/svg%3E`;
 function ph(name){if(!name)return BLANK;const k=name.replace(/[^a-zA-Z0-9]/g,'_');return _ph[k]||BLANK;}
 
-// ── Toss / Squad UI ───────────────────────────────────
+// ── Team Name Persistence ─────────────────────────────────────
+function saveTeamNamesToLS(){
+  const names={teamA:$('tNA').value.trim()||'',teamB:$('tNB').value.trim()||''};
+  localStorage.setItem(LS_TEAMS,JSON.stringify(names));
+}
+
+function restoreTeamNamesFromLS(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(LS_TEAMS)||'{}');
+    if(saved.teamA)$('tNA').value=saved.teamA;
+    if(saved.teamB)$('tNB').value=saved.teamB;
+  }catch(e){}
+}
+
+window.onTeamNameInput=(side)=>{
+  saveTeamNamesToLS();
+  refreshTossLabels();
+};
+
+// ── Toss / Squad UI ────────────────────────────────────────────
 window.refreshTossLabels=()=>{
   const nA=$('tNA').value.trim()||'Team A',nB=$('tNB').value.trim()||'Team B';
   $('tossOptA').textContent=`${nA} bats first`;$('tossOptB').textContent=`${nB} bats first`;
   $('lblSqA').textContent=`${nA} XI`;$('lblSqB').textContent=`${nB} XI`;
 };
+
 window.updateTossUI=(fromUser=false)=>{
   const toss=$('tossSel').value;
   if(fromUser&&toss!==_lastToss){
@@ -1286,6 +1410,7 @@ window.updateTossUI=(fromUser=false)=>{
       const a=$(`plA${i}`),b=$(`plB${i}`);if(a&&b){const tmp=a.value;a.value=b.value;b.value=tmp;}
       const avA=$(`avA${i}`),avB=$(`avB${i}`);if(avA&&avB){const tmp=avA.src;avA.src=avB.src;avB.src=tmp;}
     }
+    saveTeamNamesToLS();
     const note=$('tossSwapNote');note.classList.add('show');setTimeout(()=>note.classList.remove('show'),3000);
   }
   const nA=$('tNA').value.trim()||'Team A',nB=$('tNB').value.trim()||'Team B';
@@ -1319,7 +1444,7 @@ window.onNameChg=(t,i)=>{const nm=$(`pl${t}${i}`)?.value.trim();const av=$(`av${
 function getNames(t){const a=[];for(let i=1;i<=11;i++){const e=$(`pl${t}${i}`);if(e&&e.value.trim())a.push(e.value.trim());}return a;}
 function setNames(t,names){for(let i=1;i<=11;i++){const e=$(`pl${t}${i}`);if(e)e.value=names[i-1]||'';const av=$(`av${t}${i}`);if(av&&names[i-1]){av.dataset.phn=names[i-1];av.src=ph(names[i-1]);}}}
 
-// ── Dropdowns ─────────────────────────────────────────
+// ── Dropdowns ─────────────────────────────────────────────────
 function fillSels(d){
   if(!d)return;
   const p1n=d.p1n||'',p2n=d.p2n||'',bwn=d.bwn||'';
@@ -1333,10 +1458,8 @@ function fillSels(d){
   if(bwn&&$('selBw').querySelector(`option[value="${bwn}"]`))$('selBw').value=bwn;
 }
 
-// ── Undo (UNLIMITED) ──────────────────────────────────
-async function saveSnap(d){
-  await push(hRef,{state:JSON.parse(JSON.stringify(d)),savedAt:Date.now()});
-}
+// ── Undo ──────────────────────────────────────────────────────
+async function saveSnap(d){await push(hRef,{state:JSON.parse(JSON.stringify(d)),savedAt:Date.now()});}
 window.undoLast=async()=>{
   const all=await get(hRef);const val=all.val();
   if(!val||!Object.keys(val).length){alert('Nothing to undo!');return;}
@@ -1346,7 +1469,7 @@ window.undoLast=async()=>{
 };
 onValue(hRef,snap=>{const v=snap.val();const c=v?Object.keys(v).length:0;$('undoCount').textContent=c;$('undoBtn').disabled=c===0;});
 
-// ── Event overlay toggles ─────────────────────────────
+// ── Event overlay toggles ─────────────────────────────────────
 onValue(uRef,snap=>{
   const ui=snap.val()||{};
   _evtState.autoWicketOverlay=ui.autoWicketOverlay!==false;
@@ -1365,7 +1488,7 @@ function refreshEvtUI(key,trackId,descId,cls,onText){
 }
 window.toggleEvt=(key,trackId,descId,cls,onText)=>{_evtState[key]=!_evtState[key];update(uRef,{[key]:_evtState[key]});};
 
-// ── Auto popup ────────────────────────────────────────
+// ── Auto popup ────────────────────────────────────────────────
 function updateAutoUI(on){
   $('autoToggle').classList.toggle('on',on);
   const sub=$('autoToggleSub');sub.textContent=on?'✅ ON — scorecard auto-pops after every over':'OFF — scorecard will not auto-popup';sub.className=on?'toggle-sub on':'toggle-sub';
@@ -1374,91 +1497,81 @@ window.toggleAutoPopup=()=>{_autoOn=!_autoOn;update(uRef,{autoOverPopup:_autoOn}
 window.setOverPopupDur=v=>update(uRef,{overPopupDur:parseInt(v)||8});
 
 // ══════════════════════════════════════════════════════
-// AUDIO — with dynamic system voice picker
+// AUDIO — System Voice Only, localStorage persistence
 // ══════════════════════════════════════════════════════
 function writeAudio(){
-  update(cRef,{
-    enabled:_audioEnabled,
-    style:$('commentaryStyleSel')?.value||'standard',
-    voiceName:$('commentaryVoiceSel')?.value||'',
-    rate:parseFloat($('rateSel')?.value)||1.0,
-    pitch:parseFloat($('pitchSel')?.value)||1.1
-  });
+  const voiceName=$('commentaryVoiceSel')?.value||'';
+  localStorage.setItem(LS_VOICE,voiceName);
+  update(cRef,{enabled:_audioEnabled,voiceName});
 }
 
 window.loadVoices=function(){
   const voices=window.speechSynthesis?window.speechSynthesis.getVoices():[];
-  const sel=$('commentaryVoiceSel');
-  if(!sel)return;
+  const sel=$('commentaryVoiceSel');if(!sel)return;
   const prev=sel.value;
-  // Group: English voices first, then all others
   const eng=voices.filter(v=>v.lang.startsWith('en'));
   const others=voices.filter(v=>!v.lang.startsWith('en'));
   let html='<option value="">⚡ Auto (Browser Default)</option>';
-  if(eng.length){
-    html+='<optgroup label="── English Voices ──">';
-    html+=eng.map(v=>`<option value="${encodeURIComponent(v.name)}">${v.name} (${v.lang})</option>`).join('');
-    html+='</optgroup>';
-  }
-  if(others.length){
-    html+='<optgroup label="── Other Languages ──">';
-    html+=others.map(v=>`<option value="${encodeURIComponent(v.name)}">${v.name} (${v.lang})</option>`).join('');
-    html+='</optgroup>';
-  }
+  if(eng.length){html+='<optgroup label="── English Voices ──">';html+=eng.map(v=>`<option value="${encodeURIComponent(v.name)}">${v.name} (${v.lang})</option>`).join('');html+='</optgroup>';}
+  if(others.length){html+='<optgroup label="── Other Languages ──">';html+=others.map(v=>`<option value="${encodeURIComponent(v.name)}">${v.name} (${v.lang})</option>`).join('');html+='</optgroup>';}
   sel.innerHTML=html;
-  // Restore previous selection
-  if(prev){const opt=sel.querySelector(`option[value="${CSS.escape(prev)}"]`);if(opt)sel.value=prev;}
+  // Restore previous selection from localStorage first
+  const savedVoice=localStorage.getItem(LS_VOICE)||'';
+  const targetVoice=prev||savedVoice;
+  if(targetVoice){const opt=sel.querySelector(`option[value="${CSS.escape(targetVoice)}"]`);if(opt)sel.value=targetVoice;}
 };
 
-// Load voices on init and when they change (browser may load async)
-if(window.speechSynthesis){
-  window.speechSynthesis.onvoiceschanged=window.loadVoices;
-  window.loadVoices();
-}
+if(window.speechSynthesis){window.speechSynthesis.onvoiceschanged=window.loadVoices;window.loadVoices();}
 
 window.previewVoice=()=>{
   if(!window.speechSynthesis)return;
   const sel=$('commentaryVoiceSel');const voiceEnc=sel?.value||'';
-  const rate=parseFloat($('rateSel')?.value)||1.0;
-  const pitch=parseFloat($('pitchSel')?.value)||1.1;
   const utter=new SpeechSynthesisUtterance('And that is a magnificent shot! The ball races away to the boundary — FOUR runs!');
-  if(voiceEnc){
-    const targetName=decodeURIComponent(voiceEnc);
-    const voices=window.speechSynthesis.getVoices();
-    const voice=voices.find(v=>v.name===targetName);
-    if(voice)utter.voice=voice;
-  }
-  utter.rate=rate;utter.pitch=pitch;
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utter);
+  if(voiceEnc){const targetName=decodeURIComponent(voiceEnc);const voices=window.speechSynthesis.getVoices();const voice=voices.find(v=>v.name===targetName);if(voice)utter.voice=voice;}
+  window.speechSynthesis.cancel();window.speechSynthesis.speak(utter);
 };
 
-window.toggleAudio=()=>{_audioEnabled=!_audioEnabled;updateAudioUI();writeAudio();};
-function updateAudioUI(){$('audioTogBtn').textContent=_audioEnabled?'DISABLE':'ENABLE';$('audioTogBtn').className=_audioEnabled?'audio-tog on':'audio-tog';$('audioDot').className=_audioEnabled?'audio-dot on':'audio-dot';$('audioLbl').textContent=_audioEnabled?'Commentary Active — plays on overlay':'Commentary Off';}
-['commentaryStyleSel','rateSel','pitchSel'].forEach(id=>{const e=$(id);if(e)e.addEventListener('change',writeAudio);});
+window.toggleAudio=()=>{
+  _audioEnabled=!_audioEnabled;
+  localStorage.setItem(LS_AUDIO,_audioEnabled?'1':'0');
+  updateAudioUI();writeAudio();
+};
+
+function updateAudioUI(){
+  $('audioTogBtn').textContent=_audioEnabled?'DISABLE':'ENABLE';
+  $('audioTogBtn').className=_audioEnabled?'audio-tog on':'audio-tog';
+  $('audioDot').className=_audioEnabled?'audio-dot on':'audio-dot';
+  $('audioLbl').textContent=_audioEnabled?'Commentary Active — generating AI ball-by-ball commentary':'Commentary Off';
+}
+
+// Restore audio state from localStorage on load
+function restoreAudioState(){
+  const saved=localStorage.getItem(LS_AUDIO);
+  if(saved!==null){_audioEnabled=saved==='1';}
+  updateAudioUI();
+}
+
 onValue(cRef,snap=>{
   const s=snap.val()||{};
-  if(typeof s.enabled==='boolean')_audioEnabled=s.enabled;
-  if(s.style&&$('commentaryStyleSel'))$('commentaryStyleSel').value=s.style;
-  if(s.rate&&$('rateSel'))$('rateSel').value=String(s.rate);
-  if(s.pitch&&$('pitchSel'))$('pitchSel').value=String(s.pitch);
-  // Restore voice name — try immediately and after voices load
+  // Only restore voiceName from Firebase (not enabled — controlled locally)
   if(s.voiceName&&$('commentaryVoiceSel')){
-    const trySetVoice=()=>{
+    const trySet=()=>{
       const sel=$('commentaryVoiceSel');if(!sel)return;
       const opt=sel.querySelector(`option[value="${CSS.escape(s.voiceName)}"]`);
       if(opt)sel.value=s.voiceName;
     };
-    trySetVoice();
-    setTimeout(trySetVoice,600);
+    trySet();setTimeout(trySet,600);
   }
-  updateAudioUI();
+  // Sync enabled only if no localStorage override
+  if(typeof s.enabled==='boolean'&&localStorage.getItem(LS_AUDIO)===null){
+    _audioEnabled=s.enabled;updateAudioUI();
+  }
 });
 
-// ── Toast ─────────────────────────────────────────────
+// ── Toast ─────────────────────────────────────────────────────
 function toast(msg){const t=$('saveToast');t.textContent=msg;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2500);}
 
-// ── Announcements ─────────────────────────────────────
+// ── Announcements ─────────────────────────────────────────────
 const QANN={
   century:{emoji:'🏆',text:'CENTURY!',sub:'100 runs off the bat!',dur:20,style:'gold'},
   fifty:{emoji:'⭐',text:'HALF CENTURY!',sub:'50 runs milestone!',dur:20,style:'gold'},
@@ -1484,6 +1597,18 @@ window.sendQuickAnn=async type=>{
   const rc=document.getElementById(`rain_${type}`);
   let name=striker;if(type==='wicket'||type==='hattrick')name=bowler;
   await set(aRef,{emoji:cfg.emoji,text:name?`${name} — ${cfg.text}`:cfg.text,sub:cfg.sub,style:cfg.style,dur:cfg.dur,rain:rc?rc.checked:true,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
+
+  // Also push commentary for the milestone
+  if(_audioEnabled){
+    const ctx=buildCommCtx(d);ctx.striker=striker;ctx.strikerRuns=sR;ctx.bowler=bowler;
+    let line='';
+    if(type==='century')line=fillComm(pickComm('milestone_century'),ctx);
+    else if(type==='fifty')line=fillComm(pickComm('milestone_fifty'),ctx);
+    else if(type==='wicket')line=fillComm(pickComm('wicket'),ctx);
+    else if(type==='six')line=fillComm(pickComm('six'),ctx);
+    else if(type==='four')line=fillComm(pickComm('four'),ctx);
+    if(line)await set(commRef,{text:line,event:type,id:Math.random().toString(36).slice(2),sentAt:Date.now()});
+  }
 };
 window.sendCustomAnn=async()=>{
   const em=$('annEmoji').value.trim()||'📣',msg=$('annMsg').value.trim();
@@ -1492,7 +1617,7 @@ window.sendCustomAnn=async()=>{
   $('annMsg').value='';updateAnnPreview();
 };
 
-// ── Init Match ────────────────────────────────────────
+// ── Init Match ────────────────────────────────────────────────
 window.toggleCustomOvers=()=>{$('customOversWrap').style.display=$('fmtSel').value==='0'?'block':'none';};
 window.initMatch=async()=>{
   const sA=getNames('A'),sB=getNames('B');
@@ -1502,102 +1627,59 @@ window.initMatch=async()=>{
   else fmt=parseInt(fmtRaw)||20;
   const batNm=($('tNA').value).trim().toUpperCase()||'TEAM A';
   const bowlNm=($('tNB').value).trim().toUpperCase()||'TEAM B';
+  // Save team names to localStorage on init
+  saveTeamNamesToLS();
   const batRows=sA.map(n=>({name:n,runs:0,balls:0,fours:0,sixes:0,out:false,howOut:''}));
   const bowlRows=sB.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0}));
   await set(hRef,null);
   await set(mRef,{batTeam:batNm,bowlTeam:bowlNm,runs:0,wkts:0,balls:0,str:1,target:0,p1n:sA[0],p1r:0,p1b:0,p1fours:0,p1sixes:0,p2n:sA[1]||sA[0],p2r:0,p2b:0,p2fours:0,p2sixes:0,bwn:sB[0],bwr:0,bww:0,bwb:0,recentBalls:[],nextBatIdx:2,freeHit:false,innings:1,maxOvers:fmt,batRows,bowlRows,matchStartedAt:Date.now()});
-  await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n')});
+  await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n'),teamA:batNm,teamB:bowlNm});
   await update(uRef,{scorebar:true,scorecard:false});
+  // Reset commentary context
+  Object.assign(CC,{dots:0,partnership:0,p50:false,p100:false,p150:false,lastKeys:{},hatTrick:false,hatTrickCheck:false});
   _adminLastOver=0;_curMatchKey=null;_winFired=false;_inn1EndFired=false;
   _pending={active:false,batRuns:0,type:null};updatePendingUI();
   await saveMatchToDb(true);alert('✅ Match Initialized!');
 };
 
-// ══════════════════════════════════════════════════════
-// MANUAL TARGET SETUP — opponent batted without app
-// ══════════════════════════════════════════════════════
+// ── Manual Target Setup ───────────────────────────────────────
 window.updateMtPreview=()=>{
-  const runs=parseInt($('mt_runs')?.value)||0;
-  const wkts=parseInt($('mt_wkts')?.value)||0;
-  const ovFaced=parseFloat($('mt_overs')?.value)||20;
-  const maxOv=parseInt($('mt_maxov')?.value)||20;
-  const ovInt=Math.floor(ovFaced);
-  const ovFrac=Math.round((ovFaced%1)*10);
-  const ovStr=`${ovInt}.${ovFrac}`;
-  const target=runs+1;
+  const runs=parseInt($('mt_runs')?.value)||0,wkts=parseInt($('mt_wkts')?.value)||0;
+  const ovFaced=parseFloat($('mt_overs')?.value)||20,maxOv=parseInt($('mt_maxov')?.value)||20;
+  const ovInt=Math.floor(ovFaced),ovFrac=Math.round((ovFaced%1)*10);
+  const ovStr=`${ovInt}.${ovFrac}`,target=runs+1;
   const oppName=$('mt_opp')?.value.trim()||'Opponent';
-  const el_opp=$('mtOppName'),el_inn=$('mtInn1Score'),el_ov=$('mtInn1Ovs'),
-        el_tgt=$('mtTarget'),el_maxOv=$('mtMaxOvDisp');
-  if(el_opp)el_opp.textContent=oppName;
-  if(el_inn)el_inn.textContent=`${runs}/${wkts}`;
-  if(el_ov)el_ov.textContent=ovStr;
-  if(el_tgt)el_tgt.textContent=String(target);
-  if(el_maxOv)el_maxOv.textContent=String(maxOv);
+  const el_opp=$('mtOppName'),el_inn=$('mtInn1Score'),el_ov=$('mtInn1Ovs'),el_tgt=$('mtTarget'),el_maxOv=$('mtMaxOvDisp');
+  if(el_opp)el_opp.textContent=oppName;if(el_inn)el_inn.textContent=`${runs}/${wkts}`;
+  if(el_ov)el_ov.textContent=ovStr;if(el_tgt)el_tgt.textContent=String(target);if(el_maxOv)el_maxOv.textContent=String(maxOv);
 };
 
 window.setupManualTarget=async()=>{
   const oppTeam=($('mt_opp')?.value.trim()||'Opponent').toUpperCase();
   const yourTeam=($('mt_your')?.value.trim()||'Your Team').toUpperCase();
-  const oppRuns=parseInt($('mt_runs')?.value)||0;
-  const oppWkts=parseInt($('mt_wkts')?.value)||0;
-  const ovFaced=parseFloat($('mt_overs')?.value)||20;
-  const maxOvers=parseInt($('mt_maxov')?.value)||20;
-
-  const sA=getNames('A'); // Your batting squad (Squad A bats 2nd)
-  const sB=getNames('B'); // Opponent bowling squad (Squad B bowls)
-
+  const oppRuns=parseInt($('mt_runs')?.value)||0,oppWkts=parseInt($('mt_wkts')?.value)||0;
+  const ovFaced=parseFloat($('mt_overs')?.value)||20,maxOvers=parseInt($('mt_maxov')?.value)||20;
+  const sA=getNames('A'),sB=getNames('B');
   if(!sA.length){alert('⚠ Enter your batting squad in Squad A above first!');return;}
   if(!sB.length){alert('⚠ Enter the opponent bowling squad in Squad B above first!');return;}
-
-  const ovInt=Math.floor(ovFaced), ovFrac=Math.round((ovFaced%1)*10);
-  const inn1Score=`${oppRuns}/${oppWkts} (${ovInt}.${ovFrac} ovs)`;
-  const target=oppRuns+1;
-
-  if(!confirm(
-    `🎯 Manual 2nd Innings Setup\n\n` +
-    `${oppTeam} scored: ${inn1Score}\n` +
-    `Target for ${yourTeam}: ${target} runs in ${maxOvers} overs\n\n` +
-    `Squad A (your team): ${sA.slice(0,3).join(', ')}...\n` +
-    `Squad B (bowling):   ${sB.slice(0,3).join(', ')}...\n\n` +
-    `Proceed?`
-  )) return;
-
+  const ovInt=Math.floor(ovFaced),ovFrac=Math.round((ovFaced%1)*10);
+  const inn1Score=`${oppRuns}/${oppWkts} (${ovInt}.${ovFrac} ovs)`,target=oppRuns+1;
+  if(!confirm(`🎯 Manual 2nd Innings Setup\n\n${oppTeam} scored: ${inn1Score}\nTarget for ${yourTeam}: ${target} runs in ${maxOvers} overs\n\nProceed?`))return;
   const batRows=sA.map(n=>({name:n,runs:0,balls:0,fours:0,sixes:0,out:false,howOut:''}));
   const bowlRows=sB.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0}));
-
   await set(hRef,null);
-  await set(mRef,{
-    batTeam:yourTeam,
-    bowlTeam:oppTeam,
-    runs:0,wkts:0,balls:0,str:1,
-    target,
-    p1n:sA[0],p1r:0,p1b:0,p1fours:0,p1sixes:0,
-    p2n:sA[1]||sA[0],p2r:0,p2b:0,p2fours:0,p2sixes:0,
-    bwn:sB[0]||'Bowler 1',bwr:0,bww:0,bwb:0,
-    recentBalls:[],nextBatIdx:2,freeHit:false,
-    innings:2,
-    maxOvers,
-    batRows,
-    bowlRows,
-    inn1Score,
-    inn1Bat:oppTeam,
-    inn1BatRows:[],   // no per-ball data since they batted offline
-    inn1BowlRows:[],
-    matchStartedAt:Date.now()
-  });
-
-  await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n')});
+  await set(mRef,{batTeam:yourTeam,bowlTeam:oppTeam,runs:0,wkts:0,balls:0,str:1,target,p1n:sA[0],p1r:0,p1b:0,p1fours:0,p1sixes:0,p2n:sA[1]||sA[0],p2r:0,p2b:0,p2fours:0,p2sixes:0,bwn:sB[0]||'Bowler 1',bwr:0,bww:0,bwb:0,recentBalls:[],nextBatIdx:2,freeHit:false,innings:2,maxOvers,batRows,bowlRows,inn1Score,inn1Bat:oppTeam,inn1BatRows:[],inn1BowlRows:[],matchStartedAt:Date.now()});
+  await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n'),teamA:yourTeam,teamB:oppTeam});
   await update(uRef,{scorebar:true,scorecard:false});
-
+  Object.assign(CC,{dots:0,partnership:0,p50:false,p100:false,p150:false,lastKeys:{},hatTrick:false,hatTrickCheck:false});
   _adminLastOver=0;_curMatchKey=null;_winFired=false;_inn1EndFired=false;
-  _pending={active:false,batRuns:0,type:null}; updatePendingUI();
+  _pending={active:false,batRuns:0,type:null};updatePendingUI();
   $('matchStatusBadge').textContent='LIVE';
-
   await saveMatchToDb(true);
   alert(`✅ 2nd Innings Started!\n${yourTeam} need ${target} runs in ${maxOvers} overs to win!`);
 };
 
-// ── Win / Innings check ───────────────────────────────
+// ── Win / Innings check ────────────────────────────────────────
 async function checkMatchEvents(d){
   if(!d)return;
   const maxBalls=(d.maxOvers||20)*6,allOut=d.wkts>=10,oversUp=d.balls>=maxBalls,inn=d.innings||1;
@@ -1611,14 +1693,19 @@ async function checkMatchEvents(d){
   const target=d.target||0;if(target<=0)return;
   const runsNeeded=target-d.runs,wLeft=10-d.wkts,bLeft=maxBalls-d.balls;
   let winMsg=null;
-  if(runsNeeded<=0) winMsg={t:`${d.batTeam} WIN!`,s:`Won by ${wLeft} wicket${wLeft!==1?'s':''} (${bLeft} ball${bLeft!==1?'s':''} to spare)`,type:'win'};
-  else if(runsNeeded===1&&(allOut||oversUp)) winMsg={t:"IT'S A TIE!",s:`Both teams tied on ${d.runs}!`,type:'tie'};
+  if(runsNeeded<=0)winMsg={t:`${d.batTeam} WIN!`,s:`Won by ${wLeft} wicket${wLeft!==1?'s':''} (${bLeft} ball${bLeft!==1?'s':''} to spare)`,type:'win'};
+  else if(runsNeeded===1&&(allOut||oversUp))winMsg={t:"IT'S A TIE!",s:`Both teams tied on ${d.runs}!`,type:'tie'};
   else if(allOut||oversUp){const m=runsNeeded-1;winMsg={t:`${d.bowlTeam} WIN!`,s:`Won by ${m} run${m!==1?'s':''}`,type:'win'};}
   if(winMsg){
     _winFired=true;
     await set(aRef,{emoji:winMsg.type==='tie'?'🤝':'🏆',text:winMsg.t,sub:winMsg.s,style:winMsg.type,dur:30,rain:true,sentAt:Date.now(),id:Math.random().toString(36).slice(2)});
+    // Win commentary
+    if(_audioEnabled){
+      const ctx=buildCommCtx(d);const line=fillComm(pickComm(winMsg.type==='tie'?'tie':'win'),ctx);
+      if(line)await set(commRef,{text:line,event:'win',id:Math.random().toString(36).slice(2),sentAt:Date.now()});
+    }
     setTimeout(()=>saveMatchToDb(true),1500);
-    setTimeout(()=>showWinPopup(winMsg.t,winMsg.s,`${d.batTeam} vs ${d.bowlTeam} · ${Math.floor(d.balls/6)}.${d.balls%6} overs`,winMsg.type),800);
+    setTimeout(()=>showWinPopup(winMsg.t,winMsg.s,`${d.batTeam} vs ${d.bowlTeam}`,winMsg.type),800);
   }
 }
 function openInnModal(d){const ov=`${Math.floor(d.balls/6)}.${d.balls%6}`;if(confirm(`🏏 END OF 1ST INNINGS\n\n${d.batTeam}: ${d.runs}/${d.wkts} (${ov} ovs)\n\nStart 2nd Innings now?`))swapInnings();}
@@ -1630,7 +1717,7 @@ function showWinPopup(t,s,det,type){
   $('winOverlay').classList.add('open');
 }
 
-// ── Wicket modal ──────────────────────────────────────
+// ── Wicket modal ──────────────────────────────────────────────
 let _dt='b';
 window.selDis=(btn,t)=>{_dt=t;document.querySelectorAll('.dm').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');$('mCredit').checked=(t!=='ro');updFRow();};
 function updFRow(){const s=['c','ro','st'].includes(_dt);$('mFielderRow').style.display=s?'block':'none';$('mFielderLbl').textContent={c:'Caught by',ro:'Run Out by',st:'Stumped by'}[_dt]||'Fielder';}
@@ -1655,11 +1742,13 @@ window.confirmWicket=async()=>{
   d.recentBalls.push('W');
   if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
   await update(mRef,d);closeWicket();
+  // Commentary for wicket
+  await pushCommentary(d,'wicket',runs);
   if(d.wkts>=10)return;
   _batPickerMode='wicket';_dismissedSlot=dismissedStrSlot;openBatPicker(d,dismissedName);
 };
 
-// ── Bat Picker ────────────────────────────────────────
+// ── Bat Picker ────────────────────────────────────────────────
 function openBatPicker(d,dismissedName){
   const available=(d.batRows||[]).filter(r=>!r.out&&r.name!==d.p1n&&r.name!==d.p2n);
   if(_batPickerMode==='wicket'){$('newBatTitle').textContent='🏏 Select New Batsman';$('newBatSub').textContent=`${dismissedName} dismissed — who comes in next?`;$('newBatCancel').style.display='none';}
@@ -1676,7 +1765,7 @@ window.selectNewBatter=async name=>{
 };
 window.cancelBatPicker=()=>{$('newBatModal').classList.remove('open');_batPickerMode=null;_dismissedSlot=null;_injuryPos=null;};
 
-// ── Bat Injury ────────────────────────────────────────
+// ── Bat Injury ────────────────────────────────────────────────
 window.openBatInjury=async pos=>{
   const snap=await get(mRef);const d=snap.val();if(!d){alert('No match');return;}
   const injured=pos==='striker'?d.p1n:d.p2n;
@@ -1685,12 +1774,12 @@ window.openBatInjury=async pos=>{
   _batPickerMode='injury';_injuryPos=pos;openBatPicker(d,injured);
 };
 
-// ── Helpers ───────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────
 function updBat(d,name,{runs=0,balls=0,fours=0,sixes=0}={}){const r=(d.batRows||[]).find(x=>x.name===name);if(r){r.runs+=runs;r.balls+=balls;r.fours+=fours;r.sixes+=sixes;}}
 function markOut(d,name,ho='out'){const r=(d.batRows||[]).find(x=>x.name===name);if(r){r.out=true;r.howOut=ho;}}
 function updBowl(d,name,{runs=0,balls=0,wkts=0,wides=0,noballs=0,byes=0,legbyes=0}={}){const r=(d.bowlRows||[]).find(x=>x.name===name);if(r){r.balls+=balls;r.runs+=runs;r.wkts+=wkts;r.wides+=wides;r.noballs+=noballs;r.byes=(r.byes||0)+byes;r.legbyes=(r.legbyes||0)+legbyes;}}
 
-// ── Bowler Picker ─────────────────────────────────────
+// ── Bowler Picker ─────────────────────────────────────────────
 function openBowlerPicker(bowlRows,currentBowler,ovNum,midOver){
   _midOver=!!midOver;
   $('bpkTitle').textContent=midOver?'🚑 Bowler Injury — Replacement':'⚾ Select Next Bowler';
@@ -1712,7 +1801,7 @@ window.selectBowler=async name=>{
 };
 window.openBowlerInjury=async()=>{const snap=await get(mRef);const d=snap.val();if(!d){alert('No match');return;}openBowlerPicker(d.bowlRows||[],d.bwn,Math.floor(d.balls/6),true);};
 
-// ── Swap Innings ──────────────────────────────────────
+// ── Swap Innings ──────────────────────────────────────────────
 window.swapInnings=async()=>{
   if(!confirm('Start 2nd Innings?'))return;
   const d=(await get(mRef)).val();const s=(await get(sRef)).val();if(!d){alert('No match data');return;}
@@ -1723,6 +1812,7 @@ window.swapInnings=async()=>{
   const bowlRows=nw.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0}));
   await set(hRef,null);
   await set(mRef,{batTeam:d.bowlTeam,bowlTeam:d.batTeam,runs:0,wkts:0,balls:0,str:1,target:d.runs+1,p1n:nb[0]||'Bat 1',p1r:0,p1b:0,p1fours:0,p1sixes:0,p2n:nb[1]||nb[0]||'Bat 2',p2r:0,p2b:0,p2fours:0,p2sixes:0,bwn:nw[0]||'Bowler',bwr:0,bww:0,bwb:0,recentBalls:[],nextBatIdx:2,freeHit:false,innings:2,maxOvers:d.maxOvers,batRows,bowlRows,inn1Score:`${d.runs}/${d.wkts} (${Math.floor(d.balls/6)}.${d.balls%6} ovs)`,inn1Bat:d.batTeam,inn1BatRows:d.batRows||[],inn1BowlRows:d.bowlRows||[]});
+  Object.assign(CC,{dots:0,partnership:0,p50:false,p100:false,p150:false,lastKeys:{},hatTrick:false,hatTrickCheck:false});
   _adminLastOver=0;_winFired=false;_inn1EndFired=false;
   _pending={active:false,batRuns:0,type:null};updatePendingUI();
   alert(`✅ 2nd Innings! Target: ${d.runs+1}`);
@@ -1739,23 +1829,19 @@ window.fullReset=async()=>{
   _pending={active:false,batRuns:0,type:null};location.reload();
 };
 
-// ── Ball CSS class ────────────────────────────────────
+// ── Ball CSS class ─────────────────────────────────────────────
 function ballCls(v){
-  if(v==='W')return 'bW';
-  if(v===6)return 'b6';
-  if(v===4)return 'b4';
-  if(v===0)return 'b0';
+  if(v==='W')return 'bW';if(v===6)return 'b6';if(v===4)return 'b4';if(v===0)return 'b0';
   if(typeof v==='string'){
-    if(v.startsWith('Wd+By')||v.startsWith('Wd+Lb'))return 'bWd'; // combo wide: gold
-    if(v.startsWith('Nb+By')||v.startsWith('Nb+Lb'))return 'bNb'; // combo nb: orange
-    if(v.startsWith('Wd'))return 'bWd';
-    if(v.startsWith('Nb'))return 'bNb';
+    if(v.startsWith('Wd+By')||v.startsWith('Wd+Lb'))return 'bWd';
+    if(v.startsWith('Nb+By')||v.startsWith('Nb+Lb'))return 'bNb';
+    if(v.startsWith('Wd'))return 'bWd';if(v.startsWith('Nb'))return 'bNb';
     if(v.startsWith('By')||v.startsWith('Lb'))return 'bBy';
   }
   return '';
 }
 
-// ── MAIN DATA LISTENER ────────────────────────────────
+// ── MAIN DATA LISTENER ─────────────────────────────────────────
 onValue(mRef,async snap=>{
   const d=snap.val();_match=d;if(!d)return;
   if(_pending.active)updatePendingUI();
@@ -1763,9 +1849,19 @@ onValue(mRef,async snap=>{
   const innComplete=d.balls>=maxBalls||d.wkts>=10;
   if(_adminLastOver>=0&&completedOvers>_adminLastOver&&d.balls%6===0&&d.balls>0){
     if(!innComplete)openBowlerPicker(d.bowlRows||[],d.bwn,completedOvers,false);
+    // Over-end commentary
+    if(_audioEnabled){
+      const ctx=buildCommCtx(d);ctx.overNum=completedOvers;ctx.thisOverRuns=0;
+      const line=fillComm(pickComm('over_end'),ctx);
+      if(line)await set(commRef,{text:line,event:'over_end',id:Math.random().toString(36).slice(2),sentAt:Date.now()});
+    }
     saveMatchToDb(true);
   }
   _adminLastOver=completedOvers;checkMatchEvents(d);
+
+  // Restore team names from match data if inputs are empty
+  if(d.batTeam&&!$('tNA').value.trim()){$('tNA').value=d.batTeam.charAt(0)+d.batTeam.slice(1).toLowerCase();}
+  if(d.bowlTeam&&!$('tNB').value.trim()){$('tNB').value=d.bowlTeam.charAt(0)+d.bowlTeam.slice(1).toLowerCase();}
 
   $('tbMatch').textContent=`${d.batTeam} vs ${d.bowlTeam}`;
   const oStr=`${Math.floor(d.balls/6)}.${d.balls%6}`;
@@ -1779,7 +1875,7 @@ onValue(mRef,async snap=>{
     const bL2=(d.maxOvers||20)*6-d.balls;
     $('iRRRWrap').style.display='';$('iRRR').textContent=bL2>0?((d.target-d.runs)/(bL2/6)).toFixed(2):'∞';
     $('iTgtWrap').style.display='';$('iTgt').textContent=d.target;$('iNeed').textContent=Math.max(0,d.target-d.runs);$('iNeedOv').textContent=`${Math.floor(bL2/6)}.${bL2%6}`;
-  } else {$('iRRRWrap').style.display='none';$('iTgtWrap').style.display='none';}
+  }else{$('iRRRWrap').style.display='none';$('iTgtWrap').style.display='none';}
   const iFH=$('iFH'),iFHOff=$('iFHOff');
   if(d.freeHit){iFH.classList.add('on');iFHOff.style.display='none';}else{iFH.classList.remove('on');iFHOff.style.display='';}
   $('iOvB').textContent=(d.recentBalls||[]).length?(d.recentBalls||[]).join(' · '):'—';
@@ -1788,7 +1884,6 @@ onValue(mRef,async snap=>{
   else{$('fmtSel').value='0';$('customOvers').value=fmt;$('customOversWrap').style.display='block';}
 
   fillSels(d);
-
   $('bannerTeam').textContent=d.batTeam||'—';$('bannerDetail').textContent=d.innings===2?`2nd Innings · Target: ${d.target}`:'1st Innings';
   $('bannerScore').textContent=`${d.runs}/${d.wkts}`;$('bannerOvs').textContent=`${oStr} overs · CRR ${crr}`;
 
@@ -1807,7 +1902,6 @@ onValue(mRef,async snap=>{
   for(let i=0;i<6;i++){
     if(i<balls.length){
       const v=balls[i];
-      // Display text: shorten combo labels for the small ball circle
       let disp=v;
       if(typeof v==='string'){
         if(v==='Wd+By'||v==='Wd+Lb')disp='Wd*';
@@ -1818,9 +1912,7 @@ onValue(mRef,async snap=>{
         else if(v.startsWith('Nb+Lb'))disp=`N+${v.replace('Nb+Lb','')}`;
       }
       ballHtml.push(`<div class="ball-sq ${ballCls(v)}" title="${v}">${v===0?'·':disp}</div>`);
-    } else {
-      ballHtml.push(`<div class="ball-sq empty">·</div>`);
-    }
+    }else{ballHtml.push(`<div class="ball-sq empty">·</div>`);}
   }
   $('liveBallRow').innerHTML=ballHtml.join('');
 
@@ -1834,16 +1926,30 @@ onValue(mRef,async snap=>{
   $('liveBwlBody').innerHTML=bwlHtml||`<tr><td colspan="6" style="text-align:center;color:var(--muted)">No overs yet</td></tr>`;
 });
 
-// ── Squad sync ────────────────────────────────────────
+// ── Squad sync ─────────────────────────────────────────────────
 onValue(sRef,snap=>{
   const s=snap.val();if(!s)return;
   if(s.sqA)setNames('A',s.sqA.split('\n').map(n=>n.trim()).filter(Boolean));
   if(s.sqB)setNames('B',s.sqB.split('\n').map(n=>n.trim()).filter(Boolean));
+  // Restore team names from Firebase squads data
+  if(s.teamA&&!$('tNA').value.trim()){$('tNA').value=s.teamA;}
+  if(s.teamB&&!$('tNB').value.trim()){$('tNB').value=s.teamB;}
   if(!_match||!_match.batRows)fillSels(_match||null);
   updateTossUI(false);
 });
 
-// ── Match History ─────────────────────────────────────
+// ── Match History — keep last 10 ───────────────────────────────
+async function cleanupMatchHistory(){
+  try{
+    const snap=await get(histRef);const val=snap.val();if(!val)return;
+    const entries=Object.entries(val).sort((a,b)=>b[1].savedAt-a[1].savedAt);
+    if(entries.length>10){
+      const toDelete=entries.slice(10);
+      for(const[key]of toDelete)await remove(ref(db,`matchHistory/${key}`));
+    }
+  }catch(e){}
+}
+
 window.saveMatchToDb=async(silent=false)=>{
   const snap=await get(mRef);const d=snap.val();if(!d){if(!silent)alert('No match data');return;}
   const title=$('matchTitle').value.trim()||`${d.batTeam} vs ${d.bowlTeam}`;const venue=$('matchVenue').value.trim()||'';
