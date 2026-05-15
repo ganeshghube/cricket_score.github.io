@@ -73,6 +73,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .card{background:var(--card);border-radius:7px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.06);}
 .card-hdr{background:var(--navy);color:#fff;padding:7px 13px;border-radius:7px 7px 0 0;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;}
 .card-hdr.green{background:var(--green);}
+.card-hdr.purple{background:var(--purple);}
 .card-body{padding:10px 13px;}
 
 /* SCORING GRID */
@@ -109,7 +110,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .over-display{display:flex;flex-direction:column;gap:7px;}
 .over-title{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:3px;text-transform:uppercase;}
 .ball-row{display:flex;gap:5px;flex-wrap:wrap;}
-.ball-sq{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;border:2px solid var(--border);background:var(--dot-bg);color:var(--muted);flex-shrink:0;}
+.ball-sq{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;border:2px solid var(--border);background:var(--dot-bg);color:var(--muted);flex-shrink:0;}
 .ball-sq.b4{background:var(--four-bg);border-color:#34d399;color:var(--green);}
 .ball-sq.b6{background:var(--six-bg);border-color:#a78bfa;color:var(--purple);}
 .ball-sq.bW{background:var(--wicket-bg);border-color:#fca5a5;color:var(--red);}
@@ -141,7 +142,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .rnd-wkt{background:#fff1f2;color:#be123c;border-color:#fda4af;font-size:14px;width:54px;height:54px;}
 .rnd-wkt:hover{background:var(--red);color:#fff;border-color:var(--red);}
 
-/* Extra type selector buttons */
+/* Single extra type selector buttons */
 .rnd-wd{background:#fffbeb;color:#d97706;border-color:#fcd34d;font-size:13px;font-weight:900;}
 .rnd-wd:hover{background:#fef3c7;}
 .rnd-wd.xactive{background:#d97706;color:#fff;border-color:#b45309;box-shadow:0 0 0 3px rgba(217,119,6,.25);}
@@ -154,6 +155,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .rnd-lb{background:#f0fdf4;color:#15803d;border-color:#86efac;font-size:13px;font-weight:900;}
 .rnd-lb:hover{background:#dcfce7;}
 .rnd-lb.xactive{background:#15803d;color:#fff;border-color:#166534;box-shadow:0 0 0 3px rgba(21,128,61,.25);}
+
+/* COMBO extra type buttons (Wide+Bye, Wide+Lb, NoBall+Bye, NoBall+Lb) */
+.rnd-combo{font-size:10px;font-weight:900;width:52px;height:52px;}
+.rnd-wdby{background:#fef9c3;color:#854d0e;border-color:#fde047;}
+.rnd-wdby:hover{background:#fef08a;}
+.rnd-wdby.xactive{background:#854d0e;color:#fff;border-color:#713f12;box-shadow:0 0 0 3px rgba(133,77,14,.22);}
+.rnd-wdlb{background:#ecfdf5;color:#065f46;border-color:#6ee7b7;}
+.rnd-wdlb:hover{background:#d1fae5;}
+.rnd-wdlb.xactive{background:#065f46;color:#fff;border-color:#064e3b;box-shadow:0 0 0 3px rgba(6,95,70,.22);}
+.rnd-nbby{background:#fff3e0;color:#bf360c;border-color:#ffb74d;}
+.rnd-nbby:hover{background:#ffe0b2;}
+.rnd-nbby.xactive{background:#bf360c;color:#fff;border-color:#8d2607;box-shadow:0 0 0 3px rgba(191,54,12,.22);}
+.rnd-nblb{background:#e8f5e9;color:#1b5e20;border-color:#81c784;}
+.rnd-nblb:hover{background:#c8e6c9;}
+.rnd-nblb.xactive{background:#1b5e20;color:#fff;border-color:#145214;box-shadow:0 0 0 3px rgba(27,94,32,.22);}
 
 /* Overlay / Announcement / Save control buttons */
 .rnd-show{background:#f0fdf4;color:#16a34a;border-color:#86efac;font-size:16px;}
@@ -359,6 +375,13 @@ select.inp option{background:#fff;}
 .audio-lbl{font-size:12px;color:var(--muted);font-weight:600;}
 .audio-tog{background:var(--card2);border:1.5px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:5px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;cursor:pointer;width:auto;}
 .audio-tog.on{background:#d1fae5;color:var(--green);border-color:#34d399;}
+.voice-select-wrap{background:var(--card2);border:1.5px solid var(--border);border-radius:6px;padding:8px 10px;margin-top:8px;}
+.voice-select-wrap .lbl{margin-top:0;}
+.voice-badge{display:inline-block;padding:1px 6px;background:#dbeafe;color:#1e40af;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;margin-left:6px;}
+
+/* MANUAL TARGET */
+.mt-preview-box{background:var(--active-bat);border:1.5px solid var(--gold2);border-radius:7px;padding:12px 14px;margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--text);font-weight:700;line-height:1.6;}
+.mt-big{font-size:28px;font-weight:900;color:var(--red);font-family:'Barlow Condensed',sans-serif;}
 
 /* MISC */
 .note-box{background:var(--card2);border:1.5px solid var(--border);border-radius:6px;padding:8px 12px;font-size:10px;color:var(--muted);line-height:1.6;}
@@ -375,6 +398,8 @@ select.inp option{background:#fff;}
 .sb-rst{width:100%;padding:10px;background:#fff1f2;color:var(--red2);border:2px solid #fca5a5;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;cursor:pointer;}
 .sb-gold{width:100%;padding:11px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:1px;cursor:pointer;}
 .sb-gold:hover{background:var(--navy2);}
+.sb-purple{width:100%;padding:11px;background:var(--purple);color:#fff;border:none;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:1px;cursor:pointer;margin-top:6px;}
+.sb-purple:hover{background:#5a2da0;}
 #saveToast{position:fixed;bottom:20px;right:16px;z-index:9999;background:var(--navy);color:#fff;border-radius:7px;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.2);}
 .toss-swap-note{font-size:9px;color:var(--gold);background:#fffbeb;border:1px solid #fcd34d;border-radius:4px;padding:2px 8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:1px;display:none;}
 .toss-swap-note.show{display:inline-block;animation:livepulse 1s 3;}
@@ -586,18 +611,34 @@ select.inp option{background:#fff;}
         </div>
       </div>
 
-      <!-- EXTRA TYPE SELECTORS -->
+      <!-- EXTRA TYPE SELECTORS — Row 1: Single extras -->
       <div>
-        <div class="scoring-lbl">Extra Type <span style="font-size:8px;text-transform:none;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0;color:var(--muted)">— select type, then add bat runs above · Wd/Nb auto-add 1 penalty</span></div>
-        <div class="run-btn-row">
-          <button class="rnd rnd-wd"  id="xBtn_WD" onclick="setExtraType('WD')" title="Wide (+1 penalty, ball not counted)">Wd</button>
-          <button class="rnd rnd-nb"  id="xBtn_NB" onclick="setExtraType('NB')" title="No Ball (+1 penalty, Free Hit next)">Nb</button>
-          <button class="rnd rnd-bye" id="xBtn_BY" onclick="setExtraType('BY')" title="Bye — legal delivery, no bat contact">By</button>
-          <button class="rnd rnd-lb"  id="xBtn_LB" onclick="setExtraType('LB')" title="Leg Bye — deflection off body">Lb</button>
+        <div class="scoring-lbl">Extra Type — Single
+          <span style="font-size:8px;text-transform:none;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0;color:var(--muted)">— select type, then add runs above · Wd/Nb auto-add 1 penalty</span>
         </div>
+        <div class="run-btn-row">
+          <button class="rnd rnd-wd"  id="xBtn_WD"  onclick="setExtraType('WD')"  title="Wide (+1 penalty, ball not counted)">Wd</button>
+          <button class="rnd rnd-nb"  id="xBtn_NB"  onclick="setExtraType('NB')"  title="No Ball (+1 penalty, Free Hit next)">Nb</button>
+          <button class="rnd rnd-bye" id="xBtn_BY"  onclick="setExtraType('BY')"  title="Bye — legal delivery, no bat contact">By</button>
+          <button class="rnd rnd-lb"  id="xBtn_LB"  onclick="setExtraType('LB')"  title="Leg Bye — deflection off body">Lb</button>
+        </div>
+
+        <!-- Row 2: Combo extras (Wide/NoBall + Bye/LegBye) -->
+        <div class="scoring-lbl" style="margin-top:8px">Extra Type — Combos
+          <span style="font-size:8px;text-transform:none;font-family:'Inter',sans-serif;font-weight:400;letter-spacing:0;color:var(--muted)">— wide/nb hits pad; select combo then tap bye runs above</span>
+        </div>
+        <div class="run-btn-row">
+          <button class="rnd rnd-combo rnd-wdby" id="xBtn_WD_BY" onclick="setExtraType('WD_BY')" title="Wide + Bye (wide deflects off pad, byes scored — ball NOT counted)">Wd+By</button>
+          <button class="rnd rnd-combo rnd-wdlb" id="xBtn_WD_LB" onclick="setExtraType('WD_LB')" title="Wide + Leg Bye (wide deflects off body, leg byes — ball NOT counted)">Wd+Lb</button>
+          <button class="rnd rnd-combo rnd-nbby" id="xBtn_NB_BY" onclick="setExtraType('NB_BY')" title="No Ball + Bye (no ball, byes off pad — Free Hit next)">Nb+By</button>
+          <button class="rnd rnd-combo rnd-nblb" id="xBtn_NB_LB" onclick="setExtraType('NB_LB')" title="No Ball + Leg Bye (no ball, leg byes — Free Hit next)">Nb+Lb</button>
+        </div>
+
         <div class="note-box" style="margin-top:7px">
-          <b>How to use Extra Type:</b> Click <b>Wd</b> or <b>Nb</b> (penalty +1 added automatically), then tap run buttons to add bat/overthrow runs. 
-          Click <b>By</b> or <b>Lb</b> (no penalty), then tap runs. Example: Wide + batsman ran 2 → click <b>Wd</b> then <b>2</b> → shows 3 → Correct.
+          <b>Single extras:</b> Click <b>Wd</b> or <b>Nb</b> (+1 penalty auto-added), then tap runs for bat/overthrow runs.
+          Click <b>By</b> or <b>Lb</b> (no penalty, legal ball), then tap runs. <br>
+          <b>Combo extras:</b> Wide hits pad → <b>Wd+By</b> then tap 2 = 3 total (1 wide + 2 byes, ball not counted).
+          No ball hits pad → <b>Nb+By</b> then tap runs. <b>Wd+Lb</b> / <b>Nb+Lb</b> work similarly for leg-byes.
         </div>
       </div>
 
@@ -685,10 +726,14 @@ select.inp option{background:#fff;}
       <div class="audio-lbl" id="audioLbl">Commentary Off</div>
       <button class="audio-tog" id="audioTogBtn" onclick="toggleAudio()">ENABLE</button>
     </div>
-    <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;align-items:center">
+
+    <!-- Commentary Style & Rates -->
+    <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;align-items:center">
       <span class="lbl" style="margin:0">Style:</span>
       <select class="inp dur-sel" id="commentaryStyleSel">
-        <option value="standard">Standard</option>
+        <option value="standard">Standard Cricket</option>
+        <option value="energetic">Energetic / Hype</option>
+        <option value="calm">Calm Classic</option>
         <option value="shastri">🎙 Ravi Shastri</option>
         <option value="chopra">🎙 Akash Chopra</option>
       </select>
@@ -703,7 +748,33 @@ select.inp option{background:#fff;}
         <option value="1.1" selected>Energetic</option><option value="1.2">High</option>
       </select>
     </div>
-    <div class="note-box" style="margin-top:8px;background:#f0fdf4;border-color:#86efac">🔊 Audio plays on overlay (index.html) only.</div>
+
+    <!-- System Voice Picker -->
+    <div class="voice-select-wrap">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;color:var(--navy);letter-spacing:2px;text-transform:uppercase">System Voice</span>
+        <span class="voice-badge">REAL HUMAN VOICES</span>
+      </div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px">
+          <span class="lbl" style="margin-top:0">Choose Voice (from your device)</span>
+          <select class="inp" id="commentaryVoiceSel" onchange="writeAudio()">
+            <option value="">⚡ Auto (Browser Default)</option>
+          </select>
+        </div>
+        <div style="flex:0 0 auto;margin-top:14px">
+          <button class="audio-tog" onclick="loadVoices()" style="padding:6px 12px">🔄 Refresh</button>
+        </div>
+        <div style="flex:0 0 auto;margin-top:14px">
+          <button class="audio-tog" onclick="previewVoice()" style="padding:6px 12px">▶ Preview</button>
+        </div>
+      </div>
+      <div class="note-box" style="margin-top:6px;background:#f0f9ff;border-color:#93c5fd;font-size:9px">
+        💡 <b>Best voices:</b> On Chrome — look for <b>Google UK English Male/Female</b> or <b>Google US English</b>. On Windows — <b>Microsoft Aria, Guy, Zira</b>. On Mac/iOS — <b>Daniel, Samantha, Karen</b> are natural-sounding. Hit <b>▶ Preview</b> to test.
+      </div>
+    </div>
+
+    <div class="note-box" style="margin-top:8px;background:#f0fdf4;border-color:#86efac">🔊 Audio plays on overlay (index.html) only. Voice selection is stored and applied on the overlay page.</div>
   </div>
 </div>
 
@@ -768,6 +839,64 @@ select.inp option{background:#fff;}
     </div>
     <div class="sec-div" style="margin-top:14px;margin-bottom:8px">Match History</div>
     <div class="hist-list" id="histList"><p style="color:var(--muted);font-size:12px;text-align:center;padding:16px">No saved matches yet.</p></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     MANUAL TARGET SETUP — for when opponent batted without app
+     ══════════════════════════════════════════════════════ -->
+<div class="card">
+  <div class="card-hdr purple">🎯 Manual Target Setup — Opponent Batted Offline
+    <span style="font-size:9px;font-weight:700;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:3px">2ND INNINGS ONLY</span>
+  </div>
+  <div class="card-body">
+    <div class="note-box" style="margin-bottom:10px;background:#faf5ff;border-color:#c4b5fd;">
+      Use this when <b>the opponent batted 1st without this app</b>. Enter their final score manually, then fill <b>Squad A</b> with <em>your batting team</em> and <b>Squad B</b> with <em>their bowling team</em> in the Team Squads section above, then click <b>SET TARGET</b> below.
+    </div>
+    <div class="g2">
+      <div>
+        <span class="lbl">Opponent Team Name (batted 1st)</span>
+        <input class="inp" id="mt_opp" placeholder="e.g. Australia" oninput="updateMtPreview()" style="font-weight:700">
+      </div>
+      <div>
+        <span class="lbl">Your Team Name (bats 2nd)</span>
+        <input class="inp" id="mt_your" placeholder="e.g. India" oninput="updateMtPreview()" style="font-weight:700">
+      </div>
+    </div>
+    <div class="g2" style="margin-top:8px">
+      <div>
+        <span class="lbl">Opponent Runs Scored</span>
+        <input class="inp" type="number" id="mt_runs" value="150" min="0" max="9999" oninput="updateMtPreview()" style="font-size:22px;font-weight:900;color:var(--red);text-align:center;">
+      </div>
+      <div>
+        <span class="lbl">Opponent Wickets Lost</span>
+        <input class="inp" type="number" id="mt_wkts" value="6" min="0" max="10" oninput="updateMtPreview()" style="font-size:22px;font-weight:900;color:var(--navy);text-align:center;">
+      </div>
+    </div>
+    <div class="g2" style="margin-top:8px">
+      <div>
+        <span class="lbl">Opponent Overs Faced (e.g. 19.4)</span>
+        <input class="inp" type="number" id="mt_overs" value="20" min="0" max="100" step="0.1" oninput="updateMtPreview()" style="text-align:center;">
+      </div>
+      <div>
+        <span class="lbl">Match Format — Max Overs</span>
+        <input class="inp" type="number" id="mt_maxov" value="20" min="1" max="100" oninput="updateMtPreview()" style="text-align:center;">
+      </div>
+    </div>
+
+    <!-- Live target preview -->
+    <div class="mt-preview-box" id="mtPreviewBox">
+      <div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;color:var(--muted);margin-bottom:4px">1ST INNINGS RESULT</div>
+      <span id="mtOppName" style="color:var(--navy)">Opponent</span>:
+      <span id="mtInn1Score" style="color:var(--red)">150/6</span>
+      (<span id="mtInn1Ovs">20.0</span> ovs)
+      <div style="margin-top:6px;font-size:9px;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;color:var(--muted)">TARGET FOR YOUR TEAM</div>
+      <span class="mt-big" id="mtTarget">151</span>
+      <span style="font-size:13px;color:var(--text2);margin-left:6px">runs in <b id="mtMaxOvDisp">20</b> overs</span>
+    </div>
+
+    <p style="font-size:10px;color:var(--muted);margin-top:6px">⬆ Make sure <b>Squad A = your batting squad</b>, <b>Squad B = their bowling squad</b> in the Team Squads card above before clicking below.</p>
+    <button class="sb-purple" onclick="setupManualTarget()">🎯 SET TARGET &amp; BEGIN 2ND INNINGS</button>
   </div>
 </div>
 
@@ -885,21 +1014,28 @@ let _batPickerMode=null,_dismissedSlot=null,_injuryPos=null;
 
 // ══════════════════════════════════════════════════════
 // PENDING SCORE STATE
-// _pending.batRuns  = runs added via run buttons
-// _pending.type     = null | 'WD' | 'NB' | 'BY' | 'LB'
+// _pending.batRuns  = runs added via run buttons (for combo types = bye/lb runs)
+// _pending.type     = null | 'WD' | 'NB' | 'BY' | 'LB' | 'WD_BY' | 'WD_LB' | 'NB_BY' | 'NB_LB'
 // Total = typeBase(type) + batRuns
 // ══════════════════════════════════════════════════════
 let _pending = { active:false, batRuns:0, type:null };
 
-function typeBase(t){ return (t==='WD'||t==='NB') ? 1 : 0; }
+// Types that don't count as a legal delivery
+const ILLEGAL_TYPES = new Set(['WD','NB','WD_BY','WD_LB','NB_BY','NB_LB']);
+
+function typeBase(t){
+  // WD and NB variants all carry 1 penalty run
+  return (t==='WD'||t==='NB'||t==='WD_BY'||t==='WD_LB'||t==='NB_BY'||t==='NB_LB') ? 1 : 0;
+}
 function pendingTotal(){ return typeBase(_pending.type) + _pending.batRuns; }
 
 function updatePendingUI(){
   const wrap=$('pendingWrap'), idle=$('pendingIdle'), active=$('pendingActive');
 
-  // Reset extra button highlights
-  ['WD','NB','BY','LB'].forEach(t=>{
-    const b=$(`xBtn_${t}`); if(b) b.classList.toggle('xactive', _pending.active && _pending.type===t);
+  // Reset all extra button highlights (single + combo)
+  ['WD','NB','BY','LB','WD_BY','WD_LB','NB_BY','NB_LB'].forEach(t=>{
+    const b=$(`xBtn_${t}`);
+    if(b) b.classList.toggle('xactive', _pending.active && _pending.type===t);
   });
 
   if(!_pending.active){
@@ -910,7 +1046,7 @@ function updatePendingUI(){
 
   const total=pendingTotal(), t=_pending.type, batR=_pending.batRuns, base=typeBase(t);
 
-  // Label & type class
+  // ── Label, type class, note ──────────────────────────
   let eventName='', typeClass='', note='', noteCls='';
   if(!t){
     if(total===0)      {eventName='DOT BALL';typeClass='type-dot';}
@@ -918,37 +1054,48 @@ function updatePendingUI(){
     else if(total===6) {eventName='SIX — MAXIMUM';typeClass='type-six';}
     else               {eventName=`RUN${total!==1?'S':''}`;typeClass='';}
   }
-  else if(t==='WD'){eventName='WIDE';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
-  else if(t==='NB'){eventName='NO BALL';typeClass='type-nb';note='FREE HIT NEXT';noteCls='';}
-  else if(t==='BY'){eventName='BYES';typeClass='type-bye';note='LEGAL';noteCls='blue';}
-  else if(t==='LB'){eventName='LEG BYES';typeClass='type-lb';note='LEGAL';noteCls='blue';}
+  else if(t==='WD')    {eventName='WIDE';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
+  else if(t==='NB')    {eventName='NO BALL';typeClass='type-nb';note='FREE HIT NEXT';noteCls='';}
+  else if(t==='BY')    {eventName='BYES';typeClass='type-bye';note='LEGAL BALL';noteCls='blue';}
+  else if(t==='LB')    {eventName='LEG BYES';typeClass='type-lb';note='LEGAL BALL';noteCls='blue';}
+  // ── NEW COMBO TYPES ──────────────────────────────────
+  else if(t==='WD_BY') {eventName='WIDE + BYES';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
+  else if(t==='WD_LB') {eventName='WIDE + LEG BYES';typeClass='type-wide';note='NOT COUNTED';noteCls='orange';}
+  else if(t==='NB_BY') {eventName='NO BALL + BYES';typeClass='type-nb';note='FREE HIT NEXT';noteCls='';}
+  else if(t==='NB_LB') {eventName='NO BALL + LEG BYES';typeClass='type-nb';note='FREE HIT NEXT';noteCls='';}
 
   $('pendingRunsVal').textContent=total;
   $('pendingEventName').textContent=eventName;
 
-  // Breakdown
+  // ── Breakdown label ──────────────────────────────────
   const breakEl=$('pendingBreakdown');
   if(t){
     const parts=[];
-    if(base>0) parts.push(`${base} ${t==='WD'?'wd':t==='NB'?'nb':''} penalty`);
-    if(batR>0) parts.push(`${batR} bat run${batR!==1?'s':''}`);
+    let penLabel='',runLabel='bat run';
+    if(t==='WD'||t==='WD_BY'||t==='WD_LB')     penLabel='wd penalty';
+    else if(t==='NB'||t==='NB_BY'||t==='NB_LB') penLabel='nb penalty';
+    if(t==='WD_BY'||t==='NB_BY')  runLabel='bye';
+    else if(t==='WD_LB'||t==='NB_LB') runLabel='leg bye';
+
+    if(base>0) parts.push(`${base} ${penLabel}`);
+    if(batR>0) parts.push(`${batR} ${runLabel}${batR!==1?'s':''}`);
     if(parts.length>1){breakEl.textContent=parts.join(' + ')+` = ${total}`;breakEl.style.display='';}
     else breakEl.style.display='none';
   } else {
     breakEl.style.display='none';
   }
 
-  // Note pill
+  // ── Note pill ────────────────────────────────────────
   const notePill=$('pendingNotePill');
   if(note){notePill.textContent=note;notePill.className='pending-note-pill'+(noteCls?' '+noteCls:'');notePill.style.display='';}
   else notePill.style.display='none';
 
-  // Context meta
+  // ── Context meta (projected score) ──────────────────
   const d=_match;
   if(d){
     const striker=d.str===1?d.p1n:d.p2n;
     const projRuns=d.runs+total;
-    const isLegal=t!=='WD'&&t!=='NB';
+    const isLegal=!ILLEGAL_TYPES.has(t);
     const projBalls=isLegal?d.balls+1:d.balls;
     const projOv=`${Math.floor(projBalls/6)}.${projBalls%6}`;
     const crr=projBalls>0?(projRuns/(projBalls/6)).toFixed(2):'0.00';
@@ -983,10 +1130,8 @@ window.ball = (r) => {
 // ── Extra type selector: set/change type ─────────────
 window.setExtraType = (type) => {
   if(_pending.active){
-    // Keep existing batRuns, just change/set the type
-    _pending.type = type;
+    _pending.type = type; // Keep existing batRuns, just change type
   } else {
-    // Start fresh with this type (no bat runs yet)
     _pending = { active:true, batRuns:0, type:type };
   }
   updatePendingUI();
@@ -995,10 +1140,12 @@ window.setExtraType = (type) => {
 // ── Correct: commit pending ───────────────────────────
 window.correctScore = async () => {
   if(!_pending.active) return;
-  const total=pendingTotal(), type=_pending.type||undefined;
+  const total   = pendingTotal();
+  const type    = _pending.type || undefined;
+  const batRuns = _pending.batRuns; // needed for combo breakdown in executeBall
   _pending = { active:false, batRuns:0, type:null };
   updatePendingUI();
-  await executeBall(total, type);
+  await executeBall(total, type, batRuns);
 };
 
 // ── Incorrect: cancel pending ─────────────────────────
@@ -1009,20 +1156,32 @@ window.incorrectScore = () => {
 
 // ══════════════════════════════════════════════════════
 // executeBall — core logic after Correct
+// r        = total runs (typeBase + batRuns)
+// type     = extra type string or undefined
+// batRuns  = the batRuns component (bye/lb runs for combos)
 // ══════════════════════════════════════════════════════
-async function executeBall(r, type){
+async function executeBall(r, type, batRuns=0){
   const snap=await get(mRef); const d=snap.val();
   if(!d){alert('Initialize match first');return;}
   if(!d.recentBalls) d.recentBalls=[];
   if(!d.batRows)     d.batRows=[];
   if(!d.bowlRows)    d.bowlRows=[];
   await saveSnap(d);
-  const isWD=type==='WD',isNB=type==='NB',isBY=type==='BY',isLB=type==='LB';
+
+  const isWD=type==='WD', isNB=type==='NB',
+        isBY=type==='BY', isLB=type==='LB',
+        isWD_BY=type==='WD_BY', isWD_LB=type==='WD_LB',
+        isNB_BY=type==='NB_BY', isNB_LB=type==='NB_LB';
+
   d.runs+=r;
+
   if(isWD){
+    // ─ WIDE: penalty+bat/overthrow runs, ball not counted ─
     d.bwr+=r; updBowl(d,d.bwn,{runs:r,wides:1});
     d.recentBalls.push(r>1?`Wd${r}`:'Wd');
+
   } else if(isNB){
+    // ─ NO BALL: penalty+bat runs, free hit next, ball not counted ─
     d.bwr+=r; updBowl(d,d.bwn,{runs:r,noballs:1});
     if(d.str===1){d.p1r+=r;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}
     else         {d.p2r+=r;d.p2fours=(d.p2fours||0)+(r===4?1:0);d.p2sixes=(d.p2sixes||0)+(r===6?1:0);}
@@ -1030,19 +1189,57 @@ async function executeBall(r, type){
     if(r%2!==0) d.str=d.str===1?2:1;
     d.freeHit=true;
     d.recentBalls.push(r>1?`Nb${r}`:'Nb');
+
   } else if(isBY){
+    // ─ BYE: legal delivery, runs NOT to bat ─
     d.freeHit=false;d.balls++;d.bwb++;
     updBowl(d,d.bwn,{balls:1,byes:r});
     if(r%2!==0) d.str=d.str===1?2:1;
     d.recentBalls.push(r>1?`By${r}`:'By');
     if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
+
   } else if(isLB){
+    // ─ LEG BYE: legal delivery, runs NOT to bat ─
     d.freeHit=false;d.balls++;d.bwb++;
     updBowl(d,d.bwn,{balls:1,legbyes:r});
     if(r%2!==0) d.str=d.str===1?2:1;
     d.recentBalls.push(r>1?`Lb${r}`:'Lb');
     if(d.balls%6===0){d.str=d.str===1?2:1;d.recentBalls=[];}
+
+  // ── NEW COMBO TYPES ────────────────────────────────────
+  } else if(isWD_BY){
+    // WIDE + BYE: ball NOT counted, 1 wide penalty + bye runs off pad
+    // batRuns = number of byes (r = 1 + batRuns)
+    d.bwr+=r;
+    updBowl(d,d.bwn,{runs:r,wides:1,byes:batRuns});
+    if(r%2!==0) d.str=d.str===1?2:1;
+    d.recentBalls.push(batRuns>0?`Wd+By${batRuns}`:'Wd+By');
+
+  } else if(isWD_LB){
+    // WIDE + LEG BYE: ball NOT counted, 1 wide penalty + leg-bye runs off body
+    d.bwr+=r;
+    updBowl(d,d.bwn,{runs:r,wides:1,legbyes:batRuns});
+    if(r%2!==0) d.str=d.str===1?2:1;
+    d.recentBalls.push(batRuns>0?`Wd+Lb${batRuns}`:'Wd+Lb');
+
+  } else if(isNB_BY){
+    // NO BALL + BYE: ball NOT counted, 1 nb penalty + bye runs, FREE HIT next
+    d.bwr+=r;
+    updBowl(d,d.bwn,{runs:r,noballs:1,byes:batRuns});
+    if(r%2!==0) d.str=d.str===1?2:1;
+    d.freeHit=true;
+    d.recentBalls.push(batRuns>0?`Nb+By${batRuns}`:'Nb+By');
+
+  } else if(isNB_LB){
+    // NO BALL + LEG BYE: ball NOT counted, 1 nb penalty + leg-bye runs, FREE HIT next
+    d.bwr+=r;
+    updBowl(d,d.bwn,{runs:r,noballs:1,legbyes:batRuns});
+    if(r%2!==0) d.str=d.str===1?2:1;
+    d.freeHit=true;
+    d.recentBalls.push(batRuns>0?`Nb+Lb${batRuns}`:'Nb+Lb');
+
   } else {
+    // ─ NORMAL BALL: bat runs, counts as legal delivery ─
     d.freeHit=false;d.balls++;d.bwb++;d.bwr+=r;
     updBowl(d,d.bwn,{runs:r,balls:1});
     if(d.str===1){d.p1r+=r;d.p1b++;d.p1fours=(d.p1fours||0)+(r===4?1:0);d.p1sixes=(d.p1sixes||0)+(r===6?1:0);}
@@ -1055,7 +1252,7 @@ async function executeBall(r, type){
   await update(mRef,d);
 }
 
-// ── Wicket (opens dismissal form directly) ────────────
+// ── Wicket ────────────────────────────────────────────
 window.openWicket = async () => {
   _pending={active:false,batRuns:0,type:null}; updatePendingUI();
   const snap=await get(mRef); const d=snap.val();
@@ -1139,7 +1336,6 @@ function fillSels(d){
 // ── Undo (UNLIMITED) ──────────────────────────────────
 async function saveSnap(d){
   await push(hRef,{state:JSON.parse(JSON.stringify(d)),savedAt:Date.now()});
-  // No limit — unlimited undo history
 }
 window.undoLast=async()=>{
   const all=await get(hRef);const val=all.val();
@@ -1177,12 +1373,87 @@ function updateAutoUI(on){
 window.toggleAutoPopup=()=>{_autoOn=!_autoOn;update(uRef,{autoOverPopup:_autoOn});updateAutoUI(_autoOn);};
 window.setOverPopupDur=v=>update(uRef,{overPopupDur:parseInt(v)||8});
 
-// ── Audio ─────────────────────────────────────────────
-function writeAudio(){update(cRef,{enabled:_audioEnabled,style:$('commentaryStyleSel')?.value||'shastri',rate:parseFloat($('rateSel')?.value)||1.0,pitch:parseFloat($('pitchSel')?.value)||1.1});}
+// ══════════════════════════════════════════════════════
+// AUDIO — with dynamic system voice picker
+// ══════════════════════════════════════════════════════
+function writeAudio(){
+  update(cRef,{
+    enabled:_audioEnabled,
+    style:$('commentaryStyleSel')?.value||'standard',
+    voiceName:$('commentaryVoiceSel')?.value||'',
+    rate:parseFloat($('rateSel')?.value)||1.0,
+    pitch:parseFloat($('pitchSel')?.value)||1.1
+  });
+}
+
+window.loadVoices=function(){
+  const voices=window.speechSynthesis?window.speechSynthesis.getVoices():[];
+  const sel=$('commentaryVoiceSel');
+  if(!sel)return;
+  const prev=sel.value;
+  // Group: English voices first, then all others
+  const eng=voices.filter(v=>v.lang.startsWith('en'));
+  const others=voices.filter(v=>!v.lang.startsWith('en'));
+  let html='<option value="">⚡ Auto (Browser Default)</option>';
+  if(eng.length){
+    html+='<optgroup label="── English Voices ──">';
+    html+=eng.map(v=>`<option value="${encodeURIComponent(v.name)}">${v.name} (${v.lang})</option>`).join('');
+    html+='</optgroup>';
+  }
+  if(others.length){
+    html+='<optgroup label="── Other Languages ──">';
+    html+=others.map(v=>`<option value="${encodeURIComponent(v.name)}">${v.name} (${v.lang})</option>`).join('');
+    html+='</optgroup>';
+  }
+  sel.innerHTML=html;
+  // Restore previous selection
+  if(prev){const opt=sel.querySelector(`option[value="${CSS.escape(prev)}"]`);if(opt)sel.value=prev;}
+};
+
+// Load voices on init and when they change (browser may load async)
+if(window.speechSynthesis){
+  window.speechSynthesis.onvoiceschanged=window.loadVoices;
+  window.loadVoices();
+}
+
+window.previewVoice=()=>{
+  if(!window.speechSynthesis)return;
+  const sel=$('commentaryVoiceSel');const voiceEnc=sel?.value||'';
+  const rate=parseFloat($('rateSel')?.value)||1.0;
+  const pitch=parseFloat($('pitchSel')?.value)||1.1;
+  const utter=new SpeechSynthesisUtterance('And that is a magnificent shot! The ball races away to the boundary — FOUR runs!');
+  if(voiceEnc){
+    const targetName=decodeURIComponent(voiceEnc);
+    const voices=window.speechSynthesis.getVoices();
+    const voice=voices.find(v=>v.name===targetName);
+    if(voice)utter.voice=voice;
+  }
+  utter.rate=rate;utter.pitch=pitch;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+};
+
 window.toggleAudio=()=>{_audioEnabled=!_audioEnabled;updateAudioUI();writeAudio();};
 function updateAudioUI(){$('audioTogBtn').textContent=_audioEnabled?'DISABLE':'ENABLE';$('audioTogBtn').className=_audioEnabled?'audio-tog on':'audio-tog';$('audioDot').className=_audioEnabled?'audio-dot on':'audio-dot';$('audioLbl').textContent=_audioEnabled?'Commentary Active — plays on overlay':'Commentary Off';}
 ['commentaryStyleSel','rateSel','pitchSel'].forEach(id=>{const e=$(id);if(e)e.addEventListener('change',writeAudio);});
-onValue(cRef,snap=>{const s=snap.val()||{};if(typeof s.enabled==='boolean')_audioEnabled=s.enabled;if(s.style&&$('commentaryStyleSel'))$('commentaryStyleSel').value=s.style;if(s.rate&&$('rateSel'))$('rateSel').value=String(s.rate);if(s.pitch&&$('pitchSel'))$('pitchSel').value=String(s.pitch);updateAudioUI();});
+onValue(cRef,snap=>{
+  const s=snap.val()||{};
+  if(typeof s.enabled==='boolean')_audioEnabled=s.enabled;
+  if(s.style&&$('commentaryStyleSel'))$('commentaryStyleSel').value=s.style;
+  if(s.rate&&$('rateSel'))$('rateSel').value=String(s.rate);
+  if(s.pitch&&$('pitchSel'))$('pitchSel').value=String(s.pitch);
+  // Restore voice name — try immediately and after voices load
+  if(s.voiceName&&$('commentaryVoiceSel')){
+    const trySetVoice=()=>{
+      const sel=$('commentaryVoiceSel');if(!sel)return;
+      const opt=sel.querySelector(`option[value="${CSS.escape(s.voiceName)}"]`);
+      if(opt)sel.value=s.voiceName;
+    };
+    trySetVoice();
+    setTimeout(trySetVoice,600);
+  }
+  updateAudioUI();
+});
 
 // ── Toast ─────────────────────────────────────────────
 function toast(msg){const t=$('saveToast');t.textContent=msg;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2500);}
@@ -1238,9 +1509,92 @@ window.initMatch=async()=>{
   await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n')});
   await update(uRef,{scorebar:true,scorecard:false});
   _adminLastOver=0;_curMatchKey=null;_winFired=false;_inn1EndFired=false;
-  $('matchStatusBadge').textContent='LIVE';
   _pending={active:false,batRuns:0,type:null};updatePendingUI();
   await saveMatchToDb(true);alert('✅ Match Initialized!');
+};
+
+// ══════════════════════════════════════════════════════
+// MANUAL TARGET SETUP — opponent batted without app
+// ══════════════════════════════════════════════════════
+window.updateMtPreview=()=>{
+  const runs=parseInt($('mt_runs')?.value)||0;
+  const wkts=parseInt($('mt_wkts')?.value)||0;
+  const ovFaced=parseFloat($('mt_overs')?.value)||20;
+  const maxOv=parseInt($('mt_maxov')?.value)||20;
+  const ovInt=Math.floor(ovFaced);
+  const ovFrac=Math.round((ovFaced%1)*10);
+  const ovStr=`${ovInt}.${ovFrac}`;
+  const target=runs+1;
+  const oppName=$('mt_opp')?.value.trim()||'Opponent';
+  const el_opp=$('mtOppName'),el_inn=$('mtInn1Score'),el_ov=$('mtInn1Ovs'),
+        el_tgt=$('mtTarget'),el_maxOv=$('mtMaxOvDisp');
+  if(el_opp)el_opp.textContent=oppName;
+  if(el_inn)el_inn.textContent=`${runs}/${wkts}`;
+  if(el_ov)el_ov.textContent=ovStr;
+  if(el_tgt)el_tgt.textContent=String(target);
+  if(el_maxOv)el_maxOv.textContent=String(maxOv);
+};
+
+window.setupManualTarget=async()=>{
+  const oppTeam=($('mt_opp')?.value.trim()||'Opponent').toUpperCase();
+  const yourTeam=($('mt_your')?.value.trim()||'Your Team').toUpperCase();
+  const oppRuns=parseInt($('mt_runs')?.value)||0;
+  const oppWkts=parseInt($('mt_wkts')?.value)||0;
+  const ovFaced=parseFloat($('mt_overs')?.value)||20;
+  const maxOvers=parseInt($('mt_maxov')?.value)||20;
+
+  const sA=getNames('A'); // Your batting squad (Squad A bats 2nd)
+  const sB=getNames('B'); // Opponent bowling squad (Squad B bowls)
+
+  if(!sA.length){alert('⚠ Enter your batting squad in Squad A above first!');return;}
+  if(!sB.length){alert('⚠ Enter the opponent bowling squad in Squad B above first!');return;}
+
+  const ovInt=Math.floor(ovFaced), ovFrac=Math.round((ovFaced%1)*10);
+  const inn1Score=`${oppRuns}/${oppWkts} (${ovInt}.${ovFrac} ovs)`;
+  const target=oppRuns+1;
+
+  if(!confirm(
+    `🎯 Manual 2nd Innings Setup\n\n` +
+    `${oppTeam} scored: ${inn1Score}\n` +
+    `Target for ${yourTeam}: ${target} runs in ${maxOvers} overs\n\n` +
+    `Squad A (your team): ${sA.slice(0,3).join(', ')}...\n` +
+    `Squad B (bowling):   ${sB.slice(0,3).join(', ')}...\n\n` +
+    `Proceed?`
+  )) return;
+
+  const batRows=sA.map(n=>({name:n,runs:0,balls:0,fours:0,sixes:0,out:false,howOut:''}));
+  const bowlRows=sB.map(n=>({name:n,balls:0,runs:0,wkts:0,wides:0,noballs:0,byes:0,legbyes:0}));
+
+  await set(hRef,null);
+  await set(mRef,{
+    batTeam:yourTeam,
+    bowlTeam:oppTeam,
+    runs:0,wkts:0,balls:0,str:1,
+    target,
+    p1n:sA[0],p1r:0,p1b:0,p1fours:0,p1sixes:0,
+    p2n:sA[1]||sA[0],p2r:0,p2b:0,p2fours:0,p2sixes:0,
+    bwn:sB[0]||'Bowler 1',bwr:0,bww:0,bwb:0,
+    recentBalls:[],nextBatIdx:2,freeHit:false,
+    innings:2,
+    maxOvers,
+    batRows,
+    bowlRows,
+    inn1Score,
+    inn1Bat:oppTeam,
+    inn1BatRows:[],   // no per-ball data since they batted offline
+    inn1BowlRows:[],
+    matchStartedAt:Date.now()
+  });
+
+  await set(sRef,{sqA:sA.join('\n'),sqB:sB.join('\n')});
+  await update(uRef,{scorebar:true,scorecard:false});
+
+  _adminLastOver=0;_curMatchKey=null;_winFired=false;_inn1EndFired=false;
+  _pending={active:false,batRuns:0,type:null}; updatePendingUI();
+  $('matchStatusBadge').textContent='LIVE';
+
+  await saveMatchToDb(true);
+  alert(`✅ 2nd Innings Started!\n${yourTeam} need ${target} runs in ${maxOvers} overs to win!`);
 };
 
 // ── Win / Innings check ───────────────────────────────
@@ -1385,10 +1739,19 @@ window.fullReset=async()=>{
   _pending={active:false,batRuns:0,type:null};location.reload();
 };
 
-// ── Ball class ────────────────────────────────────────
+// ── Ball CSS class ────────────────────────────────────
 function ballCls(v){
-  if(v==='W')return 'bW';if(v===6)return 'b6';if(v===4)return 'b4';if(v===0)return 'b0';
-  if(typeof v==='string'){if(v.startsWith('Wd'))return 'bWd';if(v.startsWith('Nb'))return 'bNb';if(v.startsWith('By')||v.startsWith('Lb'))return 'bBy';}
+  if(v==='W')return 'bW';
+  if(v===6)return 'b6';
+  if(v===4)return 'b4';
+  if(v===0)return 'b0';
+  if(typeof v==='string'){
+    if(v.startsWith('Wd+By')||v.startsWith('Wd+Lb'))return 'bWd'; // combo wide: gold
+    if(v.startsWith('Nb+By')||v.startsWith('Nb+Lb'))return 'bNb'; // combo nb: orange
+    if(v.startsWith('Wd'))return 'bWd';
+    if(v.startsWith('Nb'))return 'bNb';
+    if(v.startsWith('By')||v.startsWith('Lb'))return 'bBy';
+  }
   return '';
 }
 
@@ -1440,7 +1803,25 @@ onValue(mRef,async snap=>{
 
   $('overTitle').textContent=`OVER ${completedOvers+1} — BALL ${(d.balls%6)+1} OF 6`;
   const balls=d.recentBalls||[];
-  const ballHtml=[];for(let i=0;i<6;i++){if(i<balls.length){const v=balls[i];ballHtml.push(`<div class="ball-sq ${ballCls(v)}">${v===0?'·':v}</div>`);}else ballHtml.push(`<div class="ball-sq empty">·</div>`);}
+  const ballHtml=[];
+  for(let i=0;i<6;i++){
+    if(i<balls.length){
+      const v=balls[i];
+      // Display text: shorten combo labels for the small ball circle
+      let disp=v;
+      if(typeof v==='string'){
+        if(v==='Wd+By'||v==='Wd+Lb')disp='Wd*';
+        else if(v==='Nb+By'||v==='Nb+Lb')disp='Nb*';
+        else if(v.startsWith('Wd+By'))disp=`W+${v.replace('Wd+By','')}b`;
+        else if(v.startsWith('Wd+Lb'))disp=`W+${v.replace('Wd+Lb','')}`;
+        else if(v.startsWith('Nb+By'))disp=`N+${v.replace('Nb+By','')}b`;
+        else if(v.startsWith('Nb+Lb'))disp=`N+${v.replace('Nb+Lb','')}`;
+      }
+      ballHtml.push(`<div class="ball-sq ${ballCls(v)}" title="${v}">${v===0?'·':disp}</div>`);
+    } else {
+      ballHtml.push(`<div class="ball-sq empty">·</div>`);
+    }
+  }
   $('liveBallRow').innerHTML=ballHtml.join('');
 
   const curBwl=d.bwn||'';
@@ -1544,11 +1925,11 @@ window.openPlayerPopup=async()=>{
 window.closePlayerPopup=()=>$('ppOverlay').classList.remove('open');
 
 // ── Init ──────────────────────────────────────────────
-buildSquads();updateTossUI(false);updatePendingUI();
+buildSquads();updateTossUI(false);updatePendingUI();updateMtPreview();
 const uSnap=await get(uRef);
 if(!uSnap.val())update(uRef,{scorebar:true,scorecard:false,autoOverPopup:false,overPopupDur:8,autoWicketOverlay:true,autoSixOverlay:true,autoFourOverlay:true});
 const cSnap=await get(cRef);
-if(!cSnap.val())await set(cRef,{enabled:true,style:'shastri',rate:0.88,pitch:0.88});
+if(!cSnap.val())await set(cRef,{enabled:true,style:'standard',voiceName:'',rate:1.0,pitch:1.1});
 </script>
 
 </div><!-- /mc -->
